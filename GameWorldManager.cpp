@@ -53,6 +53,7 @@ void AGameWorldManager::InitRelations() {
 			next = i + 1;
 		}
 
+		worldEntities[i]->relationWithPlayer = Relation::KindOfRelation::neutral;
 		worldEntities[i]->relations.push_back(Relation(worldEntities[prev], Relation::KindOfRelation::colleague));
 		worldEntities[i]->relations.push_back(Relation(worldEntities[next], Relation::KindOfRelation::foe));
 		worldEntities[i]->relations.push_back(Relation(worldThings[rand() % worldThings.size()], Relation::KindOfRelation::owns));

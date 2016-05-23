@@ -12,7 +12,7 @@ class OUTOFTHECAVE_01_API AThing : public AActor
 	
 public:	
 	// Sets default values for this actor's properties
-	AThing();
+	AThing(const FObjectInitializer& ObjectInitializer);
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -20,6 +20,4 @@ public:
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
 
-	
-	
 };
