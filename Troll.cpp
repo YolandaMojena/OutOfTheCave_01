@@ -2,6 +2,7 @@
 
 #include "OutOfTheCave_01.h"
 #include "Troll.h"
+#include "Entity.h"
 #include "Engine.h"
 
 
@@ -16,8 +17,8 @@ ATroll::ATroll(const FObjectInitializer& ObjectInitializer)
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
+	// Character moves in the direction of input
+	GetCharacterMovement()->bOrientRotationToMovement = true; 
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = ObjectInitializer.CreateDefaultSubobject<USpringArmComponent>(this, TEXT("CameraBoom"));
@@ -26,11 +27,35 @@ ATroll::ATroll(const FObjectInitializer& ObjectInitializer)
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 	CameraBoom->SetWorldLocation(FVector(0, 0, 100.0f));
 
-
 	// Create a follow camera
 	FollowCamera = ObjectInitializer.CreateDefaultSubobject<UCameraComponent>(this, TEXT("FollowCamera"));
 	FollowCamera->AttachTo(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMeshOb_AW2(TEXT("StaticMesh'/Game/StarterContent/Shapes/Shape_Sphere.Shape_Sphere'"));
+	UStaticMesh* AssetSM_JoyControl = StaticMeshOb_AW2.Object;
+
+	mainHandCollider = ObjectInitializer.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("FistCollider"));
+	mainHandCollider->SetStaticMesh(AssetSM_JoyControl);
+	mainHandCollider->AttachParent = GetMesh();
+	mainHandCollider->AttachSocketName = "mainSocket";
+	mainHandCollider->bGenerateOverlapEvents = true;
+
+	secondaryHandCollider = ObjectInitializer.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("SecondFistCollider"));
+	secondaryHandCollider->SetStaticMesh(AssetSM_JoyControl);
+	secondaryHandCollider->AttachParent = GetMesh();
+	secondaryHandCollider->AttachSocketName = "secondarySocket";
+	secondaryHandCollider->bGenerateOverlapEvents = true;
+
+	HitFunc.BindUFunction(this, "OnOverlapBegin");
+	mainHandCollider->OnComponentBeginOverlap.Add(HitFunc);
+	mainHandCollider->SetVisibility(false, true);
+	//secondaryHandCollider->OnComponentBeginOverlap.Add(HitFunc);
+	secondaryHandCollider->SetVisibility(false, true);
+
+	SkelMesh = FindComponentByClass<USkeletalMeshComponent>();
+	ConstructorHelpers::FObjectFinder<UAnimMontage> anim_attack_montage(TEXT("AnimMontage'/Game/Animations/RunAttack.RunAttack'"));
+	myMontage = anim_attack_montage.Object;
 }
 
 // Called when the game starts or when spawned
@@ -40,8 +65,7 @@ void ATroll::BeginPlay()
 
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("I AM A BIG TROLL!"));	
-		//ClientMessage("Test client message");
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Troll initialized"));	
 	}
 }
 
@@ -50,6 +74,15 @@ void ATroll::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
+	if(isAttacking)
+		if (!SkelMesh->AnimScriptInstance->Montage_IsPlaying(myMontage)) {
+			isAttacking = false;	
+		}
+	
+	for (TArray<const FAnimNotifyEvent*>::TIterator it = SkelMesh->AnimScriptInstance->AnimNotifies.CreateIterator(); it; ++it) {
+		if ((*it)->NotifyName.ToString() == "AttackBegins") _canDamage = true;
+		if ((*it)->NotifyName.ToString() == "AttackPerformed") _canDamage = false;
+	}
 }
 
 // Called to bind functionality to input
@@ -63,8 +96,10 @@ void ATroll::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 	//InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::Jump); // This jump structure will have to allow to charge the jump
 	InputComponent->BindAction("PickUpMain", IE_Pressed, this, &ATroll::PickUpMain);
 	InputComponent->BindAction("PickUpSecondary", IE_Pressed, this, &ATroll::PickUpSecondary);
+	InputComponent->BindAction("AttackMain", IE_Pressed, this, &ATroll::AttackMain);
+	InputComponent->BindAction("AttackSecondary", IE_Pressed, this, &ATroll::AttackSecondary);
 
-	InputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput); // These are built-in functions, but they can be substituted by custom ones
+	InputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	InputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
 	/// To toggle camera rotation
@@ -102,93 +137,180 @@ void ATroll::MoveRight(float value) {
 
 void ATroll::PickUpMain() {
 
-	FVector Start = GetActorLocation() - FVector(0, 0, GetActorLocation().Z + 256) + GetActorRotation().Vector() *256;
-	FVector End = Start + FVector(0, 0, 256*2);
+	if (!_equipedMain) {
 
-	//The trace data is stored here
-	FHitResult HitData(ForceInit);
+		FVector Start = GetActorLocation() - FVector(0, 0, GetActorLocation().Z + _PICK_UP_RADIO) + GetActorRotation().Vector() * _PICK_UP_RADIO;
+		FVector End = Start + FVector(0, 0, _PICK_UP_RADIO * 2);
+		FHitResult HitData(ForceInit);
 
-	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
-	RV_TraceParams.bTraceComplex = true;
-	RV_TraceParams.bTraceAsyncScene = true;
-	RV_TraceParams.bReturnPhysicalMaterial = false;
+		FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
+		RV_TraceParams.bTraceComplex = true;
+		RV_TraceParams.bTraceAsyncScene = true;
+		RV_TraceParams.bReturnPhysicalMaterial = false;
 
-	GetWorld()->SweepSingleByChannel(
-		HitData,
-		Start,
-		End,
-		FQuat(),
-		ECollisionChannel::ECC_Visibility,
-		FCollisionShape::MakeSphere(256),
-		RV_TraceParams
-		);
+		GetWorld()->SweepSingleByChannel(
+			HitData,
+			Start,
+			End,
+			FQuat(),
+			ECollisionChannel::ECC_Visibility,
+			FCollisionShape::MakeSphere(_PICK_UP_RADIO),
+			RV_TraceParams
+			);
 
-	/*DrawDebugSphere(
-		GetWorld(),
-		Start,
-		256,
-		32,
-		FColor(255, 0, 0),
-		true,
-		-1.f
-		);
+		// if hit, assign actor to main weapon and add overlap event
+		if (HitData.bBlockingHit) {
 
-	DrawDebugSphere(
-		GetWorld(),
-		End,
-		256,
-		32,
-		FColor(0, 255, 0),
-		true,
-		-1.f
-		);*/
+			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
 
-	if (HitData.bBlockingHit) {
+			if (HitData.GetActor()->IsA<AEntity>()) {
 
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
+				AEntity* hitEntity = dynamic_cast<AEntity*>(HitData.GetActor());
 
-		AttachToSocket(HitData.GetActor(), "mainSocket");
+				if (!hitEntity->GetIsDead()) {
+
+					hitEntity->SetActorEnableCollision(false);
+					ACharacter* weaponChar = dynamic_cast<ACharacter*>(hitEntity);
+					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(3), true);
+				}
+				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
+			}
+
+			_mainWeapon = HitData.GetActor();
+			HitData.GetActor()->SetActorEnableCollision(false);
+			AttachToSocket(HitData.GetActor(), "mainSocket");
+			HitData.GetActor()->OnActorBeginOverlap.Add(HitFunc);
+			_equipedMain = true;
+		}
+	}
+	else {
+		_equipedMain = false;
+		_mainWeapon->OnActorBeginOverlap.Remove(HitFunc);
+		_mainWeapon->DetachRootComponentFromParent(true);
+
+		AEntity* weaponEntity = dynamic_cast<AEntity*>(_mainWeapon);
+
+		if (weaponEntity) {
+
+			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
+
+			if (!weaponEntity->GetIsDead())
+				weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
+		}
+
+		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
+		_mainWeapon->SetActorEnableCollision(true);
+		_mainWeapon = nullptr;
 	}
 }
 
 void ATroll::PickUpSecondary() {
 
-	FVector Start = GetActorLocation() - FVector(0, 0, GetActorLocation().Z + 256) + GetActorRotation().Vector() * 256;
-	FVector End = Start + FVector(0, 0, 256 * 2);
+	if (!_equipedSecondary) {
 
-	//The trace data is stored here
-	FHitResult HitData(ForceInit);
+		FVector Start = GetActorLocation() - FVector(0, 0, GetActorLocation().Z + _PICK_UP_RADIO) + GetActorRotation().Vector() * _PICK_UP_RADIO;
+		FVector End = Start + FVector(0, 0, _PICK_UP_RADIO * 2);
+		FHitResult HitData(ForceInit);
 
-	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
-	RV_TraceParams.bTraceComplex = true;
-	RV_TraceParams.bTraceAsyncScene = true;
-	RV_TraceParams.bReturnPhysicalMaterial = false;
+		FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
+		RV_TraceParams.bTraceComplex = true;
+		RV_TraceParams.bTraceAsyncScene = true;
+		RV_TraceParams.bReturnPhysicalMaterial = false;
 
-	GetWorld()->SweepSingleByChannel(
-		HitData,
-		Start,
-		End,
-		FQuat(),
-		ECollisionChannel::ECC_Visibility,
-		FCollisionShape::MakeSphere(256),
-		RV_TraceParams
-		);
+		GetWorld()->SweepSingleByChannel(
+			HitData,
+			Start,
+			End,
+			FQuat(),
+			ECollisionChannel::ECC_Visibility,
+			FCollisionShape::MakeSphere(_PICK_UP_RADIO),
+			RV_TraceParams
+			);
 
-	if (HitData.bBlockingHit) {
+		// if hit, assign actor to secondary weapon and add overlap event
+		if (HitData.bBlockingHit) {
+			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
 
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
+			if (HitData.GetActor()->IsA<AEntity>()) {
+
+				AEntity* hitEntity = dynamic_cast<AEntity*>(HitData.GetActor());
+
+				if (!hitEntity->GetIsDead()) {
+
+					hitEntity->SetActorEnableCollision(false);
+					ACharacter* weaponChar = dynamic_cast<ACharacter*>(hitEntity);
+					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(3), true);
+				}
+				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
+			}
+		}
+
+		_secondaryWeapon = HitData.GetActor();
 		AttachToSocket(HitData.GetActor(), "secondarySocket");
-
+		HitData.GetActor()->OnActorBeginOverlap.Add(HitFunc);
+		_equipedSecondary = true;
 	}
+	else {
+		_equipedSecondary = false;
+		_secondaryWeapon->OnActorBeginOverlap.Remove(HitFunc);
+		_secondaryWeapon->DetachRootComponentFromParent(true);
+
+		AEntity* weaponEntity = dynamic_cast<AEntity*>(_secondaryWeapon);
+
+		if (weaponEntity) {
+			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_secondaryWeapon);
+			if (!weaponEntity->GetIsDead())
+				weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
+		}
+
+		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
+		_secondaryWeapon->SetActorEnableCollision(true);
+		_secondaryWeapon = nullptr;
+	}
+}
+
+void ATroll::AttackMain() {
+
+	if (!isAttacking) {
+		isAttacking = true;
+	}
+}
+
+void ATroll::AttackSecondary() {
+
+}
+
+void ATroll::ReceiveDamage(float attackDmg, AActor* punisher) {
+
+	_health -= attackDmg;
 }
 
 void ATroll::AttachToSocket(AActor* target, string socket) {
 
-
 	if (GetMesh()->DoesSocketExist(socket.c_str()))
 		target->AttachRootComponentTo(GetMesh(), socket.c_str(), EAttachLocation::SnapToTarget, true);
 	else GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Trying to Attach to non-existing socket"));
-
 }
+
+void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
+
+	if (OtherActor->GetActorLabel().Contains("_DM")){
+
+		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("House on a Hill"));
+
+		ADestructibleActor* targetDestructible = dynamic_cast<ADestructibleActor*>(OtherActor);
+		targetDestructible->GetDestructibleComponent()->ApplyRadiusDamage(10, targetDestructible->GetDestructibleComponent()->GetCenterOfMass(), 32, 100, false);
+	}
+	else if (OtherActor->IsA<AEntity>() && isAttacking && _canDamage) {
+
+		AEntity* hitEntity = dynamic_cast<AEntity*>(OtherActor);
+		hitEntity->ReceiveDamage(_TROLL_DMG, this);
+		hitEntity->BePushedAround();
+		//FVector direction = FVector(hitEntity->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, hitEntity->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
+		FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
+		hitEntity->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
+	}
+}
+
 
 

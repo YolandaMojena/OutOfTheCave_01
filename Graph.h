@@ -22,6 +22,7 @@ public:
 	int EdgeExists(string from, string to); //returns index
 	void RemoveNode(string id);
 	void RemoveEdge(string from, string to);
+	void RewriteSubgraph(string at, unordered_map<string, Node*> subgraph);
 	void PrintPlot(string start);
 
 	unordered_map<string, Node*> graph;

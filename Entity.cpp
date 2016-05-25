@@ -9,6 +9,8 @@ AEntity::AEntity(const FObjectInitializer& ObjectInitializer)
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	_canBeHurt = true;
 }
 
 // Called when the game starts or when spawned
@@ -23,6 +25,21 @@ void AEntity::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
+	if (!_canBeHurt) {
+		_hurtCooldown+=DeltaTime;
+
+		if (_hurtCooldown >= _HURT_COOLDOWN) {
+			_hurtCooldown = 0;
+			_canBeHurt = true;
+		}
+	}
+
+	if (_noCollisionCooldown > 0) {
+		_noCollisionCooldown -= DeltaTime;
+
+		if (_noCollisionCooldown <= 0)
+			GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
+	}
 }
 
 // Called to bind functionality to input
@@ -34,7 +51,7 @@ void AEntity::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 
 void AEntity::SetCurrentIcon(FString icon)
 {
-	currentPath = defaultPath + icon;
+	currentPath = _DEFAULT_PATH + icon;
 }
 
 UTexture2D * AEntity::LoadTextureFromPath(const FString & Path)
@@ -65,12 +82,21 @@ vector<AThing*> AEntity::RelatedWithThings(Relation::KindOfRelation kind) {
 
 void AEntity::AttackTroll(ATroll* player)
 {
-	//player->ReceiveDamage(attackDmg);
+	player->ReceiveDamage(_ATTACK_DMG, this);
 }
 
-void AEntity::Attack(AEntity other)
-{
-	//other->ReceiveDamage(attackDmg);
+void AEntity::ReceiveDamage(float attackDmg, AActor* punisher) {
+	
+	if (_canBeHurt && !_isDead) {
+		_health -= attackDmg;
+		_canBeHurt = false;
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("" + GetActorLabel() + ": Auch! HP: " + FString::SanitizeFloat(_health)));
+
+		if (_health <= 0) {
+			Die();
+			_canBeHurt = false;
+		}	
+	}
 }
 
 void AEntity::GoToLocation(FVector worldPoint, float deltaTime) {
@@ -85,8 +111,23 @@ void AEntity::GoToLocation(FVector worldPoint, float deltaTime) {
 		SetActorRotation(lookAtDirection);
 
 		direction.Normalize();
-		SetActorLocation(FVector(GetActorLocation().X + direction.X * velocity * deltaTime, GetActorLocation().Y + direction.Y * velocity * deltaTime, GetActorLocation().Z));
+		SetActorLocation(FVector(GetActorLocation().X + direction.X * _velocity * deltaTime, GetActorLocation().Y + direction.Y * _velocity * deltaTime, GetActorLocation().Z));
 	}
+}
+
+void AEntity::Die() {
+
+	_isDead = true;
+	//GetMesh()->SetAllBodiesBelowSimulatePhysics(GetMesh()->GetBoneName(2), true);
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetCastShadow(false);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("" + GetActorLabel() + ": Dead"));
+
+	// WARNING UNEXISTING PATH
+	SetCurrentIcon("");
+
+	//SET CHANGES IN WORLD RELATIONS HERE
+
 }
 
 void AEntity::Attack(AEntity* enemy, float deltaTime) {
@@ -98,6 +139,15 @@ void AEntity::Attack(AEntity* enemy, float deltaTime) {
 void AEntity::Gather(AThing* thing, float deltaTime) {
 
 	UE_LOG(LogTemp, Warning, TEXT("Gathering"));
-
 }
 
+void AEntity::BePushedAround() {
+
+	GetCharacterMovement()->Velocity = FVector::ZeroVector;
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	_noCollisionCooldown = _NO_COLLISION_COOLDOWN;
+}
+
+bool AEntity::GetIsDead() {
+	return _isDead;
+}
