@@ -278,6 +278,7 @@ void ATroll::PickUpSecondary() {
 		}
 
 		_secondaryWeapon = HitData.GetActor();
+		HitData.GetActor()->SetActorEnableCollision(false);
 		AttachToSocket(HitData.GetActor(), "secondarySocket");
 		HitData.GetActor()->OnActorBeginOverlap.Add(HitFunc);
 		_equipedSecondary = true;
@@ -343,6 +344,3 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 		hitEntity->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
 	}
 }
-
-
-

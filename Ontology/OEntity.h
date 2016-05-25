@@ -29,15 +29,15 @@ public:
 	vector<ORelation*> GetRelationships();
 	vector<OOwnership*> GetPossessions();
 	vector<OTerritory*> GetTerritories();
-	//OPersonality* GetPersonality();
+	OPersonality* GetPersonality();
 
 	void AddRelationship(ORelation* newRelation);
 	void AddPossession(OOwnership* newOwnership);
 	void AddTerritory(OTerritory* newTerritory);
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
-		OPersonality* _personality;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+	OPersonality* _personality;
 
 	
 private:

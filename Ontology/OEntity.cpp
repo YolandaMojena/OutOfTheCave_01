@@ -31,6 +31,6 @@ void UOEntity::AddRelationship(ORelation* newRelation) {
 void UOEntity::AddPossession(OOwnership* newPossession) {
 	_possessions.push_back(newPossession);
 }
-void UOEntity::AddRelationship(ORelation* newRelation) {
-	_relationships.push_back(newRelation);
+void UOEntity::AddTerritory(OTerritory* newTerritory) {
+	_landlord.push_back(newTerritory);
 }

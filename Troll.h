@@ -106,7 +106,7 @@ private:
 	const float _minJumpMultiplier = 0.75f;
 	const float _growthJumpMultiplier = 0.5f;
 	const float _maxJumpMultiplier = 1.5f;
-	const float _averageJump = 1600.0f;
+	const float _averageJump = 1800.0f;
 
 	const float _NORMAL_SPEED = 1200.0f;
 	const float _SPRINT_SPEED = 2400.0f;
