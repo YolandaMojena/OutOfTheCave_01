@@ -33,6 +33,13 @@ void AEntity::Tick( float DeltaTime )
 			_canBeHurt = true;
 		}
 	}
+
+	if (_noCollisionCooldown > 0) {
+		_noCollisionCooldown -= DeltaTime;
+
+		if (_noCollisionCooldown <= 0)
+			GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
+	}
 }
 
 // Called to bind functionality to input
@@ -85,8 +92,10 @@ void AEntity::ReceiveDamage(float attackDmg, AActor* punisher) {
 		_canBeHurt = false;
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("" + GetActorLabel() + ": Auch! HP: " + FString::SanitizeFloat(_health)));
 
-		if (_health <= 0)
+		if (_health <= 0) {
 			Die();
+			_canBeHurt = false;
+		}	
 	}
 }
 
@@ -109,12 +118,15 @@ void AEntity::GoToLocation(FVector worldPoint, float deltaTime) {
 void AEntity::Die() {
 
 	_isDead = true;
+	//GetMesh()->SetAllBodiesBelowSimulatePhysics(GetMesh()->GetBoneName(2), true);
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetCastShadow(false);
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("" + GetActorLabel() + ": Dead"));
+
+	// WARNING UNEXISTING PATH
 	SetCurrentIcon("");
 
-	//Set changes in relations with world
+	//SET CHANGES IN WORLD RELATIONS HERE
 
 }
 
@@ -127,6 +139,15 @@ void AEntity::Attack(AEntity* enemy, float deltaTime) {
 void AEntity::Gather(AThing* thing, float deltaTime) {
 
 	UE_LOG(LogTemp, Warning, TEXT("Gathering"));
-
 }
 
+void AEntity::BePushedAround() {
+
+	GetCharacterMovement()->Velocity = FVector::ZeroVector;
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	_noCollisionCooldown = _NO_COLLISION_COOLDOWN;
+}
+
+bool AEntity::GetIsDead() {
+	return _isDead;
+}

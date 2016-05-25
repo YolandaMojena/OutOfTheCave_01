@@ -158,47 +158,45 @@ void ATroll::PickUpMain() {
 			RV_TraceParams
 			);
 
-		/*DrawDebugSphere(
-		GetWorld(),
-		Start,
-		_PICK_UP_RADIO,
-		32,
-		FColor(255, 0, 0),
-		true,
-		-1.f
-		);*/
-
 		// if hit, assign actor to main weapon and add overlap event
 		if (HitData.bBlockingHit) {
 
-			try {	
-				// Will have to check if class is valid
-				_mainWeapon = HitData.GetActor();
-				GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, _mainWeapon->GetActorLabel());
-				_mainWeapon->SetActorEnableCollision(false);
+			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
 
+			if (HitData.GetActor()->IsA<AEntity>()) {
 
-				TArray<USkeletalMeshComponent*> Components;
-				_mainWeapon->GetComponents<USkeletalMeshComponent>(Components);
-				for (int32 i = 0; i<Components.Num(); i++)
-				{
-					USkeletalMeshComponent* SkelMeshComponent = Components[i];
-					SkelMeshComponent->SetSimulatePhysics(true);
-					SkelMeshComponent->WakeAllRigidBodies();
+				AEntity* hitEntity = dynamic_cast<AEntity*>(HitData.GetActor());
+
+				if (!hitEntity->GetIsDead()) {
+
+					hitEntity->SetActorEnableCollision(false);
+					ACharacter* weaponChar = dynamic_cast<ACharacter*>(hitEntity);
+					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(3), true);
 				}
-				AttachToSocket(_mainWeapon, "mainSocket");
-				_mainWeapon->OnActorBeginOverlap.Add(HitFunc);
-				_equipedMain = true;
+				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
 			}
-			catch(...){
-				GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Green, TEXT("Unhandled exception in Troll class"));
-			}
+
+			_mainWeapon = HitData.GetActor();
+			HitData.GetActor()->SetActorEnableCollision(false);
+			AttachToSocket(HitData.GetActor(), "mainSocket");
+			HitData.GetActor()->OnActorBeginOverlap.Add(HitFunc);
+			_equipedMain = true;
 		}
 	}
 	else {
 		_equipedMain = false;
 		_mainWeapon->OnActorBeginOverlap.Remove(HitFunc);
 		_mainWeapon->DetachRootComponentFromParent(true);
+
+		AEntity* weaponEntity = dynamic_cast<AEntity*>(_mainWeapon);
+
+		if (weaponEntity) {
+
+			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
+
+			if (!weaponEntity->GetIsDead())
+				weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
+		}
 
 		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
 		_mainWeapon->SetActorEnableCollision(true);
@@ -231,26 +229,42 @@ void ATroll::PickUpSecondary() {
 
 		// if hit, assign actor to secondary weapon and add overlap event
 		if (HitData.bBlockingHit) {
+			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
 
-			try {
-				// Will have to check if class is valid
-				_secondaryWeapon = HitData.GetActor();
-				GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
-				AttachToSocket(_secondaryWeapon, "secondarySocket");
-				_secondaryWeapon->SetActorEnableCollision(false);
-				_secondaryWeapon->OnActorBeginOverlap.Add(HitFunc);
-				_equipedSecondary = true;
-			}
-			catch (...) {
-				GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Green, TEXT("Unhandled exception in Troll class"));
+			if (HitData.GetActor()->IsA<AEntity>()) {
+
+				AEntity* hitEntity = dynamic_cast<AEntity*>(HitData.GetActor());
+
+				if (!hitEntity->GetIsDead()) {
+
+					hitEntity->SetActorEnableCollision(false);
+					ACharacter* weaponChar = dynamic_cast<ACharacter*>(hitEntity);
+					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(3), true);
+				}
+				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
 			}
 		}
+
+		_secondaryWeapon = HitData.GetActor();
+		AttachToSocket(HitData.GetActor(), "secondarySocket");
+		HitData.GetActor()->OnActorBeginOverlap.Add(HitFunc);
+		_equipedSecondary = true;
 	}
 	else {
 		_equipedSecondary = false;
 		_secondaryWeapon->OnActorBeginOverlap.Remove(HitFunc);
-		_secondaryWeapon->SetActorEnableCollision(true);
 		_secondaryWeapon->DetachRootComponentFromParent(true);
+
+		AEntity* weaponEntity = dynamic_cast<AEntity*>(_secondaryWeapon);
+
+		if (weaponEntity) {
+			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_secondaryWeapon);
+			if (!weaponEntity->GetIsDead())
+				weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
+		}
+
+		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
+		_secondaryWeapon->SetActorEnableCollision(true);
 		_secondaryWeapon = nullptr;
 	}
 }
@@ -280,12 +294,21 @@ void ATroll::AttachToSocket(AActor* target, string socket) {
 
 void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
 
-	if (isAttacking && _canDamage) {
+	if (OtherActor->GetActorLabel().Contains("_DM")){
+
+		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("House on a Hill"));
+
+		ADestructibleActor* targetDestructible = dynamic_cast<ADestructibleActor*>(OtherActor);
+		targetDestructible->GetDestructibleComponent()->ApplyRadiusDamage(10, targetDestructible->GetDestructibleComponent()->GetCenterOfMass(), 32, 100, false);
+	}
+	else if (OtherActor->IsA<AEntity>() && isAttacking && _canDamage) {
 
 		AEntity* hitEntity = dynamic_cast<AEntity*>(OtherActor);
 		hitEntity->ReceiveDamage(_TROLL_DMG, this);
-		//hitEntity->GetCharacterMovement()->Velocity += FVector(hitEntity->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, hitEntity->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0) * _attackDmg;
-		//hitEntity->GetMesh()->AddForce()
+		hitEntity->BePushedAround();
+		//FVector direction = FVector(hitEntity->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, hitEntity->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
+		FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
+		hitEntity->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
 	}
 }
 

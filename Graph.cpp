@@ -58,6 +58,10 @@ void Graph::RemoveEdge(string from, string to)
 	}
 }
 
+void Graph::RewriteSubgraph(string at, unordered_map<string, Node*> subgraph) {
+
+}
+
 void Graph::PrintPlot(string start)
 {
 	graph[start]->SetIsVisited(true);
