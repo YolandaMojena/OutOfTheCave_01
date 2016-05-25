@@ -4,7 +4,6 @@
 #include "Troll.h"
 #include "Engine.h"
 
-
 // Sets default values
 ATroll::ATroll(const FObjectInitializer& ObjectInitializer)
 {
@@ -31,6 +30,9 @@ ATroll::ATroll(const FObjectInitializer& ObjectInitializer)
 	FollowCamera = ObjectInitializer.CreateDefaultSubobject<UCameraComponent>(this, TEXT("FollowCamera"));
 	FollowCamera->AttachTo(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	_chargingJump = false;
+	
 }
 
 // Called when the game starts or when spawned
@@ -50,6 +52,9 @@ void ATroll::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
+	if (_chargingJump && _jumpMultiplier < _maxJumpMultiplier) {
+		_jumpMultiplier += DeltaTime * _growthJumpMultiplier;
+	}
 }
 
 // Called to bind functionality to input
@@ -59,10 +64,12 @@ void ATroll::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 
 	InputComponent->BindAxis("MoveRight", this, &ATroll::MoveRight);
 	InputComponent->BindAxis("MoveForward", this, &ATroll::MoveForward);
-	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	//InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::Jump); // This jump structure will have to allow to charge the jump
+	InputComponent->BindAction("Jump", IE_Pressed, this, &ATroll::ChargeJump);
+	InputComponent->BindAction("Jump", IE_Released, this, &ATroll::Jump); // This jump structure will have to allow to charge the jump
 	InputComponent->BindAction("PickUpMain", IE_Pressed, this, &ATroll::PickUpMain);
 	InputComponent->BindAction("PickUpSecondary", IE_Pressed, this, &ATroll::PickUpSecondary);
+	InputComponent->BindAction("Sprint", IE_Pressed, this, &ATroll::StartSprint);
+	InputComponent->BindAction("Sprint", IE_Released, this, &ATroll::StopSprint);
 
 	InputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput); // These are built-in functions, but they can be substituted by custom ones
 	InputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
@@ -71,6 +78,28 @@ void ATroll::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 	//InputComponent->BindAxis("TurnRate", this, &ATutorialCodeCharacter::TurnAtRate);
 	//InputComponent->BindAxis("LookUpRate", this, &ATutorialCodeCharacter::LookUpAtRate);
 }
+
+void ATroll::ChargeJump() {
+	_chargingJump = true;
+	_jumpMultiplier = _minJumpMultiplier;
+}
+
+void ATroll::Jump() {
+	_chargingJump = false;
+	GetCharacterMovement()->JumpZVelocity = _averageJump * _jumpMultiplier;
+	ACharacter::Jump();
+}
+
+void ATroll::StartSprint() {
+	GetCharacterMovement()->MaxWalkSpeed = _SPRINT_SPEED;
+	GetCharacterMovement()->GroundFriction = _SPRINT_GROUNDFRICTION;
+}
+void ATroll::StopSprint() {
+	GetCharacterMovement()->MaxWalkSpeed = _NORMAL_SPEED;
+	GetCharacterMovement()->GroundFriction = _NORMAL_GROUNDFRICTION;
+}
+
+
 
 void ATroll::MoveForward(float value) {
 
