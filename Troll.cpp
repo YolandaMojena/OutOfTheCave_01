@@ -5,7 +5,6 @@
 #include "Entity.h"
 #include "Engine.h"
 
-
 // Sets default values
 ATroll::ATroll(const FObjectInitializer& ObjectInitializer)
 {
@@ -56,6 +55,9 @@ ATroll::ATroll(const FObjectInitializer& ObjectInitializer)
 	SkelMesh = FindComponentByClass<USkeletalMeshComponent>();
 	ConstructorHelpers::FObjectFinder<UAnimMontage> anim_attack_montage(TEXT("AnimMontage'/Game/Animations/RunAttack.RunAttack'"));
 	myMontage = anim_attack_montage.Object;
+
+	_chargingJump = false;
+	
 }
 
 // Called when the game starts or when spawned
@@ -74,14 +76,19 @@ void ATroll::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	if(isAttacking)
+	if(isAttacking){
 		if (!SkelMesh->AnimScriptInstance->Montage_IsPlaying(myMontage)) {
 			isAttacking = false;	
 		}
+	}
 	
 	for (TArray<const FAnimNotifyEvent*>::TIterator it = SkelMesh->AnimScriptInstance->AnimNotifies.CreateIterator(); it; ++it) {
 		if ((*it)->NotifyName.ToString() == "AttackBegins") _canDamage = true;
 		if ((*it)->NotifyName.ToString() == "AttackPerformed") _canDamage = false;
+	}
+
+	if (_chargingJump && _jumpMultiplier < _maxJumpMultiplier) {
+		_jumpMultiplier += DeltaTime * _growthJumpMultiplier;
 	}
 }
 
@@ -92,12 +99,15 @@ void ATroll::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 
 	InputComponent->BindAxis("MoveRight", this, &ATroll::MoveRight);
 	InputComponent->BindAxis("MoveForward", this, &ATroll::MoveForward);
-	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	//InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::Jump); // This jump structure will have to allow to charge the jump
+	InputComponent->BindAction("Jump", IE_Pressed, this, &ATroll::ChargeJump);
+	InputComponent->BindAction("Jump", IE_Released, this, &ATroll::Jump);
+	InputComponent->BindAction("Sprint", IE_Pressed, this, &ATroll::StartSprint);
+	InputComponent->BindAction("Sprint", IE_Released, this, &ATroll::StopSprint);
 	InputComponent->BindAction("PickUpMain", IE_Pressed, this, &ATroll::PickUpMain);
 	InputComponent->BindAction("PickUpSecondary", IE_Pressed, this, &ATroll::PickUpSecondary);
 	InputComponent->BindAction("AttackMain", IE_Pressed, this, &ATroll::AttackMain);
 	InputComponent->BindAction("AttackSecondary", IE_Pressed, this, &ATroll::AttackSecondary);
+	
 
 	InputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	InputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
@@ -106,6 +116,28 @@ void ATroll::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 	//InputComponent->BindAxis("TurnRate", this, &ATutorialCodeCharacter::TurnAtRate);
 	//InputComponent->BindAxis("LookUpRate", this, &ATutorialCodeCharacter::LookUpAtRate);
 }
+
+void ATroll::ChargeJump() {
+	_chargingJump = true;
+	_jumpMultiplier = _minJumpMultiplier;
+}
+
+void ATroll::Jump() {
+	_chargingJump = false;
+	GetCharacterMovement()->JumpZVelocity = _averageJump * _jumpMultiplier;
+	ACharacter::Jump();
+}
+
+void ATroll::StartSprint() {
+	GetCharacterMovement()->MaxWalkSpeed = _SPRINT_SPEED;
+	GetCharacterMovement()->GroundFriction = _SPRINT_GROUNDFRICTION;
+}
+void ATroll::StopSprint() {
+	GetCharacterMovement()->MaxWalkSpeed = _NORMAL_SPEED;
+	GetCharacterMovement()->GroundFriction = _NORMAL_GROUNDFRICTION;
+}
+
+
 
 void ATroll::MoveForward(float value) {
 
@@ -246,6 +278,7 @@ void ATroll::PickUpSecondary() {
 		}
 
 		_secondaryWeapon = HitData.GetActor();
+		HitData.GetActor()->SetActorEnableCollision(false);
 		AttachToSocket(HitData.GetActor(), "secondarySocket");
 		HitData.GetActor()->OnActorBeginOverlap.Add(HitFunc);
 		_equipedSecondary = true;
@@ -311,6 +344,3 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 		hitEntity->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
 	}
 }
-
-
-
