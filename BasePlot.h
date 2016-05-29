@@ -5,12 +5,7 @@
 #include <string>
 #include <vector>
 #include "Graph.h"
-#include "Entity.h"
-#include "Thing.h"
-#include "VenturLocation.h"
-#include "Node.h"
-#include "Entity.h"
-#include "Thing.h"
+#include "Ontology/OCivilian.h"
 #include "StringCollection.h"
 #include "VenturLocation.h"
 
@@ -19,28 +14,37 @@ using namespace std;
 class OUTOFTHECAVE_01_API BasePlot
 {
 public:
-	BasePlot();
+
+	BasePlot(); // Constructor used for wold plots that don't involve a specific entity
+	BasePlot(UOCivilian* plotEntity);
 	~BasePlot();
 
-	virtual void GatherTargets(vector<AEntity*> candidates) = 0;
-	virtual void BuildSentence() = 0;
+	enum TypeOfPlot {
+		aggressive, thankful, preventive, possesive, resources, world
+	};
+
+	virtual void GatherTargets() = 0;
+	virtual string BuildSentence() = 0;
+	virtual void ConsiderReactions() = 0;
 	
 	void ExecutePlot(float deltaTime);
 	void BuildGraph(vector<Node*> nodes, vector<Node::Arc> arcs);
-	
-	string name, description, sentence;
-	Graph plotGraph;
+	void PrintSentence();
 
-	AEntity* plotEntity;
-	vector<AEntity*> involvedInPlot;
+	bool Compare(BasePlot* thisPlot, BasePlot* otherPlot);
 
-	VenturLocation* targetLocation;
-	AThing* targetThing;
-	AEntity* targetEntity;
-
+	TypeOfPlot plotTypes;
+	BasePlot* additiveReactions;
+	BasePlot* negativeReactions;
+	UOCivilian* plotEntity;
+	vector<UOCivilian*> involvedInPlot;
 	StringCollection strings;
 
-	Node* currentNode = nullptr;
-
-	bool plotCompleted = false;
+protected:
+	
+	string _name, _description, _sentence;
+	Graph _plotGraph;
+	int _priority;
+	Node* _currentNode = nullptr;
+	bool _plotCompleted = false;
 };

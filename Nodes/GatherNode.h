@@ -17,5 +17,4 @@ public:
 	bool NodeCompleted(BasePlot* currentPlot);
 	void SetTarget(BasePlot* currentPlot);
 
-	AThing* target;
 };

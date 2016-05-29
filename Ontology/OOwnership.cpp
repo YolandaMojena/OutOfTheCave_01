@@ -11,7 +11,7 @@ OOwnership::~OOwnership()
 {
 }
 
-OOwnership::OOwnership(UItem* item, int worth)
+OOwnership::OOwnership(UOOwnable* item, int worth)
 {
 	_item = item;
 	_worth = worth;

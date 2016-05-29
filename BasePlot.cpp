@@ -3,41 +3,55 @@
 #include "OutOfTheCave_01.h"
 #include "BasePlot.h"
 
-BasePlot::BasePlot() {}
+BasePlot::BasePlot(UOCivilian* plotEntity) {
+
+	this->plotEntity = plotEntity;
+}
 
 BasePlot::~BasePlot() {}
 
 void BasePlot::BuildGraph(vector<Node*> nodes, vector<Node::Arc> arcs) {
 
 	for (int i = 0; i < nodes.size(); i++) {
-		plotGraph.AddNode(nodes[i]);
+		_plotGraph.AddNode(nodes[i]);
 	}
 
 	for (int i = 0; i < arcs.size(); i++) {
-		plotGraph.AddEdge(arcs[i].parent, arcs[i].adj, arcs[i].condition);
+		_plotGraph.AddEdge(arcs[i].parent, arcs[i].adj, arcs[i].condition);
 	}
 }
 
 void BasePlot::ExecutePlot(float deltaTime) {
 
-	currentNode->SetTarget(this);
-	currentNode->ExecuteActions(this, deltaTime);
+	_currentNode->SetTarget(this);
+	_currentNode->ExecuteActions(this, deltaTime);
 
-	if (currentNode->NodeCompleted(this))
+	if (_currentNode->NodeCompleted(this))
 	{
-		if (currentNode->neighbors.size() > 0) {
+		if (_currentNode->neighbors.size() > 0) {
 
-			for (int i = 0; i < currentNode->neighbors.size(); i++) {
+			for (int i = 0; i < _currentNode->neighbors.size(); i++) {
 
-				if (currentNode->neighbors[i].condition == "") { // MUST CHECK ARC CONDITION
-					currentNode = plotGraph.graph[currentNode->neighbors[i].adj];
+				if (_currentNode->neighbors[i].condition == "") { // MUST CHECK ARC CONDITION
+					_currentNode = _plotGraph.graph[_currentNode->neighbors[i].adj];
 					break;
 				}
 			}
 		}
 
 		else {
-			plotCompleted = true;
+			_plotCompleted = true;
 		}
 	}
+}
+
+void BasePlot::PrintSentence() {
+
+	// Print on screen
+	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, _sentence.c_str());
+}
+
+bool BasePlot::Compare(BasePlot* thisPlot, BasePlot* otherPlot) {
+
+	return thisPlot->_priority < otherPlot->_priority;
 }

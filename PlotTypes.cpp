@@ -4,46 +4,15 @@
 #include "StringCollection.h"
 #include "PlotTypes.h"
 
-//GO TO PLOT
-//**************************************************************************************
-
-GoToPlot::GoToPlot() {
-
-	name = "GoToPlot";
-	vector<Node*> graphNodes = { new BeginNode("Begin", strings.WAIT_ICON), new GoToNode("GoTo", strings.GOTO_ICON)};
-	vector<Node::Arc>graphArcs = { Node::Arc("Begin", "GoTo", "")};
-
-	BuildGraph(graphNodes, graphArcs);
-}
-
-GoToPlot::~GoToPlot() {}
-
-void GoToPlot::BuildSentence() {
-
-	FString entityName = plotEntity->GetActorLabel();
-	string conversion(TCHAR_TO_UTF8(*entityName));
-
-	sentence = "Entity " + conversion + " is going to " + targetLocation->locationName;
-
-	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, sentence.c_str());
-}
-
-void GoToPlot::GatherTargets(vector<AEntity*> candidates) {
-
-	BuildSentence();
-
-	plotEntity = candidates[rand() % candidates.size()];	
-
-	targetLocation = new VenturLocation("TestLocation", FVector::ZeroVector);
-}
-
 
 //ATTACK PLOT
 //**************************************************************************************
 
-AttackPlot::AttackPlot() {
+AttackPlot::AttackPlot(UOCivilian* plotEntity) : BasePlot(plotEntity) {
 
-	name = "AttackPlot";
+	_name = "AttackPlot";
+	plotTypes = { TypeOfPlot::aggressive };
+
 	vector<Node*> graphNodes = { new BeginNode("Begin",strings.WAIT_ICON), new GoToNode("GoTo", strings.GOTO_ICON), new AttackNode("Attack", strings.ATTACK_ICON), new GoToNode("Return", strings.GOTO_ICON) };
 	vector<Node::Arc> graphArcs = { Node::Arc("Begin", "GoTo", ""), Node::Arc("GoTo", "Attack", "") };
 
@@ -52,36 +21,28 @@ AttackPlot::AttackPlot() {
 
 AttackPlot::~AttackPlot() {}
 
-void AttackPlot::BuildSentence() {
+string AttackPlot::BuildSentence() {
 
-	FString entityName = plotEntity->GetActorLabel();
-	string conversion1(TCHAR_TO_UTF8(*entityName));
-
-	FString enemyName = targetEntity->GetActorLabel();
-	string conversion2(TCHAR_TO_UTF8(*enemyName));
-
-	sentence = "Entity " + conversion1 + " is attacking " + conversion2;
-
-	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, sentence.c_str());
+	return TCHAR_TO_UTF8(*(plotEntity->GetOwner()->GetActorLabel() + "is attacking"));
 }
 
-void AttackPlot::GatherTargets(vector<AEntity*> candidates) {
+void AttackPlot::GatherTargets() {
 
-	plotEntity = candidates[rand() % candidates.size()];
-	vector<AEntity*> foes = plotEntity->RelatedWithOthers(Relation::KindOfRelation::foe);
-	targetEntity = foes[rand() % foes.size()];
-	targetLocation = new VenturLocation("EnemyLocation", targetEntity->GetActorLocation());
+	_sentence = BuildSentence();
+}
 
-	BuildSentence();
+void AttackPlot::ConsiderReactions() {
+
 }
 
 
 //GATHER PLOT
 //**************************************************************************************
 
-GatherPlot::GatherPlot() {
+GatherPlot::GatherPlot(UOCivilian* plotEntity) : BasePlot(plotEntity) {
 
-	name = "GatherPlot";
+	_name = "GatherPlot";
+	plotTypes = { TypeOfPlot::resources };
 
 	vector<Node*> graphNodes = { new BeginNode("Begin", strings.WAIT_ICON), new GoToNode("GoTo", strings.GOTO_ICON), new GatherNode("Gather", strings.GATHER_ICON), new GoToNode("Return", strings.GOTO_ICON) };
 	vector<Node::Arc> graphArcs = { Node::Arc("Begin", "GoTo", ""), Node::Arc("GoTo", "Gather", "") };
@@ -91,27 +52,24 @@ GatherPlot::GatherPlot() {
 
 GatherPlot::~GatherPlot() {}
 
-void GatherPlot::BuildSentence() {
+string GatherPlot::BuildSentence() {
 
-	FString entityName = plotEntity->GetActorLabel();
+	FString entityName = plotEntity->GetOwner()->GetActorLabel();
 	string conversion1(TCHAR_TO_UTF8(*entityName));
 
-	FString thingName = targetThing->GetActorLabel();
-	string conversion2(TCHAR_TO_UTF8(*thingName));
 
-	sentence = "Entity " + conversion1 + " is gathering " + conversion2;
+	return "Entity " + conversion1 + " is gathering ";
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, sentence.c_str());
 }
 
-void GatherPlot::GatherTargets(vector<AEntity*> candidates) {
+void GatherPlot::GatherTargets() {
 
-	plotEntity = candidates[rand() % candidates.size()];
-	vector<AThing*> resources = plotEntity->RelatedWithThings(Relation::KindOfRelation::wants);
-	targetThing = resources[rand() % resources.size()];
-	targetLocation = new VenturLocation("ResourceLocation", targetThing->GetActorLocation());
 
-	BuildSentence();
+	_sentence = BuildSentence();
+}
+
+void GatherPlot::ConsiderReactions() {
+
 }
 
 

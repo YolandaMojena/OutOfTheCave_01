@@ -28,6 +28,9 @@ void ORelation::SetRespect(int value) {
 void ORelation::SetFear(int value) {
 	_fear = ThresholdValue(value);
 }
+UOEntity* ORelation::GetEntity() {
+	return _entity;
+}
 int ORelation::GetAppreciation() {
 	return _appreciation;
 }
@@ -47,6 +50,7 @@ void ORelation::ChangeRespect(int value) {
 	_respect = ThresholdValue(_respect + value);
 }
 void ORelation::ChangeFear(int value) {
+
 	_fear = ThresholdValue(_fear + value);
 }
 

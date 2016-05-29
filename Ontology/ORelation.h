@@ -36,7 +36,7 @@ private:
 	int _respect;
 	int _fear;
 
-	const int _MIN_VALUE = -100;
+	const int _MIN_VALUE = 0;
 	const int _MAX_VALUE = 100;
 
 	int ThresholdValue(int value);

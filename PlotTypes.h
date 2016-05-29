@@ -16,34 +16,23 @@
 class OUTOFTHECAVE_01_API AttackPlot : public BasePlot
 {
 public:
-	AttackPlot();
+	AttackPlot(UOCivilian* plotEntity);
 	~AttackPlot();
 
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
-
+	void GatherTargets();
+	string BuildSentence();
+	void ConsiderReactions();
 };
 
 class OUTOFTHECAVE_01_API GatherPlot : public BasePlot
 {
 public:
-	GatherPlot();
+	GatherPlot(UOCivilian* plotEntity);
 	~GatherPlot();
 
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
-
-};
-
-class OUTOFTHECAVE_01_API GoToPlot : public BasePlot
-{
-public:
-	GoToPlot();
-	~GoToPlot();
-
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
-
+	void GatherTargets();
+	string BuildSentence();
+	void ConsiderReactions();
 };
 
 /*
@@ -177,5 +166,5 @@ public:
 	void GatherTargets(vector<AEntity*> candidates);
 	void BuildSentence();
 
-};
+};*/
 
