@@ -3,23 +3,27 @@
 #pragma once
 
 #include "Ontology/OOwnable.h"
+#include "Ontology/OEntity.h"
 /**
  * 
  */
 class OUTOFTHECAVE_01_API OOwnership
 {
 public:
-	OOwnership(UOOwnable* item, int worth);
+	OOwnership(UOEntity* owner, UOOwnable* item, int worth);
 	OOwnership();
 	~OOwnership();
 
-	UItem* GetItem();
+	UOEntity* GetOwner();
+	UOOwnable* GetItem();
 	int GetWorth();
 
 	void SetWorth(int value);
 
 private:
+
 	UOOwnable* _item;
+	UOEntity* _owner;
 	int _worth;
 
 	const int _MIN_VALUE = 0;

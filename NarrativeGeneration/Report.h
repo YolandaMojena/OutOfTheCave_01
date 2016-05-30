@@ -6,6 +6,7 @@
 #include "Ontology/ORelation.h"
 #include "Ontology/OOwnable.h"
 #include "Ontology/OOwnership.h"
+#include "BasePlot.h"
 
 
 /**
@@ -19,9 +20,9 @@ public:
 		relation, ownership, world
 	};
 
-	Report(UOEntity* reportEntity, UOEntity* target, ORelation* newRelation);
-	Report(UOEntity* reportEntity, UOOwnable* target, OOwnership* newOwnership);
-	Report(UOEntity* reportEntity, UOEntity* target);
+	Report(ORelation* newRelation, BasePlot::TypeOfPlot type);
+	Report(OOwnership* newOwnership, BasePlot::TypeOfPlot type);
+	Report(UOEntity* reportEntity);
 
 	~Report();
 
@@ -31,6 +32,7 @@ public:
 	ORelation* GetNewRelation();
 	OOwnership* GetNewOwnership();
 	ReportTag GetTag();
+	BasePlot::TypeOfPlot GetType();
 
 
 private:
@@ -41,6 +43,7 @@ private:
 	OOwnership* _newOwnership;
 
 	ReportTag _tag;
+	BasePlot::TypeOfPlot _type;
 
 	// -1, 0 or 1
 	int _priority;

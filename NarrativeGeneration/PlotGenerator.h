@@ -39,8 +39,6 @@ public:
 	void SpawnPlot();
 
 	void AddReportToLog(Report* newReport);
-	bool ContainsReport(Report* newReport);
-	void UpdateReport(Report* newReport);
 
 	PlotDictionary plotDictionary;
 	vector<Report*> reportLog;
@@ -48,5 +46,10 @@ public:
 	vector<BasePlot*> reactivePlots;
 	vector<BasePlot*> ambitionPlots;
 	vector<BasePlot*> worldPlots;
+
+private:
+
+	bool CheckContainsReport(Report* newReport);
+	void UpdateReport(Report* oldReport, Report* newReport);
 };
 

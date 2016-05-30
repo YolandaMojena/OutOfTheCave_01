@@ -5,7 +5,6 @@
 #include "Ontology/Item.h"
 #include "Ontology/OOwnable.h"
 //#include "Ontology/ORelation.h"
-#include "Ontology/OOwnership.h"
 #include "Ontology/OTerritory.h"
 #include "Ontology/OPersonality.h"
 #include <vector>
@@ -14,6 +13,7 @@
 using namespace std;
 
 class ORelation;
+class OOwnership;
 class APlotGenerator;
 
 /**
@@ -52,6 +52,8 @@ private:
 	// Must be called when changes are detected in the state of the ontology to add plots
 	void ChangeOfStateInOntology(ORelation* newRelation);
 	void ChangeOfStateInOntology(OOwnership* newOwnership);
+
+	// Leave territories out for now
 	void ChangeOfStateInOntology(OTerritory* newTerritory);
 
 	// Allows to load a texture from a given path

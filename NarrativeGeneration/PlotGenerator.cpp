@@ -26,11 +26,6 @@ void APlotGenerator::Tick( float DeltaTime )
 
 }
 
-void AddReactivePot() {
-
-}
-
-
 bool APlotGenerator::ValidatePlot(BasePlot * candidatePlot)
 {
 	return false;
@@ -38,6 +33,43 @@ bool APlotGenerator::ValidatePlot(BasePlot * candidatePlot)
 
 void APlotGenerator::SpawnPlot()
 {
+}
+
+void APlotGenerator::AddReportToLog(Report* newReport)
+{
+	if (!CheckContainsReport(newReport))
+		reportLog.push_back(newReport);
+}
+
+bool APlotGenerator::CheckContainsReport(Report* newReport) {
+
+	for (int i = 0; i < reportLog.size(); i++){
+
+		if (newReport->GetTag() == reportLog[i]->GetTag()) {
+
+			if (newReport->GetTag() == Report::ReportTag::relation) {
+
+				if (reportLog[i]->GetReportEntity() == newReport->GetReportEntity() && reportLog[i]->GetTargetEntity() == newReport->GetTargetEntity()) {
+					UpdateReport(reportLog[i], newReport);
+					return true;
+				}
+			}
+			else if (newReport->GetTag() == Report::ReportTag::ownership){
+
+				if (reportLog[i]->GetReportEntity() == newReport->GetReportEntity() && reportLog[i]->GetTargetOwnable() == newReport->GetTargetOwnable()) {
+					UpdateReport(reportLog[i], newReport);
+						return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+void APlotGenerator::UpdateReport(Report* oldReport, Report* newReport) {
+
+	oldReport = newReport;
 }
 
 APlotGenerator::PlotDictionary::PlotDictionary() {

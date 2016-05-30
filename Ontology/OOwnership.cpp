@@ -11,13 +11,18 @@ OOwnership::~OOwnership()
 {
 }
 
-OOwnership::OOwnership(UOOwnable* item, int worth)
+OOwnership::OOwnership(UOEntity* owner, UOOwnable* item, int worth)
 {
+	_owner = owner;
 	_item = item;
 	_worth = worth;
 }
 
-UItem* OOwnership::GetItem() {
+UOEntity* OOwnership::GetOwner() {
+	return _owner;
+}
+
+UOOwnable* OOwnership::GetItem() {
 	return _item;
 }
 

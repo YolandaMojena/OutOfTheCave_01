@@ -9,11 +9,12 @@
 class OUTOFTHECAVE_01_API ORelation
 {
 public:
-	ORelation(UOEntity* entity, int appreciation, int respect, int fear);
+	ORelation(UOEntity* entity, UOEntity* other, int appreciation, int respect, int fear);
 	ORelation();
 	~ORelation();
 
 	UOEntity* GetEntity();
+	UOEntity* GetOtherEntity();
 
 	void ChangeAppreciation(int value);
 	void ChangeRespect(int value);
@@ -32,6 +33,7 @@ public:
 
 private:
 	UOEntity* _entity;
+	UOEntity* _otherEntity;
 	int _appreciation;
 	int _respect;
 	int _fear;

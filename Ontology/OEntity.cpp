@@ -2,6 +2,7 @@
 
 #include "OutOfTheCave_01.h"
 #include "Ontology/ORelation.h"
+#include "Ontology/OOwnership.h"
 #include "NarrativeGeneration/PlotGenerator.h"
 #include "Ontology/OEntity.h"
 
@@ -73,8 +74,3 @@ UTexture2D * UOEntity::LoadTextureFromPath(const FString & Path)
 	return Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *(Path)));
 }
 
-void UOEntity::ChangeOfStateInOntology(ORelation* newRelation) {
-
-	
-
-}
