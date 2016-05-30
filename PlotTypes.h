@@ -177,5 +177,5 @@ public:
 	void GatherTargets(vector<AEntity*> candidates);
 	void BuildSentence();
 
-};
+};*/
 
