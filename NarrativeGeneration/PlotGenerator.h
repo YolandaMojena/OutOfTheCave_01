@@ -7,6 +7,7 @@
 #include <BasePlot.h>
 #include <PlotTypes.h>
 #include <unordered_map>
+#include "Report.h"
 #include "PlotGenerator.generated.h"
 
 using namespace std;
@@ -37,9 +38,12 @@ public:
 	bool ValidatePlot(BasePlot* candidatePlot);
 	void SpawnPlot();
 
-	void AddReactivePlot(BasePlot* reaction);
+	void AddReportToLog(Report* newReport);
+	bool ContainsReport(Report* newReport);
+	void UpdateReport(Report* newReport);
 
 	PlotDictionary plotDictionary;
+	vector<Report*> reportLog;
 
 	vector<BasePlot*> reactivePlots;
 	vector<BasePlot*> ambitionPlots;
