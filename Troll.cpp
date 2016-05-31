@@ -66,9 +66,7 @@ void ATroll::BeginPlay()
 	Super::BeginPlay();
 
 	if (GEngine)
-	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Troll initialized"));	
-	}
 }
 
 // Called every frame
@@ -195,14 +193,14 @@ void ATroll::PickUpMain() {
 
 			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
 
-			if (HitData.GetActor()->IsA<AEntity>()) {
+			if (GetEntityComponent(HitData.GetActor()) != nullptr) {
 
-				AEntity* hitEntity = dynamic_cast<AEntity*>(HitData.GetActor());
+				UOEntity* hitEntity = GetEntityComponent(HitData.GetActor());
 
 				if (!hitEntity->GetIsDead()) {
 
-					hitEntity->SetActorEnableCollision(false);
-					ACharacter* weaponChar = dynamic_cast<ACharacter*>(hitEntity);
+					HitData.GetActor()->SetActorEnableCollision(false);
+					ACharacter* weaponChar = dynamic_cast<ACharacter*>(HitData.GetActor());
 					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(3), true);
 				}
 				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
@@ -220,15 +218,16 @@ void ATroll::PickUpMain() {
 		_mainWeapon->OnActorBeginOverlap.Remove(HitFunc);
 		_mainWeapon->DetachRootComponentFromParent(true);
 
-		AEntity* weaponEntity = dynamic_cast<AEntity*>(_mainWeapon);
+		if (GetEntityComponent(_mainWeapon) != nullptr) {
 
-		if (weaponEntity) {
-
+			UOEntity* hitEntity = GetEntityComponent(_mainWeapon);
 			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
 
-			if (!weaponEntity->GetIsDead())
+			if (!hitEntity->GetIsDead()) {
 				weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
+			}
 		}
+
 
 		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
 		_mainWeapon->SetActorEnableCollision(true);
@@ -263,14 +262,14 @@ void ATroll::PickUpSecondary() {
 		if (HitData.bBlockingHit) {
 			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
 
-			if (HitData.GetActor()->IsA<AEntity>()) {
+			if (GetEntityComponent(HitData.GetActor())!=nullptr) {
 
-				AEntity* hitEntity = dynamic_cast<AEntity*>(HitData.GetActor());
+				UOEntity* hitEntity = GetEntityComponent(HitData.GetActor());
 
 				if (!hitEntity->GetIsDead()) {
 
-					hitEntity->SetActorEnableCollision(false);
-					ACharacter* weaponChar = dynamic_cast<ACharacter*>(hitEntity);
+					HitData.GetActor()->SetActorEnableCollision(false);
+					ACharacter* weaponChar = dynamic_cast<ACharacter*>(HitData.GetActor());
 					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(3), true);
 				}
 				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
@@ -288,12 +287,14 @@ void ATroll::PickUpSecondary() {
 		_secondaryWeapon->OnActorBeginOverlap.Remove(HitFunc);
 		_secondaryWeapon->DetachRootComponentFromParent(true);
 
-		AEntity* weaponEntity = dynamic_cast<AEntity*>(_secondaryWeapon);
+		if (GetEntityComponent(_secondaryWeapon) != nullptr) {
 
-		if (weaponEntity) {
+			UOEntity* hitEntity = GetEntityComponent(_secondaryWeapon);
 			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_secondaryWeapon);
-			if (!weaponEntity->GetIsDead())
+
+			if (!hitEntity->GetIsDead()) {
 				weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
+			}
 		}
 
 		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
@@ -343,4 +344,20 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 		FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
 		hitEntity->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
 	}
+}
+
+UOEntity* ATroll::GetEntityComponent(AActor* actor) {
+
+	UOEntity* foundComponent = actor->FindComponentByClass<UOCivilian>();
+
+	if(foundComponent == nullptr)
+		foundComponent = actor->FindComponentByClass<UOEntity>();
+
+	return foundComponent;
+}
+
+UOOwnable* ATroll::GetOwnableComponent(AActor* actor) {
+
+	UOOwnable* foundComponent = actor->FindComponentByClass<UOOwnable>();
+	return foundComponent;
 }

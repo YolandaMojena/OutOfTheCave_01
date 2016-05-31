@@ -3,7 +3,7 @@
 #include "OutOfTheCave_01.h"
 #include "BasePlot.h"
 
-BasePlot::BasePlot(UOCivilian* plotEntity) {
+BasePlot::BasePlot(UOEntity* plotEntity) {
 
 	this->plotEntity = plotEntity;
 }

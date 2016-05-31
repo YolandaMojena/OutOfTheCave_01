@@ -8,7 +8,7 @@
 //ATTACK PLOT
 //**************************************************************************************
 
-AttackPlot::AttackPlot(UOCivilian* plotEntity) : BasePlot(plotEntity) {
+AttackPlot::AttackPlot(UOEntity* plotEntity) : BasePlot(plotEntity) {
 
 	_name = "AttackPlot";
 	plotTypes = { TypeOfPlot::aggressive };
@@ -39,7 +39,7 @@ void AttackPlot::ConsiderReactions() {
 //GATHER PLOT
 //**************************************************************************************
 
-GatherPlot::GatherPlot(UOCivilian* plotEntity) : BasePlot(plotEntity) {
+GatherPlot::GatherPlot(UOEntity* plotEntity) : BasePlot(plotEntity) {
 
 	_name = "GatherPlot";
 	plotTypes = { TypeOfPlot::resources };

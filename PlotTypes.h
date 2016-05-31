@@ -16,7 +16,7 @@
 class OUTOFTHECAVE_01_API AttackPlot : public BasePlot
 {
 public:
-	AttackPlot(UOCivilian* plotEntity);
+	AttackPlot(UOEntity* plotEntity);
 	~AttackPlot();
 
 	void GatherTargets();
@@ -27,7 +27,7 @@ public:
 class OUTOFTHECAVE_01_API GatherPlot : public BasePlot
 {
 public:
-	GatherPlot(UOCivilian* plotEntity);
+	GatherPlot(UOEntity* plotEntity);
 	~GatherPlot();
 
 	void GatherTargets();

@@ -33,9 +33,12 @@ vector<OTerritory*> UOEntity::GetTerritories() {
 	return _landlord;
 }
 
-OPersonality * UOEntity::GetPersonality()
-{
+OPersonality * UOEntity::GetPersonality(){
 	return _personality;
+}
+
+bool UOEntity::GetIsDead() {
+	return _isDead;
 }
 
 void UOEntity::AddRelationship(ORelation* newRelation) {
@@ -68,9 +71,22 @@ OOwnership* UOEntity::GetOwnershipWith(UOOwnable * other)
 	return nullptr;
 }
 
-UTexture2D * UOEntity::LoadTextureFromPath(const FString & Path)
+void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 {
-	if (Path.IsEmpty()) return NULL;
-	return Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *(Path)));
+	if (!_isDead) {
+
+		_integrity -= damage;
+		_attacker = damager;
+
+		if (_integrity < MIN_INTEGRITY) {
+			_isDead = true;
+			IHaveBeenKilledBySomeone(damager);
+		}
+	}
+}
+
+void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("I have been killed by someone"));
 }
 

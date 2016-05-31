@@ -8,21 +8,24 @@
 
 class UOEntity;
 
-UCLASS()
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class OUTOFTHECAVE_01_API UOOwnable : public UItem
 {
 	GENERATED_BODY()
 
 public:
 
-	void ReceiveDamage(float damage);
+	void ReceiveDamage(float damage, UOEntity* damager);
 	//void BePickedUp(UOEntity* entity);
 	void BeStolen(UOEntity* buggler);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+	bool meshDestroyable;
 
 private:
 
 	// Messages to owner for report generation
-	void IHaveBeenDestroyedBySomeone();
+	void IHaveBeenDestroyedBySomeone(UOEntity* damager);
 	void IHaveBeenStolenBySomeone();
 	void IHaveBeenGivenToSomeone();
 
@@ -32,5 +35,5 @@ private:
 	UOEntity* _attacker;
 	UOEntity* _buggler;
 
-	bool _meshDestroyable;
+	bool _destroyed = false;
 };

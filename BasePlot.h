@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include "Graph.h"
-#include "Ontology/OCivilian.h"
+#include "Ontology/OEntity.h"
 #include "StringCollection.h"
 #include "VenturLocation.h"
 
@@ -16,7 +16,7 @@ class OUTOFTHECAVE_01_API BasePlot
 public:
 
 	BasePlot(); // Constructor used for wold plots that don't involve a specific entity
-	BasePlot(UOCivilian* plotEntity);
+	BasePlot(UOEntity* plotEntity);
 	~BasePlot();
 
 	enum TypeOfPlot {
@@ -36,8 +36,8 @@ public:
 	TypeOfPlot plotTypes;
 	BasePlot* additiveReactions;
 	BasePlot* negativeReactions;
-	UOCivilian* plotEntity;
-	vector<UOCivilian*> involvedInPlot;
+	UOEntity* plotEntity;
+	vector<UOEntity*> involvedInPlot;
 	StringCollection strings;
 
 protected:
