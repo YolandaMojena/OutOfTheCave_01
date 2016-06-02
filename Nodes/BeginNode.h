@@ -16,12 +16,10 @@ public:
 	bool NodeCompleted(BasePlot* currentPlot);
 	void SetTarget(BasePlot* currentPlot);
 
-	AEntity* target;
 
 private:
 
 	bool _alliesVisited = false;
 	bool _beganRecluting = false;
 	int _entityNum;
-	vector<AEntity*> _candidates;
 };

@@ -16,6 +16,4 @@ public:
 	void SetTarget(BasePlot* currentPlot);
 	void ExecuteActions(BasePlot* currentPlot, float deltaTime);
 	bool NodeCompleted(BasePlot* currentPlot);
-
-	AEntity* target;
 };

@@ -9,13 +9,10 @@ GatherNode::~GatherNode() {}
 
 void GatherNode::SetTarget(BasePlot* currentPlot)
 {
-	target = currentPlot->targetThing;
 }
 
 void GatherNode::ExecuteActions(BasePlot* currentPlot, float deltaTime)
 {
-	currentPlot->plotEntity->SetCurrentIcon(iconPath.c_str());
-	currentPlot->plotEntity->Gather(target, deltaTime);
 
 
 }

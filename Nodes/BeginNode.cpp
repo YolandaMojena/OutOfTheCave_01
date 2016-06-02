@@ -8,8 +8,6 @@ BeginNode::~BeginNode() {}
 
 void BeginNode::ExecuteActions(BasePlot* currentPlot, float deltaTime)
 {
-	currentPlot->plotEntity->SetCurrentIcon(iconPath.c_str());
-	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "Hi, I am the main entity: " + currentPlot->plotEntity->GetActorLabel());
 }
 
 bool BeginNode::NodeCompleted(BasePlot* currentPlot)
@@ -19,5 +17,5 @@ bool BeginNode::NodeCompleted(BasePlot* currentPlot)
 
 void BeginNode::SetTarget(BasePlot* currentPlot)
 {
-	target = currentPlot->plotEntity;
+
 }

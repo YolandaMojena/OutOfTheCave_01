@@ -4,10 +4,12 @@
 
 #include "GameFramework/Character.h"
 #include <string>
+#include "Ontology/OEntity.h"
+#include "Ontology/OCivilian.h"
+#include "Ontology/OOwnable.h"
 #include "Troll.generated.h"
 
 using namespace std;
-class AEntity;
 
 UCLASS()
 class OUTOFTHECAVE_01_API ATroll : public ACharacter
@@ -35,7 +37,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera)
 		UCameraComponent* FollowCamera;
 
-	void ReceiveDamage(float attackDamage, AActor* punisher);
+	void ReceiveDamage(float attackDamage, AActor* damager);
 
 	UFUNCTION()
 		void OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -84,6 +86,8 @@ protected:
 private:
 
 	void AttachToSocket(AActor* target, string socket);
+	UOEntity* GetEntityComponent(AActor* actor);
+	UOOwnable* GetOwnableComponent(AActor* actor);
 
 	float _health = 1000.0f;
 	bool _canDamage;
@@ -99,7 +103,6 @@ private:
 	USkeletalMeshComponent* SkelMesh;
 	UAnimMontage* myMontage;
 	TScriptDelegate<FWeakObjectPtr> HitFunc;
-
 
 	bool _chargingJump;
 	float _jumpMultiplier;
