@@ -13,10 +13,10 @@ void UOOwnable::BeginPlay() {
 	Super::BeginPlay();
 
 	//At the moment, last found entity is owner
-	for (TObjectIterator<UOCivilian> Itr; Itr; ++Itr)
-		_owner = *Itr;
-
-	_owner->AddPossession(new OOwnership(_owner, this, 60));
+	for (TObjectIterator<UOCivilian> Itr; Itr; ++Itr){
+		_owners.push_back(*Itr);
+		Itr->AddPossession(new OOwnership(*Itr, this, Itr->GetPersonality()->GetMaterialist()));
+	}
 }
 
 void UOOwnable::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -41,7 +41,7 @@ void UOOwnable::ReceiveDamage(float damage, UOEntity* damager) {
 		_attacker = damager;
 		_canBeDamaged = false;
 
-		if (_integrity < MIN_INTEGRITY) {
+		if (_integrity <= 0) {
 			_destroyed = true;
 			DestroyOwnable();
 			IHaveBeenDestroyedBySomeone(damager);
@@ -49,7 +49,7 @@ void UOOwnable::ReceiveDamage(float damage, UOEntity* damager) {
 	}
 }
 
-//AT THE MOMENT
+// AT THE MOMENT
 // NOTIFIES OWNER
 // ELIMINATES POSSESSIN
 // SETS OR MODIFIES RELATIONSHIP WITH DAMAGER
@@ -59,7 +59,7 @@ void UOOwnable::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("I have been destroyed by " + damager->GetOwner()->GetName()));
 
-	OOwnership* ownership = _owner->GetOwnershipWith(this);
+	/*OOwnership* ownership = _owner->GetOwnershipWith(this);
 
 	if (ownership) {
 
@@ -73,10 +73,10 @@ void UOOwnable::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 		else
 			oldRelation->SetAppreciation(oldRelation->GetAppreciation() - ownership->GetWorth());
 
-		//_owner->DeletePossession(this);
+		_owner->DeletePossession(this);
 
 		_owner->SendReport(new Report(_owner->GetRelationWith(damager), BasePlot::TypeOfPlot::aggressive, this));
-	}
+	}*/
 }
 
 void UOOwnable::DestroyOwnable() {
