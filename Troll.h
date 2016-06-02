@@ -112,7 +112,6 @@ private:
 	const float _averageJump = 1900.0f;
 
 	const float _NORMAL_SPEED = 1200.0f;
-	const float _SPRINT_SPEED = 2400.0f;
 	const float _NORMAL_GROUNDFRICTION = 2.0f;
 	const float _SPRINT_GROUNDFRICTION = 1.0f;
 

@@ -8,7 +8,7 @@
 class OUTOFTHECAVE_01_API OPersonality
 {
 public:
-	OPersonality(int kind, int brave, int aggressive, int social);
+	OPersonality(int kind, int brave, int aggressive, int social, int materialist);
 	OPersonality();
 	~OPersonality();
 
@@ -16,6 +16,10 @@ public:
 	int GetBraveness();
 	int GetAggressiveness();
 	int GetSocial();
+	int GetMaterialist();
+
+	int GetMinValue();
+	int GetMaxValue();
 
 	int ThresholdValue(int value);
 
@@ -27,4 +31,5 @@ private:
 	int _brave;
 	int _aggressive;
 	int _social;
+	int _materialist;
 };

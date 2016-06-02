@@ -11,12 +11,13 @@ OPersonality::~OPersonality()
 {
 }
 
-OPersonality::OPersonality(int kind, int brave, int aggressive, int social)
+OPersonality::OPersonality(int kind, int brave, int aggressive, int social, int materialist)
 {
 	_kind = ThresholdValue(kind);
 	_brave = ThresholdValue(brave);
 	_aggressive = ThresholdValue(aggressive);
 	_social = ThresholdValue(social);
+	_materialist = ThresholdValue(materialist);
 }
 
 int OPersonality::GetKindness() {
@@ -30,6 +31,16 @@ int OPersonality::GetAggressiveness() {
 }
 int OPersonality::GetSocial() {
 	return _social;
+}
+int OPersonality::GetMaterialist() {
+	return _materialist;
+}
+
+int OPersonality::GetMinValue() {
+	return _MIN_VALUE;
+}
+int OPersonality::GetMaxValue() {
+	return _MAX_VALUE;
 }
 
 

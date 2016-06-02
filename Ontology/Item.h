@@ -30,9 +30,6 @@ public:
 	string name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		float MIN_INTEGRITY = 20.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _density;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _mass; //CharacterMovement Component!?

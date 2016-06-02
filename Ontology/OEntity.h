@@ -15,6 +15,7 @@ using namespace std;
 
 class ORelation;
 class OOwnership;
+class UOOwnable;
 class APlotGenerator;
 class Report;
 
@@ -38,10 +39,15 @@ public:
 	vector<OOwnership*> GetPossessions();
 	vector<OTerritory*> GetTerritories();
 	OPersonality* GetPersonality();
+	int GetNotoriety();
 
 	void AddRelationship(ORelation* newRelation);
+	void AddRelationship(UOEntity* newEntity);
 	void AddPossession(OOwnership* newOwnership);
-	void AddTerritory(OTerritory* newTerritory); 
+	void AddPossession(UOOwnable* newOwnable);
+	void AddTerritory(OTerritory* newTerritory);
+
+	
 
 	ORelation* GetRelationWith(UOEntity* other);
 	OOwnership* GetOwnershipWith(UOOwnable* other);
@@ -68,8 +74,7 @@ public:
 	// All entities will send reports to the plotGenerator situated in the game world
 	APlotGenerator* plotGenerator;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
-	OPersonality* _personality;
+	
 
 	
 private:
@@ -84,4 +89,11 @@ private:
 	UOEntity* _attacker;
 
 	bool _isDead = false;
+
+	float MIN_INTEGRITY = 20.0f;
+	
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+	OPersonality* _personality;
+
+	int _notoriety = 0;
 };

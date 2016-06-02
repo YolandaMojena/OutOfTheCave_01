@@ -3,8 +3,11 @@
 #pragma once
 
 #include "Ontology/Item.h"
+#include <vector>
+//#include <algorithm>
 #include "OOwnable.generated.h"
 
+using namespace std;
 
 class UOEntity;
 class OOwnership;
@@ -26,8 +29,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ownable)
 	bool meshDestroyable;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Ownable)
-		UOEntity* _owner;
+	vector<UOEntity*> _owners;
 
 private:
 
