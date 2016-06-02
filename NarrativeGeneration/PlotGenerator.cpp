@@ -24,6 +24,16 @@ void APlotGenerator::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
+	if (_lastPlotCompleted) {
+
+		_timeToSpawnPlot += DeltaTime;
+
+		if (_timeToSpawnPlot >= _TIME_TO_SPAWN) {
+			_timeToSpawnPlot = 0;
+			_lastPlotCompleted = false;
+			SpawnPlot();
+		}
+	}
 }
 
 bool APlotGenerator::ValidatePlot(BasePlot * candidatePlot)
@@ -33,6 +43,7 @@ bool APlotGenerator::ValidatePlot(BasePlot * candidatePlot)
 
 void APlotGenerator::SpawnPlot()
 {
+	
 }
 
 void APlotGenerator::AddReportToLog(Report* newReport)
@@ -72,11 +83,25 @@ void APlotGenerator::UpdateReport(Report* oldReport, Report* newReport) {
 	oldReport = newReport;
 }
 
+void APlotGenerator::GetPlotFromReport(Report* report) {
+
+	vector<string> potentialPlots = plotDictionary.GetPlotsOfType(report->GetType());
+
+	for (int i = 0; i < potentialPlots.size(); i++) {
+
+
+		
+
+		
+
+	}
+}
+
 APlotGenerator::PlotDictionary::PlotDictionary() {
 
-	_plotDictionary = { {BasePlot::TypeOfPlot::aggressive, {"attack"}},
-	{ BasePlot::TypeOfPlot::resources, {"gather"} },
-	{ BasePlot::TypeOfPlot::possesive, {"gather"} } };
+	_plotDictionary = { {BasePlot::TypeOfPlot::aggressive, {_strings.ATTACK_PLOT}},
+	{ BasePlot::TypeOfPlot::resources, { _strings.GATHER_PLOT } },
+	{ BasePlot::TypeOfPlot::possesive, { _strings.GATHER_PLOT } } };
 }
 
 vector<string> APlotGenerator::PlotDictionary::GetPlotsOfType(BasePlot::TypeOfPlot type) {

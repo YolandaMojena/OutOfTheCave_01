@@ -18,4 +18,9 @@ public:
 	string GOTO_ICON = "walk.walk'";
 	string GATHER_ICON = "wood.wood'";
 	string WAIT_ICON = "wait.wait'";
+
+	// PLOT TYPES
+
+	string ATTACK_PLOT = "attack";
+	string GATHER_PLOT = "gather";
 };
