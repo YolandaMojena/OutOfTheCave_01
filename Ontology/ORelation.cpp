@@ -11,8 +11,9 @@ ORelation::~ORelation()
 {
 }
 
-ORelation::ORelation(UOEntity* entity, int appreciation, int respect, int fear) {
+ORelation::ORelation(UOEntity* entity, UOEntity* otherEntity, int appreciation, int respect, int fear) {
 	_entity = entity;
+	_otherEntity = otherEntity;
 	_appreciation = appreciation;
 	_respect = respect;
 	_fear = fear;
@@ -27,6 +28,12 @@ void ORelation::SetRespect(int value) {
 }
 void ORelation::SetFear(int value) {
 	_fear = ThresholdValue(value);
+}
+UOEntity* ORelation::GetEntity() {
+	return _entity;
+}
+UOEntity* ORelation::GetOtherEntity() {
+	return _otherEntity;
 }
 int ORelation::GetAppreciation() {
 	return _appreciation;
@@ -47,6 +54,7 @@ void ORelation::ChangeRespect(int value) {
 	_respect = ThresholdValue(_respect + value);
 }
 void ORelation::ChangeFear(int value) {
+
 	_fear = ThresholdValue(_fear + value);
 }
 

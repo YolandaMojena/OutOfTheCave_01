@@ -30,6 +30,9 @@ public:
 	string name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		float MIN_INTEGRITY = 20.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _density;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _mass; //CharacterMovement Component!?
@@ -74,10 +77,19 @@ public:
 		float _edgeLength;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _inertiaMomentum;
+
+	// Health
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		float _integrity;
+
+	float _canBeDamaged;
+	const float _HURT_COOLDOWN = 0.75f;
+	float _hurtCooldown;
 	/*float _inertiaMomentum{
 		get{
 			return FVector.Distance(_grabPos, _funcPos);
 		}
 	}*/
+
 
 };

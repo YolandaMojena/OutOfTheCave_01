@@ -9,13 +9,11 @@ AttackNode::~AttackNode(){}
 
 void AttackNode::SetTarget(BasePlot* currentPlot)
 {
-	target = currentPlot->targetEntity;
 }
 
 void AttackNode::ExecuteActions(BasePlot* currentPlot, float deltaTime)
 {
-	currentPlot->plotEntity->SetCurrentIcon(iconPath.c_str());
-	currentPlot->plotEntity->Attack(target, deltaTime);
+
 }
 
 bool AttackNode::NodeCompleted(BasePlot* currentPlot)
