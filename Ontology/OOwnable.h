@@ -7,6 +7,7 @@
 
 
 class UOEntity;
+class OOwnership;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class OUTOFTHECAVE_01_API UOOwnable : public UItem
@@ -15,23 +16,29 @@ class OUTOFTHECAVE_01_API UOOwnable : public UItem
 
 public:
 
+	void BeginPlay() override;
+	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 	void ReceiveDamage(float damage, UOEntity* damager);
 	//void BePickedUp(UOEntity* entity);
 	void BeStolen(UOEntity* buggler);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ownable)
 	bool meshDestroyable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Ownable)
+		UOEntity* _owner;
 
 private:
 
 	// Messages to owner for report generation
 	void IHaveBeenDestroyedBySomeone(UOEntity* damager);
-	void IHaveBeenStolenBySomeone();
+	void IHaveBeenStolenBySomeone(UOEntity* buggler);
 	void IHaveBeenGivenToSomeone();
 
 	void DestroyOwnable();
 
-	UOEntity* _owner;
+	
 	UOEntity* _attacker;
 	UOEntity* _buggler;
 

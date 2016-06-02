@@ -20,8 +20,8 @@ public:
 		relation, ownership, world
 	};
 
-	Report(ORelation* newRelation, BasePlot::TypeOfPlot type);
-	Report(OOwnership* newOwnership, BasePlot::TypeOfPlot type);
+	Report(ORelation* newRelation, BasePlot::TypeOfPlot type, UItem* motivation);
+	Report(OOwnership* newOwnership, BasePlot::TypeOfPlot type, UItem* motivation);
 	Report(UOEntity* reportEntity);
 
 	~Report();
@@ -31,6 +31,7 @@ public:
 	UOOwnable* GetTargetOwnable();
 	ORelation* GetNewRelation();
 	OOwnership* GetNewOwnership();
+	UItem* GetMotivation();
 	ReportTag GetTag();
 	BasePlot::TypeOfPlot GetType();
 
@@ -41,6 +42,7 @@ private:
 	UOOwnable* _targetOwnable;
 	ORelation* _newRelation;
 	OOwnership* _newOwnership;
+	UItem* _motivation;
 
 	ReportTag _tag;
 	BasePlot::TypeOfPlot _type;

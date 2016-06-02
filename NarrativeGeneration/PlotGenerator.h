@@ -41,7 +41,6 @@ public:
 	void AddReportToLog(Report* newReport);
 
 	PlotDictionary plotDictionary;
-	vector<Report*> reportLog;
 
 	vector<BasePlot*> reactivePlots;
 	vector<BasePlot*> ambitionPlots;
@@ -51,5 +50,7 @@ private:
 
 	bool CheckContainsReport(Report* newReport);
 	void UpdateReport(Report* oldReport, Report* newReport);
+
+	vector<Report*> _reportLog;
 };
 

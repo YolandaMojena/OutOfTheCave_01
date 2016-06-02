@@ -4,22 +4,26 @@
 #include "Report.h"
 
 
-Report::Report(ORelation * newRelation, BasePlot::TypeOfPlot type)
+Report::Report(ORelation * newRelation, BasePlot::TypeOfPlot type, UItem* motivation)
 {
 	_reportEntity =  newRelation->GetEntity();
 	_targetEntity = newRelation->GetOtherEntity();
 	_newRelation = newRelation;
-	_tag = ReportTag::relation;
 	_type = type;
+	_motivation = motivation;
+
+	_tag = ReportTag::relation;
 }
 
-Report::Report(OOwnership* newOwnership, BasePlot::TypeOfPlot type)
+Report::Report(OOwnership* newOwnership, BasePlot::TypeOfPlot type, UItem* motivation)
 {
 	_reportEntity = newOwnership->GetOwner();
 	_targetOwnable = newOwnership->GetItem();
 	_newOwnership = newOwnership;
-	_tag = ReportTag::ownership;
 	_type = type;
+	_motivation = motivation;
+
+	_tag = ReportTag::ownership;
 }
 
 //Temporal constructor for world events
@@ -54,4 +58,7 @@ Report::ReportTag Report::GetTag() {
 }
 BasePlot::TypeOfPlot Report::GetType() {
 	return _type;
+}
+UItem* Report::GetMotivation() {
+	return _motivation;
 }

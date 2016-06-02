@@ -201,6 +201,8 @@ void ATroll::PickUpMain() {
 
 					HitData.GetActor()->SetActorEnableCollision(false);
 					ACharacter* weaponChar = dynamic_cast<ACharacter*>(HitData.GetActor());
+
+					// BONE WILL PROBABLY DEPEND ON MESH
 					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(3), true);
 				}
 				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
@@ -227,7 +229,6 @@ void ATroll::PickUpMain() {
 				weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
 			}
 		}
-
 
 		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
 		_mainWeapon->SetActorEnableCollision(true);
@@ -330,29 +331,33 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 
 	if (OtherActor->GetActorLabel().Contains("_DM")){
 
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("House on a Hill"));
+		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Hit a destrutible"));
 
 		ADestructibleActor* targetDestructible = dynamic_cast<ADestructibleActor*>(OtherActor);
 		targetDestructible->GetDestructibleComponent()->ApplyRadiusDamage(10, targetDestructible->GetDestructibleComponent()->GetCenterOfMass(), 32, 100, false);
 	}
-	else if (OtherActor->IsA<AEntity>() && isAttacking && _canDamage) {
+	else if (GetEntityComponent(OtherActor) != nullptr && isAttacking && _canDamage) {
 
-		AEntity* hitEntity = dynamic_cast<AEntity*>(OtherActor);
-		hitEntity->ReceiveDamage(_TROLL_DMG, this);
-		hitEntity->BePushedAround();
+		UOEntity* hitEntity = GetEntityComponent(OtherActor);
+		hitEntity->ReceiveDamage(_TROLL_DMG, this->FindComponentByClass<UOEntity>());
 		//FVector direction = FVector(hitEntity->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, hitEntity->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
 		FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
-		hitEntity->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
+		//hitEntity->GetOwner()->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
+	}
+
+	else if (GetOwnableComponent(OtherActor) != nullptr && isAttacking && _canDamage) {
+
+		UOOwnable* hitOwnable = GetOwnableComponent(OtherActor);
+		hitOwnable->ReceiveDamage(_TROLL_DMG, this->FindComponentByClass<UOEntity>());
+		//FVector direction = FVector(hitEntity->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, hitEntity->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
+		FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
+		//hitEntity->GetOwner()->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
 	}
 }
 
 UOEntity* ATroll::GetEntityComponent(AActor* actor) {
 
-	UOEntity* foundComponent = actor->FindComponentByClass<UOCivilian>();
-
-	if(foundComponent == nullptr)
-		foundComponent = actor->FindComponentByClass<UOEntity>();
-
+	UOEntity* foundComponent = actor->FindComponentByClass<UOEntity>();
 	return foundComponent;
 }
 

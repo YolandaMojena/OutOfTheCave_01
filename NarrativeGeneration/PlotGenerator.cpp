@@ -38,26 +38,26 @@ void APlotGenerator::SpawnPlot()
 void APlotGenerator::AddReportToLog(Report* newReport)
 {
 	if (!CheckContainsReport(newReport))
-		reportLog.push_back(newReport);
+		_reportLog.push_back(newReport);
 }
 
 bool APlotGenerator::CheckContainsReport(Report* newReport) {
 
-	for (int i = 0; i < reportLog.size(); i++){
+	for (int i = 0; i < _reportLog.size(); i++){
 
-		if (newReport->GetTag() == reportLog[i]->GetTag()) {
+		if (newReport->GetTag() == _reportLog[i]->GetTag()) {
 
 			if (newReport->GetTag() == Report::ReportTag::relation) {
 
-				if (reportLog[i]->GetReportEntity() == newReport->GetReportEntity() && reportLog[i]->GetTargetEntity() == newReport->GetTargetEntity()) {
-					UpdateReport(reportLog[i], newReport);
+				if (_reportLog[i]->GetReportEntity() == newReport->GetReportEntity() && _reportLog[i]->GetTargetEntity() == newReport->GetTargetEntity() && _reportLog[i]->GetMotivation() == newReport->GetMotivation()) {
+					UpdateReport(_reportLog[i], newReport);
 					return true;
 				}
 			}
 			else if (newReport->GetTag() == Report::ReportTag::ownership){
 
-				if (reportLog[i]->GetReportEntity() == newReport->GetReportEntity() && reportLog[i]->GetTargetOwnable() == newReport->GetTargetOwnable()) {
-					UpdateReport(reportLog[i], newReport);
+				if (_reportLog[i]->GetReportEntity() == newReport->GetReportEntity() && _reportLog[i]->GetTargetOwnable() == newReport->GetTargetOwnable() && _reportLog[i]->GetMotivation() == newReport->GetMotivation()) {
+					UpdateReport(_reportLog[i], newReport);
 						return true;
 				}
 			}

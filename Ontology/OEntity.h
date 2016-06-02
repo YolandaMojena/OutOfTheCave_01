@@ -8,6 +8,7 @@
 #include "Ontology/OTerritory.h"
 #include "Ontology/OPersonality.h"
 #include <vector>
+#include <algorithm>
 #include "OEntity.generated.h"
 
 using namespace std;
@@ -15,6 +16,7 @@ using namespace std;
 class ORelation;
 class OOwnership;
 class APlotGenerator;
+class Report;
 
 /**
  * 
@@ -29,6 +31,8 @@ public:
 	UOEntity(OPersonality* personality);
 
 	void BeginPlay() override;
+	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 
 	vector<ORelation*> GetRelationships();
 	vector<OOwnership*> GetPossessions();
@@ -41,6 +45,9 @@ public:
 
 	ORelation* GetRelationWith(UOEntity* other);
 	OOwnership* GetOwnershipWith(UOOwnable* other);
+	void DeleteRelation(UOEntity* relation);
+	void DeletePossession(UOOwnable* possession);
+
 	bool GetIsDead();
 
 	void ReceiveDamage(float damage, UOEntity* damager);
@@ -51,6 +58,8 @@ public:
 
 	// Leave territories out for now
 	//void ChangeOfStateInOntology(OTerritory* newTerritory);
+
+	void SendReport(Report* newReport);
 
 	// It must be considered whether if the entity is the player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
@@ -65,6 +74,7 @@ public:
 	
 private:
 
+	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
 
 	vector<ORelation*> _relationships;
