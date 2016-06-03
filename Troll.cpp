@@ -2,7 +2,6 @@
 
 #include "OutOfTheCave_01.h"
 #include "Troll.h"
-#include "Entity.h"
 #include "Engine.h"
 
 // Sets default values

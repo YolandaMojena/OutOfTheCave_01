@@ -7,7 +7,6 @@
 #include "Graph.h"
 #include "Ontology/OEntity.h"
 #include "StringCollection.h"
-#include "VenturLocation.h"
 
 using namespace std;
 
@@ -27,11 +26,9 @@ public:
 	virtual string BuildSentence() = 0;
 	virtual void ConsiderReactions() = 0;
 	
-	void ExecutePlot(float deltaTime);
-	void BuildGraph(vector<Node*> nodes, vector<Node::Arc> arcs);
+	void ExecutePlot();
+	void BuildGraph();
 	void PrintSentence();
-
-	bool Compare(BasePlot* thisPlot, BasePlot* otherPlot);
 
 	TypeOfPlot plotTypes;
 	BasePlot* additiveReactions;
@@ -45,6 +42,5 @@ protected:
 	string _name, _description, _sentence;
 	Graph _plotGraph;
 	int _priority;
-	Node* _currentNode = nullptr;
 	bool _plotCompleted = false;
 };

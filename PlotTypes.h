@@ -4,10 +4,6 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include "Nodes/GoToNode.h"
-#include "Nodes/BeginNode.h"
-#include "Nodes/AttackNode.h"
-#include "Nodes/GatherNode.h"
 #include "BasePlot.h"
 
 /**

@@ -13,10 +13,7 @@ AttackPlot::AttackPlot(UOEntity* plotEntity) : BasePlot(plotEntity) {
 	_name = "AttackPlot";
 	plotTypes = { TypeOfPlot::aggressive };
 
-	vector<Node*> graphNodes = { new BeginNode("Begin",strings.WAIT_ICON), new GoToNode("GoTo", strings.GOTO_ICON), new AttackNode("Attack", strings.ATTACK_ICON), new GoToNode("Return", strings.GOTO_ICON) };
-	vector<Node::Arc> graphArcs = { Node::Arc("Begin", "GoTo", ""), Node::Arc("GoTo", "Attack", "") };
-
-	BuildGraph(graphNodes, graphArcs);
+	BuildGraph();
 }
 
 AttackPlot::~AttackPlot() {}
@@ -44,10 +41,8 @@ GatherPlot::GatherPlot(UOEntity* plotEntity) : BasePlot(plotEntity) {
 	_name = "GatherPlot";
 	plotTypes = { TypeOfPlot::resources };
 
-	vector<Node*> graphNodes = { new BeginNode("Begin", strings.WAIT_ICON), new GoToNode("GoTo", strings.GOTO_ICON), new GatherNode("Gather", strings.GATHER_ICON), new GoToNode("Return", strings.GOTO_ICON) };
-	vector<Node::Arc> graphArcs = { Node::Arc("Begin", "GoTo", ""), Node::Arc("GoTo", "Gather", "") };
 
-	BuildGraph(graphNodes, graphArcs);
+	BuildGraph();
 }
 
 GatherPlot::~GatherPlot() {}
