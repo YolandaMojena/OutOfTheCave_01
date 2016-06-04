@@ -22,7 +22,7 @@ UOEntity* OOwnership::GetOwner() {
 	return _owner;
 }
 
-UOOwnable* OOwnership::GetItem() {
+UOOwnable* OOwnership::GetOwnable() {
 	return _item;
 }
 

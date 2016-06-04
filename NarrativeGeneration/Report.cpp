@@ -18,7 +18,7 @@ Report::Report(ORelation * newRelation, BasePlot::TypeOfPlot type, UItem* motiva
 Report::Report(OOwnership* newOwnership, BasePlot::TypeOfPlot type, UItem* motivation)
 {
 	_reportEntity = newOwnership->GetOwner();
-	_targetOwnable = newOwnership->GetItem();
+	_targetOwnable = newOwnership->GetOwnable();
 	_newOwnership = newOwnership;
 	_type = type;
 	_motivation = motivation;
