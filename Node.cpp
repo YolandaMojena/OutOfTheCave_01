@@ -2,25 +2,31 @@
 
 #include "OutOfTheCave_01.h"
 #include "Node.h"
+#include "Graph.h"
 
-Node::Arc::Arc(string from, string to, string cond) : parent(from), adj(to), condition(cond) {}
-
-Node::Node() {}
+Node::Node()  {}
 
 
 Node::~Node() {}
 
-
-Node::Node(string id, string iconPath)
-{
-	nodeName = id;
-	this->iconPath = iconPath;
+void Node::SetGraph(Graph* g) {
+	_graph = g;
 }
 
-bool Node::GetIsVisited() {
-	return _visited;
+void Node::RewriteNode(vector<Node*> nodes) {
+	vector<Node*> childs = nextNodes;
+
+	nextNodes = nodes;
+
+	for (auto n : nextNodes) {
+		n->nextNodes = childs;
+	}
 }
 
-void Node::SetIsVisited(bool value) {
-	_visited = value;
+
+void Node::ExecuteTask() {
+
+}
+void Node::TaskCompleted(bool completedOk) {
+	_graph->TaskCompleted(completedOk);
 }

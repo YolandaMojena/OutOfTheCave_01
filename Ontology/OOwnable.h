@@ -3,8 +3,11 @@
 #pragma once
 
 #include "Ontology/Item.h"
+#include <vector>
+//#include <algorithm>
 #include "OOwnable.generated.h"
 
+using namespace std;
 
 class UOEntity;
 class OOwnership;
@@ -21,20 +24,23 @@ public:
 
 	void ReceiveDamage(float damage, UOEntity* damager);
 	//void BePickedUp(UOEntity* entity);
-	void BeStolen(UOEntity* buggler);
+	void BeStolen(UOEntity* burglar);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ownable)
 	bool meshDestroyable;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Ownable)
-		UOEntity* _owner;
+	vector<UOEntity*> _owners;
+
+protected:
+	void IHaveBeenDamagedBySomeone(UOEntity* damager);
+	void IHaveBeenDestroyedBySomeone(UOEntity* damager);
+	void IHaveBeenStolenBySomeone(UOEntity* buggler);
+	void IHaveBeenGivenToSomeone();
 
 private:
 
 	// Messages to owner for report generation
-	void IHaveBeenDestroyedBySomeone(UOEntity* damager);
-	void IHaveBeenStolenBySomeone(UOEntity* buggler);
-	void IHaveBeenGivenToSomeone();
+	
 
 	void DestroyOwnable();
 

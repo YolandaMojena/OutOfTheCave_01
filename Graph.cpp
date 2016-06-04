@@ -9,85 +9,43 @@ Graph::Graph() {}
 
 Graph::~Graph() {}
 
-void Graph::AddNode(Node* n)
-{
-	if (graph.find(n->nodeName) == graph.end()) {
-		graph.insert({ n->nodeName, n});
-		_size++;
-		cout << "\nNode added";
-	}
-	else cout << "\nNode already exists";
+Graph::Graph(Node* n) {
+	firstNode = n;
+	_lastNode = n;
 }
 
-
-void Graph::AddEdge(string from, string to, string cond)
-{
-	if (EdgeExists(from, to) < 0) {
-		graph[from]->neighbors.push_back(Node::Arc(from, to, cond));
-		cout << "\nEdge added";
-	}
-	else {
-		cout << "\nEdge already exists";
-	}
+void Graph::AddNode(Node* n) {
+	n->SetGraph(this);
+	if (firstNode == nullptr)
+		firstNode = n;
+	else
+		_lastNode->nextNodes.push_back(n);
+	
+	_lastNode = n;
 }
 
+void Graph::AddNodeInNewBranch(Node* n, int depth) {
+	n->SetGraph(this);
 
-int Graph::EdgeExists(string from, string to)
-{
-	for (int i = 0; i < graph[from]->neighbors.size(); i++) {
-		if (graph[from]->neighbors[i].adj == to)
-			return i;
-	}
-	return -1;
+	Node* currentNode = firstNode;
+
+	for (int i = 0; i < depth; i++)
+		currentNode = currentNode->nextNodes[currentNode->nextNodes.size() - 1];
+
+	currentNode->nextNodes.push_back(n);
+
+	_lastNode = n;
 }
 
-void Graph::RemoveNode(string id)
-{
-	if (graph.find(id) == graph.end()) {
-		graph.erase(id);
-		_size--;
-		cout << "\nNode deleted";
-	}
+void Graph::ExecuteTask() {
+	firstNode->ExecuteTask();
 }
 
-void Graph::RemoveEdge(string from, string to)
-{
-	int index = EdgeExists(from, to);
-	if (index >= 0) {
-		graph[from]->neighbors.erase(graph[from]->neighbors.begin() + index);
-	}
+void Graph::TaskCompleted(bool completedOk) {
+	if(completedOk && firstNode != _lastNode)
+		firstNode = firstNode->nextNodes[0]; //BRANCH!!!
+	else
+		EndGraph();
 }
 
-void Graph::RewriteSubgraph(string at, unordered_map<string, Node*> subgraph) {
-
-}
-
-void Graph::PrintPlot(string start)
-{
-	graph[start]->SetIsVisited(true);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("I AM A PLOT!"));
-	deepSearchPrint(start);
-}
-
-void Graph::deepSearchPrint(string start) {
-
-	cout << "\nNode: " + graph[start]->nodeName;
-	cout << "\n";
-
-	for (int i = 0; i < graph[start]->neighbors.size(); i++) {
-
-		cout << "Carries to: ";
-		cout << graph[start]->neighbors[i].adj;
-		cout << "\n";
-	}
-
-	cout << "\n";
-
-	for (int i = 0; i < graph[start]->neighbors.size(); i++) {
-
-		if (!graph[graph[start]->neighbors[i].adj]->GetIsVisited()) {
-			graph[graph[start]->neighbors[i].adj]->SetIsVisited(true);
-			deepSearchPrint(graph[start]->neighbors[i].adj);
-		}
-	}
-}
+void Graph::EndGraph() {}

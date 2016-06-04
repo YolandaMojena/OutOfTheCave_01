@@ -16,19 +16,19 @@ class OUTOFTHECAVE_01_API Graph
 public:
 	Graph();
 	~Graph();
+	Graph(Node* n);
 
+public:
 	void AddNode(Node* n);
-	void AddEdge(string from, string to, string cond);
-	int EdgeExists(string from, string to); //returns index
-	void RemoveNode(string id);
-	void RemoveEdge(string from, string to);
-	void RewriteSubgraph(string at, unordered_map<string, Node*> subgraph);
-	void PrintPlot(string start);
+	void AddNodeInNewBranch(Node* n, int depth);
 
-	unordered_map<string, Node*> graph;
+	Node* firstNode;
+
+	void ExecuteTask();
+	void TaskCompleted(bool completedOk);
+
+	void EndGraph();
 
 private:
-
-	void deepSearchPrint(string start);
-	int _size;
+	Node* _lastNode;
 };

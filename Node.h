@@ -3,49 +3,52 @@
 #pragma once
 
 #include <vector>
-#include <iostream>
 #include <string>
-#include <algorithm> 
-#include <unordered_map>
-#include "Entity.h"
-#include "Thing.h"
-#include "VenturLocation.h"
+
+#include "Ontology/OEntity.h"
+#include "Ontology/OOwnable.h"
+#include "Ontology/OEdification.h"
+#include "Ontology/OGrabbable.h"
 
 using namespace std;
 
 class BasePlot;
+class Graph;
 
 class OUTOFTHECAVE_01_API Node
 {
+
 public:
-
-	struct Arc {
-
-		Arc(string from, string to, string cond);
-
-		string parent;
-		string adj;
-		string condition;
-	};
-
-	Node(string id, string icon_path);
-
 	Node();
 	~Node();
 
-	bool GetIsVisited();
-	void SetIsVisited(bool value);
+	class NBlackboard {
+	public:
+		//NBlackboard();
+		//~NBlackboard();
 
-	virtual bool NodeCompleted(BasePlot* currentPlot) = 0;
-	virtual void ExecuteActions(BasePlot* currentPlot, float deltaTime) = 0;
-	virtual void SetTarget(BasePlot* currentPlot) = 0;
+		UOEntity* entityA;
+		UOEntity* entityB;
+		UOOwnable* ownable;
+		UOEdification* edification;
+		UOGrabbable* grabbable;
+		FVector* position;
+	};
 
-	vector<Arc> neighbors;
-	string nodeName;
-	string iconPath;
+	NBlackboard nBlackboard;
+
+	void SetGraph(Graph* g);
+
+	string name;
+
+	vector<Node*> nextNodes;
+
+	void RewriteNode(vector<Node*> nodes);
+
+	void ExecuteTask();
+	void TaskCompleted(bool completedOk);
 
 private:
-	
-	bool _visited = false;
+	Graph* _graph;
 	
 };

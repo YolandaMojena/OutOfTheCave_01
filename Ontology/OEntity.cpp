@@ -3,6 +3,7 @@
 #include "OutOfTheCave_01.h"
 #include "Ontology/ORelation.h"
 #include "Ontology/OOwnership.h"
+#include "Ontology/OOwnable.h"
 #include "NarrativeGeneration/PlotGenerator.h"
 #include "Ontology/OEntity.h"
 
@@ -47,8 +48,12 @@ vector<OTerritory*> UOEntity::GetTerritories() {
 	return _landlord;
 }
 
-OPersonality * UOEntity::GetPersonality(){
+OPersonality* UOEntity::GetPersonality(){
 	return _personality;
+}
+
+int UOEntity::GetNotoriety() {
+	return _notoriety;
 }
 
 bool UOEntity::GetIsDead() {
@@ -58,8 +63,14 @@ bool UOEntity::GetIsDead() {
 void UOEntity::AddRelationship(ORelation* newRelation) {
 	_relationships.push_back(newRelation);
 }
+void UOEntity::AddRelationship(UOEntity* newEntity) {
+	_relationships.push_back(new ORelation(this, newEntity, _personality->GetSocial(), newEntity->GetNotoriety(), _personality->GetMaxValue() - _personality->GetBraveness()));
+}
 void UOEntity::AddPossession(OOwnership* newPossession) {
 	_possessions.push_back(newPossession);
+}
+void UOEntity::AddPossession(UOOwnable* newOwnable) {
+	_possessions.push_back(new OOwnership(this, newOwnable, _personality->GetMaterialist()));
 }
 void UOEntity::AddTerritory(OTerritory* newTerritory) {
 	_landlord.push_back(newTerritory);
