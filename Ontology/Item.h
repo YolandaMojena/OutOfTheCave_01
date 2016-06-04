@@ -8,6 +8,9 @@
 
 using namespace std;
 
+class UOOwnable;
+class UOEntity;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OUTOFTHECAVE_01_API UItem : public UActorComponent
 {
@@ -88,5 +91,14 @@ public:
 		}
 	}*/
 
+protected:
 
+	const float _NOTIFICATION_RADIUS = 1000.0f;
+
+	enum _NotifyTag {
+		damaged, destroyed, grabbed
+	};
+
+	string GenerateNotifyID(UOOwnable* ownable, UOEntity* entity, _NotifyTag tag);
+	string GenerateNotifyID(UOEntity* pasiva, UOEntity* activa, _NotifyTag tag);
 };

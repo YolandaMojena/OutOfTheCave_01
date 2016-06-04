@@ -59,7 +59,41 @@ void UOOwnable::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("I have been destroyed by " + damager->GetOwner()->GetName()));
 
-	/*for (int i = 0; i < _owners.size(); i++) {
+	//  R E A C T I V I T Y
+	FVector start = GetOwner()->GetActorLocation();
+	FVector end = start;
+	TArray<FHitResult> outHits;
+
+	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, GetOwner());
+	RV_TraceParams.bTraceComplex = true;
+	RV_TraceParams.bTraceAsyncScene = true;
+	RV_TraceParams.bReturnPhysicalMaterial = false;
+
+	GetOwner()->GetWorld()->SweepMultiByChannel(
+		outHits,
+		start,
+		end,
+		FQuat(),
+		ECollisionChannel::ECC_Visibility,
+		FCollisionShape::MakeSphere(_NOTIFICATION_RADIUS),
+		RV_TraceParams
+		);
+
+	for (FHitResult hr : outHits) {
+		UOEntity* entity = hr.GetActor()->FindComponentByClass<UOEntity>();
+		if (entity->IsInSight(GetOwner()))
+			entity->OwnableNotify(this, damager, UItem::_NotifyTag::destroyed, false, UItem::GenerateNotifyID(this, damager, UItem::_NotifyTag::destroyed));
+	}
+
+
+	//   P L O T S
+	/*for (UOEntity* o : _owners) {
+		for (OOwnership* ow : o->GetPossessions())
+			if (this == ow->GetOwnable())
+				//Report!
+	}*/
+
+	/*OOwnership* ownership = _owner->GetOwnershipWith(this);
 
 		// Report hate towards damager
 		OOwnership* ownership = _owners[i]->GetOwnershipWith(this);

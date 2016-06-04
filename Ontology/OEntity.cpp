@@ -90,7 +90,7 @@ ORelation* UOEntity::GetRelationWith(UOEntity * other)
 OOwnership* UOEntity::GetOwnershipWith(UOOwnable * other)
 {
 	for (int i = 0; i < _possessions.size(); i++) {
-		if (_possessions[i]->GetItem() == other)
+		if (_possessions[i]->GetOwnable() == other)
 			return _possessions[i];
 	}
 
@@ -110,12 +110,26 @@ void UOEntity::DeleteRelation(UOEntity * relative)
 void UOEntity::DeletePossession(UOOwnable * possession)
 {
 	for (auto i : GetPossessions()) {
-		if (i->GetItem() == possession) {
+		if (i->GetOwnable() == possession)
 			GetPossessions().erase(remove(GetPossessions().begin(), GetPossessions().end(), i), GetPossessions().end());
 			break;
 		}
 	}
 }
+
+
+bool UOEntity::IsInSight(AActor* actor) {
+	return true;
+}
+
+void UOEntity::OwnableNotify(UOOwnable* ownable, UOEntity* entity, UItem::_NotifyTag tag, bool grito, string notifyID) {
+
+}
+void UOEntity::EntityNotify(UOEntity* pasiva, UOEntity* activa, UItem::_NotifyTag tag, bool grito, string notifyID) {
+
+}
+
+
 
 void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 {

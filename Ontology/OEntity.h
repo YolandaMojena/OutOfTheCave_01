@@ -8,6 +8,7 @@
 #include <vector>
 #include "BasePlot.h"
 #include <algorithm>
+#include <string>
 #include "OEntity.generated.h"
 
 using namespace std;
@@ -51,6 +52,11 @@ public:
 	void AddPossession(UOOwnable* newOwnable);
 	void AddTerritory(OTerritory* newTerritory);
 
+
+	bool IsInSight(AActor* actor);
+	void OwnableNotify(UOOwnable* ownable, UOEntity* entity, UItem::_NotifyTag tag, bool grito, string notifyID);
+	void EntityNotify(UOEntity* pasiva, UOEntity* activa, UItem::_NotifyTag tag, bool grito, string notifyID);
+	
 	ORelation* GetRelationWith(UOEntity* other);
 	OOwnership* GetOwnershipWith(UOOwnable* other);
 	void DeleteRelation(UOEntity* relation);
@@ -101,4 +107,7 @@ private:
 	OPersonality* _personality;
 
 	int _notoriety = 0;
+
+
+	int _notifyID;
 };

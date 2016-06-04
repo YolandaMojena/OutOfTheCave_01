@@ -15,7 +15,7 @@ public:
 	~OOwnership();
 
 	UOEntity* GetOwner();
-	UOOwnable* GetItem();
+	UOOwnable* GetOwnable();
 	int GetWorth();
 
 	void SetWorth(int value);

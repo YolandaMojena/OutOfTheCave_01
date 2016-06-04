@@ -2,6 +2,8 @@
 
 #include "OutOfTheCave_01.h"
 #include "Item.h"
+#include "OOwnable.h"
+#include "OEntity.h"
 
 
 // Sets default values for this component's properties
@@ -36,3 +38,11 @@ void UItem::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponent
 	// ...
 }
 
+
+string UItem::GenerateNotifyID(UOOwnable* ownable, UOEntity* entity, _NotifyTag tag) {
+	return "" + ownable->GetUniqueID() + entity->GetUniqueID() + tag;
+}
+string UItem::GenerateNotifyID(UOEntity* pasiva, UOEntity* activa, _NotifyTag tag) {
+
+	return "" + pasiva->GetUniqueID() + activa->GetUniqueID();
+}
