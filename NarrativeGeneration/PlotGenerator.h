@@ -4,8 +4,8 @@
 
 #include "GameFramework/Actor.h"
 #include <vector>
-#include <BasePlot.h>
-#include <PlotTypes.h>
+#include "BasePlot.h"
+#include "PlotTypes.h"
 #include <unordered_map>
 #include "Report.h"
 #include "StringCollection.h"
@@ -24,7 +24,7 @@ public:
 
 	public:
 		PlotDictionary();
-		vector<string> GetPlotsOfType(BasePlot::TypeOfPlot);
+		vector<string> GetPlotsOfType(BasePlot::TypeOfPlot type);
 
 	private:
 		unordered_map<BasePlot::TypeOfPlot, vector<string>> _plotDictionary;

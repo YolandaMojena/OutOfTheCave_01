@@ -6,6 +6,7 @@
 #include "Ontology/OOwnable.h"
 #include "NarrativeGeneration/PlotGenerator.h"
 #include "Ontology/OEntity.h"
+#include "BasePlot.h"
 
 UOEntity::UOEntity() {
 	
@@ -160,7 +161,7 @@ void UOEntity::Die() {
 
 }
 
-bool UOEntity::CheckValidPersonality(/*BasePlot::TypeOfPlot type*/) {
+bool UOEntity::CheckValidPersonality(BasePlot::TypeOfPlot type) {
 
 	/*switch (type) {
 

@@ -3,6 +3,10 @@
 #include "OutOfTheCave_01.h"
 #include "Node.h"
 #include "Graph.h"
+#include "Ontology/OEntity.h"
+#include "Ontology/OOwnable.h"
+#include "Ontology/OEdification.h"
+#include "Ontology/OGrabbable.h"
 
 Node::Node()  {}
 

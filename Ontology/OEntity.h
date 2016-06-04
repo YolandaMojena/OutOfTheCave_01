@@ -6,6 +6,7 @@
 #include "Ontology/OTerritory.h"
 #include "Ontology/OPersonality.h"
 #include <vector>
+#include "BasePlot.h"
 #include <algorithm>
 #include "OEntity.generated.h"
 
@@ -38,7 +39,6 @@ public:
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
 	vector<ORelation*> GetRelationships();
 	vector<OOwnership*> GetPossessions();
 	vector<OTerritory*> GetTerritories();
@@ -50,8 +50,6 @@ public:
 	void AddPossession(OOwnership* newOwnership);
 	void AddPossession(UOOwnable* newOwnable);
 	void AddTerritory(OTerritory* newTerritory);
-
-	
 
 	ORelation* GetRelationWith(UOEntity* other);
 	OOwnership* GetOwnershipWith(UOOwnable* other);
@@ -65,6 +63,8 @@ public:
 		// Must be called when changes are detected in the state of the ontology to add plots
 	void ChangeOfStateInOntology(ORelation* newRelation);
 	void ChangeOfStateInOntology(OOwnership* newOwnership);
+
+	bool CheckValidPersonality(BasePlot::TypeOfPlot type);
 
 	// Leave territories out for now
 	//void ChangeOfStateInOntology(OTerritory* newTerritory);
@@ -83,7 +83,7 @@ private:
 
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
-	bool CheckValidPersonality();
+
 
 	vector<ORelation*> _relationships;
 	vector<OOwnership*> _possessions;

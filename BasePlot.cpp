@@ -9,6 +9,8 @@ BasePlot::BasePlot(UOEntity* plotEntity) {
 	this->plotEntity = plotEntity;
 }
 
+BasePlot::BasePlot() {}
+
 BasePlot::~BasePlot() {}
 
 void BasePlot::BuildGraph() {

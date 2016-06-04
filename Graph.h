@@ -14,11 +14,11 @@ using namespace std;
 class OUTOFTHECAVE_01_API Graph
 {
 public:
+
 	Graph();
 	~Graph();
 	Graph(Node* n);
 
-public:
 	void AddNode(Node* n);
 	void AddNodeInNewBranch(Node* n, int depth);
 

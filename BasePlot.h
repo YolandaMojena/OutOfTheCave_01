@@ -41,7 +41,7 @@ public:
 protected:
 	
 	string _name, _description, _sentence;
-	Graph _plotGraph;
+	Graph* _plotGraph;
 	int _priority;
 	bool _plotCompleted = false;
 };

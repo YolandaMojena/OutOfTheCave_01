@@ -5,15 +5,14 @@
 #include <vector>
 #include <string>
 
-#include "Ontology/OEntity.h"
-#include "Ontology/OOwnable.h"
-#include "Ontology/OEdification.h"
-#include "Ontology/OGrabbable.h"
-
 using namespace std;
 
 class BasePlot;
 class Graph;
+class UOEntity;
+class UOOwnable;
+class UOEdification;
+class UOGrabbable;
 
 class OUTOFTHECAVE_01_API Node
 {

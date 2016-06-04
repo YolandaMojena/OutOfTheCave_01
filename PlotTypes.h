@@ -6,6 +6,10 @@
 #include <unordered_map>
 #include "BasePlot.h"
 
+using namespace std;
+
+class UOEntity;
+
 /**
  * 
  */

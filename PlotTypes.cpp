@@ -2,6 +2,7 @@
 
 #include "OutOfTheCave_01.h"
 #include "StringCollection.h"
+#include "Ontology/OEntity.h"
 #include "PlotTypes.h"
 
 
