@@ -5,11 +5,11 @@
 #include <string>
 #include <vector>
 #include "Graph.h"
-#include "Ontology/OEntity.h"
 #include "StringCollection.h"
-#include "VenturLocation.h"
 
 using namespace std;
+
+class UOEntity;
 
 class OUTOFTHECAVE_01_API BasePlot
 {

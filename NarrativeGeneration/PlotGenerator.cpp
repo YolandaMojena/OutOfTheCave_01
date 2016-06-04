@@ -85,16 +85,7 @@ void APlotGenerator::UpdateReport(Report* oldReport, Report* newReport) {
 
 void APlotGenerator::GetPlotFromReport(Report* report) {
 
-	vector<string> potentialPlots = plotDictionary.GetPlotsOfType(report->GetType());
-
-	for (int i = 0; i < potentialPlots.size(); i++) {
-
-
-		
-
-		
-
-	}
+	
 }
 
 APlotGenerator::PlotDictionary::PlotDictionary() {

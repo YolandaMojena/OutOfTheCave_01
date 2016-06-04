@@ -8,6 +8,7 @@
 #include "Ontology/OOwnership.h"
 #include "BasePlot.h"
 
+using namespace std;
 
 /**
  * 
@@ -20,11 +21,13 @@ public:
 		relation, ownership, world
 	};
 
-	Report(ORelation* newRelation, BasePlot::TypeOfPlot type, UItem* motivation);
-	Report(OOwnership* newOwnership, BasePlot::TypeOfPlot type, UItem* motivation);
+	Report(ORelation* newRelation, vector<BasePlot::TypeOfPlot> types, UItem* motivation);
+	Report(OOwnership* newOwnership, vector<BasePlot::TypeOfPlot> types, UItem* motivation);
 	Report(UOEntity* reportEntity);
 
 	~Report();
+
+	void PrintReport(Report* newReport);
 
 	UOEntity* GetReportEntity();
 	UOEntity* GetTargetEntity();
@@ -33,7 +36,7 @@ public:
 	OOwnership* GetNewOwnership();
 	UItem* GetMotivation();
 	ReportTag GetTag();
-	BasePlot::TypeOfPlot GetType();
+	vector<BasePlot::TypeOfPlot> GetTypes();
 
 
 private:
@@ -45,7 +48,7 @@ private:
 	UItem* _motivation;
 
 	ReportTag _tag;
-	BasePlot::TypeOfPlot _type;
+	vector<BasePlot::TypeOfPlot> _types;
 
 	// -1, 0 or 1
 	int _priority;

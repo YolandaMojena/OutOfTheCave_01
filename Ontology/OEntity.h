@@ -3,8 +3,6 @@
 #pragma once
 
 #include "Ontology/Item.h"
-#include "Ontology/OOwnable.h"
-//#include "Ontology/ORelation.h"
 #include "Ontology/OTerritory.h"
 #include "Ontology/OPersonality.h"
 #include <vector>
@@ -75,12 +73,11 @@ public:
 	APlotGenerator* plotGenerator;
 
 	
-
-	
 private:
 
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
+	bool CheckValidPersonality();
 
 	vector<ORelation*> _relationships;
 	vector<OOwnership*> _possessions;
