@@ -11,20 +11,13 @@ BasePlot::BasePlot(UOEntity* plotEntity) {
 
 BasePlot::~BasePlot() {}
 
-void BasePlot::BuildGraph(vector<Node*> nodes, vector<Node::Arc> arcs) {
+void BasePlot::BuildGraph() {
 
-	for (int i = 0; i < nodes.size(); i++) {
-		_plotGraph.AddNode(nodes[i]);
-	}
-
-	for (int i = 0; i < arcs.size(); i++) {
-		_plotGraph.AddEdge(arcs[i].parent, arcs[i].adj, arcs[i].condition);
-	}
 }
 
-void BasePlot::ExecutePlot(float deltaTime) {
+void BasePlot::ExecutePlot() {
 
-	_currentNode->SetTarget(this);
+	/*_currentNode->SetTarget(this);
 	_currentNode->ExecuteActions(this, deltaTime);
 
 	if (_currentNode->NodeCompleted(this))
@@ -43,7 +36,7 @@ void BasePlot::ExecutePlot(float deltaTime) {
 		else {
 			_plotCompleted = true;
 		}
-	}
+	}*/
 }
 
 void BasePlot::PrintSentence() {
@@ -52,7 +45,3 @@ void BasePlot::PrintSentence() {
 	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, _sentence.c_str());
 }
 
-bool BasePlot::Compare(BasePlot* thisPlot, BasePlot* otherPlot) {
-
-	return thisPlot->_priority < otherPlot->_priority;
-}

@@ -25,6 +25,12 @@ class OUTOFTHECAVE_01_API UOEntity : public UItem
 {
 	GENERATED_BODY()
 
+	enum State{
+		idle, plot, react
+	};
+	
+	State* currentState;
+
 public:
 	UOEntity();
 	UOEntity(OPersonality* personality);
@@ -88,6 +94,8 @@ private:
 	bool _isDead = false;
 
 	float MIN_INTEGRITY = 20.0f;
+
+	bool _highPriority = false;
 	
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 	OPersonality* _personality;
