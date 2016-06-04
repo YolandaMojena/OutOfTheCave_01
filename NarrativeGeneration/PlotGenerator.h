@@ -8,6 +8,7 @@
 #include <PlotTypes.h>
 #include <unordered_map>
 #include "Report.h"
+#include "StringCollection.h"
 #include "PlotGenerator.generated.h"
 
 using namespace std;
@@ -27,6 +28,7 @@ public:
 
 	private:
 		unordered_map<BasePlot::TypeOfPlot, vector<string>> _plotDictionary;
+		StringCollection _strings;
 	};
 
 	/* Unreal Priority Queue -> https://answers.unrealengine.com/questions/180188/analogue-of-priority-queue.html?sort=oldest */
@@ -45,12 +47,18 @@ public:
 	vector<BasePlot*> reactivePlots;
 	vector<BasePlot*> ambitionPlots;
 	vector<BasePlot*> worldPlots;
+	StringCollection strings;
 
 private:
 
 	bool CheckContainsReport(Report* newReport);
 	void UpdateReport(Report* oldReport, Report* newReport);
+	void GetPlotFromReport(Report* report);
 
 	vector<Report*> _reportLog;
+	bool _lastPlotCompleted;
+	float _timeToSpawnPlot;
+
+	const float _TIME_TO_SPAWN = 25.0f;
 };
 

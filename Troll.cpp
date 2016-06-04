@@ -335,7 +335,7 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 		ADestructibleActor* targetDestructible = dynamic_cast<ADestructibleActor*>(OtherActor);
 		targetDestructible->GetDestructibleComponent()->ApplyRadiusDamage(10, targetDestructible->GetDestructibleComponent()->GetCenterOfMass(), 32, 100, false);
 	}
-	else if (GetEntityComponent(OtherActor) != nullptr && isAttacking && _canDamage) {
+	else if (GetEntityComponent(OtherActor) && isAttacking && _canDamage) {
 
 		UOEntity* hitEntity = GetEntityComponent(OtherActor);
 		hitEntity->ReceiveDamage(_TROLL_DMG, this->FindComponentByClass<UOEntity>());
@@ -344,7 +344,7 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 		//hitEntity->GetOwner()->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
 	}
 
-	else if (GetOwnableComponent(OtherActor) != nullptr && isAttacking && _canDamage) {
+	else if (GetOwnableComponent(OtherActor) && isAttacking && _canDamage) {
 
 		UOOwnable* hitOwnable = GetOwnableComponent(OtherActor);
 		hitOwnable->ReceiveDamage(_TROLL_DMG, this->FindComponentByClass<UOEntity>());

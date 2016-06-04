@@ -99,16 +99,20 @@ OOwnership* UOEntity::GetOwnershipWith(UOOwnable * other)
 void UOEntity::DeleteRelation(UOEntity * relative)
 {
 	for (auto i : GetRelationships()) {
-		if(i->GetOtherEntity() == relative)
+		if (i->GetOtherEntity() == relative) {
 			GetRelationships().erase(remove(GetRelationships().begin(), GetRelationships().end(), i), GetRelationships().end());
+			break;
+		}	
 	}
 }
 
 void UOEntity::DeletePossession(UOOwnable * possession)
 {
 	for (auto i : GetPossessions()) {
-		if (i->GetItem() == possession)
+		if (i->GetItem() == possession) {
 			GetPossessions().erase(remove(GetPossessions().begin(), GetPossessions().end(), i), GetPossessions().end());
+			break;
+		}
 	}
 }
 
@@ -128,22 +132,22 @@ void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 	}
 }
 
+// BEFORE SENDING, ELEGIBLE TYPE MUST BE CHECKED WITH PERSONALITY
+// CONFIRMED REPORTS ARE ALSO PRINTED ON SCREEN
 void UOEntity::SendReport(Report * newReport)
 {
-	if (newReport->GetTag() == Report::ReportTag::relation) {
 
-		FString report = "Report from entity " + newReport->GetReportEntity()->GetOwner()->GetActorLabel() + " about entity " + newReport->GetTargetEntity()->GetOwner()->GetActorLabel() + ". Reports a change caused by " + newReport->GetMotivation()->GetOwner()->GetActorLabel();
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, report);
-	}
-	else if (newReport->GetTag() == Report::ReportTag::ownership) {
+	vector<BasePlot::TypeOfPlot> reportedTypes = newReport->GetTypes();
 
-		FString report = "Report from entity " + newReport->GetReportEntity()->GetOwner()->GetActorLabel() + " about ownable " + newReport->GetTargetOwnable()->GetOwner()->GetActorLabel() + ". Reports a change caused by: " + newReport->GetMotivation()->GetOwner()->GetActorLabel();
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, report);
+	for (int i = 0; i < reportedTypes.size(); i++) {
+
 	}
 
-	// BEFORE SENDING, TYPE MUST BE DETERMINED BY PERSONALITY, IN THIS CLASS OR FROM THE CAUSE OF THE REPORT
+	
 
-	plotGenerator->AddReportToLog(newReport);
+	///int kind, int brave, int aggressive, int social, int materialist
+
+	//plotGenerator->AddReportToLog(newReport);
 
 }
 
@@ -154,5 +158,29 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 
 void UOEntity::Die() {
 
+}
+
+bool UOEntity::CheckValidPersonality(/*BasePlot::TypeOfPlot type*/) {
+
+	/*switch (type) {
+
+	case BasePlot::TypeOfPlot::aggressive:
+		if (_personality->GetAggressiveness() < 50 && _personality->GetBraveness() < 50) return false;
+
+	case BasePlot::TypeOfPlot::possesive:
+		if (_personality->GetMaterialist() < 50 && _personality->GetAggressiveness() < 50) return false;
+
+	case BasePlot::TypeOfPlot::resources: 
+		return true;
+
+	case BasePlot::TypeOfPlot::thankful:
+		if (_personality->GetKindness() < 50 && _personality->GetSocial() < 50) return false;
+
+	case BasePlot::TypeOfPlot::preventive:
+		return true;
+
+	}*/
+
+	return true;
 }
 

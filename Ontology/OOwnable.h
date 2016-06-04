@@ -4,7 +4,7 @@
 
 #include "Ontology/Item.h"
 #include <vector>
-//#include <algorithm>
+#include <algorithm>
 #include "OOwnable.generated.h"
 
 using namespace std;

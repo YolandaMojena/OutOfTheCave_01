@@ -13,10 +13,10 @@ void UOOwnable::BeginPlay() {
 	Super::BeginPlay();
 
 	//At the moment, last found entity is owner
-	for (TObjectIterator<UOCivilian> Itr; Itr; ++Itr){
+	/*for (TObjectIterator<UOCivilian> Itr; Itr; ++Itr){
 		_owners.push_back(*Itr);
 		Itr->AddPossession(new OOwnership(*Itr, this, Itr->GetPersonality()->GetMaterialist()));
-	}
+	}*/
 }
 
 void UOOwnable::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -59,23 +59,23 @@ void UOOwnable::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("I have been destroyed by " + damager->GetOwner()->GetName()));
 
-	/*OOwnership* ownership = _owner->GetOwnershipWith(this);
+	/*for (int i = 0; i < _owners.size(); i++) {
 
-	if (ownership) {
+		// Report hate towards damager
+		OOwnership* ownership = _owners[i]->GetOwnershipWith(this);
+		ORelation* oldRelation = _owners[i]->GetRelationWith(damager);
 
-		ORelation* oldRelation = _owner->GetRelationWith(damager);
+		if (ownership && oldRelation) {
 
-		if (!oldRelation) {
-			_owner->AddRelationship(new ORelation(_owner, damager, 0, 0, 0));
-			damager->AddRelationship(new ORelation(damager, _owner, 0, 0, 0));
-		}
-			
-		else
 			oldRelation->SetAppreciation(oldRelation->GetAppreciation() - ownership->GetWorth());
+			_owners[i]->SendReport(new Report(_owners[i]->GetRelationWith(damager), {BasePlot::TypeOfPlot::aggressive}, this));
+		}
+		else
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Inexisting relationship or ownership"));
 
-		_owner->DeletePossession(this);
+		// Delete from owners possessions and report the need of a new one if worthy enough
+		_owners[i]->DeletePossession(this);
 
-		_owner->SendReport(new Report(_owner->GetRelationWith(damager), BasePlot::TypeOfPlot::aggressive, this));
 	}*/
 }
 
