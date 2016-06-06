@@ -23,8 +23,6 @@ public:
 
 	class NBlackboard {
 	public:
-		//NBlackboard();
-		//~NBlackboard();
 
 		UOEntity* entityA;
 		UOEntity* entityB;
@@ -34,18 +32,17 @@ public:
 		FVector* position;
 	};
 
-	NBlackboard nBlackboard;
-
 	void SetGraph(Graph* g);
-
-	string name;
-
-	vector<Node*> nextNodes;
-
 	void RewriteNode(vector<Node*> nodes);
-
 	void ExecuteTask();
 	void TaskCompleted(bool completedOk);
+
+	// Allows nullptr if a value is not required
+	void PopulateBlackboard(UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr, FVector* position = nullptr);
+
+	NBlackboard nBlackboard;
+	string name;
+	vector<Node*> nextNodes;
 
 private:
 	Graph* _graph;

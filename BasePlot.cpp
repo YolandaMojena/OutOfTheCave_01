@@ -19,6 +19,8 @@ void BasePlot::BuildGraph() {
 
 void BasePlot::ExecutePlot() {
 
+	PrintSentence();
+
 	/*_currentNode->SetTarget(this);
 	_currentNode->ExecuteActions(this, deltaTime);
 

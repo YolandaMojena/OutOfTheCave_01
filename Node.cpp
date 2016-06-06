@@ -34,3 +34,13 @@ void Node::ExecuteTask() {
 void Node::TaskCompleted(bool completedOk) {
 	_graph->TaskCompleted(completedOk);
 }
+
+void Node::PopulateBlackboard(UOEntity* entityA, UOEntity* entityB, UOOwnable* ownable, UOEdification* edification, UOGrabbable* grabbable, FVector* position) {
+
+	nBlackboard.entityA = entityA;
+	nBlackboard.entityB = entityB;
+	nBlackboard.ownable = ownable;
+	nBlackboard.edification = edification;
+	nBlackboard.grabbable = grabbable;
+	nBlackboard.position = position;
+}

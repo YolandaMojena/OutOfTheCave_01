@@ -2,6 +2,7 @@
 
 #pragma once
 #include <vector>
+#include <algorithm>
 #include "Ontology/OEntity.h"
 #include "Ontology/ORelation.h"
 #include "Ontology/OOwnable.h"
@@ -37,6 +38,17 @@ public:
 	UItem* GetMotivation();
 	ReportTag GetTag();
 	vector<BasePlot::TypeOfPlot> GetTypes();
+
+	void RemoveTagFromReport(BasePlot::TypeOfPlot type);
+
+	struct ReportNotoriety
+	{
+		bool operator()(Report& A, Report& B) const
+		{
+			// Inverted compared to std::priority_queue - higher priorities float to the top
+			return A.GetReportEntity()->GetNotoriety() > B.GetReportEntity()->GetNotoriety();
+		}
+	};
 
 
 private:

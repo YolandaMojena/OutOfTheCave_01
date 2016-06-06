@@ -3,46 +3,63 @@
 #include "OutOfTheCave_01.h"
 #include "StringCollection.h"
 #include "Ontology/OEntity.h"
+#include "Ontology/OOwnable.h"
 #include "PlotTypes.h"
 
 
 //ATTACK PLOT
 //**************************************************************************************
 
-AttackPlot::AttackPlot(UOEntity* plotEntity) : BasePlot(plotEntity) {
+AttackPlot::AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity) : BasePlot(plotEntity) {
 
 	_name = "AttackPlot";
+	_targetEntity = targetEntity;
 	plotTypes = { TypeOfPlot::aggressive };
+	_sentence = BuildSentence();
+	_discrete = false;
 
 	BuildGraph();
+
+	if (!_discrete) GatherTargets();
 }
 
 AttackPlot::~AttackPlot() {}
 
 string AttackPlot::BuildSentence() {
 
-	return TCHAR_TO_UTF8(*(plotEntity->GetOwner()->GetActorLabel() + "is attacking"));
+	return TCHAR_TO_UTF8(*("Entity: " + plotEntity->GetOwner()->GetActorLabel() + "is attacking " + _targetEntity->GetOwner()->GetActorLabel()));
 }
 
-void AttackPlot::GatherTargets() {
-
-	_sentence = BuildSentence();
+void AttackPlot::GatherTargets() {	
 }
 
 void AttackPlot::ConsiderReactions() {
+}
 
+void AttackPlot::BuildGraph() {
+
+	_plotGraph = new Graph();
+
+	Node* attackNode = new Node();
+	attackNode->name = strings.ATTACK_NODE;
+	attackNode->PopulateBlackboard(plotEntity, _targetEntity);
+	_plotGraph->AddNode(attackNode);
 }
 
 
 //GATHER PLOT
 //**************************************************************************************
 
-GatherPlot::GatherPlot(UOEntity* plotEntity) : BasePlot(plotEntity) {
+GatherPlot::GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource) : BasePlot(plotEntity) {
 
 	_name = "GatherPlot";
+	_targetResource = targetResource;
 	plotTypes = { TypeOfPlot::resources };
+	_sentence = BuildSentence();
+	_discrete = false;
 
 
+	if (!_discrete) GatherTargets();
 	BuildGraph();
 }
 
@@ -50,21 +67,16 @@ GatherPlot::~GatherPlot() {}
 
 string GatherPlot::BuildSentence() {
 
-	FString entityName = plotEntity->GetOwner()->GetActorLabel();
-	string conversion1(TCHAR_TO_UTF8(*entityName));
-
-
-	return "Entity " + conversion1 + " is gathering ";
-
+	return TCHAR_TO_UTF8(*("Entity " + plotEntity->GetOwner()->GetActorLabel() + " is gathering " + _targetResource->GetOwner()->GetActorLabel()));
 }
 
 void GatherPlot::GatherTargets() {
-
-
-	_sentence = BuildSentence();
 }
 
 void GatherPlot::ConsiderReactions() {
+}
+
+void GatherPlot::BuildGraph() {
 
 }
 

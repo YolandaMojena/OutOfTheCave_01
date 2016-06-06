@@ -52,7 +52,6 @@ public:
 	void AddPossession(UOOwnable* newOwnable);
 	void AddTerritory(OTerritory* newTerritory);
 
-
 	bool IsInSight(AActor* actor);
 	void OwnableNotify(UOOwnable* ownable, UOEntity* entity, UItem::_NotifyTag tag, bool grito, string notifyID);
 	void EntityNotify(UOEntity* pasiva, UOEntity* activa, UItem::_NotifyTag tag, bool grito, string notifyID);
@@ -65,16 +64,7 @@ public:
 	bool GetIsDead();
 
 	void ReceiveDamage(float damage, UOEntity* damager);
-
-		// Must be called when changes are detected in the state of the ontology to add plots
-	void ChangeOfStateInOntology(ORelation* newRelation);
-	void ChangeOfStateInOntology(OOwnership* newOwnership);
-
 	bool CheckValidPersonality(BasePlot::TypeOfPlot type);
-
-	// Leave territories out for now
-	//void ChangeOfStateInOntology(OTerritory* newTerritory);
-
 	void SendReport(Report* newReport);
 
 	// It must be considered whether if the entity is the player
@@ -89,7 +79,6 @@ private:
 
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
-
 
 	vector<ORelation*> _relationships;
 	vector<OOwnership*> _possessions;
@@ -107,7 +96,5 @@ private:
 	OPersonality* _personality;
 
 	int _notoriety = 0;
-
-
 	int _notifyID;
 };

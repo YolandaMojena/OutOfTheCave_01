@@ -338,9 +338,9 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 	else if (GetEntityComponent(OtherActor) && isAttacking && _canDamage) {
 
 		UOEntity* hitEntity = GetEntityComponent(OtherActor);
-		hitEntity->ReceiveDamage(_TROLL_DMG, this->FindComponentByClass<UOEntity>());
+		hitEntity->ReceiveDamage(_TROLL_DMG, GetEntityComponent(this));
 		//FVector direction = FVector(hitEntity->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, hitEntity->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
-		FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
+		//FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
 		//hitEntity->GetOwner()->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
 	}
 
@@ -349,7 +349,7 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 		UOOwnable* hitOwnable = GetOwnableComponent(OtherActor);
 		hitOwnable->ReceiveDamage(_TROLL_DMG, this->FindComponentByClass<UOEntity>());
 		//FVector direction = FVector(hitEntity->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, hitEntity->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
-		FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
+		//FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
 		//hitEntity->GetOwner()->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
 	}
 }

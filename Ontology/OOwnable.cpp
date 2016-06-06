@@ -87,29 +87,29 @@ void UOOwnable::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 
 
 	//   P L O T S
-	/*for (UOEntity* o : _owners) {
-		for (OOwnership* ow : o->GetPossessions())
-			if (this == ow->GetOwnable())
-				//Report!
-	}*/
+	//	For each owner, check existing ownership and relation with damager, change ontological relation if required and send reports
 
-	/*OOwnership* ownership = _owner->GetOwnershipWith(this);
+	for (UOEntity* o : _owners) {
 
-		// Report hate towards damager
-		OOwnership* ownership = _owners[i]->GetOwnershipWith(this);
-		ORelation* oldRelation = _owners[i]->GetRelationWith(damager);
+		OOwnership* ownership = o->GetOwnershipWith(this);
+		ORelation* relation = o->GetRelationWith(damager);
 
-		if (ownership && oldRelation) {
+		if (ownership && relation) {
 
-			oldRelation->SetAppreciation(oldRelation->GetAppreciation() - ownership->GetWorth());
-			_owners[i]->SendReport(new Report(_owners[i]->GetRelationWith(damager), {BasePlot::TypeOfPlot::aggressive}, this));
+			relation->SetAppreciation(relation->GetAppreciation() - ownership->GetWorth());
+			o->SendReport(new Report(relation, { BasePlot::TypeOfPlot::aggressive, BasePlot::TypeOfPlot::possessive }, this));
+			//o->DeletePossession(this);
 		}
 		else
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Inexisting relationship or ownership"));
+	}
 
-		// Delete from owners possessions and report the need of a new one if worthy enough
-		_owners[i]->DeletePossession(this);
-
+	/*for (UOEntity* o : _owners) {
+		for (OOwnership* ow : o->GetPossessions()) {
+			if (this == ow->GetOwnable()) {
+		
+			}
+		}
 	}*/
 }
 
