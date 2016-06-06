@@ -39,6 +39,7 @@ public:
 
 	// Allows nullptr if a value is not required
 	void PopulateBlackboard(UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr, FVector* position = nullptr);
+	void SetIconPath(string path);
 
 	NBlackboard nBlackboard;
 	string name;
@@ -46,5 +47,5 @@ public:
 
 private:
 	Graph* _graph;
-	
+	string _iconPath;
 };

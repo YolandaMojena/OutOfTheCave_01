@@ -43,6 +43,7 @@ void AttackPlot::BuildGraph() {
 	Node* attackNode = new Node();
 	attackNode->name = strings.ATTACK_NODE;
 	attackNode->PopulateBlackboard(plotEntity, _targetEntity);
+	attackNode->SetIconPath(strings.ATTACK_ICON);
 	_plotGraph->AddNode(attackNode);
 }
 

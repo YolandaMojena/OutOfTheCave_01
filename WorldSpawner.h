@@ -30,7 +30,7 @@ public:
 private:
 
 	TSubclassOf<class ACharacter> BP_Entity;
-	TSubclassOf<class ACharacter> BP_Civilian;
+	TSubclassOf<class ACharacter> BP_Civilian_Goblin;
 	TSubclassOf<class ACharacter> BP_Thing;
 	TSubclassOf<class ACharacter> BP_Grabbable;
 	TSubclassOf<class ACharacter> BP_Edification;

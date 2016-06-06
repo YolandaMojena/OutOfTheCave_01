@@ -44,3 +44,7 @@ void Node::PopulateBlackboard(UOEntity* entityA, UOEntity* entityB, UOOwnable* o
 	nBlackboard.grabbable = grabbable;
 	nBlackboard.position = position;
 }
+
+void Node::SetIconPath(string path) {
+	_iconPath = path;
+}
