@@ -9,7 +9,7 @@
 #include "BasePlot.h"
 
 UOEntity::UOEntity() {
-	
+	_personality = new OPersonality();
 }
 
 UOEntity::UOEntity(OPersonality* personality) {
@@ -69,9 +69,11 @@ void UOEntity::AddRelationship(UOEntity* newEntity) {
 }
 void UOEntity::AddPossession(OOwnership* newPossession) {
 	_possessions.push_back(newPossession);
+	newPossession->GetOwnable()->AddOwner(this);
 }
 void UOEntity::AddPossession(UOOwnable* newOwnable) {
 	_possessions.push_back(new OOwnership(this, newOwnable, _personality->GetMaterialist()));
+	newOwnable->AddOwner(this);
 }
 void UOEntity::AddTerritory(OTerritory* newTerritory) {
 	_landlord.push_back(newTerritory);
@@ -216,7 +218,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 		ORelation* relationWithKiller = o->GetOtherEntity()->GetRelationWith(killer);
 
 		// Study state of relationship
-		if (relationFromOther->GetAppreciation() > 75 && relationWithKiller->GetAppreciation() < relationFromOther->GetAppreciation()) {
+		if (relationWithKiller && relationFromOther->GetAppreciation() > 75 && relationWithKiller->GetAppreciation() < relationFromOther->GetAppreciation()) {
 
 			relationWithKiller->SetAppreciation(relationFromOther->GetAppreciation() - relationWithKiller->GetAppreciation());
 			o->GetOtherEntity()->SendReport(new Report(relationWithKiller, { BasePlot::TypeOfPlot::aggressive }, this));

@@ -10,6 +10,7 @@ class OUTOFTHECAVE_01_API ORelation
 {
 public:
 	ORelation(UOEntity* entity, UOEntity* other, int appreciation, int respect, int fear);
+	ORelation(UOEntity* entity, UOEntity* other);
 	ORelation();
 	~ORelation();
 

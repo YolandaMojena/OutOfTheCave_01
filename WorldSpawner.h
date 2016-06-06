@@ -25,15 +25,15 @@ public:
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
 
-	void SpawnCivilians();
+	//void SpawnCivilians();
 
 private:
 
-	TSubclassOf<class ACharacter> BP_Entity;
+	/*TSubclassOf<class ACharacter> BP_Entity;
 	TSubclassOf<class ACharacter> BP_Civilian_Goblin;
 	TSubclassOf<class ACharacter> BP_Thing;
 	TSubclassOf<class ACharacter> BP_Grabbable;
 	TSubclassOf<class ACharacter> BP_Edification;
 
-	vector<ACharacter*> _civilians;
+	vector<ACharacter*> _civilians;*/
 };

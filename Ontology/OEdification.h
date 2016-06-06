@@ -5,6 +5,8 @@
 #include "GameFramework/Actor.h"
 #include "Ontology/OOwnable.h"
 #include "Ontology/OCivilian.h"
+#include "Ontology/ORelation.h"
+#include "Ontology/OOwnership.h"
 #include <vector>
 #include <cstdlib>
 #include "OEdification.generated.h"
@@ -12,11 +14,21 @@
 using namespace std;
 
 class UOEntity;
+class AVillage;
 
 /**
  * 
  */
-UCLASS()
+
+
+UENUM(BlueprintType)
+enum class ERace : uint8 {
+	R_Human		UMETA(DisplayName = "Human"),
+	R_Goblin	UMETA(DisplayName = "Goblin"),
+	R_Mixt		UMETA(DisplayName = "Mixt")
+};
+
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class OUTOFTHECAVE_01_API UOEdification : public UOOwnable
 {
 	GENERATED_BODY()
@@ -26,16 +38,22 @@ public:
 	UOEdification();
 	~UOEdification();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		int villageID;
+	// Called when the game starts
+	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		int raceID;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSpawner)
+		int32 villageID;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		int numTenants;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSpawner)
+		ERace race;
 
-	void SpawnTenants();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSpawner)
+		int32 numTenants;
+
+	bool initialized = false;
+	
+	vector<UOEntity*> tentants;
+
 
 protected:
 	//virtual void UOOwnable::IHaveBeenDamagedBySomeone(UOEntity* damager) override;
@@ -45,8 +63,10 @@ private:
 
 	TSubclassOf<class ACharacter> BP_Civilian_Goblin;
 
-	vector<UOEntity*> _tentants;
+	
 
-	
-	
+	AVillage* _village;
+
+	void FindVillage();
+	void SpawnTenants();
 };

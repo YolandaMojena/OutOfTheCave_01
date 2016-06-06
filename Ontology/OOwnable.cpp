@@ -33,6 +33,13 @@ void UOOwnable::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	}
 }
 
+vector<UOEntity*> UOOwnable::GetOwners() {
+	return _owners;
+}
+void UOOwnable::AddOwner(UOEntity* e) {
+	_owners.push_back(e);
+}
+
 void UOOwnable::ReceiveDamage(float damage, UOEntity* damager) {
 
 	if (!_destroyed && _canBeDamaged) {
