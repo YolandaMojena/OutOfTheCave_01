@@ -14,9 +14,16 @@ ORelation::~ORelation()
 ORelation::ORelation(UOEntity* entity, UOEntity* otherEntity, int appreciation, int respect, int fear) {
 	_entity = entity;
 	_otherEntity = otherEntity;
-	_appreciation = appreciation;
-	_respect = respect;
-	_fear = fear;
+	_appreciation = ThresholdValue(appreciation);
+	_respect = ThresholdValue(respect);
+	_fear = ThresholdValue(fear);
+}
+ORelation::ORelation(UOEntity* entity, UOEntity* otherEntity) {
+	_entity = entity;
+	_otherEntity = otherEntity;
+	_appreciation = ThresholdValue(entity->GetPersonality()->GetSocial());
+	_respect = ThresholdValue(otherEntity->GetNotoriety());
+	_fear = ThresholdValue(otherEntity->GetPersonality()->GetAggressiveness());
 }
 
 // GETTERS & SETTERS

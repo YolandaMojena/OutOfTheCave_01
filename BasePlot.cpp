@@ -1,12 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OutOfTheCave_01.h"
+#include "Ontology/OEntity.h"
 #include "BasePlot.h"
 
 BasePlot::BasePlot(UOEntity* plotEntity) {
 
 	this->plotEntity = plotEntity;
 }
+
+BasePlot::BasePlot() {}
 
 BasePlot::~BasePlot() {}
 
@@ -15,6 +18,8 @@ void BasePlot::BuildGraph() {
 }
 
 void BasePlot::ExecutePlot() {
+
+	PrintSentence();
 
 	/*_currentNode->SetTarget(this);
 	_currentNode->ExecuteActions(this, deltaTime);

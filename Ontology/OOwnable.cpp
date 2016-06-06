@@ -13,10 +13,10 @@ void UOOwnable::BeginPlay() {
 	Super::BeginPlay();
 
 	//At the moment, last found entity is owner
-	for (TObjectIterator<UOCivilian> Itr; Itr; ++Itr){
+	/*for (TObjectIterator<UOCivilian> Itr; Itr; ++Itr){
 		_owners.push_back(*Itr);
 		Itr->AddPossession(new OOwnership(*Itr, this, Itr->GetPersonality()->GetMaterialist()));
-	}
+	}*/
 }
 
 void UOOwnable::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -31,6 +31,13 @@ void UOOwnable::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 			_canBeDamaged = true;
 		}
 	}
+}
+
+vector<UOEntity*> UOOwnable::GetOwners() {
+	return _owners;
+}
+void UOOwnable::AddOwner(UOEntity* e) {
+	_owners.push_back(e);
 }
 
 void UOOwnable::ReceiveDamage(float damage, UOEntity* damager) {
@@ -58,7 +65,6 @@ void UOOwnable::ReceiveDamage(float damage, UOEntity* damager) {
 void UOOwnable::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("I have been destroyed by " + damager->GetOwner()->GetName()));
-
 
 	//  R E A C T I V I T Y
 	FVector start = GetOwner()->GetActorLocation();
@@ -88,29 +94,29 @@ void UOOwnable::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 
 
 	//   P L O T S
-	/*for (UOEntity* o : _owners) {
-		for (OOwnership* ow : o->GetPossessions())
-			if (this == ow->GetOwnable())
-				//Report!
-	}*/
+	//	For each owner, check existing ownership and relation with damager, change ontological relation if required and send reports
 
-	/*OOwnership* ownership = _owner->GetOwnershipWith(this);
+	for (UOEntity* o : _owners) {
 
-	if (ownership) {
+		OOwnership* ownership = o->GetOwnershipWith(this);
+		ORelation* relation = o->GetRelationWith(damager);
 
-		ORelation* oldRelation = _owner->GetRelationWith(damager);
+		if (ownership && relation) {
 
-		if (!oldRelation) {
-			_owner->AddRelationship(new ORelation(_owner, damager, 0, 0, 0));
-			damager->AddRelationship(new ORelation(damager, _owner, 0, 0, 0));
+			relation->SetAppreciation(relation->GetAppreciation() - ownership->GetWorth());
+			o->SendReport(new Report(relation, { BasePlot::TypeOfPlot::aggressive, BasePlot::TypeOfPlot::possessive }, this));
+			//o->DeletePossession(this);
 		}
-			
 		else
-			oldRelation->SetAppreciation(oldRelation->GetAppreciation() - ownership->GetWorth());
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Inexisting relationship or ownership"));
+	}
 
-		_owner->DeletePossession(this);
-
-		_owner->SendReport(new Report(_owner->GetRelationWith(damager), BasePlot::TypeOfPlot::aggressive, this));
+	/*for (UOEntity* o : _owners) {
+		for (OOwnership* ow : o->GetPossessions()) {
+			if (this == ow->GetOwnable()) {
+		
+			}
+		}
 	}*/
 }
 

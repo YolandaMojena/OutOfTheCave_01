@@ -5,10 +5,11 @@
 #include <string>
 #include <vector>
 #include "Graph.h"
-#include "Ontology/OEntity.h"
 #include "StringCollection.h"
 
 using namespace std;
+
+class UOEntity;
 
 class OUTOFTHECAVE_01_API BasePlot
 {
@@ -19,15 +20,15 @@ public:
 	~BasePlot();
 
 	enum TypeOfPlot {
-		aggressive, thankful, preventive, possesive, resources, world
+		aggressive, thankful, preventive, possessive, resources, world
 	};
 
 	virtual void GatherTargets() = 0;
-	virtual string BuildSentence() = 0;
 	virtual void ConsiderReactions() = 0;
+
 	
 	void ExecutePlot();
-	void BuildGraph();
+	
 	void PrintSentence();
 
 	TypeOfPlot plotTypes;
@@ -40,7 +41,11 @@ public:
 protected:
 	
 	string _name, _description, _sentence;
-	Graph _plotGraph;
+	Graph* _plotGraph;
 	int _priority;
 	bool _plotCompleted = false;
+	bool _discrete;
+
+	virtual void BuildGraph() = 0;
+	virtual string BuildSentence() = 0;
 };

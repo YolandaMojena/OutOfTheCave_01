@@ -6,29 +6,48 @@
 #include <unordered_map>
 #include "BasePlot.h"
 
+using namespace std;
+
+class UOEntity;
+class UOOwnable;
+
 /**
  * 
  */
 class OUTOFTHECAVE_01_API AttackPlot : public BasePlot
 {
 public:
-	AttackPlot(UOEntity* plotEntity);
+	AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity);
 	~AttackPlot();
 
 	void GatherTargets();
-	string BuildSentence();
 	void ConsiderReactions();
+
+
+private:
+
+	void BuildGraph();
+	string BuildSentence();
+
+	UOEntity* _targetEntity;
 };
 
 class OUTOFTHECAVE_01_API GatherPlot : public BasePlot
 {
 public:
-	GatherPlot(UOEntity* plotEntity);
+	GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource);
 	~GatherPlot();
 
 	void GatherTargets();
-	string BuildSentence();
 	void ConsiderReactions();
+
+
+private:
+
+	void BuildGraph();
+	string BuildSentence();
+
+	UOOwnable* _targetResource;
 };
 
 /*

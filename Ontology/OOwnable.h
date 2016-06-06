@@ -4,7 +4,7 @@
 
 #include "Ontology/Item.h"
 #include <vector>
-//#include <algorithm>
+#include <algorithm>
 #include "OOwnable.generated.h"
 
 using namespace std;
@@ -29,7 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ownable)
 	bool meshDestroyable;
 
-	vector<UOEntity*> _owners;
+	vector<UOEntity*> GetOwners();
+	void AddOwner(UOEntity* e);
+	
 
 protected:
 	void IHaveBeenDamagedBySomeone(UOEntity* damager);
@@ -40,7 +42,7 @@ protected:
 private:
 
 	// Messages to owner for report generation
-	
+	vector<UOEntity*> _owners;
 
 	void DestroyOwnable();
 

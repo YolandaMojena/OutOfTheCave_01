@@ -3,11 +3,10 @@
 #pragma once
 
 #include "Ontology/Item.h"
-#include "Ontology/OOwnable.h"
-//#include "Ontology/ORelation.h"
 #include "Ontology/OTerritory.h"
 #include "Ontology/OPersonality.h"
 #include <vector>
+#include "BasePlot.h"
 #include <algorithm>
 #include <string>
 #include "OEntity.generated.h"
@@ -41,7 +40,6 @@ public:
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
 	vector<ORelation*> GetRelationships();
 	vector<OOwnership*> GetPossessions();
 	vector<OTerritory*> GetTerritories();
@@ -58,7 +56,6 @@ public:
 	void OwnableNotify(UOOwnable* ownable, UOEntity* entity, UItem::_NotifyTag tag, bool grito, string notifyID);
 	void EntityNotify(UOEntity* pasiva, UOEntity* activa, UItem::_NotifyTag tag, bool grito, string notifyID);
 	
-
 	ORelation* GetRelationWith(UOEntity* other);
 	OOwnership* GetOwnershipWith(UOOwnable* other);
 	void DeleteRelation(UOEntity* relation);
@@ -67,14 +64,7 @@ public:
 	bool GetIsDead();
 
 	void ReceiveDamage(float damage, UOEntity* damager);
-
-		// Must be called when changes are detected in the state of the ontology to add plots
-	void ChangeOfStateInOntology(ORelation* newRelation);
-	void ChangeOfStateInOntology(OOwnership* newOwnership);
-
-	// Leave territories out for now
-	//void ChangeOfStateInOntology(OTerritory* newTerritory);
-
+	bool CheckValidPersonality(BasePlot::TypeOfPlot type);
 	void SendReport(Report* newReport);
 
 	// It must be considered whether if the entity is the player
@@ -83,8 +73,6 @@ public:
 
 	// All entities will send reports to the plotGenerator situated in the game world
 	APlotGenerator* plotGenerator;
-
-	
 
 	
 private:
@@ -108,7 +96,5 @@ private:
 	OPersonality* _personality;
 
 	int _notoriety = 0;
-
-
 	int _notifyID;
 };

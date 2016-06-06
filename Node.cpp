@@ -3,6 +3,10 @@
 #include "OutOfTheCave_01.h"
 #include "Node.h"
 #include "Graph.h"
+#include "Ontology/OEntity.h"
+#include "Ontology/OOwnable.h"
+#include "Ontology/OEdification.h"
+#include "Ontology/OGrabbable.h"
 
 Node::Node()  {}
 
@@ -29,4 +33,18 @@ void Node::ExecuteTask() {
 }
 void Node::TaskCompleted(bool completedOk) {
 	_graph->TaskCompleted(completedOk);
+}
+
+void Node::PopulateBlackboard(UOEntity* entityA, UOEntity* entityB, UOOwnable* ownable, UOEdification* edification, UOGrabbable* grabbable, FVector* position) {
+
+	nBlackboard.entityA = entityA;
+	nBlackboard.entityB = entityB;
+	nBlackboard.ownable = ownable;
+	nBlackboard.edification = edification;
+	nBlackboard.grabbable = grabbable;
+	nBlackboard.position = position;
+}
+
+void Node::SetIconPath(string path) {
+	_iconPath = path;
 }

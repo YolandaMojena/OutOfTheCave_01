@@ -2,12 +2,14 @@
 
 #pragma once
 #include <vector>
+#include <algorithm>
 #include "Ontology/OEntity.h"
 #include "Ontology/ORelation.h"
 #include "Ontology/OOwnable.h"
 #include "Ontology/OOwnership.h"
 #include "BasePlot.h"
 
+using namespace std;
 
 /**
  * 
@@ -20,11 +22,13 @@ public:
 		relation, ownership, world
 	};
 
-	Report(ORelation* newRelation, BasePlot::TypeOfPlot type, UItem* motivation);
-	Report(OOwnership* newOwnership, BasePlot::TypeOfPlot type, UItem* motivation);
+	Report(ORelation* newRelation, vector<BasePlot::TypeOfPlot> types, UItem* motivation);
+	Report(OOwnership* newOwnership, vector<BasePlot::TypeOfPlot> types, UItem* motivation);
 	Report(UOEntity* reportEntity);
 
 	~Report();
+
+	void PrintReport(Report* newReport);
 
 	UOEntity* GetReportEntity();
 	UOEntity* GetTargetEntity();
@@ -33,7 +37,18 @@ public:
 	OOwnership* GetNewOwnership();
 	UItem* GetMotivation();
 	ReportTag GetTag();
-	BasePlot::TypeOfPlot GetType();
+	vector<BasePlot::TypeOfPlot> GetTypes();
+
+	void RemoveTagFromReport(BasePlot::TypeOfPlot type);
+
+	struct ReportNotoriety
+	{
+		bool operator()(Report& A, Report& B) const
+		{
+			// Inverted compared to std::priority_queue - higher priorities float to the top
+			return A.GetReportEntity()->GetNotoriety() > B.GetReportEntity()->GetNotoriety();
+		}
+	};
 
 
 private:
@@ -45,7 +60,7 @@ private:
 	UItem* _motivation;
 
 	ReportTag _tag;
-	BasePlot::TypeOfPlot _type;
+	vector<BasePlot::TypeOfPlot> _types;
 
 	// -1, 0 or 1
 	int _priority;

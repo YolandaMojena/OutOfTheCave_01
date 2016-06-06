@@ -192,25 +192,25 @@ void ATroll::PickUpMain() {
 
 			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
 
-			if (GetEntityComponent(HitData.GetActor()) != nullptr) {
+			_mainWeapon = HitData.GetActor();
+			_mainRotation = _mainWeapon->GetActorRotation();
 
-				UOEntity* hitEntity = GetEntityComponent(HitData.GetActor());
+			if (GetEntityComponent(HitData.GetActor())) {
+
+				UOEntity* hitEntity = GetEntityComponent(_mainWeapon);
 
 				if (!hitEntity->GetIsDead()) {
 
-					HitData.GetActor()->SetActorEnableCollision(false);
-					ACharacter* weaponChar = dynamic_cast<ACharacter*>(HitData.GetActor());
-
+					ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
 					// BONE WILL PROBABLY DEPEND ON MESH
 					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(3), true);
 				}
 				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
 			}
 
-			_mainWeapon = HitData.GetActor();
-			HitData.GetActor()->SetActorEnableCollision(false);
-			AttachToSocket(HitData.GetActor(), "mainSocket");
-			HitData.GetActor()->OnActorBeginOverlap.Add(HitFunc);
+			_mainWeapon->SetActorEnableCollision(false);
+			AttachToSocket(_mainWeapon, "mainSocket");
+			_mainWeapon->OnActorBeginOverlap.Add(HitFunc);
 			_equipedMain = true;
 		}
 	}
@@ -219,7 +219,7 @@ void ATroll::PickUpMain() {
 		_mainWeapon->OnActorBeginOverlap.Remove(HitFunc);
 		_mainWeapon->DetachRootComponentFromParent(true);
 
-		if (GetEntityComponent(_mainWeapon) != nullptr) {
+		if (GetEntityComponent(_mainWeapon)) {
 
 			UOEntity* hitEntity = GetEntityComponent(_mainWeapon);
 			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
@@ -231,6 +231,7 @@ void ATroll::PickUpMain() {
 
 		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
 		_mainWeapon->SetActorEnableCollision(true);
+		_mainWeapon->SetActorRotation(_mainRotation);
 		_mainWeapon = nullptr;
 	}
 }
@@ -262,32 +263,33 @@ void ATroll::PickUpSecondary() {
 		if (HitData.bBlockingHit) {
 			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
 
-			if (GetEntityComponent(HitData.GetActor())!=nullptr) {
+			_secondaryWeapon = HitData.GetActor();
+			_secondaryRotation = _secondaryWeapon->GetActorRotation();
 
-				UOEntity* hitEntity = GetEntityComponent(HitData.GetActor());
+			if (GetEntityComponent(HitData.GetActor())) {
+
+				UOEntity* hitEntity = GetEntityComponent(_secondaryWeapon);
 
 				if (!hitEntity->GetIsDead()) {
 
-					HitData.GetActor()->SetActorEnableCollision(false);
-					ACharacter* weaponChar = dynamic_cast<ACharacter*>(HitData.GetActor());
+					ACharacter* weaponChar = dynamic_cast<ACharacter*>(_secondaryWeapon);
 					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(3), true);
 				}
 				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
+
+				_secondaryWeapon->SetActorEnableCollision(false);
+				AttachToSocket(_secondaryWeapon, "secondarySocket");
+				_secondaryWeapon->OnActorBeginOverlap.Add(HitFunc);
+				_equipedSecondary = true;
 			}
 		}
-
-		_secondaryWeapon = HitData.GetActor();
-		HitData.GetActor()->SetActorEnableCollision(false);
-		AttachToSocket(HitData.GetActor(), "secondarySocket");
-		HitData.GetActor()->OnActorBeginOverlap.Add(HitFunc);
-		_equipedSecondary = true;
 	}
 	else {
 		_equipedSecondary = false;
 		_secondaryWeapon->OnActorBeginOverlap.Remove(HitFunc);
 		_secondaryWeapon->DetachRootComponentFromParent(true);
 
-		if (GetEntityComponent(_secondaryWeapon) != nullptr) {
+		if (GetEntityComponent(_secondaryWeapon)) {
 
 			UOEntity* hitEntity = GetEntityComponent(_secondaryWeapon);
 			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_secondaryWeapon);
@@ -299,6 +301,7 @@ void ATroll::PickUpSecondary() {
 
 		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
 		_secondaryWeapon->SetActorEnableCollision(true);
+		_secondaryWeapon->SetActorRotation(_secondaryRotation);
 		_secondaryWeapon = nullptr;
 	}
 }
@@ -335,21 +338,21 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 		ADestructibleActor* targetDestructible = dynamic_cast<ADestructibleActor*>(OtherActor);
 		targetDestructible->GetDestructibleComponent()->ApplyRadiusDamage(10, targetDestructible->GetDestructibleComponent()->GetCenterOfMass(), 32, 100, false);
 	}
-	else if (GetEntityComponent(OtherActor) != nullptr && isAttacking && _canDamage) {
+	else if (GetEntityComponent(OtherActor) && isAttacking && _canDamage) {
 
 		UOEntity* hitEntity = GetEntityComponent(OtherActor);
-		hitEntity->ReceiveDamage(_TROLL_DMG, this->FindComponentByClass<UOEntity>());
+		hitEntity->ReceiveDamage(_TROLL_DMG, GetEntityComponent(this));
 		//FVector direction = FVector(hitEntity->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, hitEntity->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
-		FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
+		//FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
 		//hitEntity->GetOwner()->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
 	}
 
-	else if (GetOwnableComponent(OtherActor) != nullptr && isAttacking && _canDamage) {
+	else if (GetOwnableComponent(OtherActor) && isAttacking && _canDamage) {
 
 		UOOwnable* hitOwnable = GetOwnableComponent(OtherActor);
 		hitOwnable->ReceiveDamage(_TROLL_DMG, this->FindComponentByClass<UOEntity>());
 		//FVector direction = FVector(hitEntity->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, hitEntity->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
-		FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
+		//FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
 		//hitEntity->GetOwner()->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
 	}
 }

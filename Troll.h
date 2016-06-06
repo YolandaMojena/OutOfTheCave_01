@@ -97,6 +97,9 @@ private:
 	AActor* _mainWeapon;
 	AActor* _secondaryWeapon;
 
+	FRotator _mainRotation;
+	FRotator _secondaryRotation;
+
 	const float _PICK_UP_RADIO = 256.0f;
 	const float _TROLL_DMG = 150.0f;
 
