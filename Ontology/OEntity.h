@@ -6,7 +6,9 @@
 #include "Ontology/OTerritory.h"
 #include "Ontology/OPersonality.h"
 #include <vector>
+#include "BasePlot.h"
 #include <algorithm>
+#include <string>
 #include "OEntity.generated.h"
 
 using namespace std;
@@ -38,7 +40,6 @@ public:
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
 	vector<ORelation*> GetRelationships();
 	vector<OOwnership*> GetPossessions();
 	vector<OTerritory*> GetTerritories();
@@ -51,8 +52,10 @@ public:
 	void AddPossession(UOOwnable* newOwnable);
 	void AddTerritory(OTerritory* newTerritory);
 
+	bool IsInSight(AActor* actor);
+	void OwnableNotify(UOOwnable* ownable, UOEntity* entity, UItem::_NotifyTag tag, bool grito, string notifyID);
+	void EntityNotify(UOEntity* pasiva, UOEntity* activa, UItem::_NotifyTag tag, bool grito, string notifyID);
 	
-
 	ORelation* GetRelationWith(UOEntity* other);
 	OOwnership* GetOwnershipWith(UOOwnable* other);
 	void DeleteRelation(UOEntity* relation);
@@ -61,14 +64,7 @@ public:
 	bool GetIsDead();
 
 	void ReceiveDamage(float damage, UOEntity* damager);
-
-		// Must be called when changes are detected in the state of the ontology to add plots
-	void ChangeOfStateInOntology(ORelation* newRelation);
-	void ChangeOfStateInOntology(OOwnership* newOwnership);
-
-	// Leave territories out for now
-	//void ChangeOfStateInOntology(OTerritory* newTerritory);
-
+	bool CheckValidPersonality(BasePlot::TypeOfPlot type);
 	void SendReport(Report* newReport);
 
 	// It must be considered whether if the entity is the player
@@ -83,7 +79,6 @@ private:
 
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
-	bool CheckValidPersonality();
 
 	vector<ORelation*> _relationships;
 	vector<OOwnership*> _possessions;
@@ -101,4 +96,5 @@ private:
 	OPersonality* _personality;
 
 	int _notoriety = 0;
+	int _notifyID;
 };

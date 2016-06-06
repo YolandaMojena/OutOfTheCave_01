@@ -9,6 +9,8 @@ BasePlot::BasePlot(UOEntity* plotEntity) {
 	this->plotEntity = plotEntity;
 }
 
+BasePlot::BasePlot() {}
+
 BasePlot::~BasePlot() {}
 
 void BasePlot::BuildGraph() {
@@ -16,6 +18,8 @@ void BasePlot::BuildGraph() {
 }
 
 void BasePlot::ExecutePlot() {
+
+	PrintSentence();
 
 	/*_currentNode->SetTarget(this);
 	_currentNode->ExecuteActions(this, deltaTime);

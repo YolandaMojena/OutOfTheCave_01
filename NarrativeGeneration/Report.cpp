@@ -18,7 +18,7 @@ Report::Report(ORelation * newRelation, vector<BasePlot::TypeOfPlot> types, UIte
 Report::Report(OOwnership* newOwnership, vector<BasePlot::TypeOfPlot> types, UItem* motivation)
 {
 	_reportEntity = newOwnership->GetOwner();
-	_targetOwnable = newOwnership->GetItem();
+	_targetOwnable = newOwnership->GetOwnable();
 	_newOwnership = newOwnership;
 	_types = types;
 	_motivation = motivation;
@@ -41,13 +41,23 @@ void Report::PrintReport(Report* newReport) {
 
 	if (newReport->GetTag() == Report::ReportTag::relation) {
 
-		FString report = "Report from entity " + newReport->GetReportEntity()->GetOwner()->GetActorLabel() + " about entity " + newReport->GetTargetEntity()->GetOwner()->GetActorLabel() + ". Reports a change caused by " + newReport->GetMotivation()->GetOwner()->GetActorLabel();
+		FString report = "Report from entity " + newReport->GetReportEntity()->GetOwner()->GetActorLabel() + " about entity " + newReport->GetTargetEntity()->GetOwner()->GetActorLabel() + " caused by " + newReport->GetMotivation()->GetOwner()->GetActorLabel();
 		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, report);
 	}
 	else if (newReport->GetTag() == Report::ReportTag::ownership) {
 
-		FString report = "Report from entity " + newReport->GetReportEntity()->GetOwner()->GetActorLabel() + " about ownable " + newReport->GetTargetOwnable()->GetOwner()->GetActorLabel() + ". Reports a change caused by: " + newReport->GetMotivation()->GetOwner()->GetActorLabel();
+		FString report = "Report from entity " + newReport->GetReportEntity()->GetOwner()->GetActorLabel() + " about ownable " + newReport->GetTargetOwnable()->GetOwner()->GetActorLabel() + " caused by: " + newReport->GetMotivation()->GetOwner()->GetActorLabel();
 		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, report);
+	}
+}
+
+void Report::RemoveTagFromReport(BasePlot::TypeOfPlot type) {
+
+	for (BasePlot::TypeOfPlot t : _types) {
+		if (t == type) {
+			_types.erase(remove(_types.begin(), _types.end(), t), _types.end());
+			break;
+		}
 	}
 }
 

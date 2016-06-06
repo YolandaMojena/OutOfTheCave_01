@@ -59,23 +59,57 @@ void UOOwnable::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("I have been destroyed by " + damager->GetOwner()->GetName()));
 
-	/*for (int i = 0; i < _owners.size(); i++) {
+	//  R E A C T I V I T Y
+	FVector start = GetOwner()->GetActorLocation();
+	FVector end = start;
+	TArray<FHitResult> outHits;
 
-		// Report hate towards damager
-		OOwnership* ownership = _owners[i]->GetOwnershipWith(this);
-		ORelation* oldRelation = _owners[i]->GetRelationWith(damager);
+	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, GetOwner());
+	RV_TraceParams.bTraceComplex = true;
+	RV_TraceParams.bTraceAsyncScene = true;
+	RV_TraceParams.bReturnPhysicalMaterial = false;
 
-		if (ownership && oldRelation) {
+	GetOwner()->GetWorld()->SweepMultiByChannel(
+		outHits,
+		start,
+		end,
+		FQuat(),
+		ECollisionChannel::ECC_Visibility,
+		FCollisionShape::MakeSphere(_NOTIFICATION_RADIUS),
+		RV_TraceParams
+		);
 
-			oldRelation->SetAppreciation(oldRelation->GetAppreciation() - ownership->GetWorth());
-			_owners[i]->SendReport(new Report(_owners[i]->GetRelationWith(damager), {BasePlot::TypeOfPlot::aggressive}, this));
+	for (FHitResult hr : outHits) {
+		UOEntity* entity = hr.GetActor()->FindComponentByClass<UOEntity>();
+		if (entity->IsInSight(GetOwner()))
+			entity->OwnableNotify(this, damager, UItem::_NotifyTag::destroyed, false, UItem::GenerateNotifyID(this, damager, UItem::_NotifyTag::destroyed));
+	}
+
+
+	//   P L O T S
+	//	For each owner, check existing ownership and relation with damager, change ontological relation if required and send reports
+
+	for (UOEntity* o : _owners) {
+
+		OOwnership* ownership = o->GetOwnershipWith(this);
+		ORelation* relation = o->GetRelationWith(damager);
+
+		if (ownership && relation) {
+
+			relation->SetAppreciation(relation->GetAppreciation() - ownership->GetWorth());
+			o->SendReport(new Report(relation, { BasePlot::TypeOfPlot::aggressive, BasePlot::TypeOfPlot::possessive }, this));
+			//o->DeletePossession(this);
 		}
 		else
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Inexisting relationship or ownership"));
+	}
 
-		// Delete from owners possessions and report the need of a new one if worthy enough
-		_owners[i]->DeletePossession(this);
-
+	/*for (UOEntity* o : _owners) {
+		for (OOwnership* ow : o->GetPossessions()) {
+			if (this == ow->GetOwnable()) {
+		
+			}
+		}
 	}*/
 }
 

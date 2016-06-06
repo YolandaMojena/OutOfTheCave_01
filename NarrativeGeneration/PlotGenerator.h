@@ -4,8 +4,8 @@
 
 #include "GameFramework/Actor.h"
 #include <vector>
-#include <BasePlot.h>
-#include <PlotTypes.h>
+#include "BasePlot.h"
+#include "PlotTypes.h"
 #include <unordered_map>
 #include "Report.h"
 #include "StringCollection.h"
@@ -24,14 +24,12 @@ public:
 
 	public:
 		PlotDictionary();
-		vector<string> GetPlotsOfType(BasePlot::TypeOfPlot);
+		vector<string> GetPlotsOfType(BasePlot::TypeOfPlot type);
 
 	private:
 		unordered_map<BasePlot::TypeOfPlot, vector<string>> _plotDictionary;
-		StringCollection _strings;
+		StringCollection strings;
 	};
-
-	/* Unreal Priority Queue -> https://answers.unrealengine.com/questions/180188/analogue-of-priority-queue.html?sort=oldest */
 
 	APlotGenerator();
 	virtual void BeginPlay() override;
@@ -51,11 +49,10 @@ public:
 
 private:
 
-	bool CheckContainsReport(Report* newReport);
-	void UpdateReport(Report* oldReport, Report* newReport);
+	bool ContainsReport(Report* newReport);
 	void GetPlotFromReport(Report* report);
 
-	vector<Report*> _reportLog;
+	TArray<Report*> _pReportLog;
 	bool _lastPlotCompleted;
 	float _timeToSpawnPlot;
 
