@@ -35,7 +35,20 @@ void Node::TaskCompleted(bool completedOk) {
 	_graph->TaskCompleted(completedOk);
 }
 
-void Node::PopulateBlackboard(UOEntity* entityA, UOEntity* entityB, UOOwnable* ownable, UOEdification* edification, UOGrabbable* grabbable, FVector* position) {
+void Node::SetNodeType(NodeType n) {
+	_nodeType = n;
+}
+
+void Node::PopulateBlackboard(UOEntity* entityA, UOEntity* entityB, UOOwnable* ownable, UOEdification* edification, UOGrabbable* grabbable) {
+
+	nBlackboard.entityA = entityA;
+	nBlackboard.entityB = entityB;
+	nBlackboard.ownable = ownable;
+	nBlackboard.edification = edification;
+	nBlackboard.grabbable = grabbable;
+}
+
+void Node::PopulateBlackboard(FVector position, UOEntity* entityA, UOEntity* entityB, UOOwnable* ownable, UOEdification* edification, UOGrabbable* grabbable) {
 
 	nBlackboard.entityA = entityA;
 	nBlackboard.entityB = entityB;
@@ -44,6 +57,15 @@ void Node::PopulateBlackboard(UOEntity* entityA, UOEntity* entityB, UOOwnable* o
 	nBlackboard.grabbable = grabbable;
 	nBlackboard.position = position;
 }
+
+void SetEntityA(UOEntity* e) {}
+void SetEntityB(UOEntity* e) {}
+void SetOwnable(UOOwnable* o) {}
+// [...]
+void SetArquetypeObject(string s) {
+	nBlackboard.arquetypeObject = s;
+}
+
 
 void Node::SetIconPath(string path) {
 	_iconPath = path;

@@ -31,7 +31,7 @@ class OUTOFTHECAVE_01_API UOEntity : public UItem
 		idle, plot, react
 	};
 	
-	State* currentState;
+	State currentState;
 
 public:
 	UOEntity();
@@ -74,6 +74,10 @@ public:
 	// All entities will send reports to the plotGenerator situated in the game world
 	APlotGenerator* plotGenerator;
 
+	vector<BasePlot*> currentPlot;
+	Graph* brain;
+
+	
 	
 private:
 
@@ -97,4 +101,6 @@ private:
 
 	int _notoriety = 0;
 	int _notifyID;
+
+	Graph* _idleGraph;
 };
