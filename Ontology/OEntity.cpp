@@ -79,6 +79,16 @@ void UOEntity::AddTerritory(OTerritory* newTerritory) {
 	_landlord.push_back(newTerritory);
 }
 
+void UOEntity::AddDesire(OOwnership * newOwnership)
+{
+	_materialDesires.push_back(newOwnership);
+}
+
+void UOEntity::AddDesire(UOOwnable * newOwnable)
+{
+	_materialDesires.push_back(new OOwnership(this, newOwnable, _personality->GetMaterialist()));
+}
+
 ORelation* UOEntity::GetRelationWith(UOEntity * other)
 {
 	for (int i = 0; i < _relationships.size(); i++) {
@@ -103,28 +113,45 @@ void UOEntity::DeleteRelation(UOEntity * relative)
 {
 	int i = 0;
 
-	while (i < GetRelationships().size()) {
+	while (i < _relationships.size()) {
 
-		if (GetRelationships()[i]->GetOtherEntity() == relative) {
-			GetRelationships().erase(remove(GetRelationships().begin(), GetRelationships().end(), GetRelationships()[i]), GetRelationships().end());
+		if (_relationships[i]->GetOtherEntity() == relative) {
 			break;
 		}
 		else i++;
 	}
+
+	_relationships.erase(_relationships.begin() + i);
 }
 
 void UOEntity::DeletePossession(UOOwnable * possession)
 {
 	int i = 0;
 
-	while (i < GetPossessions().size()) {
+	while (i < _possessions.size()) {
 
-		if (GetPossessions()[i]->GetOwnable() == possession) {
-			GetPossessions().erase(remove(GetPossessions().begin(), GetPossessions().end(), GetPossessions()[i]), GetPossessions().end());
+		if (_possessions[i]->GetOwnable() == possession) {
 			break;
 		}
 		else i++;
 	}
+
+	_possessions.erase(_possessions.begin() + i);
+}
+
+void UOEntity::DeleteDesire(UOOwnable * desire)
+{
+	int i = 0;
+
+	while (i < _materialDesires.size()) {
+
+		if (_materialDesires[i]->GetOwnable() == desire) {
+			break;
+		}
+		else i++;
+	}
+
+	_materialDesires.erase(_materialDesires.begin() + i);
 }
 
 
@@ -150,7 +177,6 @@ void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 		_canBeDamaged = false;
 
 		if (_integrity < MIN_INTEGRITY) {
-			_isDead = true;
 			Die();
 			IHaveBeenKilledBySomeone(damager);
 		}
@@ -161,20 +187,8 @@ void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 // CONFIRMED REPORTS ARE PRINTED ON SCREEN
 void UOEntity::SendReport(Report * newReport)
 {
-	vector<BasePlot::TypeOfPlot> reportedTypes = newReport->GetTypes();
-
-	int i = 0;
-	while (i < newReport->GetTypes().size()) {
-
-		if (!CheckValidPersonality(reportedTypes[i]))
-			newReport->RemoveTagFromReport(reportedTypes[i]);
-		else i++;
-	}
-
-	if (newReport->GetTypes().size() > 0) {
-		newReport->PrintReport(newReport);
+	if (CheckValidPersonality(newReport->GetType()))
 		plotGenerator->AddReportToLog(newReport);
-	}
 }
 
 void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
@@ -212,20 +226,29 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 	//   P L O T S
 	//	Search in relationships for those who appreciate entity, change ontology if required and send reports
 
-	for (ORelation* o : GetRelationships()) {
+	vector<ORelation*> relations = GetRelationships();
+
+	for (ORelation* o : relations) {
 
 		ORelation* relationFromOther = o->GetOtherEntity()->GetRelationWith(this);
-		ORelation* relationWithKiller = o->GetOtherEntity()->GetRelationWith(killer);
 
-		// Study state of relationship
-		if (relationWithKiller && relationFromOther->GetAppreciation() > 75 && relationWithKiller->GetAppreciation() < relationFromOther->GetAppreciation()) {
+		if (relationFromOther){
 
-			relationWithKiller->SetAppreciation(relationFromOther->GetAppreciation() - relationWithKiller->GetAppreciation());
-			o->GetOtherEntity()->SendReport(new Report(relationWithKiller, { BasePlot::TypeOfPlot::aggressive }, this));
-			//o->DeleteGetOtherEntity()->DeleteRelation(this);
+			if (relationFromOther->GetAppreciation() > relationFromOther->LOW_APPRECIATION) {
+				ORelation* relationWithKiller = o->GetOtherEntity()->GetRelationWith(killer);
+
+				if (!relationWithKiller) {
+					o->GetOtherEntity()->AddRelationship(new ORelation(o->GetOtherEntity(), killer));
+					relationWithKiller = o->GetOtherEntity()->GetRelationWith(killer);
+				}
+
+				relationWithKiller->SetAppreciation(-relationFromOther->GetAppreciation());
+
+				if (relationWithKiller->GetAppreciation() < relationWithKiller->LOW_APPRECIATION)
+					o->GetOtherEntity()->SendReport(new Report(relationWithKiller, BasePlot::TypeOfPlot::aggressive, this));
+			}
+			o->GetOtherEntity()->DeleteRelation(this);
 		}
-		else
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Entities are not well-related"));
 	}
 }
 
@@ -233,6 +256,8 @@ void UOEntity::Die() {
 
 	ACharacter* character = dynamic_cast<ACharacter*>(GetOwner());
 	character->GetMesh()->SetSimulatePhysics(true);
+
+	_isDead = true;
 }
 
 bool UOEntity::CheckValidPersonality(BasePlot::TypeOfPlot type) {
@@ -240,16 +265,16 @@ bool UOEntity::CheckValidPersonality(BasePlot::TypeOfPlot type) {
 	switch (type) {
 
 	case BasePlot::TypeOfPlot::aggressive:
-		if (_personality->GetAggressiveness() < 50 || _personality->GetBraveness() < 50) return false;
+		if (_personality->GetAggressiveness() < 25 || _personality->GetBraveness() < 25) return false;
 
 	case BasePlot::TypeOfPlot::possessive:
-		if (_personality->GetMaterialist() < 50 || _personality->GetAggressiveness() < 50) return false;
+		if (_personality->GetMaterialist() < 25 || _personality->GetAggressiveness() < 25) return false;
 
 	case BasePlot::TypeOfPlot::resources: 
 		return true;
 
 	case BasePlot::TypeOfPlot::thankful:
-		if (_personality->GetKindness() < 50 || _personality->GetSocial() < 50) return false;
+		if (_personality->GetKindness() < 25 || _personality->GetSocial() < 25) return false;
 
 	case BasePlot::TypeOfPlot::preventive:
 		return true;

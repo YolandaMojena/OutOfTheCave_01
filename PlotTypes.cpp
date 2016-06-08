@@ -18,7 +18,7 @@ AttackPlot::AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity) : BasePlot(
 	_sentence = BuildSentence();
 	_discrete = false;
 
-	BuildGraph();
+	//BuildGraph();
 
 	if (!_discrete) GatherTargets();
 }
@@ -27,7 +27,7 @@ AttackPlot::~AttackPlot() {}
 
 string AttackPlot::BuildSentence() {
 
-	return TCHAR_TO_UTF8(*("Entity: " + plotEntity->GetOwner()->GetActorLabel() + "is attacking " + _targetEntity->GetOwner()->GetActorLabel()));
+	return TCHAR_TO_UTF8(*("Entity: " + plotEntity->GetOwner()->GetActorLabel() + " is attacking " + _targetEntity->GetOwner()->GetActorLabel()));
 }
 
 void AttackPlot::GatherTargets() {	
@@ -61,7 +61,7 @@ GatherPlot::GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource) : BasePl
 
 
 	if (!_discrete) GatherTargets();
-	BuildGraph();
+	//BuildGraph();
 }
 
 GatherPlot::~GatherPlot() {}

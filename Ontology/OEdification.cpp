@@ -11,7 +11,6 @@ UOEdification::UOEdification() : UOOwnable() {
 	if (ItemBlueprint.Object) {
 		BP_Civilian_Goblin = (UClass*)ItemBlueprint.Object->GeneratedClass;
 	}
-
 }
 
 UOEdification::~UOEdification()

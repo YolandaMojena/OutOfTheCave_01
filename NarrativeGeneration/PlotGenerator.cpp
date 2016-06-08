@@ -23,7 +23,7 @@ void APlotGenerator::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	if (_lastPlotCompleted) {
+	/*if (_lastPlotCompleted) {
 
 		_timeToSpawnPlot += DeltaTime;
 
@@ -32,7 +32,9 @@ void APlotGenerator::Tick( float DeltaTime )
 			_lastPlotCompleted = false;
 			SpawnPlot();
 		}
-	}
+	}*/
+
+	SpawnPlot();
 }
 
 bool APlotGenerator::ValidatePlot(BasePlot * candidatePlot)
@@ -44,15 +46,22 @@ void APlotGenerator::SpawnPlot()
 {
 	if (reactivePlots.size() > 0) {
 		BasePlot* currentPlot = reactivePlots[reactivePlots.size() - 1];
+		currentPlot->PrintSentence();
 		reactivePlots.pop_back();
-		currentPlot->ExecutePlot();
+	}
+	else {
+		GetPlotFromReportLog();
+		//BasePlot* currentPlot = reactivePlots[reactivePlots.size() - 1];
+		//if(currentPlot) reactivePlots.pop_back();
+		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, "PLOT");
 	}
 }
 
 void APlotGenerator::AddReportToLog(Report* newReport)
 {
-	if (!ContainsReport(newReport))
+	if (!ContainsReport(newReport)) {
 		_pReportLog.HeapPush(newReport, Report::ReportNotoriety());
+	}
 }
 
 bool APlotGenerator::ContainsReport(Report* newReport) {
@@ -60,12 +69,12 @@ bool APlotGenerator::ContainsReport(Report* newReport) {
 	for (int i = 0; i < _pReportLog.Num(); i++){
 		if (newReport->GetTag() == _pReportLog[i]->GetTag()) {
 			if (newReport->GetTag() == Report::ReportTag::relation) {
-				if (_pReportLog[i]->GetReportEntity() == newReport->GetReportEntity() && _pReportLog[i]->GetTargetEntity() == newReport->GetTargetEntity() && _pReportLog[i]->GetMotivation() == newReport->GetMotivation() && _pReportLog[i]->GetTypes() == newReport->GetTypes()) {
+				if (_pReportLog[i]->GetReportEntity() == newReport->GetReportEntity() && _pReportLog[i]->GetTargetEntity() == newReport->GetTargetEntity() && _pReportLog[i]->GetMotivation() == newReport->GetMotivation() && _pReportLog[i]->GetType() == newReport->GetType()) {
 					return true;
 				}
 			}
 			else if (newReport->GetTag() == Report::ReportTag::ownership){
-				if (_pReportLog[i]->GetReportEntity() == newReport->GetReportEntity() && _pReportLog[i]->GetTargetOwnable() == newReport->GetTargetOwnable() && _pReportLog[i]->GetMotivation() == newReport->GetMotivation() && _pReportLog[i]->GetTypes() == newReport->GetTypes()) {
+				if (_pReportLog[i]->GetReportEntity() == newReport->GetReportEntity() && _pReportLog[i]->GetTargetOwnable() == newReport->GetTargetOwnable() && _pReportLog[i]->GetMotivation() == newReport->GetMotivation() && _pReportLog[i]->GetType() == newReport->GetType()) {
 						return true;
 				}
 			}
@@ -75,31 +84,39 @@ bool APlotGenerator::ContainsReport(Report* newReport) {
 }
 
 
-void APlotGenerator::GetPlotFromReport(Report* report) {
+void APlotGenerator::GetPlotFromReportLog() {
 
-	Report* currentReport;
-	_pReportLog.HeapPop(currentReport, Report::ReportNotoriety());
+	if (_pReportLog.Num() > 0) {
 
-	vector<string> plotCandidates;
+		Report* currentReport;
+		_pReportLog.HeapPop(currentReport, Report::ReportNotoriety());
 
-	for (BasePlot::TypeOfPlot type : report->GetTypes()) 
-		plotCandidates.insert(plotCandidates.end(), plotDictionary.GetPlotsOfType(type).begin(), plotDictionary.GetPlotsOfType(type).end());
+		vector<string> plotCandidates = plotDictionary.GetPlotsOfType(currentReport->GetType());
 
-	// How to choose? 
-	for (string plot : plotCandidates) {
+		// For now, random among plots of the same type
+		// Maybe depend on motivation or personality?
+		int randType = rand() % plotCandidates.size();
+		string plot = plotCandidates[randType];
+		BasePlot* newPlot;
+
 		if (plot == strings.ATTACK_PLOT) {
-			reactivePlots.push_back(new AttackPlot(report->GetReportEntity(), report->GetTargetEntity()));
+			newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity());
+			//newPlot->PrintSentence();
+			for (UOEntity* entity : WeHaveALotInCommon(currentReport))
+				newPlot->AddInvolvedInPlot(entity);
+			reactivePlots.push_back(newPlot);
 		}
-		if (plot == strings.DESTROY_PLOT) {
-			///
+		else if (plot == strings.DESTROY_PLOT) {
 		}
-		if (plot == strings.GATHER_PLOT) {
-			reactivePlots.push_back(new GatherPlot(report->GetReportEntity(), report->GetTargetOwnable()));
+		else if (plot == strings.GATHER_PLOT) {
+			newPlot = new GatherPlot(currentReport->GetReportEntity(), currentReport->GetTargetOwnable());
+			for (UOEntity* entity : WeHaveALotInCommon(currentReport))
+				newPlot->AddInvolvedInPlot(entity);
+			reactivePlots.push_back(newPlot);
 		}
-		if (plot == strings.ROBBERY_PLOT) {
-			///
+		else if (plot == strings.ROBBERY_PLOT) {
 		}
-	}	
+	}
 }
 
 APlotGenerator::PlotDictionary::PlotDictionary() {
@@ -112,4 +129,32 @@ APlotGenerator::PlotDictionary::PlotDictionary() {
 vector<string> APlotGenerator::PlotDictionary::GetPlotsOfType(BasePlot::TypeOfPlot type)
 {
 	return _plotDictionary.at(type);
+}
+
+vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
+
+	Report::ReportTag tag = report->GetTag();
+	vector<UOEntity*> helpers;
+
+	int i = 0;
+
+	while (i < _pReportLog.Num()) {
+
+		if (_pReportLog[i]->GetTag() == tag && tag == Report::ReportTag::ownership) {
+			if ( _pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetOwnable() == report->GetTargetOwnable()) {
+				helpers.push_back(_pReportLog[i]->GetReportEntity());
+				_pReportLog.RemoveAt(i);
+			}
+			else i++;
+		}
+		else if (_pReportLog[i]->GetTag() == tag && tag == Report::ReportTag::relation) {
+			if ( _pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetEntity() == report->GetTargetEntity()) {
+				helpers.push_back(_pReportLog[i]->GetReportEntity());
+				_pReportLog.RemoveAt(i);
+			}
+			else i++;
+		}
+	}
+
+	return helpers;
 }

@@ -50,7 +50,8 @@ public:
 private:
 
 	bool ContainsReport(Report* newReport);
-	void GetPlotFromReport(Report* report);
+	void GetPlotFromReportLog();
+	vector<UOEntity*> WeHaveALotInCommon(Report* report);
 
 	TArray<Report*> _pReportLog;
 	bool _lastPlotCompleted;

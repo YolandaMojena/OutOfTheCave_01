@@ -10,6 +10,7 @@ using namespace std;
 
 class UOOwnable;
 class UOEntity;
+class UOEdification;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OUTOFTHECAVE_01_API UItem : public UActorComponent
@@ -90,6 +91,10 @@ public:
 			return FVector.Distance(_grabPos, _funcPos);
 		}
 	}*/
+
+	UOEntity* GetEntityComponent(AActor* actor);
+	UOOwnable* GetOwnableComponent(AActor* actor);
+	UOEdification* GetEdificationComponent(AActor* actor);
 
 protected:
 

@@ -31,17 +31,20 @@ public:
 	
 	void PrintSentence();
 
+	void AddInvolvedInPlot(UOEntity* entity);
+
 	TypeOfPlot plotTypes;
 	BasePlot* additiveReactions;
 	BasePlot* negativeReactions;
 	UOEntity* plotEntity;
-	vector<UOEntity*> involvedInPlot;
+	
 	StringCollection strings;
 
 protected:
 	
 	string _name, _description, _sentence;
 	Graph* _plotGraph;
+	vector<UOEntity*> _involvedInPlot;
 	int _priority;
 	bool _plotCompleted = false;
 	bool _discrete;
