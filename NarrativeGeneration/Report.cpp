@@ -51,17 +51,6 @@ void Report::PrintReport() {
 	}
 }
 
-/*void Report::RemoveTagFromReport(BasePlot::TypeOfPlot type) {
-
-	for (BasePlot::TypeOfPlot t : _types) {
-		if (t == type) {
-			_types.erase(remove(_types.begin(), _types.end(), t), _types.end());
-			break;
-		}
-	}
-}*/
-
-
 UOEntity* Report::GetReportEntity() {
 	return _reportEntity;
 }

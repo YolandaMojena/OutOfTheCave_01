@@ -184,13 +184,18 @@ void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 }
 
 // BEFORE SENDING, ELEGIBLE TYPE MUST BE CHECKED WITH PERSONALITY
-// CONFIRMED REPORTS ARE PRINTED ON SCREEN
 void UOEntity::SendReport(Report * newReport)
 {
-	if (CheckValidPersonality(newReport->GetType()))
+	if (CheckValidPersonality(newReport->GetType())) {
 		plotGenerator->AddReportToLog(newReport);
+	}
+		
 }
 
+
+// Generates notifications for reactiveness
+// Generates Plot Reports and changes in ontology
+// Deletes entity from the relationships lists of its relationships
 void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("I have been killed by " + killer->GetOwner()->GetActorLabel()));
@@ -234,6 +239,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 
 		if (relationFromOther){
 
+			// CHANGE FOR HIGH APPRECIATION
 			if (relationFromOther->GetAppreciation() > relationFromOther->LOW_APPRECIATION) {
 				ORelation* relationWithKiller = o->GetOtherEntity()->GetRelationWith(killer);
 
@@ -256,6 +262,7 @@ void UOEntity::Die() {
 
 	ACharacter* character = dynamic_cast<ACharacter*>(GetOwner());
 	character->GetMesh()->SetSimulatePhysics(true);
+	character->GetCapsuleComponent()->AttachTo(character->GetMesh());
 
 	_isDead = true;
 }
@@ -265,16 +272,16 @@ bool UOEntity::CheckValidPersonality(BasePlot::TypeOfPlot type) {
 	switch (type) {
 
 	case BasePlot::TypeOfPlot::aggressive:
-		if (_personality->GetAggressiveness() < 25 || _personality->GetBraveness() < 25) return false;
+		if (_personality->GetAggressiveness() < 50 || _personality->GetBraveness() < 50) return false;
 
 	case BasePlot::TypeOfPlot::possessive:
-		if (_personality->GetMaterialist() < 25 || _personality->GetAggressiveness() < 25) return false;
+		if (_personality->GetMaterialist() < 50 || _personality->GetAggressiveness() < 50) return false;
 
 	case BasePlot::TypeOfPlot::resources: 
 		return true;
 
 	case BasePlot::TypeOfPlot::thankful:
-		if (_personality->GetKindness() < 25 || _personality->GetSocial() < 25) return false;
+		if (_personality->GetKindness() < 50 || _personality->GetSocial() < 50) return false;
 
 	case BasePlot::TypeOfPlot::preventive:
 		return true;

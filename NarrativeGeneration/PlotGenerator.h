@@ -35,10 +35,10 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
 
-	bool ValidatePlot(BasePlot* candidatePlot);
 	void SpawnPlot();
 
 	void AddReportToLog(Report* newReport);
+	bool ValidateReport(Report* report);
 
 	PlotDictionary plotDictionary;
 

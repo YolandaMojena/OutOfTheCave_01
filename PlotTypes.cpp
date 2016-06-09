@@ -18,7 +18,7 @@ AttackPlot::AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity) : BasePlot(
 	_sentence = BuildSentence();
 	_discrete = false;
 
-	//BuildGraph();
+	BuildGraph();
 
 	if (!_discrete) GatherTargets();
 }
@@ -42,7 +42,7 @@ void AttackPlot::BuildGraph() {
 
 	Node* attackNode = new Node();
 	attackNode->name = strings.ATTACK_NODE;
-	attackNode->PopulateBlackboard(plotEntity, _targetEntity);
+	attackNode->PopulateBlackboard(plotEntity);
 	attackNode->SetIconPath(strings.ATTACK_ICON);
 	_plotGraph->AddNode(attackNode);
 }

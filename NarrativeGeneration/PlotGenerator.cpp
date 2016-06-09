@@ -37,24 +37,26 @@ void APlotGenerator::Tick( float DeltaTime )
 	SpawnPlot();
 }
 
-bool APlotGenerator::ValidatePlot(BasePlot * candidatePlot)
+bool APlotGenerator::ValidateReport(Report* report)
 {
-	return false;
+	/*if (report->GetTag() == Report::ReportTag::relation) {
+		return (!report->GetReportEntity()->GetIsDead() || !report->GetTargetEntity()->GetIsDead());
+	}
+	else if (report->GetTag() == Report::ReportTag::ownership) {
+		return (!report->GetReportEntity()->GetIsDead());
+	}
+
+	else */return true;
 }
 
 void APlotGenerator::SpawnPlot()
 {
 	if (reactivePlots.size() > 0) {
-		BasePlot* currentPlot = reactivePlots[reactivePlots.size() - 1];
+		BasePlot* currentPlot = reactivePlots.at(0);
+		reactivePlots.erase(reactivePlots.begin());
 		currentPlot->PrintSentence();
-		reactivePlots.pop_back();
 	}
-	else {
-		GetPlotFromReportLog();
-		//BasePlot* currentPlot = reactivePlots[reactivePlots.size() - 1];
-		//if(currentPlot) reactivePlots.pop_back();
-		//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, "PLOT");
-	}
+	else GetPlotFromReportLog();
 }
 
 void APlotGenerator::AddReportToLog(Report* newReport)
@@ -83,7 +85,9 @@ bool APlotGenerator::ContainsReport(Report* newReport) {
 	return false;
 }
 
-
+// Removes X reports from _pReportLog and converts them into plots
+// It is verified that each report is valid before converting it
+// When creating the plot, involved entities are obtained from redundant plots and these are deleted from the log
 void APlotGenerator::GetPlotFromReportLog() {
 
 	if (_pReportLog.Num() > 0) {
@@ -91,34 +95,31 @@ void APlotGenerator::GetPlotFromReportLog() {
 		Report* currentReport;
 		_pReportLog.HeapPop(currentReport, Report::ReportNotoriety());
 
-		vector<string> plotCandidates = plotDictionary.GetPlotsOfType(currentReport->GetType());
+		while (!ValidateReport(currentReport) && _pReportLog.Num() > 0) {
+			_pReportLog.HeapPop(currentReport, Report::ReportNotoriety());
+		}
 
-		// For now, random among plots of the same type
-		// Maybe depend on motivation or personality?
-		int randType = rand() % plotCandidates.size();
-		string plot = plotCandidates[randType];
-		BasePlot* newPlot;
+		if (ValidateReport(currentReport)) {
 
-		if (plot == strings.ATTACK_PLOT) {
-			newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity());
-			//newPlot->PrintSentence();
-			for (UOEntity* entity : WeHaveALotInCommon(currentReport))
-				newPlot->AddInvolvedInPlot(entity);
-			reactivePlots.push_back(newPlot);
-		}
-		else if (plot == strings.DESTROY_PLOT) {
-		}
-		else if (plot == strings.GATHER_PLOT) {
-			newPlot = new GatherPlot(currentReport->GetReportEntity(), currentReport->GetTargetOwnable());
-			for (UOEntity* entity : WeHaveALotInCommon(currentReport))
-				newPlot->AddInvolvedInPlot(entity);
-			reactivePlots.push_back(newPlot);
-		}
-		else if (plot == strings.ROBBERY_PLOT) {
+			vector<string> plotCandidates = plotDictionary.GetPlotsOfType(currentReport->GetType());
+
+			// A random plot from the given type is elected
+			int randType = rand() % plotCandidates.size();
+			string plot = plotCandidates[randType];
+			BasePlot* newPlot;
+
+			if (plot == strings.ATTACK_PLOT) {
+				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity());
+				newPlot->plotEntity = currentReport->GetReportEntity();
+				for (UOEntity* entity : WeHaveALotInCommon(currentReport))
+					newPlot->AddInvolvedInPlot(entity);
+				reactivePlots.push_back(newPlot);
+			}
 		}
 	}
 }
 
+// Associates types of plots with plot identificators
 APlotGenerator::PlotDictionary::PlotDictionary() {
 
 	_plotDictionary = { {BasePlot::TypeOfPlot::aggressive, {strings.ATTACK_PLOT, strings.DESTROY_PLOT}},
@@ -131,6 +132,8 @@ vector<string> APlotGenerator::PlotDictionary::GetPlotsOfType(BasePlot::TypeOfPl
 	return _plotDictionary.at(type);
 }
 
+// Looks for coincidences between the given plot and the log
+// Entities are returned as helpers
 vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 	Report::ReportTag tag = report->GetTag();
