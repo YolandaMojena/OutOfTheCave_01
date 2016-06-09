@@ -9,6 +9,12 @@
 #include "BasePlot.h"
 #include <algorithm>
 #include <string>
+
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
+
 #include "OEntity.generated.h"
 
 using namespace std;
@@ -18,6 +24,7 @@ class OOwnership;
 class UOOwnable;
 class APlotGenerator;
 class Report;
+class AEntityAIController;
 
 /**
  * 
@@ -31,7 +38,7 @@ class OUTOFTHECAVE_01_API UOEntity : public UItem
 		idle, plot, react
 	};
 	
-	State* currentState;
+	
 
 public:
 	UOEntity();
@@ -78,9 +85,20 @@ public:
 	// All entities will send reports to the plotGenerator situated in the game world
 	APlotGenerator* plotGenerator;
 
+	vector<BasePlot*> currentPlot;
+	Graph* brain;
+
+	UPROPERTY(EditAnywhere, Category = Behaviour)
+	class UBehaviorTree* entityBehaviorTree;
+
+	void SetAIController(AEntityAIController* eaic);
+	void ExecuteGraph();
+	void NodeCompleted(bool completedOk);
 	
 private:
-
+	
+	State _currentState;
+	
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
 
@@ -102,4 +120,12 @@ private:
 
 	int _notoriety = 0;
 	int _notifyID;
+
+	Graph* _idleGraph;
+
+	void SetState(State s, Graph* g = nullptr);
+
+	float _currentTime = 10;
+
+	AEntityAIController* _entityAIController;
 };

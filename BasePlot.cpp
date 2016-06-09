@@ -54,3 +54,7 @@ void BasePlot::AddInvolvedInPlot(UOEntity * entity)
 	_involvedInPlot.push_back(entity);
 }
 
+Graph* BasePlot::GetGraph() {
+	return _plotGraph;
+}
+

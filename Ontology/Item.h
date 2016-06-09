@@ -12,6 +12,38 @@ class UOOwnable;
 class UOEntity;
 class UOEdification;
 
+
+
+UENUM(BlueprintType)
+enum class ERace : uint8 {
+	R_Human		UMETA(DisplayName = "Human"),
+	R_Goblin	UMETA(DisplayName = "Goblin"),
+	R_Mixt_HG	UMETA(DisplayName = "Mixt_HG"),
+
+	R_Cow		UMETA(DisplayName = "Cow"),
+	R_Goat		UMETA(DisplayName = "Goat"),
+	R_Sheep		UMETA(DisplayName = "Sheep"),
+	R_Boar		UMETA(DisplayName = "Boar"),
+	R_Bear		UMETA(DisplayName = "Bear"),
+	R_Wolf		UMETA(DisplayName = "Wolf"),
+	R_Golem		UMETA(DisplayName = "Golem"),
+	R_Beast		UMETA(DisplayName = "Beast")
+};
+
+UENUM(BlueprintType)
+enum class EJob : uint8 {
+	J_Peasant		UMETA(DisplayName = "Peasant"),
+	J_Farmer		UMETA(DisplayName = "Farmer"),
+	J_Ironsmith		UMETA(DisplayName = "Ironsmith"),
+	J_Soldier		UMETA(DisplayName = "Soldier"),
+	J_Miner			UMETA(DisplayName = "Miner"),
+	J_Shaman		UMETA(DisplayName = "Shaman"),
+
+	J_Herbibore		UMETA(DisplayName = "Herbibore"),
+	J_Predator		UMETA(DisplayName = "Predator")
+};
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OUTOFTHECAVE_01_API UItem : public UActorComponent
 {

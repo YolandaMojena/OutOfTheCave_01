@@ -40,6 +40,8 @@ public:
 	
 	StringCollection strings;
 
+	Graph* GetGraph();
+
 protected:
 	
 	string _name, _description, _sentence;
