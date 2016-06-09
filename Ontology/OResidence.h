@@ -12,7 +12,7 @@ class AVillage;
 /**
  * 
  */
-UCLASS()
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class OUTOFTHECAVE_01_API UOResidence : public UOEdification
 {
 	GENERATED_BODY()
@@ -45,6 +45,8 @@ public:
 
 	vector<UOEntity*> tentants;
 	
+	void IWantToGetInside(UOEntity* e);
+	void IWantToGetOut(UOEntity* e);
 
 
 private:
@@ -55,4 +57,5 @@ private:
 
 	TSubclassOf<class ACharacter> BP_Civilian_Goblin;
 
+	vector<UOEntity*> _inside;
 };

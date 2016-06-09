@@ -21,6 +21,12 @@ class AVillage;
  * 
  */
 
+UENUM(BlueprintType)
+enum class EdificationType : uint8 {
+	house  UMETA(DisplayName = "House"), 
+	field  UMETA(DisplayName = "Field"),
+};
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class OUTOFTHECAVE_01_API UOEdification : public UOOwnable
 {
@@ -34,12 +40,14 @@ public:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSpawner)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSettings)
 		int32 villageID;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSpawner)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSettings)
 		int32 edificationID;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSettings)
+		EdificationType edificationType;
 
 protected:
 	//virtual void UOOwnable::IHaveBeenDamagedBySomeone(UOEntity* damager) override;
@@ -49,4 +57,6 @@ protected:
 
 private:
 	void FindVillage();
+
+	
 };

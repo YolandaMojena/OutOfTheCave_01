@@ -5,6 +5,7 @@
 #include "Ontology/OOwnership.h"
 #include "Ontology/OOwnable.h"
 #include "NarrativeGeneration/PlotGenerator.h"
+#include "EntityAIController.h"
 #include "Ontology/OEntity.h"
 #include "BasePlot.h"
 
@@ -20,8 +21,11 @@ void UOEntity::BeginPlay() {
 
 	Super::BeginPlay();
 	
-	for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
-		plotGenerator = *Itr;
+	if (!IsPlayer) {
+		for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
+			plotGenerator = *Itr;
+		SetState(State::idle);
+	}
 }
 
 void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -258,3 +262,54 @@ bool UOEntity::CheckValidPersonality(BasePlot::TypeOfPlot type) {
 	return true;
 }
 
+void UOEntity::SetState(State s, Graph* g) {
+	_currentState = s;
+	switch (_currentState) {
+	case State::idle:
+	{
+		brain = _idleGraph;
+		if (brain->Peek()->nBlackboard.daytime < 0) {
+			while (brain->Peek()->nBlackboard.daytime < _currentTime) {
+				brain->NextNode();
+			}
+		}
+	}
+		break;
+	case State::plot:
+	{
+		brain = currentPlot[0]->GetGraph();
+	}
+		break;
+	case State::react:
+	{
+		brain = g;
+	}
+		break;
+	default:
+		brain = _idleGraph;
+	}
+
+	ExecuteGraph();
+
+	
+	
+}
+
+
+void UOEntity::SetAIController(AEntityAIController* eaic) {
+	_entityAIController = eaic;
+}
+
+void UOEntity::ExecuteGraph() {
+	_entityAIController->SetNode(brain->Peek());
+	//_entityAIController->ExecuteNode();
+}
+
+void UOEntity::NodeCompleted(bool completedOk) {
+	if (completedOk && !brain->IsLastNode()) {
+		brain->NextNode(); //BRANCH!!!
+		ExecuteGraph();
+	}
+	else
+		SetState(State::idle);
+}

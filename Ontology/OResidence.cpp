@@ -110,26 +110,58 @@ Graph* UOResidence::SetIdleFromJob() {
 	case EJob::J_Miner:
 		break;
 	case EJob::J_Peasant:
-		UOEdification* field;
+	{
+		UOEdification* peasantField = nullptr;
 		for (TObjectIterator<UOEdification> ObjItr; ObjItr; ++ObjItr) {
-			field = *ObjItr;
+			UOEdification* aux = *ObjItr;
+			if (aux->edificationType == EdificationType::field && aux->villageID == this->villageID && aux->edificationID == this->edificationID && aux != (UOEdification*)this)
+				peasantField = *ObjItr;
 		}
-		
-		n->SetNodeType(NodeType::get); n->SetArquetypeObject("azada");
-		idleGraph->AddNode(n);
-		n = new Node();
-		n->SetNodeType(NodeType::goTo); n->PopulateBlackboard(field->GetOwner()->GetActorLocation());
-		idleGraph->AddNode(n);
-		//n = new Node();
-		//n->SetNodeType(NodeType::interact); n->PopulateBlackboard(field);
-		//idleGraph->AddNode(n);
-		n = new Node();
-		n->SetNodeType(NodeType::goTo); n->PopulateBlackboard(this->GetOwner()->GetActorLocation());
-		idleGraph->AddNode(n);
-		//n = new Node();
-		//n->SetNodeType(NodeType::enter); n->PopulateBlackboard(this);
-		//idleGraph->AddNode(n);
 
+		//MADRUGADA
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation());  n->SetDaytime(8);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(8);
+		idleGraph->AddNode(n);
+		//MAÑANA
+		//n = new Node();
+		//n->SetNodeType(NodeType::get); n->SetArquetypeObject("azada"); n->SetDaytime(13);
+		//idleGraph->AddNode(n);
+		if (peasantField) {
+			n = new Node();
+			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation());  n->SetDaytime(13);
+			idleGraph->AddNode(n);
+			n = new Node();
+			n->SetNodeType(NodeType::interact); n->SetEdification(peasantField);  n->SetDaytime(13);
+			idleGraph->AddNode(n);
+		}
+		//MEDIODÍA
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation());  n->SetDaytime(16);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::enter); n->SetEdification((UOEdification*)this);  n->SetDaytime(16);
+		idleGraph->AddNode(n);
+		//TARDE
+		n = new Node();
+		n->SetNodeType(NodeType::get); n->SetArquetypeObject("azada"); n->SetDaytime(21);
+		idleGraph->AddNode(n);
+		if (peasantField) {
+			n = new Node();
+			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation());  n->SetDaytime(21);
+			idleGraph->AddNode(n);
+			n = new Node();
+			n->SetNodeType(NodeType::interact); n->SetEdification(peasantField);  n->SetDaytime(21);
+			idleGraph->AddNode(n);
+		}
+		//NOCHE
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation());  n->SetDaytime(8);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(8);
+		idleGraph->AddNode(n);
+	}
 		break;
 	case EJob::J_Shaman:
 		break;
@@ -143,4 +175,18 @@ Graph* UOResidence::SetIdleFromJob() {
 	}
 
 	return idleGraph;
+}
+
+void UOResidence::IWantToGetInside(UOEntity* e) {
+	_inside.push_back(e);
+}
+
+void UOResidence::IWantToGetOut(UOEntity* e) {
+	int i = 0;
+	for (UOEntity* ent : _inside) {
+		if (ent == e)
+			break;
+		i++;
+	}
+	_inside.erase(_inside.begin() + i);
 }

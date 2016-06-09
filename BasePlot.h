@@ -38,6 +38,8 @@ public:
 	vector<UOEntity*> involvedInPlot;
 	StringCollection strings;
 
+	Graph* GetGraph();
+
 protected:
 	
 	string _name, _description, _sentence;

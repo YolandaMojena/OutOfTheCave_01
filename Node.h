@@ -14,8 +14,22 @@ class UOOwnable;
 class UOEdification;
 class UOGrabbable;
 
-enum NodeType {
-	branch, goTo, wait, interact, enter, attack, get, grab, steal, destroy, celebrate, give, build, askForHelp
+UENUM(BlueprintType)
+enum class NodeType : uint8 {
+	branch UMETA(DisplayName = "branch"),
+	goTo UMETA(DisplayName = "goTo"),
+	wait UMETA(DisplayName = "wait"),
+	interact UMETA(DisplayName = "interact"),
+	enter UMETA(DisplayName = "enter"),
+	attack UMETA(DisplayName = "attack"),
+	get UMETA(DisplayName = "get"),
+	grab UMETA(DisplayName = "grab"),
+	steal UMETA(DisplayName = "steal"),
+	destroy UMETA(DisplayName = "destroy"),
+	celebrate UMETA(DisplayName = "celebrate"),
+	give UMETA(DisplayName = "give"),
+	build UMETA(DisplayName = "build"),
+	askForHelp UMETA(DisplayName = "askForHelp")
 };
 
 class OUTOFTHECAVE_01_API Node
@@ -35,14 +49,14 @@ public:
 		UOEdification* edification;
 		UOGrabbable* grabbable;
 		FVector position;
-		vector<float> daytimes;
+		float daytime = -1.0f;
 		bool branch;
 	};
 
 	void SetGraph(Graph* g);
 	void RewriteNode(vector<Node*> nodes);
 	void ExecuteTask();
-	void TaskCompleted(bool completedOk);
+	void NodeCompleted(bool completedOk);
 
 	// Allows nullptr if a value is not required
 	void PopulateBlackboard(UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr);
@@ -52,17 +66,23 @@ public:
 	void SetEntityA(UOEntity* e); //TBI
 	void SetEntityB(UOEntity* e); //TBI
 	void SetOwnable(UOOwnable* o); //TBI
-	// [...]
-	void SetArquetypeObject(string s);
+	void SetArquetypeObject(string s); //TBI
+	void SetEdification(UOEdification* edf);
+	void SetGrabbable(UOGrabbable* grb);
+	void SetPosition(FVector v);
+	void SetDaytime(float d);
+	void SetAsBranch();
 
 	NBlackboard nBlackboard;
 	string name;
 	vector<Node*> nextNodes;
 
 	void SetNodeType(NodeType n);
+	NodeType GetNodeType();
 
 private:
 	Graph* _graph;
 	string _iconPath;
 	NodeType _nodeType;
+	bool _completedOk = true;
 };
