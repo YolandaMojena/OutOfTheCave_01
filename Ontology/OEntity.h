@@ -9,6 +9,12 @@
 #include "BasePlot.h"
 #include <algorithm>
 #include <string>
+
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
+
 #include "OEntity.generated.h"
 
 using namespace std;
@@ -18,6 +24,7 @@ class OOwnership;
 class UOOwnable;
 class APlotGenerator;
 class Report;
+class AEntityAIController;
 
 /**
  * 
@@ -31,7 +38,7 @@ class OUTOFTHECAVE_01_API UOEntity : public UItem
 		idle, plot, react
 	};
 	
-	State* currentState;
+	
 
 public:
 	UOEntity();
@@ -51,6 +58,9 @@ public:
 	void AddPossession(OOwnership* newOwnership);
 	void AddPossession(UOOwnable* newOwnable);
 	void AddTerritory(OTerritory* newTerritory);
+	void AddDesire(OOwnership* newOwnership);
+	void AddDesire(UOOwnable* newOwnable);
+
 
 	bool IsInSight(AActor* actor);
 	void OwnableNotify(UOOwnable* ownable, UOEntity* entity, UItem::_NotifyTag tag, bool grito, string notifyID);
@@ -60,6 +70,7 @@ public:
 	OOwnership* GetOwnershipWith(UOOwnable* other);
 	void DeleteRelation(UOEntity* relation);
 	void DeletePossession(UOOwnable* possession);
+	void DeleteDesire(UOOwnable* desire);
 
 	bool GetIsDead();
 
@@ -74,14 +85,26 @@ public:
 	// All entities will send reports to the plotGenerator situated in the game world
 	APlotGenerator* plotGenerator;
 
+	vector<BasePlot*> currentPlot;
+	Graph* brain;
+
+	UPROPERTY(EditAnywhere, Category = Behaviour)
+	class UBehaviorTree* entityBehaviorTree;
+
+	void SetAIController(AEntityAIController* eaic);
+	void ExecuteGraph();
+	void NodeCompleted(bool completedOk);
 	
 private:
-
+	
+	State _currentState;
+	
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
 
 	vector<ORelation*> _relationships;
 	vector<OOwnership*> _possessions;
+	vector<OOwnership*> _materialDesires;
 	vector<OTerritory*> _landlord;
 
 	UOEntity* _attacker;
@@ -97,4 +120,12 @@ private:
 
 	int _notoriety = 0;
 	int _notifyID;
+
+	Graph* _idleGraph;
+
+	void SetState(State s, Graph* g = nullptr);
+
+	float _currentTime = 10;
+
+	AEntityAIController* _entityAIController;
 };

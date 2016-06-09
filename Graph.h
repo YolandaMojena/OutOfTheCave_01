@@ -24,10 +24,10 @@ public:
 
 	Node* firstNode;
 
-	void ExecuteTask();
-	void TaskCompleted(bool completedOk);
+	Node* Peek();
+	bool IsLastNode();
 
-	void EndGraph();
+	void NextNode();
 
 private:
 	Node* _lastNode;

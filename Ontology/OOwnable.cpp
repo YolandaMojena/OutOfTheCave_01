@@ -12,10 +12,8 @@ void UOOwnable::BeginPlay() {
 
 	Super::BeginPlay();
 
-	//At the moment, last found entity is owner
+	//EXAMPLE OF OBJECT ITERATOR
 	/*for (TObjectIterator<UOCivilian> Itr; Itr; ++Itr){
-		_owners.push_back(*Itr);
-		Itr->AddPossession(new OOwnership(*Itr, this, Itr->GetPersonality()->GetMaterialist()));
 	}*/
 }
 
@@ -31,6 +29,13 @@ void UOOwnable::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 			_canBeDamaged = true;
 		}
 	}
+}
+
+vector<UOEntity*> UOOwnable::GetOwners() {
+	return _owners;
+}
+void UOOwnable::AddOwner(UOEntity* e) {
+	_owners.push_back(e);
 }
 
 void UOOwnable::ReceiveDamage(float damage, UOEntity* damager) {
@@ -49,11 +54,10 @@ void UOOwnable::ReceiveDamage(float damage, UOEntity* damager) {
 	}
 }
 
-// AT THE MOMENT
 // NOTIFIES OWNER
-// ELIMINATES POSSESSIN
 // SETS OR MODIFIES RELATIONSHIP WITH DAMAGER
 // GENERATES REPORT
+// ELIMINATES POSSESSION
 
 void UOOwnable::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 {
@@ -94,23 +98,19 @@ void UOOwnable::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 		OOwnership* ownership = o->GetOwnershipWith(this);
 		ORelation* relation = o->GetRelationWith(damager);
 
-		if (ownership && relation) {
-
-			relation->SetAppreciation(relation->GetAppreciation() - ownership->GetWorth());
-			o->SendReport(new Report(relation, { BasePlot::TypeOfPlot::aggressive, BasePlot::TypeOfPlot::possessive }, this));
-			//o->DeletePossession(this);
+		if (!relation) {
+			o->AddRelationship(new ORelation(o, damager));
+			ORelation* relation = o->GetRelationWith(damager);
 		}
-		else
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Inexisting relationship or ownership"));
+
+		relation->ChangeAppreciation(-ownership->GetWorth());
+		if(relation->GetAppreciation() <= relation->LOW_APPRECIATION)
+			o->SendReport(new Report(relation, BasePlot::TypeOfPlot::aggressive, this));
+
+		//o->SendReport(new Report(relation, BasePlot::TypeOfPlot::possessive, this));
+
+		//o->DeletePossession(this);
 	}
-
-	/*for (UOEntity* o : _owners) {
-		for (OOwnership* ow : o->GetPossessions()) {
-			if (this == ow->GetOwnable()) {
-		
-			}
-		}
-	}*/
 }
 
 void UOOwnable::DestroyOwnable() {

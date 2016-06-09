@@ -5,11 +5,12 @@
 #include "Ontology/OOwnership.h"
 #include "Ontology/OOwnable.h"
 #include "NarrativeGeneration/PlotGenerator.h"
+#include "EntityAIController.h"
 #include "Ontology/OEntity.h"
 #include "BasePlot.h"
 
 UOEntity::UOEntity() {
-	
+	_personality = new OPersonality();
 }
 
 UOEntity::UOEntity(OPersonality* personality) {
@@ -20,8 +21,11 @@ void UOEntity::BeginPlay() {
 
 	Super::BeginPlay();
 	
-	for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
-		plotGenerator = *Itr;
+	if (!IsPlayer) {
+		for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
+			plotGenerator = *Itr;
+		SetState(State::idle);
+	}
 }
 
 void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -69,12 +73,24 @@ void UOEntity::AddRelationship(UOEntity* newEntity) {
 }
 void UOEntity::AddPossession(OOwnership* newPossession) {
 	_possessions.push_back(newPossession);
+	newPossession->GetOwnable()->AddOwner(this);
 }
 void UOEntity::AddPossession(UOOwnable* newOwnable) {
 	_possessions.push_back(new OOwnership(this, newOwnable, _personality->GetMaterialist()));
+	newOwnable->AddOwner(this);
 }
 void UOEntity::AddTerritory(OTerritory* newTerritory) {
 	_landlord.push_back(newTerritory);
+}
+
+void UOEntity::AddDesire(OOwnership * newOwnership)
+{
+	_materialDesires.push_back(newOwnership);
+}
+
+void UOEntity::AddDesire(UOOwnable * newOwnable)
+{
+	_materialDesires.push_back(new OOwnership(this, newOwnable, _personality->GetMaterialist()));
 }
 
 ORelation* UOEntity::GetRelationWith(UOEntity * other)
@@ -101,28 +117,45 @@ void UOEntity::DeleteRelation(UOEntity * relative)
 {
 	int i = 0;
 
-	while (i < GetRelationships().size()) {
+	while (i < _relationships.size()) {
 
-		if (GetRelationships()[i]->GetOtherEntity() == relative) {
-			GetRelationships().erase(remove(GetRelationships().begin(), GetRelationships().end(), GetRelationships()[i]), GetRelationships().end());
+		if (_relationships[i]->GetOtherEntity() == relative) {
 			break;
 		}
 		else i++;
 	}
+
+	_relationships.erase(_relationships.begin() + i);
 }
 
 void UOEntity::DeletePossession(UOOwnable * possession)
 {
 	int i = 0;
 
-	while (i < GetPossessions().size()) {
+	while (i < _possessions.size()) {
 
-		if (GetPossessions()[i]->GetOwnable() == possession) {
-			GetPossessions().erase(remove(GetPossessions().begin(), GetPossessions().end(), GetPossessions()[i]), GetPossessions().end());
+		if (_possessions[i]->GetOwnable() == possession) {
 			break;
 		}
 		else i++;
 	}
+
+	_possessions.erase(_possessions.begin() + i);
+}
+
+void UOEntity::DeleteDesire(UOOwnable * desire)
+{
+	int i = 0;
+
+	while (i < _materialDesires.size()) {
+
+		if (_materialDesires[i]->GetOwnable() == desire) {
+			break;
+		}
+		else i++;
+	}
+
+	_materialDesires.erase(_materialDesires.begin() + i);
 }
 
 
@@ -148,7 +181,6 @@ void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 		_canBeDamaged = false;
 
 		if (_integrity < MIN_INTEGRITY) {
-			_isDead = true;
 			Die();
 			IHaveBeenKilledBySomeone(damager);
 		}
@@ -156,25 +188,18 @@ void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 }
 
 // BEFORE SENDING, ELEGIBLE TYPE MUST BE CHECKED WITH PERSONALITY
-// CONFIRMED REPORTS ARE PRINTED ON SCREEN
 void UOEntity::SendReport(Report * newReport)
 {
-	vector<BasePlot::TypeOfPlot> reportedTypes = newReport->GetTypes();
-
-	int i = 0;
-	while (i < newReport->GetTypes().size()) {
-
-		if (!CheckValidPersonality(reportedTypes[i]))
-			newReport->RemoveTagFromReport(reportedTypes[i]);
-		else i++;
-	}
-
-	if (newReport->GetTypes().size() > 0) {
-		newReport->PrintReport(newReport);
+	if (CheckValidPersonality(newReport->GetType())) {
 		plotGenerator->AddReportToLog(newReport);
 	}
+		
 }
 
+
+// Generates notifications for reactiveness
+// Generates Plot Reports and changes in ontology
+// Deletes entity from the relationships lists of its relationships
 void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("I have been killed by " + killer->GetOwner()->GetActorLabel()));
@@ -210,20 +235,30 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 	//   P L O T S
 	//	Search in relationships for those who appreciate entity, change ontology if required and send reports
 
-	for (ORelation* o : GetRelationships()) {
+	vector<ORelation*> relations = GetRelationships();
+
+	for (ORelation* o : relations) {
 
 		ORelation* relationFromOther = o->GetOtherEntity()->GetRelationWith(this);
-		ORelation* relationWithKiller = o->GetOtherEntity()->GetRelationWith(killer);
 
-		// Study state of relationship
-		if (relationFromOther->GetAppreciation() > 75 && relationWithKiller->GetAppreciation() < relationFromOther->GetAppreciation()) {
+		if (relationFromOther){
 
-			relationWithKiller->SetAppreciation(relationFromOther->GetAppreciation() - relationWithKiller->GetAppreciation());
-			o->GetOtherEntity()->SendReport(new Report(relationWithKiller, { BasePlot::TypeOfPlot::aggressive }, this));
-			//o->DeleteGetOtherEntity()->DeleteRelation(this);
+			// CHANGE FOR HIGH APPRECIATION
+			if (relationFromOther->GetAppreciation() > relationFromOther->LOW_APPRECIATION) {
+				ORelation* relationWithKiller = o->GetOtherEntity()->GetRelationWith(killer);
+
+				if (!relationWithKiller) {
+					o->GetOtherEntity()->AddRelationship(new ORelation(o->GetOtherEntity(), killer));
+					relationWithKiller = o->GetOtherEntity()->GetRelationWith(killer);
+				}
+
+				relationWithKiller->SetAppreciation(-relationFromOther->GetAppreciation());
+
+				if (relationWithKiller->GetAppreciation() < relationWithKiller->LOW_APPRECIATION)
+					o->GetOtherEntity()->SendReport(new Report(relationWithKiller, BasePlot::TypeOfPlot::aggressive, this));
+			}
+			o->GetOtherEntity()->DeleteRelation(this);
 		}
-		else
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Entities are not well-related"));
 	}
 }
 
@@ -231,6 +266,9 @@ void UOEntity::Die() {
 
 	ACharacter* character = dynamic_cast<ACharacter*>(GetOwner());
 	character->GetMesh()->SetSimulatePhysics(true);
+	character->GetCapsuleComponent()->AttachTo(character->GetMesh());
+
+	_isDead = true;
 }
 
 bool UOEntity::CheckValidPersonality(BasePlot::TypeOfPlot type) {
@@ -256,3 +294,54 @@ bool UOEntity::CheckValidPersonality(BasePlot::TypeOfPlot type) {
 	return true;
 }
 
+void UOEntity::SetState(State s, Graph* g) {
+	_currentState = s;
+	switch (_currentState) {
+	case State::idle:
+	{
+		brain = _idleGraph;
+		if (brain->Peek()->nBlackboard.daytime < 0) {
+			while (brain->Peek()->nBlackboard.daytime < _currentTime) {
+				brain->NextNode();
+			}
+		}
+	}
+		break;
+	case State::plot:
+	{
+		brain = currentPlot[0]->GetGraph();
+	}
+		break;
+	case State::react:
+	{
+		brain = g;
+	}
+		break;
+	default:
+		brain = _idleGraph;
+	}
+
+	ExecuteGraph();
+
+	
+	
+}
+
+
+void UOEntity::SetAIController(AEntityAIController* eaic) {
+	_entityAIController = eaic;
+}
+
+void UOEntity::ExecuteGraph() {
+	_entityAIController->SetNode(brain->Peek());
+	//_entityAIController->ExecuteNode();
+}
+
+void UOEntity::NodeCompleted(bool completedOk) {
+	if (completedOk && !brain->IsLastNode()) {
+		brain->NextNode(); //BRANCH!!!
+		ExecuteGraph();
+	}
+	else
+		SetState(State::idle);
+}

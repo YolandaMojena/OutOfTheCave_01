@@ -35,10 +35,10 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
 
-	bool ValidatePlot(BasePlot* candidatePlot);
 	void SpawnPlot();
 
 	void AddReportToLog(Report* newReport);
+	bool ValidateReport(Report* report);
 
 	PlotDictionary plotDictionary;
 
@@ -50,7 +50,8 @@ public:
 private:
 
 	bool ContainsReport(Report* newReport);
-	void GetPlotFromReport(Report* report);
+	void GetPlotFromReportLog();
+	vector<UOEntity*> WeHaveALotInCommon(Report* report);
 
 	TArray<Report*> _pReportLog;
 	bool _lastPlotCompleted;

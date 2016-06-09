@@ -23,7 +23,7 @@ void APlotGenerator::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	if (_lastPlotCompleted) {
+	/*if (_lastPlotCompleted) {
 
 		_timeToSpawnPlot += DeltaTime;
 
@@ -32,27 +32,38 @@ void APlotGenerator::Tick( float DeltaTime )
 			_lastPlotCompleted = false;
 			SpawnPlot();
 		}
-	}
+	}*/
+
+	SpawnPlot();
 }
 
-bool APlotGenerator::ValidatePlot(BasePlot * candidatePlot)
+bool APlotGenerator::ValidateReport(Report* report)
 {
-	return false;
+	/*if (report->GetTag() == Report::ReportTag::relation) {
+		return (!report->GetReportEntity()->GetIsDead() || !report->GetTargetEntity()->GetIsDead());
+	}
+	else if (report->GetTag() == Report::ReportTag::ownership) {
+		return (!report->GetReportEntity()->GetIsDead());
+	}
+
+	else */return true;
 }
 
 void APlotGenerator::SpawnPlot()
 {
 	if (reactivePlots.size() > 0) {
-		BasePlot* currentPlot = reactivePlots[reactivePlots.size() - 1];
-		reactivePlots.pop_back();
-		currentPlot->ExecutePlot();
+		BasePlot* currentPlot = reactivePlots.at(0);
+		reactivePlots.erase(reactivePlots.begin());
+		currentPlot->PrintSentence();
 	}
+	else GetPlotFromReportLog();
 }
 
 void APlotGenerator::AddReportToLog(Report* newReport)
 {
-	if (!ContainsReport(newReport))
+	if (!ContainsReport(newReport)) {
 		_pReportLog.HeapPush(newReport, Report::ReportNotoriety());
+	}
 }
 
 bool APlotGenerator::ContainsReport(Report* newReport) {
@@ -60,12 +71,12 @@ bool APlotGenerator::ContainsReport(Report* newReport) {
 	for (int i = 0; i < _pReportLog.Num(); i++){
 		if (newReport->GetTag() == _pReportLog[i]->GetTag()) {
 			if (newReport->GetTag() == Report::ReportTag::relation) {
-				if (_pReportLog[i]->GetReportEntity() == newReport->GetReportEntity() && _pReportLog[i]->GetTargetEntity() == newReport->GetTargetEntity() && _pReportLog[i]->GetMotivation() == newReport->GetMotivation() && _pReportLog[i]->GetTypes() == newReport->GetTypes()) {
+				if (_pReportLog[i]->GetReportEntity() == newReport->GetReportEntity() && _pReportLog[i]->GetTargetEntity() == newReport->GetTargetEntity() && _pReportLog[i]->GetMotivation() == newReport->GetMotivation() && _pReportLog[i]->GetType() == newReport->GetType()) {
 					return true;
 				}
 			}
 			else if (newReport->GetTag() == Report::ReportTag::ownership){
-				if (_pReportLog[i]->GetReportEntity() == newReport->GetReportEntity() && _pReportLog[i]->GetTargetOwnable() == newReport->GetTargetOwnable() && _pReportLog[i]->GetMotivation() == newReport->GetMotivation() && _pReportLog[i]->GetTypes() == newReport->GetTypes()) {
+				if (_pReportLog[i]->GetReportEntity() == newReport->GetReportEntity() && _pReportLog[i]->GetTargetOwnable() == newReport->GetTargetOwnable() && _pReportLog[i]->GetMotivation() == newReport->GetMotivation() && _pReportLog[i]->GetType() == newReport->GetType()) {
 						return true;
 				}
 			}
@@ -74,34 +85,41 @@ bool APlotGenerator::ContainsReport(Report* newReport) {
 	return false;
 }
 
+// Removes X reports from _pReportLog and converts them into plots
+// It is verified that each report is valid before converting it
+// When creating the plot, involved entities are obtained from redundant plots and these are deleted from the log
+void APlotGenerator::GetPlotFromReportLog() {
 
-void APlotGenerator::GetPlotFromReport(Report* report) {
+	if (_pReportLog.Num() > 0) {
 
-	Report* currentReport;
-	_pReportLog.HeapPop(currentReport, Report::ReportNotoriety());
+		Report* currentReport;
+		_pReportLog.HeapPop(currentReport, Report::ReportNotoriety());
 
-	vector<string> plotCandidates;
-
-	for (BasePlot::TypeOfPlot type : report->GetTypes()) 
-		plotCandidates.insert(plotCandidates.end(), plotDictionary.GetPlotsOfType(type).begin(), plotDictionary.GetPlotsOfType(type).end());
-
-	// How to choose? 
-	for (string plot : plotCandidates) {
-		if (plot == strings.ATTACK_PLOT) {
-			reactivePlots.push_back(new AttackPlot(report->GetReportEntity(), report->GetTargetEntity()));
+		while (!ValidateReport(currentReport) && _pReportLog.Num() > 0) {
+			_pReportLog.HeapPop(currentReport, Report::ReportNotoriety());
 		}
-		if (plot == strings.DESTROY_PLOT) {
-			///
+
+		if (ValidateReport(currentReport)) {
+
+			vector<string> plotCandidates = plotDictionary.GetPlotsOfType(currentReport->GetType());
+
+			// A random plot from the given type is elected
+			int randType = rand() % plotCandidates.size();
+			string plot = plotCandidates[randType];
+			BasePlot* newPlot;
+
+			if (plot == strings.ATTACK_PLOT) {
+				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity());
+				newPlot->plotEntity = currentReport->GetReportEntity();
+				for (UOEntity* entity : WeHaveALotInCommon(currentReport))
+					newPlot->AddInvolvedInPlot(entity);
+				reactivePlots.push_back(newPlot);
+			}
 		}
-		if (plot == strings.GATHER_PLOT) {
-			reactivePlots.push_back(new GatherPlot(report->GetReportEntity(), report->GetTargetOwnable()));
-		}
-		if (plot == strings.ROBBERY_PLOT) {
-			///
-		}
-	}	
+	}
 }
 
+// Associates types of plots with plot identificators
 APlotGenerator::PlotDictionary::PlotDictionary() {
 
 	_plotDictionary = { {BasePlot::TypeOfPlot::aggressive, {strings.ATTACK_PLOT, strings.DESTROY_PLOT}},
@@ -112,4 +130,34 @@ APlotGenerator::PlotDictionary::PlotDictionary() {
 vector<string> APlotGenerator::PlotDictionary::GetPlotsOfType(BasePlot::TypeOfPlot type)
 {
 	return _plotDictionary.at(type);
+}
+
+// Looks for coincidences between the given plot and the log
+// Entities are returned as helpers
+vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
+
+	Report::ReportTag tag = report->GetTag();
+	vector<UOEntity*> helpers;
+
+	int i = 0;
+
+	while (i < _pReportLog.Num()) {
+
+		if (_pReportLog[i]->GetTag() == tag && tag == Report::ReportTag::ownership) {
+			if ( _pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetOwnable() == report->GetTargetOwnable()) {
+				helpers.push_back(_pReportLog[i]->GetReportEntity());
+				_pReportLog.RemoveAt(i);
+			}
+			else i++;
+		}
+		else if (_pReportLog[i]->GetTag() == tag && tag == Report::ReportTag::relation) {
+			if ( _pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetEntity() == report->GetTargetEntity()) {
+				helpers.push_back(_pReportLog[i]->GetReportEntity());
+				_pReportLog.RemoveAt(i);
+			}
+			else i++;
+		}
+	}
+
+	return helpers;
 }

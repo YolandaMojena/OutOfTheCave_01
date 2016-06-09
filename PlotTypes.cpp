@@ -27,7 +27,7 @@ AttackPlot::~AttackPlot() {}
 
 string AttackPlot::BuildSentence() {
 
-	return TCHAR_TO_UTF8(*("Entity: " + plotEntity->GetOwner()->GetActorLabel() + "is attacking " + _targetEntity->GetOwner()->GetActorLabel()));
+	return TCHAR_TO_UTF8(*("Entity: " + plotEntity->GetOwner()->GetActorLabel() + " is attacking " + _targetEntity->GetOwner()->GetActorLabel()));
 }
 
 void AttackPlot::GatherTargets() {	
@@ -42,7 +42,8 @@ void AttackPlot::BuildGraph() {
 
 	Node* attackNode = new Node();
 	attackNode->name = strings.ATTACK_NODE;
-	attackNode->PopulateBlackboard(plotEntity, _targetEntity);
+	attackNode->PopulateBlackboard(plotEntity);
+	attackNode->SetIconPath(strings.ATTACK_ICON);
 	_plotGraph->AddNode(attackNode);
 }
 
@@ -60,7 +61,7 @@ GatherPlot::GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource) : BasePl
 
 
 	if (!_discrete) GatherTargets();
-	BuildGraph();
+	//BuildGraph();
 }
 
 GatherPlot::~GatherPlot() {}

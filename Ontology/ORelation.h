@@ -10,6 +10,7 @@ class OUTOFTHECAVE_01_API ORelation
 {
 public:
 	ORelation(UOEntity* entity, UOEntity* other, int appreciation, int respect, int fear);
+	ORelation(UOEntity* entity, UOEntity* other);
 	ORelation();
 	~ORelation();
 
@@ -29,6 +30,9 @@ public:
 	int GetFear();
 
 	bool CheckConsistency();
+
+	const int LOW_APPRECIATION = 25;
+	const int HIGH_APPRECIATION = 75;
 
 
 private:

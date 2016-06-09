@@ -86,8 +86,6 @@ protected:
 private:
 
 	void AttachToSocket(AActor* target, string socket);
-	UOEntity* GetEntityComponent(AActor* actor);
-	UOOwnable* GetOwnableComponent(AActor* actor);
 
 	float _health = 1000.0f;
 	bool _canDamage;
@@ -96,6 +94,10 @@ private:
 
 	AActor* _mainWeapon;
 	AActor* _secondaryWeapon;
+	FRotator _mainRotation;
+	FRotator _secondaryRotation;
+	float _mainZ;
+	float _secondaryZ;
 
 	const float _PICK_UP_RADIO = 256.0f;
 	const float _TROLL_DMG = 150.0f;
@@ -103,6 +105,7 @@ private:
 	USkeletalMeshComponent* SkelMesh;
 	UAnimMontage* myMontage;
 	TScriptDelegate<FWeakObjectPtr> HitFunc;
+	UOEntity* _myEntityComp;
 
 	bool _chargingJump;
 	float _jumpMultiplier;

@@ -28,14 +28,23 @@ void Node::RewriteNode(vector<Node*> nodes) {
 }
 
 
-void Node::ExecuteTask() {
-
+void Node::SetNodeType(NodeType n) {
+	_nodeType = n;
 }
-void Node::TaskCompleted(bool completedOk) {
-	_graph->TaskCompleted(completedOk);
+NodeType Node::GetNodeType() {
+	return _nodeType;
 }
 
-void Node::PopulateBlackboard(UOEntity* entityA, UOEntity* entityB, UOOwnable* ownable, UOEdification* edification, UOGrabbable* grabbable, FVector* position) {
+void Node::PopulateBlackboard(UOEntity* entityA, UOEntity* entityB, UOOwnable* ownable, UOEdification* edification, UOGrabbable* grabbable) {
+
+	nBlackboard.entityA = entityA;
+	nBlackboard.entityB = entityB;
+	nBlackboard.ownable = ownable;
+	nBlackboard.edification = edification;
+	nBlackboard.grabbable = grabbable;
+}
+
+void Node::PopulateBlackboard(FVector position, UOEntity* entityA, UOEntity* entityB, UOOwnable* ownable, UOEdification* edification, UOGrabbable* grabbable) {
 
 	nBlackboard.entityA = entityA;
 	nBlackboard.entityB = entityB;
@@ -43,4 +52,36 @@ void Node::PopulateBlackboard(UOEntity* entityA, UOEntity* entityB, UOOwnable* o
 	nBlackboard.edification = edification;
 	nBlackboard.grabbable = grabbable;
 	nBlackboard.position = position;
+}
+
+void Node::SetEntityA(UOEntity* e) {
+	nBlackboard.entityA = e;
+}
+void Node::SetEntityB(UOEntity* e) {
+	nBlackboard.entityB = e;
+}
+void Node::SetOwnable(UOOwnable* o) {
+	nBlackboard.ownable = o;
+}
+void Node::SetArquetypeObject(string s) {
+	nBlackboard.arquetypeObject = s;
+}
+void Node::SetEdification(UOEdification* edf) {
+	nBlackboard.edification = edf;
+}
+void Node::SetGrabbable(UOGrabbable* grb) {
+	nBlackboard.grabbable = grb;
+}
+void Node::SetPosition(FVector v) {
+	nBlackboard.position = v;
+}
+void Node::SetDaytime(float d) {
+	nBlackboard.daytime = d;
+}
+void Node::SetAsBranch() {
+	nBlackboard.branch = true;
+}
+
+void Node::SetIconPath(string path) {
+	_iconPath = path;
 }

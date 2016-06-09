@@ -5,6 +5,11 @@
 
 OPersonality::OPersonality()
 {
+	_kind = rand() % (_MAX_VALUE + 1);
+	_brave = rand() % (_MAX_VALUE + 1);
+	_aggressive = rand() % (_MAX_VALUE + 1);
+	_social = rand() % (_MAX_VALUE + 1);
+	_materialist = rand() % (_MAX_VALUE + 1);
 }
 
 OPersonality::~OPersonality()
