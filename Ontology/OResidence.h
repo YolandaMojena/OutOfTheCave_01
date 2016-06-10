@@ -4,6 +4,8 @@
 
 #include "Ontology/OEdification.h"
 #include <vector>
+#include <cstdlib>
+#include <time.h> 
 #include "OResidence.generated.h"
 
 class UOEntity;
@@ -25,19 +27,19 @@ public:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSpawner)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ResidenceSettings)
 		ERace race;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSpawner)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ResidenceSettings)
 		int32 numTenants;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSpawner)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ResidenceSettings)
 		EJob job;
 
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSpawner)
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ResidenceSettings)
 	ERace herd;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSpawner)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ResidenceSettings)
 	int32 herdSize;*/
 
 
@@ -52,8 +54,9 @@ public:
 private:
 	void SpawnTenants();
 	ACharacter* GetTentantCharacterFromRace();
-	Graph* SetIdleFromJob();
+	Graph* GenerateIdleFromJob();
 
+	FVector UOResidence::RandomDisplacementVector(int radius);
 
 	TSubclassOf<class ACharacter> BP_Civilian_Goblin;
 

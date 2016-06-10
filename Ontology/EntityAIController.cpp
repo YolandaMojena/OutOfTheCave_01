@@ -12,6 +12,8 @@ AEntityAIController::~AEntityAIController() {}
 
 
 void AEntityAIController::SetNode(Node* n) {
+	entityBlackboard->SetValue<UBlackboardKeyType_Enum>(nodeTypeID, static_cast<UBlackboardKeyType_Enum::FDataType>(n->GetNodeType()));
+	//entityBlackboard->SetValueAsEnum<NodeType>(nodeTypeID, n->GetNodeType()
 	switch (n->GetNodeType()) {
 	case NodeType::askForHelp:
 		break;
@@ -32,7 +34,7 @@ void AEntityAIController::SetNode(Node* n) {
 	case NodeType::give:
 		break;
 	case NodeType::goTo:
-		entityBlackboard->SetValue<UBlackboardKeyType_Vector>(entityBlackboard->GetKeyID("Position"), n->nBlackboard.position);
+		entityBlackboard->SetValue<UBlackboardKeyType_Vector>(positionID, n->nBlackboard.position);
 		break;
 	case NodeType::grab:
 		break;
@@ -51,14 +53,20 @@ void AEntityAIController::Possess(APawn* pawn) {
 	AActor* controllerEntity = dynamic_cast<AActor*>(pawn);
 	UOEntity* entity = controllerEntity->FindComponentByClass<UOEntity>();
 
-	if (!entity->IsPlayer) {
+	if (entity &&  !entity->IsPlayer) {
 		Super::Possess(pawn);
 
-		entity->SetAIController(this);
-		if (entity && entity->entityBehaviorTree) {
+		if (entity->entityBehaviorTree) {
+			entity->SetAIController(this);
 			entityBlackboard->InitializeBlackboard(*entity->entityBehaviorTree->BlackboardAsset);
 			nodeTypeID = entityBlackboard->GetKeyID("NodeType");
+			positionID = entityBlackboard->GetKeyID("Position");
+
+			behaviorTree->StartTree(*entity->entityBehaviorTree);
+
+			RunBehaviorTree(entity->entityBehaviorTree);
+
+			//entity->SetState(UOEntity::State::idle);
 		}
-		behaviorTree->StartTree(*entity->entityBehaviorTree);
 	}
 }

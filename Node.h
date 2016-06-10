@@ -53,7 +53,6 @@ public:
 		bool branch;
 	};
 
-	void SetGraph(Graph* g);
 	void RewriteNode(vector<Node*> nodes);
 	void ExecuteTask();
 	void NodeCompleted(bool completedOk);
@@ -81,7 +80,6 @@ public:
 	NodeType GetNodeType();
 
 private:
-	Graph* _graph;
 	string _iconPath;
 	NodeType _nodeType;
 	bool _completedOk = true;

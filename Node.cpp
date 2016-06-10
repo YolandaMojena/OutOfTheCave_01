@@ -13,9 +13,6 @@ Node::Node()  {}
 
 Node::~Node() {}
 
-void Node::SetGraph(Graph* g) {
-	_graph = g;
-}
 
 void Node::RewriteNode(vector<Node*> nodes) {
 	vector<Node*> childs = nextNodes;

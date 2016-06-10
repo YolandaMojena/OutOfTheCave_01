@@ -22,6 +22,8 @@ void UOResidence::BeginPlay()
 {
 	Super::BeginPlay();
 
+	srand(time(NULL));
+
 	// ...
 	SpawnTenants();
 	initialized = true;
@@ -56,6 +58,9 @@ void UOResidence::SpawnTenants() {
 
 		// SET OWNERSHIP WITH THE EDIFICATION
 		ten->AddPossession(new OOwnership(ten, ((UOOwnable*)this), 25 + ten->GetPersonality()->GetMaterialist()));
+
+		ten->SetIdleGraph(GenerateIdleFromJob());
+		ten->SetState(UOEntity::State::idle);
 
 		tentants.push_back(ten);
 	}
@@ -95,10 +100,11 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
 		break;
 	}
+
 	return tentantCharacter;
 }
 
-Graph* UOResidence::SetIdleFromJob() {
+Graph* UOResidence::GenerateIdleFromJob() {
 	Graph* idleGraph = new Graph();
 	Node* n = new Node();
 
@@ -130,7 +136,7 @@ Graph* UOResidence::SetIdleFromJob() {
 		//idleGraph->AddNode(n);
 		if (peasantField) {
 			n = new Node();
-			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation());  n->SetDaytime(13);
+			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(13);
 			idleGraph->AddNode(n);
 			n = new Node();
 			n->SetNodeType(NodeType::interact); n->SetEdification(peasantField);  n->SetDaytime(13);
@@ -149,7 +155,7 @@ Graph* UOResidence::SetIdleFromJob() {
 		idleGraph->AddNode(n);
 		if (peasantField) {
 			n = new Node();
-			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation());  n->SetDaytime(21);
+			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(21);
 			idleGraph->AddNode(n);
 			n = new Node();
 			n->SetNodeType(NodeType::interact); n->SetEdification(peasantField);  n->SetDaytime(21);
@@ -189,4 +195,8 @@ void UOResidence::IWantToGetOut(UOEntity* e) {
 		i++;
 	}
 	_inside.erase(_inside.begin() + i);
+}
+
+FVector UOResidence::RandomDisplacementVector(int radius){
+	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
 }
