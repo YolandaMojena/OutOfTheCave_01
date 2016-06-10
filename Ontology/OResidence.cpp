@@ -6,9 +6,23 @@
 #include "Ontology/OEntity.h"
 
 UOResidence::UOResidence() {
-	static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_Ocivilian_Goblin.BP_OCivilian_Goblin'"));
-	if (ItemBlueprint.Object) {
-		BP_Civilian_Goblin = (UClass*)ItemBlueprint.Object->GeneratedClass;
+
+	// Goblin
+	static ConstructorHelpers::FObjectFinder<UBlueprint> GoblinBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_Ocivilian_Goblin.BP_OCivilian_Goblin'"));
+	if (GoblinBlueprint.Object) {
+		BP_Civilian_Goblin = (UClass*)GoblinBlueprint.Object->GeneratedClass;
+	}
+
+	// Male
+	static ConstructorHelpers::FObjectFinder<UBlueprint> MaleBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_OCivilian_Human_Male.BP_OCivilian_Human_Male'"));
+	if (MaleBlueprint.Object) {
+		BP_Civilian_Human_Male = (UClass*)MaleBlueprint.Object->GeneratedClass;
+	}
+
+	// Female
+	static ConstructorHelpers::FObjectFinder<UBlueprint> FemaleBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_OCivilian_Human_Female.BP_OCivilian_Human_Female'"));
+	if (FemaleBlueprint.Object) {
+		BP_Civilian_Human_Female = (UClass*)FemaleBlueprint.Object->GeneratedClass;
 	}
 }
 
@@ -73,7 +87,10 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 	ACharacter* tentantCharacter;
 	switch (race) {
 	case ERace::R_Human:
-		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+		if((rand() % 10) < 5)
+			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Male, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+		else 
+			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Female, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
 		break;
 	case ERace::R_Goblin:
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);

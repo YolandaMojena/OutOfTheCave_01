@@ -59,6 +59,8 @@ private:
 	FVector UOResidence::RandomDisplacementVector(int radius);
 
 	TSubclassOf<class ACharacter> BP_Civilian_Goblin;
+	TSubclassOf<class ACharacter> BP_Civilian_Human_Male;
+	TSubclassOf<class ACharacter> BP_Civilian_Human_Female;
 
 	vector<UOEntity*> _inside;
 };
