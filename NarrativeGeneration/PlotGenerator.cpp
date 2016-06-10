@@ -39,14 +39,14 @@ void APlotGenerator::Tick( float DeltaTime )
 
 bool APlotGenerator::ValidateReport(Report* report)
 {
-	/*if (report->GetTag() == Report::ReportTag::relation) {
+	if (report->GetTag() == Report::ReportTag::relation) {
 		return (!report->GetReportEntity()->GetIsDead() || !report->GetTargetEntity()->GetIsDead());
 	}
 	else if (report->GetTag() == Report::ReportTag::ownership) {
 		return (!report->GetReportEntity()->GetIsDead());
 	}
 
-	else */return true;
+	else return true;
 }
 
 void APlotGenerator::SpawnPlot()
@@ -110,7 +110,6 @@ void APlotGenerator::GetPlotFromReportLog() {
 
 			if (plot == strings.ATTACK_PLOT) {
 				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity());
-				newPlot->plotEntity = currentReport->GetReportEntity();
 				for (UOEntity* entity : WeHaveALotInCommon(currentReport))
 					newPlot->AddInvolvedInPlot(entity);
 				reactivePlots.push_back(newPlot);

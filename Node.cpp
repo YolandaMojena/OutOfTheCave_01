@@ -78,7 +78,3 @@ void Node::SetDaytime(float d) {
 void Node::SetAsBranch() {
 	nBlackboard.branch = true;
 }
-
-void Node::SetIconPath(string path) {
-	_iconPath = path;
-}

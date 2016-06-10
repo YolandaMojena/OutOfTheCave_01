@@ -29,7 +29,9 @@ enum class NodeType : uint8 {
 	celebrate UMETA(DisplayName = "celebrate"),
 	give UMETA(DisplayName = "give"),
 	build UMETA(DisplayName = "build"),
-	askForHelp UMETA(DisplayName = "askForHelp")
+	askForHelp UMETA(DisplayName = "askForHelp"),
+	spawn UMETA(DisplayName = "spawn"),
+	gather UMETA(DisplayName = "gather")
 };
 
 class OUTOFTHECAVE_01_API Node
@@ -60,7 +62,6 @@ public:
 	// Allows nullptr if a value is not required
 	void PopulateBlackboard(UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr);
 	void PopulateBlackboard(FVector position, UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr);
-	void SetIconPath(string path);
 
 	void SetEntityA(UOEntity* e); //TBI
 	void SetEntityB(UOEntity* e); //TBI
@@ -80,7 +81,6 @@ public:
 	NodeType GetNodeType();
 
 private:
-	string _iconPath;
 	NodeType _nodeType;
 	bool _completedOk = true;
 };

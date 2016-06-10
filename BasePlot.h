@@ -15,42 +15,34 @@ class OUTOFTHECAVE_01_API BasePlot
 {
 public:
 
-	BasePlot(); // Constructor used for wold plots that don't involve a specific entity
-	BasePlot(UOEntity* plotEntity);
-	~BasePlot();
-
 	enum TypeOfPlot {
 		aggressive, thankful, preventive, possessive, resources, world
 	};
 
-	virtual void GatherTargets() = 0;
-	virtual void ConsiderReactions() = 0;
+	BasePlot(); // Constructor used for wold plots that don't involve a specific entity
+	BasePlot(UOEntity* plotEntity);
+	~BasePlot();
 
-	
 	void ExecutePlot();
-	
 	void PrintSentence();
-
 	void AddInvolvedInPlot(UOEntity* entity);
 
 	TypeOfPlot plotTypes;
 	BasePlot* additiveReactions;
 	BasePlot* negativeReactions;
-	UOEntity* plotEntity;
-	
 	StringCollection strings;
-
 	Graph* GetGraph();
 
 protected:
 	
-	string _name, _description, _sentence;
+	string _description, _sentence;
+	UOEntity* _plotEntity;
 	Graph* _plotGraph;
 	vector<UOEntity*> _involvedInPlot;
-	int _priority;
 	bool _plotCompleted = false;
-	bool _discrete;
 
 	virtual void BuildGraph() = 0;
 	virtual string BuildSentence() = 0;
+	virtual void GatherTargets() = 0;
+	virtual void ConsiderReactions() = 0;
 };

@@ -6,41 +6,17 @@
 
 BasePlot::BasePlot(UOEntity* plotEntity) {
 
-	this->plotEntity = plotEntity;
+	this->_plotEntity = plotEntity;
 }
 
 BasePlot::BasePlot() {}
 
 BasePlot::~BasePlot() {}
 
-void BasePlot::BuildGraph() {
-
-}
 
 void BasePlot::ExecutePlot() {
 
 	PrintSentence();
-
-	/*_currentNode->SetTarget(this);
-	_currentNode->ExecuteActions(this, deltaTime);
-
-	if (_currentNode->NodeCompleted(this))
-	{
-		if (_currentNode->neighbors.size() > 0) {
-
-			for (int i = 0; i < _currentNode->neighbors.size(); i++) {
-
-				if (_currentNode->neighbors[i].condition == "") { // MUST CHECK ARC CONDITION
-					_currentNode = _plotGraph.graph[_currentNode->neighbors[i].adj];
-					break;
-				}
-			}
-		}
-
-		else {
-			_plotCompleted = true;
-		}
-	}*/
 }
 
 void BasePlot::PrintSentence() {
