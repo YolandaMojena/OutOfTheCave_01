@@ -24,7 +24,7 @@ void UOEntity::BeginPlay() {
 	if (!IsPlayer) {
 		for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
 			plotGenerator = *Itr;
-		SetState(State::idle);
+		//SetState(State::idle);
 	}
 }
 
@@ -294,13 +294,17 @@ bool UOEntity::CheckValidPersonality(BasePlot::TypeOfPlot type) {
 	return true;
 }
 
+void UOEntity::SetIdleGraph(Graph* g) {
+	_idleGraph = g;
+}
+
 void UOEntity::SetState(State s, Graph* g) {
 	_currentState = s;
 	switch (_currentState) {
 	case State::idle:
 	{
 		brain = _idleGraph;
-		if (brain->Peek()->nBlackboard.daytime < 0) {
+		if (brain->Peek()->nBlackboard.daytime >= 0) {
 			while (brain->Peek()->nBlackboard.daytime < _currentTime) {
 				brain->NextNode();
 			}

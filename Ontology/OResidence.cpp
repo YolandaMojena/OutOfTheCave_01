@@ -6,9 +6,23 @@
 #include "Ontology/OEntity.h"
 
 UOResidence::UOResidence() {
-	static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_Ocivilian_Goblin.BP_OCivilian_Goblin'"));
-	if (ItemBlueprint.Object) {
-		BP_Civilian_Goblin = (UClass*)ItemBlueprint.Object->GeneratedClass;
+
+	// Goblin
+	static ConstructorHelpers::FObjectFinder<UBlueprint> GoblinBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_Ocivilian_Goblin.BP_OCivilian_Goblin'"));
+	if (GoblinBlueprint.Object) {
+		BP_Civilian_Goblin = (UClass*)GoblinBlueprint.Object->GeneratedClass;
+	}
+
+	// Male
+	static ConstructorHelpers::FObjectFinder<UBlueprint> MaleBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_OCivilian_Human_Male.BP_OCivilian_Human_Male'"));
+	if (MaleBlueprint.Object) {
+		BP_Civilian_Human_Male = (UClass*)MaleBlueprint.Object->GeneratedClass;
+	}
+
+	// Female
+	static ConstructorHelpers::FObjectFinder<UBlueprint> FemaleBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_OCivilian_Human_Female.BP_OCivilian_Human_Female'"));
+	if (FemaleBlueprint.Object) {
+		BP_Civilian_Human_Female = (UClass*)FemaleBlueprint.Object->GeneratedClass;
 	}
 }
 
@@ -21,6 +35,8 @@ UOResidence::~UOResidence() {
 void UOResidence::BeginPlay()
 {
 	Super::BeginPlay();
+
+	srand(time(NULL));
 
 	// ...
 	SpawnTenants();
@@ -57,6 +73,9 @@ void UOResidence::SpawnTenants() {
 		// SET OWNERSHIP WITH THE EDIFICATION
 		ten->AddPossession(new OOwnership(ten, ((UOOwnable*)this), 25 + ten->GetPersonality()->GetMaterialist()));
 
+		ten->SetIdleGraph(GenerateIdleFromJob());
+		ten->SetState(UOEntity::State::idle);
+
 		tentants.push_back(ten);
 	}
 	_village->edifications.push_back(this);
@@ -68,7 +87,10 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 	ACharacter* tentantCharacter;
 	switch (race) {
 	case ERace::R_Human:
-		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+		if((rand() % 10) < 5)
+			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Male, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+		else 
+			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Female, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
 		break;
 	case ERace::R_Goblin:
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
@@ -95,10 +117,11 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
 		break;
 	}
+
 	return tentantCharacter;
 }
 
-Graph* UOResidence::SetIdleFromJob() {
+Graph* UOResidence::GenerateIdleFromJob() {
 	Graph* idleGraph = new Graph();
 	Node* n = new Node();
 
@@ -130,7 +153,7 @@ Graph* UOResidence::SetIdleFromJob() {
 		//idleGraph->AddNode(n);
 		if (peasantField) {
 			n = new Node();
-			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation());  n->SetDaytime(13);
+			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(13);
 			idleGraph->AddNode(n);
 			n = new Node();
 			n->SetNodeType(NodeType::interact); n->SetEdification(peasantField);  n->SetDaytime(13);
@@ -149,7 +172,7 @@ Graph* UOResidence::SetIdleFromJob() {
 		idleGraph->AddNode(n);
 		if (peasantField) {
 			n = new Node();
-			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation());  n->SetDaytime(21);
+			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(21);
 			idleGraph->AddNode(n);
 			n = new Node();
 			n->SetNodeType(NodeType::interact); n->SetEdification(peasantField);  n->SetDaytime(21);
@@ -189,4 +212,8 @@ void UOResidence::IWantToGetOut(UOEntity* e) {
 		i++;
 	}
 	_inside.erase(_inside.begin() + i);
+}
+
+FVector UOResidence::RandomDisplacementVector(int radius){
+	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
 }

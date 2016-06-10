@@ -5,7 +5,9 @@
 
 using namespace std;
 
-Graph::Graph() {}
+Graph::Graph() {
+	firstNode = nullptr;
+}
 
 Graph::~Graph() {}
 
@@ -15,12 +17,10 @@ Graph::Graph(Node* n) {
 }
 
 void Graph::AddNode(Node* n) {
-	n->SetGraph(this);
 	if (firstNode == nullptr)
 		firstNode = n;
 	else
 		_lastNode->nextNodes.push_back(n);
-	
 	_lastNode = n;
 }
 
@@ -33,8 +33,6 @@ bool Graph::IsLastNode() {
 }
 
 void Graph::AddNodeInNewBranch(Node* n, int depth) {
-	n->SetGraph(this);
-
 	Node* currentNode = firstNode;
 
 	for (int i = 0; i < depth; i++)

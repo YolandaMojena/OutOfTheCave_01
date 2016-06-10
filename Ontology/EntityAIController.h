@@ -38,6 +38,8 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = EntityAIController)
 	uint8 nodeTypeID;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = EntityAIController)
+	uint8 positionID;
 
 private:
 	Node* _currentNode;

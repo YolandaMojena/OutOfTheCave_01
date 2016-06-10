@@ -34,13 +34,12 @@ class OUTOFTHECAVE_01_API UOEntity : public UItem
 {
 	GENERATED_BODY()
 
-	enum State{
+public:
+
+	enum State {
 		idle, plot, react
 	};
-	
-	
 
-public:
 	UOEntity();
 	UOEntity(OPersonality* personality);
 
@@ -91,6 +90,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = Behaviour)
 	class UBehaviorTree* entityBehaviorTree;
 
+	void SetState(State s, Graph* g = nullptr);
+	void SetIdleGraph(Graph* g);
+
 	void SetAIController(AEntityAIController* eaic);
 	void ExecuteGraph();
 	void NodeCompleted(bool completedOk);
@@ -123,7 +125,7 @@ private:
 
 	Graph* _idleGraph;
 
-	void SetState(State s, Graph* g = nullptr);
+	
 
 	float _currentTime = 10;
 
