@@ -24,14 +24,6 @@ void Graph::AddNode(Node* n) {
 	_lastNode = n;
 }
 
-Node* Graph::Peek() {
-	return firstNode;
-}
-
-bool Graph::IsLastNode() {
-	return firstNode == _lastNode;
-}
-
 void Graph::AddNodeInNewBranch(Node* n, int depth) {
 	Node* currentNode = firstNode;
 
@@ -41,6 +33,22 @@ void Graph::AddNodeInNewBranch(Node* n, int depth) {
 	currentNode->nextNodes.push_back(n);
 
 	_lastNode = n;
+}
+
+void Graph::AddInstantNode(Node* n) {
+	for (Node* nn : firstNode->nextNodes) {
+		n->nextNodes.push_back(nn);
+	}
+	firstNode->nextNodes.clear();
+	firstNode->nextNodes.push_back(n);
+}
+
+Node* Graph::Peek() {
+	return firstNode;
+}
+
+bool Graph::IsLastNode() {
+	return firstNode == _lastNode;
 }
 
 void Graph::NextNode() {
