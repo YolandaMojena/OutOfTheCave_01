@@ -5,4 +5,12 @@
 
 
 
+EBTNodeResult::Type UBTTask_GetNode::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
 
+	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
+	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
+	//FString arquetype = blackboard->GetValueAsString(blackboard->GetKeyID("Position")); //Deprecated
+	FString arquetype = blackboard->GetValue<UBlackboardKeyType_String>(blackboard->GetKeyID("Arquetype"));
+
+	return EBTNodeResult::Succeeded;
+}
