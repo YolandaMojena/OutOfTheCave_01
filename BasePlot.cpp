@@ -40,7 +40,7 @@ vector<UOEntity*> BasePlot::GetInvolvedInPlot() {
 	return _involvedInPlot;
 }
 
-bool BasePlot::isExclusive() {
+bool BasePlot::GetIsExclusive() {
 	return _isExclusive;
 }
 

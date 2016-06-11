@@ -30,7 +30,7 @@ public:
 	Graph* GetGraph();
 	UOEntity* GetMainEntity();
 	vector<UOEntity*> GetInvolvedInPlot();
-	bool IsExclusive();
+	bool GetIsExclusive();
 
 
 protected:
@@ -40,7 +40,6 @@ protected:
 	Graph* _plotGraph;
 	vector<UOEntity*> _involvedInPlot;
 	bool _isExclusive;
-	bool _plotCompleted = false;
 
 	virtual void BuildGraph() = 0;
 	virtual string BuildSentence() = 0;

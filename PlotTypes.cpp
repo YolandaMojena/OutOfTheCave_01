@@ -41,6 +41,11 @@ void AttackPlot::BuildGraph() {
 	n->SetArquetypeObject("espada")
 	_plotGraph->AddNode(getNode);*/
 
+	//ASK TROLL FOR HELP
+	Node* askTrollForHelpNode = new Node();
+	askForHelpNode->SetNodeType(NodeType::askTroll);
+	_plotGraph->AddNode(askTrollForHelpNode);
+
 	//GO TO VICTIM
 	Node* goToNode = new Node();
 	goToNode->SetNodeType(NodeType::goTo);

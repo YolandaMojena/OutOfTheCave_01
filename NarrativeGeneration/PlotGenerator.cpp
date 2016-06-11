@@ -47,11 +47,11 @@ bool APlotGenerator::ValidateReport(Report* report)
 void APlotGenerator::SpawnReactivePlot()
 {
 	if (reactivePlots.size() > 0) {
-		BasePlot* currentPlot = reactivePlots.at(0);
+		BasePlot* currentPlots = reactivePlots.at(0);
 		reactivePlots.erase(reactivePlots.begin());
-		currentPlot->PrintSentence();
+		currentPlots->PrintSentence();
 
-		currentPlot->GetMainEntity()->currentPlot.push_back(currentPlot);
+		currentPlots->GetMainEntity()->currentPlots.push_back(currentPlots);
 	}
 }
 
@@ -106,7 +106,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 
 			if (plot == strings.ATTACK_PLOT) {
 				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity());
-				if (!newPlot->IsExclusive()) {
+				if (!newPlot->GetIsExclusive()) {
 					for (UOEntity* entity : WeHaveALotInCommon(currentReport))
 						newPlot->AddInvolvedInPlot(entity);
 				}
