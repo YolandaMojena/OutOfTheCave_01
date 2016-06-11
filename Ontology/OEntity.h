@@ -76,6 +76,7 @@ public:
 	void ReceiveDamage(float damage, UOEntity* damager);
 	bool CheckValidPersonality(BasePlot::TypeOfPlot type);
 	void SendReport(Report* newReport);
+	void ExecutePlot();
 
 	// It must be considered whether if the entity is the player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
@@ -84,20 +85,20 @@ public:
 	// All entities will send reports to the plotGenerator situated in the game world
 	APlotGenerator* plotGenerator;
 
-	vector<BasePlot*> currentPlot;
+	vector<BasePlot*> currentPlots;
+	UOEntity* mainPlotEntity;
 	Graph* brain;
 
 	UPROPERTY(EditAnywhere, Category = Behaviour)
 	class UBehaviorTree* entityBehaviorTree;
 
+	State GetCurrentState();
 	void SetState(State s, Graph* g = nullptr);
 	void SetIdleGraph(Graph* g);
 
 	void SetAIController(AEntityAIController* eaic);
 	void ExecuteGraph();
 	void NodeCompleted(bool completedOk);
-
-	float GetDamage();
 	
 private:
 	

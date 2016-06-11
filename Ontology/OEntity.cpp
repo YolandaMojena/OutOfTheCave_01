@@ -41,6 +41,10 @@ void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 			_canBeDamaged = true;
 		}
 	}
+
+	if (currentPlots.size() > 0 && _currentState == State::idle) {
+		ExecutePlot();
+	}
 }
 
 
@@ -194,7 +198,6 @@ void UOEntity::SendReport(Report * newReport)
 	if (CheckValidPersonality(newReport->GetType())) {
 		plotGenerator->AddReportToLog(newReport);
 	}
-		
 }
 
 
@@ -305,6 +308,11 @@ void UOEntity::SetIdleGraph(Graph* g) {
 	_idleGraph = g;
 }
 
+UOEntity::State UOEntity::GetCurrentState()
+{
+	return _currentState;
+}
+
 void UOEntity::SetState(State s, Graph* g) {
 	_currentState = s;
 	switch (_currentState) {
@@ -320,7 +328,8 @@ void UOEntity::SetState(State s, Graph* g) {
 		break;
 	case State::plot:
 	{
-		brain = currentPlot[0]->GetGraph();
+		// currentPlot[0]
+		brain = g;
 	}
 		break;
 	case State::react:
@@ -333,9 +342,6 @@ void UOEntity::SetState(State s, Graph* g) {
 	}
 
 	ExecuteGraph();
-
-	
-	
 }
 
 
@@ -348,11 +354,25 @@ void UOEntity::ExecuteGraph() {
 	//_entityAIController->ExecuteNode();
 }
 
+void UOEntity::ExecutePlot() {
+
+	SetState(State::plot, currentPlots[0]->GetGraph());
+	mainPlotEntity = this;
+}
+
+// If a node can't be completed or is the last one, plot is considered completed
 void UOEntity::NodeCompleted(bool completedOk) {
 	if (completedOk && !brain->IsLastNode()) {
 		brain->NextNode(); //BRANCH!!!
 		ExecuteGraph();
 	}
 	else
-		SetState(State::idle);
+	{
+		if (_currentState == State::plot) {
+			for (UOEntity* e : currentPlots[0]->GetInvolvedInPlot())
+				e->SetState(State::idle);
+			currentPlots.erase(currentPlots.begin());
+		}
+			SetState(State::idle);
+	}
 }

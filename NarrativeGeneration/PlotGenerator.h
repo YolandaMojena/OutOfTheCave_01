@@ -35,7 +35,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
 
-	void SpawnPlot();
+	void SpawnReactivePlot();
 
 	void AddReportToLog(Report* newReport);
 	bool ValidateReport(Report* report);

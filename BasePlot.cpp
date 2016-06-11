@@ -15,8 +15,6 @@ BasePlot::~BasePlot() {}
 
 
 void BasePlot::ExecutePlot() {
-
-	PrintSentence();
 }
 
 void BasePlot::PrintSentence() {
@@ -32,5 +30,17 @@ void BasePlot::AddInvolvedInPlot(UOEntity * entity)
 
 Graph* BasePlot::GetGraph() {
 	return _plotGraph;
+}
+
+UOEntity* BasePlot::GetMainEntity() {
+	return _plotEntity;
+}
+
+vector<UOEntity*> BasePlot::GetInvolvedInPlot() {
+	return _involvedInPlot;
+}
+
+bool BasePlot::GetIsExclusive() {
+	return _isExclusive;
 }
 
