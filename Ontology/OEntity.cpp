@@ -7,6 +7,7 @@
 #include "NarrativeGeneration/PlotGenerator.h"
 #include "EntityAIController.h"
 #include "Ontology/OEntity.h"
+#include "Ontology/Ocivilian.h"
 #include "BasePlot.h"
 
 UOEntity::UOEntity() {
@@ -266,7 +267,11 @@ void UOEntity::Die() {
 
 	ACharacter* character = dynamic_cast<ACharacter*>(GetOwner());
 	character->GetMesh()->SetSimulatePhysics(true);
+	character->GetMesh()->AttachTo(character->GetCapsuleComponent());
 	character->GetCapsuleComponent()->AttachTo(character->GetMesh());
+
+	if (IsA<UOCivilian>())
+		dynamic_cast<UOCivilian*>(this)->currentIconPath = "";
 
 	_isDead = true;
 }
@@ -276,10 +281,12 @@ bool UOEntity::CheckValidPersonality(BasePlot::TypeOfPlot type) {
 	switch (type) {
 
 	case BasePlot::TypeOfPlot::aggressive:
-		if (_personality->GetAggressiveness() < 50 || _personality->GetBraveness() < 50) return false;
+	//	if (_personality->GetAggressiveness() < 50 || _personality->GetBraveness() < 50) return false;
+		return true;
 
 	case BasePlot::TypeOfPlot::possessive:
-		if (_personality->GetMaterialist() < 50 || _personality->GetAggressiveness() < 50) return false;
+	//	if (_personality->GetMaterialist() < 50 || _personality->GetAggressiveness() < 50) return false;
+		return true;
 
 	case BasePlot::TypeOfPlot::resources: 
 		return true;

@@ -205,7 +205,7 @@ void ATroll::PickUpMain() {
 
 					ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
 					// BONE WILL PROBABLY DEPEND ON MESH
-					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(3), true);
+					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(1), true);
 				}
 				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
 			}
@@ -225,7 +225,7 @@ void ATroll::PickUpMain() {
 
 			UOEntity* hitEntity = _myEntityComp->GetEntityComponent(_mainWeapon);
 			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
-
+	
 			if (!hitEntity->GetIsDead()) {
 				weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
 			}
@@ -277,7 +277,7 @@ void ATroll::PickUpSecondary() {
 				if (!hitEntity->GetIsDead()) {
 
 					ACharacter* weaponChar = dynamic_cast<ACharacter*>(_secondaryWeapon);
-					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(3), true);
+					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(1), true);
 				}
 				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
 
@@ -347,18 +347,12 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 
 		UOEntity* hitEntity = _myEntityComp->GetEntityComponent(OtherActor);
 		hitEntity->ReceiveDamage(_TROLL_DMG, _myEntityComp->GetEntityComponent(this));
-		//FVector direction = FVector(hitEntity->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, hitEntity->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
-		//FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
-		//hitEntity->GetOwner()->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
 	}
 
 	else if (_myEntityComp->GetOwnableComponent(OtherActor) && isAttacking && _canDamage) {
 
 		UOOwnable* hitOwnable = _myEntityComp->GetOwnableComponent(OtherActor);
-		hitOwnable->ReceiveDamage(_TROLL_DMG, this->FindComponentByClass<UOEntity>());
-		//FVector direction = FVector(hitEntity->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, hitEntity->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
-		//FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
-		//hitEntity->GetOwner()->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
+		hitOwnable->ReceiveDamage(_TROLL_DMG, _myEntityComp->GetEntityComponent(this));
 	}
 }
 

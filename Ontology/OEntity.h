@@ -79,7 +79,7 @@ public:
 
 	// It must be considered whether if the entity is the player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
-	bool IsPlayer;
+		bool IsPlayer;
 
 	// All entities will send reports to the plotGenerator situated in the game world
 	APlotGenerator* plotGenerator;
@@ -96,6 +96,8 @@ public:
 	void SetAIController(AEntityAIController* eaic);
 	void ExecuteGraph();
 	void NodeCompleted(bool completedOk);
+
+	float GetDamage();
 	
 private:
 	

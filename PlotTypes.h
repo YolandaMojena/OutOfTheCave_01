@@ -10,27 +10,30 @@ using namespace std;
 
 class UOEntity;
 class UOOwnable;
+class UOEdification;
 
-/**
- * 
- */
+
+//ATTACK PLOT
+//**************************************************************************************
+
 class OUTOFTHECAVE_01_API AttackPlot : public BasePlot
 {
 public:
 	AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity);
 	~AttackPlot();
 
-	void GatherTargets();
-	void ConsiderReactions();
-
-
 private:
 
 	void BuildGraph();
 	string BuildSentence();
+	void GatherTargets();
+	void ConsiderReactions();
 
 	UOEntity* _targetEntity;
 };
+
+//GATHER PLOT
+//**************************************************************************************
 
 class OUTOFTHECAVE_01_API GatherPlot : public BasePlot
 {
@@ -38,148 +41,93 @@ public:
 	GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource);
 	~GatherPlot();
 
+private:
+
+	void BuildGraph();
+	string BuildSentence();
 	void GatherTargets();
 	void ConsiderReactions();
 
+	UOOwnable* _targetResource;
+};
+
+//DESTROY PLOT
+//**************************************************************************************
+
+class OUTOFTHECAVE_01_API DestroyPlot : public BasePlot
+{
+public:
+	DestroyPlot(UOEntity* plotEntity, UOOwnable* target);
+	~DestroyPlot();
 
 private:
 
 	void BuildGraph();
 	string BuildSentence();
+	void GatherTargets();
+	void ConsiderReactions();
 
-	UOOwnable* _targetResource;
+	UOOwnable* _targetOwnable;
 };
 
-/*
+//STEAL PLOT
+//**************************************************************************************
+
 class OUTOFTHECAVE_01_API StealPlot : public BasePlot
 {
 public:
-	StealPlot();
+	StealPlot(UOEntity* plotEntity, UOEntity* who, UOOwnable* target);
 	~StealPlot();
 
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
+private:
 
+	void BuildGraph();
+	string BuildSentence();
+	void GatherTargets();
+	void ConsiderReactions();
+
+	UOEntity* _targetEntity;
+	UOOwnable* _targetOwnable;
 };
 
-class OUTOFTHECAVE_01_API KidnapPlot : public BasePlot
-{
-public:
-	KidnapPlot();
-	~KidnapPlot();
-
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
-
-};
-
-class OUTOFTHECAVE_01_API RescuePlot : public BasePlot
-{
-public:
-	RescuePlot();
-	~RescuePlot();
-
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
-
-};
-
-class OUTOFTHECAVE_01_API CelebratePlot : public BasePlot
-{
-public:
-	CelebratePlot();
-	~CelebratePlot();
-
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
-
-};
-
-class OUTOFTHECAVE_01_API AmbushPlot : public BasePlot
-{
-public:
-	AmbushPlot();
-	~AmbushPlot();
-
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
-
-};
-
-class OUTOFTHECAVE_01_API GiftPlot : public BasePlot
-{
-public:
-	GiftPlot();
-	~GiftPlot();
-
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
-
-};
+//BUILD PLOT
+//**************************************************************************************
 
 class OUTOFTHECAVE_01_API BuildPlot : public BasePlot
 {
 public:
-	BuildPlot();
+	BuildPlot(UOEntity* plotEntity, UOEdification* target);
 	~BuildPlot();
 
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
+private:
 
+	void BuildGraph();
+	string BuildSentence();
+	void GatherTargets();
+	void ConsiderReactions();
+
+	UOEdification* _targetEdification;
 };
 
-class OUTOFTHECAVE_01_API DestroyPlot : public BasePlot
+
+//GIVE PLOT
+//**************************************************************************************
+
+class OUTOFTHECAVE_01_API GivePlot : public BasePlot
 {
 public:
-	DestroyPlot();
-	~DestroyPlot();
+	GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what);
+	~GivePlot();
 
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
+private:
 
+	void BuildGraph();
+	string BuildSentence();
+	void GatherTargets();
+	void ConsiderReactions();
+
+	UOEntity* _targetEntity;
+	UOOwnable* _targetOwnable;
 };
 
-class OUTOFTHECAVE_01_API ExplodePlot : public BasePlot
-{
-public:
-	ExplodePlot();
-	~ExplodePlot();
-
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
-
-};
-
-class OUTOFTHECAVE_01_API DefendPlot : public BasePlot
-{
-public:
-	DefendPlot();
-	~DefendPlot();
-
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
-
-};
-
-class OUTOFTHECAVE_01_API AvalanchePlot : public BasePlot
-{
-public:
-	AvalanchePlot();
-	~AvalanchePlot();
-
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
-
-};
-
-class OUTOFTHECAVE_01_API NaturesRevengePlot : public BasePlot
-{
-public:
-	NaturesRevengePlot();
-	~NaturesRevengePlot();
-
-	void GatherTargets(vector<AEntity*> candidates);
-	void BuildSentence();
-
-};*/
 

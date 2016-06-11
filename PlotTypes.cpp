@@ -4,6 +4,7 @@
 #include "StringCollection.h"
 #include "Ontology/OEntity.h"
 #include "Ontology/OOwnable.h"
+#include "Ontology/OEdification.h"
 #include "PlotTypes.h"
 
 
@@ -12,39 +13,51 @@
 
 AttackPlot::AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity) : BasePlot(plotEntity) {
 
-	_name = "AttackPlot";
 	_targetEntity = targetEntity;
-	plotTypes = { TypeOfPlot::aggressive };
 	_sentence = BuildSentence();
-	_discrete = false;
 
 	BuildGraph();
-
-	if (!_discrete) GatherTargets();
+	GatherTargets();
 }
 
 AttackPlot::~AttackPlot() {}
 
 string AttackPlot::BuildSentence() {
-
-	return TCHAR_TO_UTF8(*("Entity: " + plotEntity->GetOwner()->GetActorLabel() + " is attacking " + _targetEntity->GetOwner()->GetActorLabel()));
-}
-
-void AttackPlot::GatherTargets() {	
-}
-
-void AttackPlot::ConsiderReactions() {
+	return TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is attacking " + _targetEntity->GetOwner()->GetActorLabel()));
 }
 
 void AttackPlot::BuildGraph() {
 
 	_plotGraph = new Graph();
 
+	//ASK FOR HELP
+	/*Node* askForHelpNode = new Node();
+	askForHelpNode->SetNodeType(NodeType::askForHelp);
+	_plotGraph->AddNode(askForHelpNode);*/
+
+	//GET WEAPON
+	/*Node* getNode = new Node();
+	getNode->SetNodeType(NodeType::get);
+	n->SetArquetypeObject("espada")
+	_plotGraph->AddNode(getNode);*/
+
+	//GO TO VICTIM
+	Node* goToNode = new Node();
+	goToNode->SetNodeType(NodeType::goTo);
+	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
+	_plotGraph->AddNode(goToNode);
+
+	//ATTACK
 	Node* attackNode = new Node();
-	attackNode->name = strings.ATTACK_NODE;
-	attackNode->PopulateBlackboard(plotEntity);
-	attackNode->SetIconPath(strings.ATTACK_ICON);
+	attackNode->SetNodeType(NodeType::attack);
+	attackNode->SetEntityB(_targetEntity);
 	_plotGraph->AddNode(attackNode);
+}
+
+void AttackPlot::GatherTargets() {
+}
+
+void AttackPlot::ConsiderReactions() {
 }
 
 
@@ -53,22 +66,21 @@ void AttackPlot::BuildGraph() {
 
 GatherPlot::GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource) : BasePlot(plotEntity) {
 
-	_name = "GatherPlot";
 	_targetResource = targetResource;
-	plotTypes = { TypeOfPlot::resources };
 	_sentence = BuildSentence();
-	_discrete = false;
 
-
-	if (!_discrete) GatherTargets();
-	//BuildGraph();
+	GatherTargets();
+	BuildGraph();
 }
 
 GatherPlot::~GatherPlot() {}
 
 string GatherPlot::BuildSentence() {
+	return TCHAR_TO_UTF8(*("Entity " + _plotEntity->GetOwner()->GetActorLabel() + " is gathering " + _targetResource->GetOwner()->GetActorLabel()));
+}
 
-	return TCHAR_TO_UTF8(*("Entity " + plotEntity->GetOwner()->GetActorLabel() + " is gathering " + _targetResource->GetOwner()->GetActorLabel()));
+void GatherPlot::BuildGraph() {
+
 }
 
 void GatherPlot::GatherTargets() {
@@ -77,10 +89,195 @@ void GatherPlot::GatherTargets() {
 void GatherPlot::ConsiderReactions() {
 }
 
-void GatherPlot::BuildGraph() {
 
+//DESTROY PLOT
+//**************************************************************************************
+
+DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOOwnable* target) : BasePlot(plotEntity) {
+
+	_targetOwnable = target;
+	_sentence = BuildSentence();
+
+	BuildGraph();
+	GatherTargets();
+}
+
+DestroyPlot::~DestroyPlot() {}
+
+string DestroyPlot::BuildSentence() {
+	return TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is destroying " + _targetOwnable->GetOwner()->GetActorLabel()));
+}
+
+void DestroyPlot::BuildGraph() {
+
+	_plotGraph = new Graph();
+
+	//ASK FOR HELP
+	/*Node* askForHelpNode = new Node();
+	askForHelpNode->SetNodeType(NodeType::askForHelp);
+	_plotGraph->AddNode(askForHelpNode);*/
+
+	//GET TOOLS
+	/*Node* getNode = new Node();
+	getNode->SetNodeType(NodeType::get);
+	_plotGraph->AddNode(getNode);*/
+
+	//GO TO TARGET
+	Node* goToNode = new Node();
+	goToNode->SetNodeType(NodeType::goTo);
+	goToNode->SetPosition(_targetOwnable->GetOwner()->GetActorLocation());
+	_plotGraph->AddNode(goToNode);
+
+	//DESTROY
+	Node* destroyNode = new Node();
+	destroyNode->SetNodeType(NodeType::destroy);
+	destroyNode->SetOwnable(_targetOwnable);
+	_plotGraph->AddNode(destroyNode);
+}
+
+void DestroyPlot::GatherTargets() {
+}
+
+void DestroyPlot::ConsiderReactions() {
 }
 
 
+//STEAL PLOT
+//**************************************************************************************
+
+StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* who, UOOwnable* target) : BasePlot(plotEntity) {
+
+	_targetOwnable = target;
+	_targetEntity = who;
+	_sentence = BuildSentence();
+
+	BuildGraph();
+}
+
+StealPlot::~StealPlot() {}
+
+string StealPlot::BuildSentence() {
+	return TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is stealing " + _targetOwnable->GetOwner()->GetActorLabel() + " " + _targetEntity->GetOwner()->GetActorLabel()));
+}
+
+void StealPlot::BuildGraph() {
+
+	_plotGraph = new Graph();
+
+	//GO TO TARGET
+	Node* goToNode = new Node();
+	goToNode->SetNodeType(NodeType::goTo);
+	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
+	_plotGraph->AddNode(goToNode);
+
+	//STEAL
+	Node* stealNode = new Node();
+	stealNode->SetNodeType(NodeType::steal);
+	stealNode->SetEntityB(_targetEntity);
+	stealNode->SetOwnable(_targetOwnable);
+	_plotGraph->AddNode(stealNode);
+}
+
+void StealPlot::GatherTargets() {
+	// Not applyable
+}
+
+void StealPlot::ConsiderReactions() {
+}
+
+
+//BUILD PLOT
+//**************************************************************************************
+
+BuildPlot::BuildPlot(UOEntity* plotEntity, UOEdification* target) : BasePlot(plotEntity) {
+
+	_targetEdification = target;
+	_sentence = BuildSentence();
+	GatherTargets();
+	BuildGraph();
+}
+
+BuildPlot::~BuildPlot() {}
+
+string BuildPlot::BuildSentence() {
+	return TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is building " + _targetEdification->GetOwner()->GetActorLabel()));
+}
+
+void BuildPlot::BuildGraph() {
+
+	_plotGraph = new Graph();
+
+	//ASK FOR HELP
+	/*Node* askForHelpNode = new Node();
+	askForHelpNode->SetNodeType(NodeType::askForHelp);
+	_plotGraph->AddNode(askForHelpNode);*/
+
+	//GET TOOLS
+	/*Node* getNode = new Node();
+	getNode->SetNodeType(NodeType::get);
+	getNode->SetArquetypeObject("martillo")
+	_plotGraph->AddNode(getNode);*/
+
+	//GO TO TARGET
+	Node* goToNode = new Node();
+	goToNode->SetNodeType(NodeType::goTo);
+	goToNode->SetPosition(_targetEdification->GetOwner()->GetActorLocation());
+	_plotGraph->AddNode(goToNode);
+
+	//BUILD
+	Node* buildNode = new Node();
+	buildNode->SetNodeType(NodeType::build);
+	buildNode->SetEdification(_targetEdification);
+	_plotGraph->AddNode(buildNode);
+}
+
+void BuildPlot::GatherTargets() {
+}
+
+void BuildPlot::ConsiderReactions() {
+}
+
+
+//GIVE PLOT
+//**************************************************************************************
+
+GivePlot::GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what) : BasePlot(plotEntity) {
+
+	_targetEntity = target;
+	_targetOwnable = what;
+	_sentence = BuildSentence();
+
+	BuildGraph();
+}
+
+GivePlot::~GivePlot() {}
+
+string GivePlot::BuildSentence() {
+	return TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is giving " + _targetOwnable->GetOwner()->GetActorLabel() + " to " + _targetEntity->GetOwner()->GetActorLabel()));
+}
+
+void GivePlot::BuildGraph() {
+
+	_plotGraph = new Graph();
+
+	//GO TO TARGET
+	Node* goToNode = new Node();
+	goToNode->SetNodeType(NodeType::goTo);
+	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
+	_plotGraph->AddNode(goToNode);
+
+	//GIVE
+	Node* giveNode = new Node();
+	giveNode->SetNodeType(NodeType::give);
+	giveNode->SetOwnable(_targetOwnable);
+	_plotGraph->AddNode(giveNode);
+}
+
+void GivePlot::GatherTargets() {
+	// Not applyable
+}
+
+void GivePlot::ConsiderReactions() {
+}
 
 
