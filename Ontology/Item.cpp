@@ -4,6 +4,7 @@
 #include "Item.h"
 #include "OOwnable.h"
 #include "OEntity.h"
+#include "OEdification.h"
 
 
 // Sets default values for this component's properties
@@ -45,4 +46,21 @@ string UItem::GenerateNotifyID(UOOwnable* ownable, UOEntity* entity, _NotifyTag 
 string UItem::GenerateNotifyID(UOEntity* pasiva, UOEntity* activa, _NotifyTag tag) {
 
 	return "" + pasiva->GetUniqueID() + activa->GetUniqueID();
+}
+
+UOEntity* UItem::GetEntityComponent(AActor* actor) {
+
+	UOEntity* foundComponent = actor->FindComponentByClass<UOEntity>();
+	return foundComponent;
+}
+UOOwnable* UItem::GetOwnableComponent(AActor* actor) {
+
+	UOOwnable* foundComponent = actor->FindComponentByClass<UOOwnable>();
+	return foundComponent;
+}
+
+UOEdification * UItem::GetEdificationComponent(AActor * actor)
+{
+	UOEdification* foundComponent = actor->FindComponentByClass<UOEdification>();
+	return foundComponent;
 }

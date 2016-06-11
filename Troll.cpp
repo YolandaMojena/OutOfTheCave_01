@@ -57,6 +57,7 @@ ATroll::ATroll(const FObjectInitializer& ObjectInitializer)
 
 	_chargingJump = false;
 	
+	_myEntityComp = FindComponentByClass<UOEntity>();;
 }
 
 // Called when the game starts or when spawned
@@ -188,16 +189,17 @@ void ATroll::PickUpMain() {
 			);
 
 		// if hit, assign actor to main weapon and add overlap event
-		if (HitData.bBlockingHit) {
+		if (HitData.bBlockingHit && !_myEntityComp->GetEdificationComponent(HitData.GetActor())) {
 
 			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
 
 			_mainWeapon = HitData.GetActor();
 			_mainRotation = _mainWeapon->GetActorRotation();
+			_mainZ = _mainWeapon->GetActorLocation().Z;
 
-			if (GetEntityComponent(HitData.GetActor())) {
+			if (_myEntityComp->GetEntityComponent(HitData.GetActor())) {
 
-				UOEntity* hitEntity = GetEntityComponent(_mainWeapon);
+				UOEntity* hitEntity = _myEntityComp->GetEntityComponent(_mainWeapon);
 
 				if (!hitEntity->GetIsDead()) {
 
@@ -219,9 +221,9 @@ void ATroll::PickUpMain() {
 		_mainWeapon->OnActorBeginOverlap.Remove(HitFunc);
 		_mainWeapon->DetachRootComponentFromParent(true);
 
-		if (GetEntityComponent(_mainWeapon)) {
+		if (_myEntityComp->GetEntityComponent(_mainWeapon)) {
 
-			UOEntity* hitEntity = GetEntityComponent(_mainWeapon);
+			UOEntity* hitEntity = _myEntityComp->GetEntityComponent(_mainWeapon);
 			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
 
 			if (!hitEntity->GetIsDead()) {
@@ -232,6 +234,7 @@ void ATroll::PickUpMain() {
 		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
 		_mainWeapon->SetActorEnableCollision(true);
 		_mainWeapon->SetActorRotation(_mainRotation);
+		_mainWeapon->SetActorLocation(FVector(_mainWeapon->GetActorLocation().X, _mainWeapon->GetActorLocation().Y, _mainZ));
 		_mainWeapon = nullptr;
 	}
 }
@@ -260,15 +263,16 @@ void ATroll::PickUpSecondary() {
 			);
 
 		// if hit, assign actor to secondary weapon and add overlap event
-		if (HitData.bBlockingHit) {
+		if (HitData.bBlockingHit && !_myEntityComp->GetEdificationComponent(HitData.GetActor())) {
 			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
 
 			_secondaryWeapon = HitData.GetActor();
 			_secondaryRotation = _secondaryWeapon->GetActorRotation();
+			_secondaryZ = _secondaryWeapon->GetActorLocation().Z;
 
-			if (GetEntityComponent(HitData.GetActor())) {
+			if (_myEntityComp->GetEntityComponent(HitData.GetActor())) {
 
-				UOEntity* hitEntity = GetEntityComponent(_secondaryWeapon);
+				UOEntity* hitEntity = _myEntityComp->GetEntityComponent(_secondaryWeapon);
 
 				if (!hitEntity->GetIsDead()) {
 
@@ -289,9 +293,9 @@ void ATroll::PickUpSecondary() {
 		_secondaryWeapon->OnActorBeginOverlap.Remove(HitFunc);
 		_secondaryWeapon->DetachRootComponentFromParent(true);
 
-		if (GetEntityComponent(_secondaryWeapon)) {
+		if (_myEntityComp->GetEntityComponent(_secondaryWeapon)) {
 
-			UOEntity* hitEntity = GetEntityComponent(_secondaryWeapon);
+			UOEntity* hitEntity = _myEntityComp->GetEntityComponent(_secondaryWeapon);
 			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_secondaryWeapon);
 
 			if (!hitEntity->GetIsDead()) {
@@ -302,6 +306,7 @@ void ATroll::PickUpSecondary() {
 		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
 		_secondaryWeapon->SetActorEnableCollision(true);
 		_secondaryWeapon->SetActorRotation(_secondaryRotation);
+		_secondaryWeapon->SetActorLocation(FVector(_secondaryWeapon->GetActorLocation().X, _secondaryWeapon->GetActorLocation().Y, _secondaryZ));
 		_secondaryWeapon = nullptr;
 	}
 }
@@ -338,18 +343,18 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 		ADestructibleActor* targetDestructible = dynamic_cast<ADestructibleActor*>(OtherActor);
 		targetDestructible->GetDestructibleComponent()->ApplyRadiusDamage(10, targetDestructible->GetDestructibleComponent()->GetCenterOfMass(), 32, 100, false);
 	}
-	else if (GetEntityComponent(OtherActor) && isAttacking && _canDamage) {
+	else if (_myEntityComp->GetEntityComponent(OtherActor) && isAttacking && _canDamage) {
 
-		UOEntity* hitEntity = GetEntityComponent(OtherActor);
-		hitEntity->ReceiveDamage(_TROLL_DMG, GetEntityComponent(this));
+		UOEntity* hitEntity = _myEntityComp->GetEntityComponent(OtherActor);
+		hitEntity->ReceiveDamage(_TROLL_DMG, _myEntityComp->GetEntityComponent(this));
 		//FVector direction = FVector(hitEntity->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, hitEntity->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
 		//FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
 		//hitEntity->GetOwner()->GetCharacterMovement()->Velocity += direction * _TROLL_DMG;
 	}
 
-	else if (GetOwnableComponent(OtherActor) && isAttacking && _canDamage) {
+	else if (_myEntityComp->GetOwnableComponent(OtherActor) && isAttacking && _canDamage) {
 
-		UOOwnable* hitOwnable = GetOwnableComponent(OtherActor);
+		UOOwnable* hitOwnable = _myEntityComp->GetOwnableComponent(OtherActor);
 		hitOwnable->ReceiveDamage(_TROLL_DMG, this->FindComponentByClass<UOEntity>());
 		//FVector direction = FVector(hitEntity->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, hitEntity->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
 		//FVector direction = FVector(this->GetActorLocation().X - GetMesh()->GetSocketLocation("mainSocket").X, this->GetActorLocation().Y - GetMesh()->GetSocketLocation("mainSocket").Y, 0);
@@ -357,14 +362,4 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 	}
 }
 
-UOEntity* ATroll::GetEntityComponent(AActor* actor) {
 
-	UOEntity* foundComponent = actor->FindComponentByClass<UOEntity>();
-	return foundComponent;
-}
-
-UOOwnable* ATroll::GetOwnableComponent(AActor* actor) {
-
-	UOOwnable* foundComponent = actor->FindComponentByClass<UOOwnable>();
-	return foundComponent;
-}

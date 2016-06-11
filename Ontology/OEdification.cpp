@@ -7,6 +7,10 @@
 
 UOEdification::UOEdification() : UOOwnable() {
 
+	static ConstructorHelpers::FObjectFinder<UBlueprint> ItemBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_Ocivilian_Goblin.BP_OCivilian_Goblin'"));
+	if (ItemBlueprint.Object) {
+		BP_Civilian_Goblin = (UClass*)ItemBlueprint.Object->GeneratedClass;
+	}
 }
 
 UOEdification::~UOEdification()

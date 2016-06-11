@@ -57,6 +57,9 @@ public:
 	void AddPossession(OOwnership* newOwnership);
 	void AddPossession(UOOwnable* newOwnable);
 	void AddTerritory(OTerritory* newTerritory);
+	void AddDesire(OOwnership* newOwnership);
+	void AddDesire(UOOwnable* newOwnable);
+
 
 	bool IsInSight(AActor* actor);
 	void OwnableNotify(UOOwnable* ownable, UOEntity* entity, UItem::_NotifyTag tag, bool grito, string notifyID);
@@ -66,6 +69,7 @@ public:
 	OOwnership* GetOwnershipWith(UOOwnable* other);
 	void DeleteRelation(UOEntity* relation);
 	void DeletePossession(UOOwnable* possession);
+	void DeleteDesire(UOOwnable* desire);
 
 	bool GetIsDead();
 
@@ -102,6 +106,7 @@ private:
 
 	vector<ORelation*> _relationships;
 	vector<OOwnership*> _possessions;
+	vector<OOwnership*> _materialDesires;
 	vector<OTerritory*> _landlord;
 
 	UOEntity* _attacker;

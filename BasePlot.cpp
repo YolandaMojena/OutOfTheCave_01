@@ -49,6 +49,12 @@ void BasePlot::PrintSentence() {
 	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, _sentence.c_str());
 }
 
+void BasePlot::AddInvolvedInPlot(UOEntity * entity)
+{
+	_involvedInPlot.push_back(entity);
+}
+
 Graph* BasePlot::GetGraph() {
 	return _plotGraph;
 }
+

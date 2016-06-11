@@ -10,6 +10,7 @@ using namespace std;
 
 class UOOwnable;
 class UOEntity;
+class UOEdification;
 
 
 
@@ -122,6 +123,10 @@ public:
 			return FVector.Distance(_grabPos, _funcPos);
 		}
 	}*/
+
+	UOEntity* GetEntityComponent(AActor* actor);
+	UOOwnable* GetOwnableComponent(AActor* actor);
+	UOEdification* GetEdificationComponent(AActor* actor);
 
 protected:
 

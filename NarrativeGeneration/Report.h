@@ -22,13 +22,13 @@ public:
 		relation, ownership, world
 	};
 
-	Report(ORelation* newRelation, vector<BasePlot::TypeOfPlot> types, UItem* motivation);
-	Report(OOwnership* newOwnership, vector<BasePlot::TypeOfPlot> types, UItem* motivation);
+	Report(ORelation* newRelation, BasePlot::TypeOfPlot type, UItem* motivation);
+	Report(OOwnership* newOwnership, BasePlot::TypeOfPlot types, UItem* motivation);
 	Report(UOEntity* reportEntity);
 
 	~Report();
 
-	void PrintReport(Report* newReport);
+	void PrintReport();
 
 	UOEntity* GetReportEntity();
 	UOEntity* GetTargetEntity();
@@ -37,9 +37,9 @@ public:
 	OOwnership* GetNewOwnership();
 	UItem* GetMotivation();
 	ReportTag GetTag();
-	vector<BasePlot::TypeOfPlot> GetTypes();
+	BasePlot::TypeOfPlot GetType();
 
-	void RemoveTagFromReport(BasePlot::TypeOfPlot type);
+	//void RemoveTagFromReport(BasePlot::TypeOfPlot type);
 
 	struct ReportNotoriety
 	{
@@ -60,8 +60,5 @@ private:
 	UItem* _motivation;
 
 	ReportTag _tag;
-	vector<BasePlot::TypeOfPlot> _types;
-
-	// -1, 0 or 1
-	int _priority;
+	BasePlot::TypeOfPlot _type;
 };
