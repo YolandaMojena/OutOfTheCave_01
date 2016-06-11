@@ -13,12 +13,9 @@ EBTNodeResult::Type UBTTask_SetIconPath::ExecuteTask(UBehaviorTreeComponent& Own
 
 		if(civilianComp)
 			civilianComp->currentIconPath = taskIconPath;
-
-		return EBTNodeResult::Succeeded;
-
 	}
 
-	return EBTNodeResult::InProgress;
+	return EBTNodeResult::Succeeded;
 }
 
 
