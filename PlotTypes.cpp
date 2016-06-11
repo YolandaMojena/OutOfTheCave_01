@@ -15,9 +15,9 @@ AttackPlot::AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity) : BasePlot(
 
 	_targetEntity = targetEntity;
 	_sentence = BuildSentence();
+	_isExclusive = false;
 
 	BuildGraph();
-	GatherTargets();
 }
 
 AttackPlot::~AttackPlot() {}
@@ -31,9 +31,9 @@ void AttackPlot::BuildGraph() {
 	_plotGraph = new Graph();
 
 	//ASK FOR HELP
-	/*Node* askForHelpNode = new Node();
+	Node* askForHelpNode = new Node();
 	askForHelpNode->SetNodeType(NodeType::askForHelp);
-	_plotGraph->AddNode(askForHelpNode);*/
+	_plotGraph->AddNode(askForHelpNode);
 
 	//GET WEAPON
 	/*Node* getNode = new Node();
@@ -54,8 +54,6 @@ void AttackPlot::BuildGraph() {
 	_plotGraph->AddNode(attackNode);
 }
 
-void AttackPlot::GatherTargets() {
-}
 
 void AttackPlot::ConsiderReactions() {
 }
@@ -68,8 +66,8 @@ GatherPlot::GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource) : BasePl
 
 	_targetResource = targetResource;
 	_sentence = BuildSentence();
+	_isExclusive = false;
 
-	GatherTargets();
 	BuildGraph();
 }
 
@@ -83,9 +81,6 @@ void GatherPlot::BuildGraph() {
 
 }
 
-void GatherPlot::GatherTargets() {
-}
-
 void GatherPlot::ConsiderReactions() {
 }
 
@@ -97,9 +92,9 @@ DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOOwnable* target) : BasePlot(plo
 
 	_targetOwnable = target;
 	_sentence = BuildSentence();
+	_isExclusive = false;
 
 	BuildGraph();
-	GatherTargets();
 }
 
 DestroyPlot::~DestroyPlot() {}
@@ -113,9 +108,9 @@ void DestroyPlot::BuildGraph() {
 	_plotGraph = new Graph();
 
 	//ASK FOR HELP
-	/*Node* askForHelpNode = new Node();
+	Node* askForHelpNode = new Node();
 	askForHelpNode->SetNodeType(NodeType::askForHelp);
-	_plotGraph->AddNode(askForHelpNode);*/
+	_plotGraph->AddNode(askForHelpNode);
 
 	//GET TOOLS
 	/*Node* getNode = new Node();
@@ -135,8 +130,6 @@ void DestroyPlot::BuildGraph() {
 	_plotGraph->AddNode(destroyNode);
 }
 
-void DestroyPlot::GatherTargets() {
-}
 
 void DestroyPlot::ConsiderReactions() {
 }
@@ -150,6 +143,7 @@ StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* who, UOOwnable* target) : B
 	_targetOwnable = target;
 	_targetEntity = who;
 	_sentence = BuildSentence();
+	_isExclusive = true;
 
 	BuildGraph();
 }
@@ -178,10 +172,6 @@ void StealPlot::BuildGraph() {
 	_plotGraph->AddNode(stealNode);
 }
 
-void StealPlot::GatherTargets() {
-	// Not applyable
-}
-
 void StealPlot::ConsiderReactions() {
 }
 
@@ -193,7 +183,8 @@ BuildPlot::BuildPlot(UOEntity* plotEntity, UOEdification* target) : BasePlot(plo
 
 	_targetEdification = target;
 	_sentence = BuildSentence();
-	GatherTargets();
+	_isExclusive = false;
+
 	BuildGraph();
 }
 
@@ -208,15 +199,21 @@ void BuildPlot::BuildGraph() {
 	_plotGraph = new Graph();
 
 	//ASK FOR HELP
-	/*Node* askForHelpNode = new Node();
+	Node* askForHelpNode = new Node();
 	askForHelpNode->SetNodeType(NodeType::askForHelp);
-	_plotGraph->AddNode(askForHelpNode);*/
+	_plotGraph->AddNode(askForHelpNode);
 
 	//GET TOOLS
 	/*Node* getNode = new Node();
 	getNode->SetNodeType(NodeType::get);
 	getNode->SetArquetypeObject("martillo")
 	_plotGraph->AddNode(getNode);*/
+
+	//GATHER RESOURCES
+	Node* getNode = new Node();
+	getNode->SetNodeType(NodeType::gather);
+	//gather what?
+	_plotGraph->AddNode(getNode);
 
 	//GO TO TARGET
 	Node* goToNode = new Node();
@@ -231,9 +228,6 @@ void BuildPlot::BuildGraph() {
 	_plotGraph->AddNode(buildNode);
 }
 
-void BuildPlot::GatherTargets() {
-}
-
 void BuildPlot::ConsiderReactions() {
 }
 
@@ -246,6 +240,7 @@ GivePlot::GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what) : Ba
 	_targetEntity = target;
 	_targetOwnable = what;
 	_sentence = BuildSentence();
+	_isExclusive = true;
 
 	BuildGraph();
 }
@@ -271,10 +266,6 @@ void GivePlot::BuildGraph() {
 	giveNode->SetNodeType(NodeType::give);
 	giveNode->SetOwnable(_targetOwnable);
 	_plotGraph->AddNode(giveNode);
-}
-
-void GivePlot::GatherTargets() {
-	// Not applyable
 }
 
 void GivePlot::ConsiderReactions() {

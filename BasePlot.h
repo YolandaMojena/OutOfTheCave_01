@@ -27,11 +27,11 @@ public:
 	void PrintSentence();
 	void AddInvolvedInPlot(UOEntity* entity);
 
-	TypeOfPlot plotTypes;
-	BasePlot* additiveReactions;
-	BasePlot* negativeReactions;
-	StringCollection strings;
 	Graph* GetGraph();
+	UOEntity* GetMainEntity();
+	vector<UOEntity*> GetInvolvedInPlot();
+	bool IsExclusive();
+
 
 protected:
 	
@@ -39,10 +39,10 @@ protected:
 	UOEntity* _plotEntity;
 	Graph* _plotGraph;
 	vector<UOEntity*> _involvedInPlot;
+	bool _isExclusive;
 	bool _plotCompleted = false;
 
 	virtual void BuildGraph() = 0;
 	virtual string BuildSentence() = 0;
-	virtual void GatherTargets() = 0;
 	virtual void ConsiderReactions() = 0;
 };

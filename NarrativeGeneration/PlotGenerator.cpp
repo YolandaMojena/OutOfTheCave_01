@@ -23,18 +23,13 @@ void APlotGenerator::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	/*if (_lastPlotCompleted) {
+	GetPlotFromReportLog();
 
-		_timeToSpawnPlot += DeltaTime;
+	if (_lastPlotCompleted && reactivePlots.size() > 0) {
 
-		if (_timeToSpawnPlot >= _TIME_TO_SPAWN) {
-			_timeToSpawnPlot = 0;
-			_lastPlotCompleted = false;
-			SpawnPlot();
-		}
-	}*/
-
-	SpawnPlot();
+		_lastPlotCompleted = false;
+		SpawnReactivePlot();
+	}
 }
 
 bool APlotGenerator::ValidateReport(Report* report)
@@ -49,14 +44,15 @@ bool APlotGenerator::ValidateReport(Report* report)
 	else return true;
 }
 
-void APlotGenerator::SpawnPlot()
+void APlotGenerator::SpawnReactivePlot()
 {
 	if (reactivePlots.size() > 0) {
 		BasePlot* currentPlot = reactivePlots.at(0);
 		reactivePlots.erase(reactivePlots.begin());
 		currentPlot->PrintSentence();
+
+		currentPlot->GetMainEntity()->currentPlot.push_back(currentPlot);
 	}
-	else GetPlotFromReportLog();
 }
 
 void APlotGenerator::AddReportToLog(Report* newReport)
@@ -110,8 +106,10 @@ void APlotGenerator::GetPlotFromReportLog() {
 
 			if (plot == strings.ATTACK_PLOT) {
 				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity());
-				for (UOEntity* entity : WeHaveALotInCommon(currentReport))
-					newPlot->AddInvolvedInPlot(entity);
+				if (!newPlot->IsExclusive()) {
+					for (UOEntity* entity : WeHaveALotInCommon(currentReport))
+						newPlot->AddInvolvedInPlot(entity);
+				}
 				reactivePlots.push_back(newPlot);
 			}
 		}
@@ -144,7 +142,8 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 		if (_pReportLog[i]->GetTag() == tag && tag == Report::ReportTag::ownership) {
 			if ( _pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetOwnable() == report->GetTargetOwnable()) {
-				helpers.push_back(_pReportLog[i]->GetReportEntity());
+				//if(_pReportLog[i]->GetReportEntity()->GetStat
+					helpers.push_back(_pReportLog[i]->GetReportEntity());
 				_pReportLog.RemoveAt(i);
 			}
 			else i++;

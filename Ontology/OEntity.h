@@ -76,6 +76,7 @@ public:
 	void ReceiveDamage(float damage, UOEntity* damager);
 	bool CheckValidPersonality(BasePlot::TypeOfPlot type);
 	void SendReport(Report* newReport);
+	void ExecutePlot();
 
 	// It must be considered whether if the entity is the player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)

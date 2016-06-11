@@ -41,6 +41,10 @@ void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 			_canBeDamaged = true;
 		}
 	}
+
+	if (currentPlot.size() > 0) {
+		ExecutePlot();
+	}
 }
 
 
@@ -346,6 +350,10 @@ void UOEntity::SetAIController(AEntityAIController* eaic) {
 void UOEntity::ExecuteGraph() {
 	_entityAIController->SetNode(brain->Peek());
 	//_entityAIController->ExecuteNode();
+}
+
+void UOEntity::ExecutePlot() {
+
 }
 
 void UOEntity::NodeCompleted(bool completedOk) {

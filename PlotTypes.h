@@ -26,7 +26,6 @@ private:
 
 	void BuildGraph();
 	string BuildSentence();
-	void GatherTargets();
 	void ConsiderReactions();
 
 	UOEntity* _targetEntity;
@@ -45,7 +44,6 @@ private:
 
 	void BuildGraph();
 	string BuildSentence();
-	void GatherTargets();
 	void ConsiderReactions();
 
 	UOOwnable* _targetResource;
@@ -64,7 +62,6 @@ private:
 
 	void BuildGraph();
 	string BuildSentence();
-	void GatherTargets();
 	void ConsiderReactions();
 
 	UOOwnable* _targetOwnable;
@@ -83,7 +80,6 @@ private:
 
 	void BuildGraph();
 	string BuildSentence();
-	void GatherTargets();
 	void ConsiderReactions();
 
 	UOEntity* _targetEntity;
@@ -103,7 +99,6 @@ private:
 
 	void BuildGraph();
 	string BuildSentence();
-	void GatherTargets();
 	void ConsiderReactions();
 
 	UOEdification* _targetEdification;
@@ -123,7 +118,6 @@ private:
 
 	void BuildGraph();
 	string BuildSentence();
-	void GatherTargets();
 	void ConsiderReactions();
 
 	UOEntity* _targetEntity;
