@@ -258,7 +258,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 
 				relationWithKiller->SetAppreciation(-relationFromOther->GetAppreciation());
 
-				if (relationWithKiller->GetAppreciation() < relationWithKiller->LOW_APPRECIATION)
+				//if (relationWithKiller->GetAppreciation() < relationWithKiller->LOW_APPRECIATION)
 					o->GetOtherEntity()->SendReport(new Report(relationWithKiller, BasePlot::TypeOfPlot::aggressive, this));
 			}
 			o->GetOtherEntity()->DeleteRelation(this);
@@ -313,15 +313,15 @@ UOEntity::State UOEntity::GetCurrentState()
 	return _currentState;
 }
 
-void UOEntity::SetState(State s, Graph* g) {
+void UOEntity::SetState(State s, Graph g) {
 	_currentState = s;
 	switch (_currentState) {
 	case State::idle:
 	{
-		brain = _idleGraph;
-		if (brain->Peek()->nBlackboard.daytime >= 0) {
-			while (brain->Peek()->nBlackboard.daytime < _currentTime) {
-				brain->NextNode();
+		brain = *_idleGraph;
+		if (brain.Peek()->nBlackboard.daytime >= 0) {
+			while (brain.Peek()->nBlackboard.daytime < _currentTime) {
+				brain.NextNode();
 			}
 		}
 	}
@@ -338,7 +338,7 @@ void UOEntity::SetState(State s, Graph* g) {
 	}
 		break;
 	default:
-		brain = _idleGraph;
+		brain = *_idleGraph;
 	}
 
 	ExecuteGraph();
@@ -350,7 +350,7 @@ void UOEntity::SetAIController(AEntityAIController* eaic) {
 }
 
 void UOEntity::ExecuteGraph() {
-	_entityAIController->SetNode(brain->Peek());
+	_entityAIController->SetNode(brain.Peek());
 	//_entityAIController->ExecuteNode();
 }
 
@@ -362,8 +362,8 @@ void UOEntity::ExecutePlot() {
 
 // If a node can't be completed or is the last one, plot is considered completed
 void UOEntity::NodeCompleted(bool completedOk) {
-	if (completedOk && !brain->IsLastNode()) {
-		brain->NextNode(); //BRANCH!!!
+	if (completedOk && !brain.IsLastNode()) {
+		brain.NextNode(); //BRANCH!!!
 		ExecuteGraph();
 	}
 	else
@@ -376,3 +376,5 @@ void UOEntity::NodeCompleted(bool completedOk) {
 			SetState(State::idle);
 	}
 }
+
+

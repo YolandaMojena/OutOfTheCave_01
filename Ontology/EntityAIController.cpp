@@ -13,11 +13,13 @@ AEntityAIController::~AEntityAIController() {}
 
 void AEntityAIController::SetNode(Node* n) {
 	entityBlackboard->SetValue<UBlackboardKeyType_Enum>(nodeTypeID, static_cast<UBlackboardKeyType_Enum::FDataType>(n->GetNodeType()));
-	//entityBlackboard->SetValueAsEnum<NodeType>(nodeTypeID, n->GetNodeType()
+
 	switch (n->GetNodeType()) {
 	case NodeType::askForHelp:
 		break;
 	case NodeType::attack:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("EntityA") , n->nBlackboard.entityA);
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Attacking " + n->nBlackboard.entityA->GetOwner()->GetActorLabel()));
 		break;
 	case NodeType::branch:
 		break;
@@ -38,7 +40,7 @@ void AEntityAIController::SetNode(Node* n) {
 		break;
 	case NodeType::grab:
 		break;
-	case NodeType::interact:
+	case NodeType::cultivate:
 		break;
 	case NodeType::steal:
 		break;

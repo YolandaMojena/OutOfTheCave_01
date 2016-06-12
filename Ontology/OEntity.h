@@ -87,18 +87,20 @@ public:
 
 	vector<BasePlot*> currentPlots;
 	UOEntity* mainPlotEntity;
-	Graph* brain;
+	Graph brain;
 
 	UPROPERTY(EditAnywhere, Category = Behaviour)
 	class UBehaviorTree* entityBehaviorTree;
 
 	State GetCurrentState();
-	void SetState(State s, Graph* g = nullptr);
+	void SetState(State s, Graph g = nullptr);
 	void SetIdleGraph(Graph* g);
 
 	void SetAIController(AEntityAIController* eaic);
 	void ExecuteGraph();
 	void NodeCompleted(bool completedOk);
+
+	float _currentTime = 10;
 	
 private:
 	
@@ -130,7 +132,7 @@ private:
 
 	
 
-	float _currentTime = 10;
+	
 
 	AEntityAIController* _entityAIController;
 };

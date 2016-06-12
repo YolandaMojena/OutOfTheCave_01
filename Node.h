@@ -32,6 +32,7 @@ enum class NodeType : uint8 {
 	askForHelp UMETA(DisplayName = "askForHelp"),
 	askTroll UMETA(DisplayName = "askTroll"),
 	spawn UMETA(DisplayName = "spawn"),
+	cultivate UMETA(DisplayName = "cultivate"),
 	gather UMETA(DisplayName = "gather")
 };
 

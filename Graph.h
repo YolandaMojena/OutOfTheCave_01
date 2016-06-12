@@ -27,9 +27,11 @@ public:
 
 	Node* Peek();
 	bool IsLastNode();
-
+	void SetNodeCompleted(bool completedOK);
+	bool GetNodeCompleted();
 	void NextNode();
 
 private:
 	Node* _lastNode;
+	bool _nodeCompleted;
 };

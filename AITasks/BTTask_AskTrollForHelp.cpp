@@ -20,6 +20,9 @@ EBTNodeResult::Type UBTTask_AskTrollForHelp::ExecuteTask(UBehaviorTreeComponent&
 			if (relation && relation->GetAppreciation() >= relation->HIGH_APPRECIATION)
 				entityController->MoveToActor(troll->GetOwner());
 		}
+
+		//plotEntity->brain.SetNodeCompleted(true);
+		return EBTNodeResult::Succeeded;
 	}
 
 	return EBTNodeResult::Succeeded;

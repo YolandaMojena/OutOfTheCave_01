@@ -1,10 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OutOfTheCave_01.h"
-#include "BTTask_NodeCompleted.h"
+#include "BTTask_Cultivate.h"
 
-EBTNodeResult::Type UBTTask_NodeCompleted::ExecuteTask(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory)
-{
+
+EBTNodeResult::Type UBTTask_Cultivate::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
+
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 
@@ -12,8 +13,12 @@ EBTNodeResult::Type UBTTask_NodeCompleted::ExecuteTask(UBehaviorTreeComponent & 
 
 	if (entity) {
 
-		entity->NodeCompleted(entity->brain.GetNodeCompleted());
-		entity->brain.SetNodeCompleted(true);
+		if (entity->_currentTime > blackboard->GetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("Daytime"))) {
+			entity->brain.SetNodeCompleted(true);
+			return EBTNodeResult::Succeeded;
+		}
 	}
-	return EBTNodeResult::Succeeded;
+
+	return EBTNodeResult::InProgress;
 }
+

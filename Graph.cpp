@@ -51,6 +51,15 @@ bool Graph::IsLastNode() {
 	return firstNode == _lastNode;
 }
 
+void Graph::SetNodeCompleted(bool completedOk)
+{
+	_nodeCompleted = completedOk;
+}
+
+bool Graph::GetNodeCompleted() {
+	return _nodeCompleted;
+}
+
 void Graph::NextNode() {
 	firstNode = firstNode->nextNodes[0];
 }
