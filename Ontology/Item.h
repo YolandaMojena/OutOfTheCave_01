@@ -65,32 +65,17 @@ public:
 
 	string name;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		float _density;
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		float density;*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _mass; //CharacterMovement Component!?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _volume;
-	/*float _volume{
-		get{
-			return _mass / _density;
-		}
-		set(value){
-			_mass = _density * value
-		}
-	}*/
-	/*float _mass{
-	get{
-	return _density * _volume;
-	}
-	}*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _maxLength;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		float _elongation;
 	/*float _elongation{
 		get{
-			return _maxLength / volume;
+			return _maxLength / _volume;
 		}
 	}*/
 	
@@ -105,15 +90,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		FVector _funcDir; //Think of an axe!
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		FVector _centerOfMass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _edgeSharpness;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _edgeLength;
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		float inertiaMomentum;*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		float _inertiaMomentum;
+		float _spiky;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		float _spikes;
 
 	// Health
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		float _integrity;
+		float integrity;
 
 	float _canBeDamaged;
 	const float _HURT_COOLDOWN = 0.75f;
@@ -128,6 +119,27 @@ public:
 	UOOwnable* GetOwnableComponent(AActor* actor);
 	UOEdification* GetEdificationComponent(AActor* actor);
 
+	float GetDensity();
+	float GetMass();
+	float GetVolume();
+
+	float GetMaxLength();
+	float GetElongation();
+
+	float GetToughness();
+	FVector GetGrabPos();
+	FVector GetGrabDir();
+	FVector GetFuncPos();
+	FVector GetFuncDir(); //Think of an axe!
+	FVector GetCenterOfMass();
+	float GetAngularInertia();
+	float GetAngularMomentumTransmission();
+	float GetEdgeSharpness();
+	float GetEdgeLength();
+	float GetSpiky();
+	float GetSpikes();
+
+
 protected:
 
 	const float _NOTIFICATION_RADIUS = 1000.0f;
@@ -138,4 +150,6 @@ protected:
 
 	string GenerateNotifyID(UOOwnable* ownable, UOEntity* entity, _NotifyTag tag);
 	string GenerateNotifyID(UOEntity* pasiva, UOEntity* activa, _NotifyTag tag);
+
+	float _integrity;
 };
