@@ -4,6 +4,7 @@
 
 #include "Components/ActorComponent.h"
 #include <string>
+#include <math.h>
 #include "Item.generated.h"
 
 using namespace std;
@@ -102,9 +103,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _spikes;
 
-	// Health
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		float integrity;
 
 	float _canBeDamaged;
 	const float _HURT_COOLDOWN = 0.75f;
@@ -141,7 +139,6 @@ public:
 
 
 protected:
-
 	const float _NOTIFICATION_RADIUS = 1000.0f;
 
 	enum _NotifyTag {
@@ -151,5 +148,5 @@ protected:
 	string GenerateNotifyID(UOOwnable* ownable, UOEntity* entity, _NotifyTag tag);
 	string GenerateNotifyID(UOEntity* pasiva, UOEntity* activa, _NotifyTag tag);
 
-	float _integrity;
+	float _integrity = 100;
 };

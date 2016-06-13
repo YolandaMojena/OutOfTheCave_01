@@ -27,4 +27,23 @@ public:
 private:
 	int ReduceWeight(int value);
 	int AmplifyWeight(int value);
+	
+	int HyperbolicGrowth(int value);
+	int LinearGrowth(int x);
+	int ExponentialGrowth(int x);
+	int HyperbolicGrowth(int value, int magnitude);
+	int LinearGrowth(int x, int m);
+	int ExponentialGrowth(int x, int m);
+
+	int HyperbolicDecay(int x, int m);
+	int LinearDecay(int x, int m);
+	int ExponentialDecay(int x, int m);
+
+	int HyperbolicEqualization(int x, int m);
+	int LinearEqualization(int x, int m);
+	int ExponentialEqualization(int x, int m);
+
+	int ThresholdValue(int x, int t);
+	int ThresholdValue(int x);
+	int BotThresholdValue(int x);
 };
