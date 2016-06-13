@@ -49,7 +49,7 @@ void UOResidence::SpawnTenants() {
 		// Spawn Params -> https://wiki.unrealengine.com/Templates_in_C%2B%2B
 		ACharacter* tentantCharacter = GetTentantCharacterFromRace();
 
-		if (tenantCharacter) {
+		if (tentantCharacter) {
 			UOEntity* ten = tentantCharacter->FindComponentByClass<UOEntity>();
 
 			// SET RELATIONS

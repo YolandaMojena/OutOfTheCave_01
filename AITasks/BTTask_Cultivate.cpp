@@ -14,7 +14,6 @@ EBTNodeResult::Type UBTTask_Cultivate::ExecuteTask(UBehaviorTreeComponent& Owner
 	if (entity) {
 
 		if (entity->_currentTime > blackboard->GetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("Daytime"))) {
-			entity->brain.SetNodeCompleted(true);
 			return EBTNodeResult::Succeeded;
 		}
 	}

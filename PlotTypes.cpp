@@ -49,13 +49,22 @@ void AttackPlot::BuildGraph() {
 	Node* goToNode = new Node();
 	goToNode->SetNodeType(NodeType::goTo);
 	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
+	goToNode->name = "Patates...";
 	_plotGraph.AddNode(goToNode);
 
 	//ATTACK
 	Node* attackNode = new Node();
 	attackNode->SetNodeType(NodeType::attack);
 	attackNode->SetEntityA(_targetEntity);
+	attackNode->name = "...i Dracs.";
 	_plotGraph.AddNode(attackNode);
+
+	//GO TO VICTIM
+	goToNode = new Node();
+	goToNode->SetNodeType(NodeType::goTo);
+	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
+	goToNode->name = "...i més patates...";
+	_plotGraph.AddNode(goToNode);
 }
 
 

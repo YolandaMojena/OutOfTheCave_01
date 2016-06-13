@@ -47,11 +47,11 @@ bool APlotGenerator::ValidateReport(Report* report)
 void APlotGenerator::SpawnReactivePlot()
 {
 	if (reactivePlots.size() > 0) {
-		BasePlot* currentPlots = reactivePlots.at(0);
+		BasePlot* currentPlot = reactivePlots.at(0);
 		reactivePlots.erase(reactivePlots.begin());
-		currentPlots->PrintSentence();
+		currentPlot->PrintSentence();
 
-		currentPlots->GetMainEntity()->currentPlots.push_back(currentPlots);
+		currentPlot->GetMainEntity()->AddCurrentPlot(currentPlot);
 	}
 }
 

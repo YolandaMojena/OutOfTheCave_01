@@ -36,23 +36,23 @@ EBTNodeResult::Type UBTTask_AskForHelpNode::ExecuteTask(UBehaviorTreeComponent& 
 			if (entity && entity->IsInSight(plotEntity->GetOwner()) && entity->GetCurrentState() == UOEntity::State::idle) {
 				ORelation* relation = entity->GetRelationWith(plotEntity);
 				if (relation && relation->GetAppreciation() >= relation->HIGH_APPRECIATION) {
-					plotEntity->currentPlots[0]->AddInvolvedInPlot(entity);
+					plotEntity->GetCurrentPlot()->AddInvolvedInPlot(entity);
 				}
 			}
 		}
 
-		Graph plotGraph = plotEntity->currentPlots[0]->GetGraph();
-		Node* comeToEntity = new Node();
+		//Graph plotGraph = plotEntity->GetCurrentPlot()->GetGraph();
+		/*Node* comeToEntity = new Node();
 		comeToEntity->SetNodeType(NodeType::goTo);
 		comeToEntity->SetPosition(plotEntity->GetOwner()->GetActorLocation());
-		plotGraph.AddInstantNode(comeToEntity);
-		plotGraph.NextNode();
+		plotEntity->AddInstantNode(comeToEntity);*/
+		//plotGraph.AddInstantNode(comeToEntity);
+		//plotGraph.NextNode();
 		
 
-		for (UOEntity* e : plotEntity->currentPlots[0]->GetInvolvedInPlot()) {
-
-			e->SetState(UOEntity::State::plot, plotGraph);
-			e->mainPlotEntity = plotEntity;
+		for (UOEntity* e : plotEntity->GetCurrentPlot()->GetInvolvedInPlot()) {
+			e->SetMainPlotEntity(plotEntity);
+			e->SetState(UOEntity::State::plot);
 		}
 
 		//plotEntity->brain.SetNodeCompleted(true);

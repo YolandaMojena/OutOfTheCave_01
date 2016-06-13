@@ -11,9 +11,9 @@ EBTNodeResult::Type UBTTask_NodeCompleted::ExecuteTask(UBehaviorTreeComponent & 
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass <UOEntity>();
 
 	if (entity) {
-
-		entity->NodeCompleted(entity->brain.GetNodeCompleted());
-		entity->brain.SetNodeCompleted(true);
+		//CONTROLAR DESDE LA BLACKBOARD, NO EN EL CEREBRO
+		//entity->NodeCompleted(entity->brain.GetNodeCompleted());
+		//entity->brain.SetNodeCompleted(true);
 	}
 	return EBTNodeResult::Succeeded;
 }

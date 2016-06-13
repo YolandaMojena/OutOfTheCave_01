@@ -41,12 +41,11 @@ void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 			_canBeDamaged = true;
 		}
 	}
-
-	if (currentPlots.size() > 0 && _currentState == State::idle) {
-		ExecutePlot();
-	}
 }
 
+
+
+// G E T T E R S
 
 vector<ORelation*> UOEntity::GetRelationships() {
 	return _relationships;
@@ -69,6 +68,18 @@ int UOEntity::GetNotoriety() {
 bool UOEntity::GetIsDead() {
 	return _isDead;
 }
+
+UOEntity* UOEntity::GetMainPlotEntity() {
+	return _mainPlotEntity;
+}
+
+/*Graph* UOEntity::GetBrain() {
+	return &_brain;
+}*/
+
+
+
+// R E L A T I O N S
 
 void UOEntity::AddRelationship(ORelation* newRelation) {
 	_relationships.push_back(newRelation);
@@ -164,6 +175,10 @@ void UOEntity::DeleteDesire(UOOwnable * desire)
 }
 
 
+
+
+// N O T I F Y   S Y S T E M
+
 bool UOEntity::IsInSight(AActor* actor) {
 	return true;
 }
@@ -175,6 +190,10 @@ void UOEntity::EntityNotify(UOEntity* pasiva, UOEntity* activa, UItem::_NotifyTa
 
 }
 
+
+
+
+// E V E N T S
 
 
 void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
@@ -199,6 +218,21 @@ void UOEntity::SendReport(Report * newReport)
 		plotGenerator->AddReportToLog(newReport);
 	}
 }
+
+void UOEntity::Die() {
+
+	ACharacter* character = dynamic_cast<ACharacter*>(GetOwner());
+	character->GetMesh()->SetSimulatePhysics(true);
+	character->GetMesh()->AttachTo(character->GetCapsuleComponent());
+	character->GetCapsuleComponent()->AttachTo(character->GetMesh());
+
+	if (IsA<UOCivilian>())
+		dynamic_cast<UOCivilian*>(this)->currentIconPath = "";
+
+	_isDead = true;
+}
+
+
 
 
 // Generates notifications for reactiveness
@@ -236,6 +270,8 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 	}
 
 
+
+
 	//   P L O T S
 	//	Search in relationships for those who appreciate entity, change ontology if required and send reports
 
@@ -248,7 +284,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 		if (relationFromOther){
 
 			// CHANGE FOR HIGH APPRECIATION
-			if (relationFromOther->GetAppreciation() > relationFromOther->LOW_APPRECIATION) {
+			if (relationFromOther->GetAppreciation() > 0/*relationFromOther->LOW_APPRECIATION*/) {
 				ORelation* relationWithKiller = o->GetOtherEntity()->GetRelationWith(killer);
 
 				if (!relationWithKiller) {
@@ -256,7 +292,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 					relationWithKiller = o->GetOtherEntity()->GetRelationWith(killer);
 				}
 
-				relationWithKiller->SetAppreciation(-relationFromOther->GetAppreciation());
+				relationWithKiller->ChangeAppreciation(-relationFromOther->GetAppreciation());
 
 				//if (relationWithKiller->GetAppreciation() < relationWithKiller->LOW_APPRECIATION)
 					o->GetOtherEntity()->SendReport(new Report(relationWithKiller, BasePlot::TypeOfPlot::aggressive, this));
@@ -266,18 +302,20 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 	}
 }
 
-void UOEntity::Die() {
-
-	ACharacter* character = dynamic_cast<ACharacter*>(GetOwner());
-	character->GetMesh()->SetSimulatePhysics(true);
-	character->GetMesh()->AttachTo(character->GetCapsuleComponent());
-	character->GetCapsuleComponent()->AttachTo(character->GetMesh());
-
-	if (IsA<UOCivilian>())
-		dynamic_cast<UOCivilian*>(this)->currentIconPath = "";
-
-	_isDead = true;
+void UOEntity::SetMainPlotEntity(UOEntity* mpe) {
+	_mainPlotEntity = mpe;
 }
+
+vector<BasePlot*> UOEntity::GetCurrentPlots() {
+	return _currentPlots;
+}
+BasePlot* UOEntity::GetCurrentPlot(){
+	return _currentPlots[0];
+}
+void UOEntity::AddCurrentPlot(BasePlot* bp) {
+	_currentPlots.push_back(bp);
+}
+
 
 bool UOEntity::CheckValidPersonality(BasePlot::TypeOfPlot type) {
 
@@ -304,77 +342,83 @@ bool UOEntity::CheckValidPersonality(BasePlot::TypeOfPlot type) {
 	return true;
 }
 
+
+
+
+// S T A T E S
+
 void UOEntity::SetIdleGraph(Graph* g) {
 	_idleGraph = g;
 }
 
-UOEntity::State UOEntity::GetCurrentState()
-{
+UOEntity::State UOEntity::GetCurrentState() {
 	return _currentState;
 }
 
-void UOEntity::SetState(State s, Graph g) {
+void UOEntity::SetState(State s, Graph* g) {
+	if (s == State::idle && _currentPlots.size() > 0) {
+		s = State::plot;
+	}
 	_currentState = s;
 	switch (_currentState) {
 	case State::idle:
 	{
-		brain = *_idleGraph;
-		if (brain.Peek()->nBlackboard.daytime >= 0) {
-			while (brain.Peek()->nBlackboard.daytime < _currentTime) {
-				brain.NextNode();
+		_brain = *_idleGraph;
+		if (_brain.Peek()->nBlackboard.daytime >= 0) {
+			while (_brain.Peek()->nBlackboard.daytime < _currentTime) {
+				_brain.NextNode();
 			}
 		}
 	}
 		break;
 	case State::plot:
 	{
-		// currentPlot[0]
-		brain = g;
+		_brain = _currentPlots[0]->GetGraph();
+		_mainPlotEntity = this;
 	}
 		break;
 	case State::react:
 	{
-		brain = g;
+		_brain = *g;
 	}
 		break;
 	default:
-		brain = *_idleGraph;
+		_brain = *_idleGraph;
 	}
 
 	ExecuteGraph();
 }
 
 
+
+//   E X E C U T I O N
+
 void UOEntity::SetAIController(AEntityAIController* eaic) {
 	_entityAIController = eaic;
 }
 
 void UOEntity::ExecuteGraph() {
-	_entityAIController->SetNode(brain.Peek());
+	_entityAIController->SetNode(_brain.Peek());
 	//_entityAIController->ExecuteNode();
 }
 
-void UOEntity::ExecutePlot() {
-
-	SetState(State::plot, currentPlots[0]->GetGraph());
-	mainPlotEntity = this;
-}
 
 // If a node can't be completed or is the last one, plot is considered completed
 void UOEntity::NodeCompleted(bool completedOk) {
-	if (completedOk && !brain.IsLastNode()) {
-		brain.NextNode(); //BRANCH!!!
+	//if(_mainPlotEntity && !_brain.Peek()->high_priority && !_brain.Peek()->nextNode->high_priority)
+		//SetState(plot)
+	//else
+	if (completedOk && !_brain.IsLastNode()) {
+		_brain.NextNode(); //BRANCH!!!
 		ExecuteGraph();
 	}
-	else
+	else // Tengo que corregirlo
 	{
 		if (_currentState == State::plot) {
-			for (UOEntity* e : currentPlots[0]->GetInvolvedInPlot())
+			for (UOEntity* e : _currentPlots[0]->GetInvolvedInPlot())
 				e->SetState(State::idle);
-			currentPlots.erase(currentPlots.begin());
+			_currentPlots.erase(_currentPlots.begin());
 		}
 			SetState(State::idle);
 	}
 }
-
-

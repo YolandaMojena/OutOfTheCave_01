@@ -15,7 +15,6 @@ EBTNodeResult::Type UBTTask_GoToNode::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		FVector targetLocation = blackboard->GetValue<UBlackboardKeyType_Vector>(blackboard->GetKeyID("Position"));
 		entityController->MoveToLocation(targetLocation, 50.0f, true, true, true, 0);
 
-		entity->brain.SetNodeCompleted(true);
 		return EBTNodeResult::Succeeded;
 	}
 
