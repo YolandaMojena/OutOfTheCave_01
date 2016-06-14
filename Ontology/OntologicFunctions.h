@@ -12,8 +12,12 @@ public:
 	OntologicFunctions();
 	~OntologicFunctions();
 
-	enum AffordableUse {
-		weapon, cultivator, mine, build
+	UENUM(BlueprintType)
+	enum AffordableUse : uint8{
+		weapon		UMETA(DisplayName = "weapon"), 
+		cultivator	UMETA(DisplayName = "cultivator"),
+		mine		UMETA(DisplayName = "mine"),
+		build		UMETA(DisplayName = "build")
 	};
 
 	int GetAffordance(AffordableUse au, UItem* i);

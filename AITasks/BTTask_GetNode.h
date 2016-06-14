@@ -8,6 +8,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 #include "Ontology/EntityAIController.h"
+#include "Ontology/OntologicFunctions.h"
 #include "BTTask_GetNode.generated.h"
 
 /**

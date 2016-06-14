@@ -360,6 +360,7 @@ void UOEntity::ExecutePlot() {
 	mainPlotEntity = this;
 }
 
+
 // If a node can't be completed or is the last one, plot is considered completed
 void UOEntity::NodeCompleted(bool completedOk) {
 	if (completedOk && !brain->IsLastNode()) {
