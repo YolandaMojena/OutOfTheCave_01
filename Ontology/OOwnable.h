@@ -19,6 +19,9 @@ class OUTOFTHECAVE_01_API UOOwnable : public UItem
 
 public:
 
+	UOOwnable();
+	~UOOwnable();
+
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

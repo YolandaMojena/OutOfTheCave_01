@@ -2,6 +2,7 @@
 
 #pragma once
 #include "Ontology/Item.h"
+#include "Ontology/OOwnable.h"
 
 /**
  * 
@@ -28,6 +29,39 @@ public:
 	int UseForMining(UItem* i);
 	int UseForBuilding(UItem* i);
 
+	UOOwnable* GetHands();
+
+
+	/*struct PriorityCandidates {
+		PriorityCandidates(AffordableUse au) {
+			_au = au;
+		}
+		PriorityCandidates() {}
+		~PriorityCandidates() {}
+		
+		bool operator()(UOOwnable& A, UOOwnable& B) const {
+			switch (_au) {
+			case AffordableUse::build:
+				return true;
+			case AffordableUse::cultivator:
+				return true;
+			case AffordableUse::mine:
+				return true;
+			case AffordableUse::weapon:
+				return true;
+			default:
+				return true;
+			}
+			
+		}
+
+	private:
+		AffordableUse _au;
+	};*/
+
+	
+
+
 private:
 	int ReduceWeight(int value);
 	int AmplifyWeight(int value);
@@ -50,4 +84,6 @@ private:
 	int ThresholdValue(int x, int t);
 	int ThresholdValue(int x);
 	int BotThresholdValue(int x);
+
+	UOOwnable _hands;
 };

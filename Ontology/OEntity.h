@@ -61,6 +61,7 @@ public:
 	vector<OTerritory*> GetTerritories();
 	OPersonality* GetPersonality();
 	int GetNotoriety();
+	int GetStrength();
 
 	void AddRelationship(ORelation* newRelation);
 	void AddRelationship(UOEntity* newEntity);
@@ -69,7 +70,7 @@ public:
 	void AddTerritory(OTerritory* newTerritory);
 	void AddDesire(OOwnership* newOwnership);
 	void AddDesire(UOOwnable* newOwnable);
-
+	bool DoesOwn(UOOwnable* ownable);
 
 	bool IsInSight(AActor* actor);
 	void OwnableNotify(UOOwnable* ownable, UOEntity* entity, UItem::_NotifyTag tag, bool grito, string notifyID);
@@ -106,10 +107,18 @@ public:
 	void SetAIController(AEntityAIController* eaic);
 	void ExecuteGraph();
 	void NodeCompleted(bool completedOk);
+	void AddInstantNode(Node* n);
+
+	vector<UOOwnable*> GetInventory();
+	void StoreInInventory(UOOwnable* o);
+	bool RemoveFromInventory(UOOwnable* o);
+	bool RemoveFromInventory(int i);
 
 	float _currentTime = 10;
 	
 protected:
+	int _strength = 20;
+
 	State _currentState;
 	vector<BasePlot*> _currentPlots;
 	UOEntity* _mainPlotEntity;
@@ -141,4 +150,6 @@ protected:
 
 
 	AEntityAIController* _entityAIController;
+
+	vector<UOOwnable*> _inventory;
 };

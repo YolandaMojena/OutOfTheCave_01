@@ -6,6 +6,20 @@
 
 OntologicFunctions::OntologicFunctions()
 {
+	//_hands = UOOwnable();
+	_hands._centerOfMass = FVector::ZeroVector;
+	_hands._edgeLength = 1;
+	_hands._edgeSharpness = 10;
+	_hands._funcDir = FVector(0, 0, 1);
+	_hands._funcPos = FVector::ZeroVector;
+	_hands._grabDir = FVector(0, 0, 1);
+	_hands._grabPos = FVector(0, 0, 0);
+	_hands._mass = 1;
+	_hands._maxLength = 10;
+	_hands._spikes = 5;
+	_hands._spiky = 1;
+	_hands._toughness = 30;
+	_hands._volume = 450;
 }
 
 OntologicFunctions::~OntologicFunctions()
@@ -127,3 +141,7 @@ int OntologicFunctions::BotThresholdValue(int x) {
 	return (x > 0 ? x : 0);
 }
 
+
+UOOwnable* OntologicFunctions::GetHands() {
+	return &_hands;
+}

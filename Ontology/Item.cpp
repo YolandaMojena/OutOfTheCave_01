@@ -81,7 +81,7 @@ FVector UItem::GetFuncPos() { return _funcPos; }
 FVector UItem::GetFuncDir() { return _funcDir; } //Think of an axe!
 FVector UItem::GetCenterOfMass() { return _centerOfMass; }
 float UItem::GetAngularInertia() { return FVector::Dist(_grabPos, _centerOfMass); }
-float UItem::GetAngularMomentumTransmission() { return (FVector::Dist(_centerOfMass, _funcPos) * sin(acosf(FVector::DotProduct((_funcPos - _centerOfMass).Normalize, _funcDir)))); }
+float UItem::GetAngularMomentumTransmission() { return (FVector::Dist(_centerOfMass, _funcPos) * sin(acosf(FVector::DotProduct((_funcPos - _centerOfMass).GetSafeNormal(), _funcDir)))); }
 //float UItem::GetAngularMomentumTransmission() { return FVector::Dist(_centerOfMass, _funcPos); }
 float UItem::GetEdgeSharpness() { return _edgeSharpness; }
 float UItem::GetEdgeLength() { return _edgeLength; }

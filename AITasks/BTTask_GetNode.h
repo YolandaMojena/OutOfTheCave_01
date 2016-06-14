@@ -8,7 +8,11 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 #include "Ontology/EntityAIController.h"
+#include "Ontology/OOwnable.h"
+#include "Ontology/OEdification.h"
 #include "Ontology/OntologicFunctions.h"
+#include "Node.h"
+#include <vector.h>
 #include "BTTask_GetNode.generated.h"
 
 /**
@@ -22,5 +26,8 @@ class OUTOFTHECAVE_01_API UBTTask_GetNode : public UBTTask_BlackboardBase
 public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	
+private:
+	vector<UOOwnable*> FindNearbyOwnables(AActor* actor);
 	
+	TArray<UOOwnable*> _priorityQueueCandidates;
 };
