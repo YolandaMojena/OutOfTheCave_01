@@ -57,6 +57,9 @@ void Node::SetEntityA(UOEntity* e) {
 void Node::SetEntityB(UOEntity* e) {
 	nBlackboard.entityB = e;
 }
+void Node::SetActorA(AActor* a) {
+	nBlackboard.actorA = a;
+}
 void Node::SetOwnable(UOOwnable* o) {
 	nBlackboard.ownable = o;
 }

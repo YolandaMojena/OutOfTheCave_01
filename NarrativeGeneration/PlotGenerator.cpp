@@ -34,24 +34,29 @@ void APlotGenerator::Tick( float DeltaTime )
 
 bool APlotGenerator::ValidateReport(Report* report)
 {
-	if (report->GetTag() == Report::ReportTag::relation) {
+	/*if (report->GetTag() == Report::ReportTag::relation) {
 		return (!report->GetReportEntity()->GetIsDead() || !report->GetTargetEntity()->GetIsDead());
 	}
 	else if (report->GetTag() == Report::ReportTag::ownership) {
 		return (!report->GetReportEntity()->GetIsDead());
 	}
 
-	else return true;
+	else */return true;
 }
 
 void APlotGenerator::SpawnReactivePlot()
 {
 	if (reactivePlots.size() > 0) {
-		BasePlot* currentPlots = reactivePlots.at(0);
+		BasePlot* currentPlot = reactivePlots.at(0);
 		reactivePlots.erase(reactivePlots.begin());
-		currentPlots->PrintSentence();
+		currentPlot->PrintSentence();
 
-		currentPlots->GetMainEntity()->currentPlots.push_back(currentPlots);
+		UOEntity* plotEntity = currentPlot->GetMainEntity();
+		plotEntity->AddCurrentPlot(currentPlot);
+		plotEntity->SetMainPlotEntity(plotEntity);
+		if (plotEntity->GetCurrentState() == UOEntity::State::idle) {
+			plotEntity->SetState(UOEntity::State::plot);
+		}
 	}
 }
 
@@ -104,6 +109,8 @@ void APlotGenerator::GetPlotFromReportLog() {
 			string plot = plotCandidates[randType];
 			BasePlot* newPlot;
 
+			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, currentReport->GetReportEntity()->GetOwner()->GetActorLabel());
+			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, currentReport->GetTargetEntity()->GetOwner()->GetActorLabel());
 			if (plot == strings.ATTACK_PLOT) {
 				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity());
 				if (!newPlot->GetIsExclusive()) {

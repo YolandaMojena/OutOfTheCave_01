@@ -36,9 +36,19 @@ class OUTOFTHECAVE_01_API UOEntity : public UItem
 
 public:
 
-	enum State {
-		idle, plot, react
+	UENUM(BlueprintType)
+	enum class State : uint8 {
+		idle UMETA(DisplayName = "idle"),
+		plot UMETA(DisplayName = "plot"),
+		react UMETA(DisplayName = "react")
 	};
+
+	//Graph* GetBrain();
+	//void SetBrain(Graph* b);
+
+	vector<BasePlot*> GetCurrentPlots();
+	BasePlot* GetCurrentPlot();
+	void AddCurrentPlot(BasePlot* bp);
 
 	UOEntity();
 	UOEntity(OPersonality* personality);
@@ -76,7 +86,6 @@ public:
 	void ReceiveDamage(float damage, UOEntity* damager);
 	bool CheckValidPersonality(BasePlot::TypeOfPlot type);
 	void SendReport(Report* newReport);
-	void ExecutePlot();
 
 	// It must be considered whether if the entity is the player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
@@ -85,24 +94,26 @@ public:
 	// All entities will send reports to the plotGenerator situated in the game world
 	APlotGenerator* plotGenerator;
 
-	vector<BasePlot*> currentPlots;
-	UOEntity* mainPlotEntity;
-	Graph* brain;
-
 	UPROPERTY(EditAnywhere, Category = Behaviour)
 	class UBehaviorTree* entityBehaviorTree;
 
 	State GetCurrentState();
 	void SetState(State s, Graph* g = nullptr);
 	void SetIdleGraph(Graph* g);
+	UOEntity* GetMainPlotEntity();
+	void SetMainPlotEntity(UOEntity* mpe);
 
 	void SetAIController(AEntityAIController* eaic);
 	void ExecuteGraph();
 	void NodeCompleted(bool completedOk);
+
+	float _currentTime = 10;
 	
-private:
-	
+protected:
 	State _currentState;
+	vector<BasePlot*> _currentPlots;
+	UOEntity* _mainPlotEntity;
+	Graph _brain;
 	
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
@@ -128,9 +139,6 @@ private:
 
 	Graph* _idleGraph;
 
-	
-
-	float _currentTime = 10;
 
 	AEntityAIController* _entityAIController;
 };

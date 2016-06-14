@@ -28,12 +28,12 @@ string AttackPlot::BuildSentence() {
 
 void AttackPlot::BuildGraph() {
 
-	_plotGraph = new Graph();
+	_plotGraph = Graph();
 
 	//ASK FOR HELP
 	Node* askForHelpNode = new Node();
 	askForHelpNode->SetNodeType(NodeType::askForHelp);
-	_plotGraph->AddNode(askForHelpNode);
+	_plotGraph.AddNode(askForHelpNode);
 
 	//GET WEAPON
 	/*Node* getNode = new Node();
@@ -44,19 +44,19 @@ void AttackPlot::BuildGraph() {
 	//ASK TROLL FOR HELP
 	Node* askTrollForHelpNode = new Node();
 	askForHelpNode->SetNodeType(NodeType::askTroll);
-	_plotGraph->AddNode(askTrollForHelpNode);
+	_plotGraph.AddNode(askTrollForHelpNode);
 
-	//GO TO VICTIM
+	//GO TO KILLER
 	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goTo);
-	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
-	_plotGraph->AddNode(goToNode);
+	goToNode->SetNodeType(NodeType::goToItem);
+	goToNode->SetActorA(_targetEntity->GetOwner());
+	_plotGraph.AddNode(goToNode);
 
 	//ATTACK
 	Node* attackNode = new Node();
 	attackNode->SetNodeType(NodeType::attack);
-	attackNode->SetEntityB(_targetEntity);
-	_plotGraph->AddNode(attackNode);
+	attackNode->SetEntityA(_targetEntity);
+	_plotGraph.AddNode(attackNode);
 }
 
 
@@ -110,12 +110,12 @@ string DestroyPlot::BuildSentence() {
 
 void DestroyPlot::BuildGraph() {
 
-	_plotGraph = new Graph();
+	//_plotGraph = new Graph();
 
 	//ASK FOR HELP
 	Node* askForHelpNode = new Node();
 	askForHelpNode->SetNodeType(NodeType::askForHelp);
-	_plotGraph->AddNode(askForHelpNode);
+	_plotGraph.AddNode(askForHelpNode);
 
 	//GET TOOLS
 	/*Node* getNode = new Node();
@@ -126,13 +126,13 @@ void DestroyPlot::BuildGraph() {
 	Node* goToNode = new Node();
 	goToNode->SetNodeType(NodeType::goTo);
 	goToNode->SetPosition(_targetOwnable->GetOwner()->GetActorLocation());
-	_plotGraph->AddNode(goToNode);
+	_plotGraph.AddNode(goToNode);
 
 	//DESTROY
 	Node* destroyNode = new Node();
 	destroyNode->SetNodeType(NodeType::destroy);
 	destroyNode->SetOwnable(_targetOwnable);
-	_plotGraph->AddNode(destroyNode);
+	_plotGraph.AddNode(destroyNode);
 }
 
 
@@ -161,20 +161,20 @@ string StealPlot::BuildSentence() {
 
 void StealPlot::BuildGraph() {
 
-	_plotGraph = new Graph();
+	//_plotGraph = new Graph();
 
 	//GO TO TARGET
 	Node* goToNode = new Node();
 	goToNode->SetNodeType(NodeType::goTo);
 	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
-	_plotGraph->AddNode(goToNode);
+	_plotGraph.AddNode(goToNode);
 
 	//STEAL
 	Node* stealNode = new Node();
 	stealNode->SetNodeType(NodeType::steal);
-	stealNode->SetEntityB(_targetEntity);
+	stealNode->SetEntityA(_targetEntity);
 	stealNode->SetOwnable(_targetOwnable);
-	_plotGraph->AddNode(stealNode);
+	_plotGraph.AddNode(stealNode);
 }
 
 void StealPlot::ConsiderReactions() {
@@ -201,12 +201,12 @@ string BuildPlot::BuildSentence() {
 
 void BuildPlot::BuildGraph() {
 
-	_plotGraph = new Graph();
+	//_plotGraph = new Graph();
 
 	//ASK FOR HELP
 	Node* askForHelpNode = new Node();
 	askForHelpNode->SetNodeType(NodeType::askForHelp);
-	_plotGraph->AddNode(askForHelpNode);
+	_plotGraph.AddNode(askForHelpNode);
 
 	//GET TOOLS
 	/*Node* getNode = new Node();
@@ -218,19 +218,19 @@ void BuildPlot::BuildGraph() {
 	Node* getNode = new Node();
 	getNode->SetNodeType(NodeType::gather);
 	//gather what?
-	_plotGraph->AddNode(getNode);
+	_plotGraph.AddNode(getNode);
 
 	//GO TO TARGET
 	Node* goToNode = new Node();
 	goToNode->SetNodeType(NodeType::goTo);
 	goToNode->SetPosition(_targetEdification->GetOwner()->GetActorLocation());
-	_plotGraph->AddNode(goToNode);
+	_plotGraph.AddNode(goToNode);
 
 	//BUILD
 	Node* buildNode = new Node();
 	buildNode->SetNodeType(NodeType::build);
 	buildNode->SetEdification(_targetEdification);
-	_plotGraph->AddNode(buildNode);
+	_plotGraph.AddNode(buildNode);
 }
 
 void BuildPlot::ConsiderReactions() {
@@ -258,19 +258,19 @@ string GivePlot::BuildSentence() {
 
 void GivePlot::BuildGraph() {
 
-	_plotGraph = new Graph();
+	//_plotGraph = new Graph();
 
 	//GO TO TARGET
 	Node* goToNode = new Node();
 	goToNode->SetNodeType(NodeType::goTo);
 	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
-	_plotGraph->AddNode(goToNode);
+	_plotGraph.AddNode(goToNode);
 
 	//GIVE
 	Node* giveNode = new Node();
 	giveNode->SetNodeType(NodeType::give);
 	giveNode->SetOwnable(_targetOwnable);
-	_plotGraph->AddNode(giveNode);
+	_plotGraph.AddNode(giveNode);
 }
 
 void GivePlot::ConsiderReactions() {

@@ -18,6 +18,7 @@ UENUM(BlueprintType)
 enum class NodeType : uint8 {
 	branch UMETA(DisplayName = "branch"),
 	goTo UMETA(DisplayName = "goTo"),
+	goToItem UMETA(DisplayName = "goToItem"),
 	wait UMETA(DisplayName = "wait"),
 	interact UMETA(DisplayName = "interact"),
 	enter UMETA(DisplayName = "enter"),
@@ -32,6 +33,7 @@ enum class NodeType : uint8 {
 	askForHelp UMETA(DisplayName = "askForHelp"),
 	askTroll UMETA(DisplayName = "askTroll"),
 	spawn UMETA(DisplayName = "spawn"),
+	cultivate UMETA(DisplayName = "cultivate"),
 	gather UMETA(DisplayName = "gather")
 };
 
@@ -47,6 +49,7 @@ public:
 
 		UOEntity* entityA;
 		UOEntity* entityB;
+		AActor* actorA;
 		UOOwnable* ownable;
 		string arquetypeObject;
 		UOEdification* edification;
@@ -54,6 +57,8 @@ public:
 		FVector position;
 		float daytime = -1.0f;
 		bool branch;
+		bool completedOk = true;
+		//UOEntity::State entityState;
 	};
 
 	void RewriteNode(vector<Node*> nodes);
@@ -66,6 +71,7 @@ public:
 
 	void SetEntityA(UOEntity* e); //TBI
 	void SetEntityB(UOEntity* e); //TBI
+	void SetActorA(AActor* a); //TBI
 	void SetOwnable(UOOwnable* o); //TBI
 	void SetArquetypeObject(string s); //TBI
 	void SetEdification(UOEdification* edf);
@@ -73,6 +79,8 @@ public:
 	void SetPosition(FVector v);
 	void SetDaytime(float d);
 	void SetAsBranch();
+	void SetCompletedOk();
+	//void SetEntityState(UOEntity::State s);
 
 	NBlackboard nBlackboard;
 	string name;

@@ -27,7 +27,7 @@ public:
 	void PrintSentence();
 	void AddInvolvedInPlot(UOEntity* entity);
 
-	Graph* GetGraph();
+	Graph GetGraph();
 	UOEntity* GetMainEntity();
 	vector<UOEntity*> GetInvolvedInPlot();
 	bool GetIsExclusive();
@@ -37,7 +37,7 @@ protected:
 	
 	string _description, _sentence;
 	UOEntity* _plotEntity;
-	Graph* _plotGraph;
+	Graph _plotGraph;
 	vector<UOEntity*> _involvedInPlot;
 	bool _isExclusive;
 

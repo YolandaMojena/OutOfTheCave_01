@@ -48,35 +48,38 @@ void UOResidence::SpawnTenants() {
 	for (int i = 0; i < numTenants; i++) {
 		// Spawn Params -> https://wiki.unrealengine.com/Templates_in_C%2B%2B
 		ACharacter* tentantCharacter = GetTentantCharacterFromRace();
-		UOEntity* ten = tentantCharacter->FindComponentByClass<UOEntity>();
 
-		// SET RELATIONS
-		for (UOEntity* ent : tentants) {
-			ORelation* rel = new ORelation(ten, ent);
-			ten->AddRelationship(rel);
-			rel = new ORelation(ent, ten);
-			ent->AddRelationship(rel);
-		}
+		if (tentantCharacter) {
+			UOEntity* ten = tentantCharacter->FindComponentByClass<UOEntity>();
 
-		if (villageID != 0) {
-			for (UOEdification* edf : _village->edifications) {
-				UOResidence* res = (UOResidence*) edf;
-				for (UOEntity* ent : res->tentants) {
-					ORelation* rel = new ORelation(ten, ent);
-					ten->AddRelationship(rel);
-					rel = new ORelation(ent, ten);
-					ent->AddRelationship(rel);
+			// SET RELATIONS
+			for (UOEntity* ent : tentants) {
+				ORelation* rel = new ORelation(ten, ent);
+				ten->AddRelationship(rel);
+				rel = new ORelation(ent, ten);
+				ent->AddRelationship(rel);
+			}
+
+			if (villageID != 0) {
+				for (UOEdification* edf : _village->edifications) {
+					UOResidence* res = (UOResidence*)edf;
+					for (UOEntity* ent : res->tentants) {
+						ORelation* rel = new ORelation(ten, ent);
+						ten->AddRelationship(rel);
+						rel = new ORelation(ent, ten);
+						ent->AddRelationship(rel);
+					}
 				}
 			}
+
+			// SET OWNERSHIP WITH THE EDIFICATION
+			ten->AddPossession(new OOwnership(ten, ((UOOwnable*)this), 25 + ten->GetPersonality()->GetMaterialist()));
+
+			ten->SetIdleGraph(GenerateIdleFromJob());
+			ten->SetState(UOEntity::State::idle);
+
+			tentants.push_back(ten);
 		}
-
-		// SET OWNERSHIP WITH THE EDIFICATION
-		ten->AddPossession(new OOwnership(ten, ((UOOwnable*)this), 25 + ten->GetPersonality()->GetMaterialist()));
-
-		ten->SetIdleGraph(GenerateIdleFromJob());
-		ten->SetState(UOEntity::State::idle);
-
-		tentants.push_back(ten);
 	}
 	_village->edifications.push_back(this);
 }
@@ -88,9 +91,9 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 	switch (race) {
 	case ERace::R_Human:
 		if((rand() % 10) < 5)
-			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Male, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Male, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
 		else 
-			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Female, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Female, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
 		break;
 	case ERace::R_Goblin:
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
@@ -156,7 +159,7 @@ Graph* UOResidence::GenerateIdleFromJob() {
 			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(13);
 			idleGraph->AddNode(n);
 			n = new Node();
-			n->SetNodeType(NodeType::interact); n->SetEdification(peasantField);  n->SetDaytime(13);
+			n->SetNodeType(NodeType::cultivate); /*n->SetEdification(peasantField);*/  n->SetDaytime(13);
 			idleGraph->AddNode(n);
 		}
 		//MEDIODÍA
@@ -175,7 +178,7 @@ Graph* UOResidence::GenerateIdleFromJob() {
 			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(21);
 			idleGraph->AddNode(n);
 			n = new Node();
-			n->SetNodeType(NodeType::interact); n->SetEdification(peasantField);  n->SetDaytime(21);
+			n->SetNodeType(NodeType::cultivate); /*n->SetEdification(peasantField);*/  n->SetDaytime(21);
 			idleGraph->AddNode(n);
 		}
 		//NOCHE

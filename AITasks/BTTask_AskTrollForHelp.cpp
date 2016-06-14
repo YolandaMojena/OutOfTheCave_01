@@ -12,14 +12,16 @@ EBTNodeResult::Type UBTTask_AskTrollForHelp::ExecuteTask(UBehaviorTreeComponent&
 
 	if (plotEntity) {
 
-		UOEntity* troll = plotEntity->GetOwner()->GetWorld()->GetFirstPlayerController()->FindComponentByClass<UOEntity>();
+		UOEntity* troll = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>();
 
 		if (troll && FVector(plotEntity->GetOwner()->GetActorLocation() - troll->GetOwner()->GetActorLocation()).Size() < searchRatio) {
 
-			ORelation* relation = troll->GetRelationWith(plotEntity);
-			if (relation && relation->GetAppreciation() >= relation->HIGH_APPRECIATION)
-				entityController->MoveToActor(troll->GetOwner());
+			//ORelation* relation = troll->GetRelationWith(plotEntity);
+			//if (relation /*&& relation->GetAppreciation() >= relation->HIGH_APPRECIATION*/)
+			entityController->MoveToActor(troll->GetOwner());
 		}
+
+		return EBTNodeResult::Succeeded;
 	}
 
 	return EBTNodeResult::Succeeded;

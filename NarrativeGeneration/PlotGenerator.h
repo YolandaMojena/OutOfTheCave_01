@@ -54,7 +54,7 @@ private:
 	vector<UOEntity*> WeHaveALotInCommon(Report* report);
 
 	TArray<Report*> _pReportLog;
-	bool _lastPlotCompleted;
+	bool _lastPlotCompleted = true;
 	float _timeToSpawnPlot;
 
 	const float _TIME_TO_SPAWN = 25.0f;
