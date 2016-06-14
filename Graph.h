@@ -33,5 +33,4 @@ public:
 
 private:
 	Node* _lastNode;
-	bool _nodeCompleted;
 };

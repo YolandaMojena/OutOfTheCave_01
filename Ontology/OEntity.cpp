@@ -115,7 +115,6 @@ ORelation* UOEntity::GetRelationWith(UOEntity * other)
 		if (_relationships[i]->GetOtherEntity() == other)
 			return _relationships[i];
 	}
-
 	return nullptr;
 }
 
@@ -125,52 +124,40 @@ OOwnership* UOEntity::GetOwnershipWith(UOOwnable * other)
 		if (_possessions[i]->GetOwnable() == other)
 			return _possessions[i];
 	}
-
 	return nullptr;
 }
 
 void UOEntity::DeleteRelation(UOEntity * relative)
 {
 	int i = 0;
-
 	while (i < _relationships.size()) {
-
-		if (_relationships[i]->GetOtherEntity() == relative) {
+		if (_relationships[i]->GetOtherEntity() == relative)
 			break;
-		}
 		else i++;
 	}
-
 	_relationships.erase(_relationships.begin() + i);
 }
 
 void UOEntity::DeletePossession(UOOwnable * possession)
 {
 	int i = 0;
-
 	while (i < _possessions.size()) {
-
-		if (_possessions[i]->GetOwnable() == possession) {
+		if (_possessions[i]->GetOwnable() == possession)
 			break;
-		}
 		else i++;
 	}
-
 	_possessions.erase(_possessions.begin() + i);
 }
 
 void UOEntity::DeleteDesire(UOOwnable * desire)
 {
 	int i = 0;
-
 	while (i < _materialDesires.size()) {
 
-		if (_materialDesires[i]->GetOwnable() == desire) {
+		if (_materialDesires[i]->GetOwnable() == desire)
 			break;
-		}
 		else i++;
 	}
-
 	_materialDesires.erase(_materialDesires.begin() + i);
 }
 
@@ -284,18 +271,18 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 		if (relationFromOther){
 
 			// CHANGE FOR HIGH APPRECIATION
-			if (relationFromOther->GetAppreciation() > 0/*relationFromOther->LOW_APPRECIATION*/) {
-				ORelation* relationWithKiller = o->GetOtherEntity()->GetRelationWith(killer);
+			if (relationFromOther->GetAppreciation() >= 0/*relationFromOther->LOW_APPRECIATION*/) {
+				ORelation* relationWithKiller = relationFromOther->GetEntity()->GetRelationWith(killer);
 
 				if (!relationWithKiller) {
-					o->GetOtherEntity()->AddRelationship(new ORelation(o->GetOtherEntity(), killer));
-					relationWithKiller = o->GetOtherEntity()->GetRelationWith(killer);
+					relationFromOther->GetEntity()->AddRelationship(new ORelation(relationFromOther->GetEntity(), killer));
+					relationWithKiller = relationFromOther->GetEntity()->GetRelationWith(killer);
 				}
 
 				relationWithKiller->ChangeAppreciation(-relationFromOther->GetAppreciation());
 
 				//if (relationWithKiller->GetAppreciation() < relationWithKiller->LOW_APPRECIATION)
-					o->GetOtherEntity()->SendReport(new Report(relationWithKiller, BasePlot::TypeOfPlot::aggressive, this));
+				relationFromOther->GetEntity()->SendReport(new Report(relationWithKiller, BasePlot::TypeOfPlot::aggressive, this));
 			}
 			o->GetOtherEntity()->DeleteRelation(this);
 		}
@@ -356,7 +343,7 @@ UOEntity::State UOEntity::GetCurrentState() {
 }
 
 void UOEntity::SetState(State s, Graph* g) {
-	if (s == State::idle && _currentPlots.size() > 0) {
+	if (s == State::idle && (_currentPlots.size() > 0 || _mainPlotEntity)) {
 		s = State::plot;
 	}
 	_currentState = s;
@@ -372,9 +359,23 @@ void UOEntity::SetState(State s, Graph* g) {
 	}
 		break;
 	case State::plot:
-	{
-		_brain = _currentPlots[0]->GetGraph();
-		_mainPlotEntity = this;
+	{	
+		if (_currentPlots.size() > 0) {
+			_brain = _currentPlots[0]->GetGraph();
+			_mainPlotEntity = this;
+		}
+		else {
+			if (_mainPlotEntity) {
+				_brain = GetMainPlotEntity()->GetCurrentPlot()->GetGraph();
+
+				Node* comeToEntity = new Node();
+				comeToEntity->SetNodeType(NodeType::goToItem);
+				//comeToEntity->SetPosition(_mainPlotEntity->GetOwner()->GetActorLocation());
+				comeToEntity->SetActorA(_mainPlotEntity->GetOwner());
+				_brain.AddInstantNode(comeToEntity);
+				_brain.NextNode();
+			}
+		}
 	}
 		break;
 	case State::react:
@@ -386,6 +387,7 @@ void UOEntity::SetState(State s, Graph* g) {
 		_brain = *_idleGraph;
 	}
 
+	_entityAIController->SetState(_currentState);
 	ExecuteGraph();
 }
 
@@ -405,20 +407,28 @@ void UOEntity::ExecuteGraph() {
 
 // If a node can't be completed or is the last one, plot is considered completed
 void UOEntity::NodeCompleted(bool completedOk) {
-	//if(_mainPlotEntity && !_brain.Peek()->high_priority && !_brain.Peek()->nextNode->high_priority)
-		//SetState(plot)
-	//else
+	//if (_mainPlotEntity && _currentState == State::idle) /*&& !_brain.Peek()->high_priority && !_brain.Peek()->nextNode->high_priority)*/
+		//SetState(State::plot);
 	if (completedOk && !_brain.IsLastNode()) {
 		_brain.NextNode(); //BRANCH!!!
 		ExecuteGraph();
 	}
-	else // Tengo que corregirlo
+	else
 	{
 		if (_currentState == State::plot) {
-			for (UOEntity* e : _currentPlots[0]->GetInvolvedInPlot())
-				e->SetState(State::idle);
-			_currentPlots.erase(_currentPlots.begin());
-		}
+			if (_mainPlotEntity == this) {
+				for (UOEntity* e : _currentPlots[0]->GetInvolvedInPlot()) 
+					e->SetMainPlotEntity(nullptr);
+				_mainPlotEntity = nullptr;
+				_currentPlots.erase(_currentPlots.begin());
+			}
 			SetState(State::idle);
+		}
+		else if (_currentState == State::react) {
+			if (_mainPlotEntity)
+				SetState(State::plot);
+			else
+				SetState(State::idle);
+		}
 	}
 }

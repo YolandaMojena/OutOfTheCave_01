@@ -51,7 +51,12 @@ void APlotGenerator::SpawnReactivePlot()
 		reactivePlots.erase(reactivePlots.begin());
 		currentPlot->PrintSentence();
 
-		currentPlot->GetMainEntity()->AddCurrentPlot(currentPlot);
+		UOEntity* plotEntity = currentPlot->GetMainEntity();
+		plotEntity->AddCurrentPlot(currentPlot);
+		plotEntity->SetMainPlotEntity(plotEntity);
+		if (plotEntity->GetCurrentState() == UOEntity::State::idle) {
+			plotEntity->SetState(UOEntity::State::plot);
+		}
 	}
 }
 
@@ -104,6 +109,8 @@ void APlotGenerator::GetPlotFromReportLog() {
 			string plot = plotCandidates[randType];
 			BasePlot* newPlot;
 
+			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, currentReport->GetReportEntity()->GetOwner()->GetActorLabel());
+			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, currentReport->GetTargetEntity()->GetOwner()->GetActorLabel());
 			if (plot == strings.ATTACK_PLOT) {
 				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity());
 				if (!newPlot->GetIsExclusive()) {

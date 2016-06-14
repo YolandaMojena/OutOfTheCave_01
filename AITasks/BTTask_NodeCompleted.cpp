@@ -11,9 +11,9 @@ EBTNodeResult::Type UBTTask_NodeCompleted::ExecuteTask(UBehaviorTreeComponent & 
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass <UOEntity>();
 
 	if (entity) {
-		//CONTROLAR DESDE LA BLACKBOARD, NO EN EL CEREBRO
-		//entity->NodeCompleted(entity->brain.GetNodeCompleted());
-		//entity->brain.SetNodeCompleted(true);
+		entity->NodeCompleted(blackboard->GetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk")));
+		// Reset value to default
+		blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), true);
 	}
 	return EBTNodeResult::Succeeded;
 }

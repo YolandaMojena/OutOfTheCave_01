@@ -29,10 +29,11 @@ string AttackPlot::BuildSentence() {
 void AttackPlot::BuildGraph() {
 
 	_plotGraph = Graph();
+
 	//ASK FOR HELP
-	/*Node* askForHelpNode = new Node();
+	Node* askForHelpNode = new Node();
 	askForHelpNode->SetNodeType(NodeType::askForHelp);
-	_plotGraph.AddNode(askForHelpNode);*/
+	_plotGraph.AddNode(askForHelpNode);
 
 	//GET WEAPON
 	/*Node* getNode = new Node();
@@ -41,30 +42,21 @@ void AttackPlot::BuildGraph() {
 	_plotGraph->AddNode(getNode);*/
 
 	//ASK TROLL FOR HELP
-	/*Node* askTrollForHelpNode = new Node();
+	Node* askTrollForHelpNode = new Node();
 	askForHelpNode->SetNodeType(NodeType::askTroll);
-	_plotGraph.AddNode(askTrollForHelpNode);*/
+	_plotGraph.AddNode(askTrollForHelpNode);
 
-	//GO TO VICTIM
+	//GO TO KILLER
 	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goTo);
-	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
-	goToNode->name = "Patates...";
+	goToNode->SetNodeType(NodeType::goToItem);
+	goToNode->SetActorA(_targetEntity->GetOwner());
 	_plotGraph.AddNode(goToNode);
 
 	//ATTACK
 	Node* attackNode = new Node();
 	attackNode->SetNodeType(NodeType::attack);
 	attackNode->SetEntityA(_targetEntity);
-	attackNode->name = "...i Dracs.";
 	_plotGraph.AddNode(attackNode);
-
-	//GO TO VICTIM
-	goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goTo);
-	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
-	goToNode->name = "...i més patates...";
-	_plotGraph.AddNode(goToNode);
 }
 
 

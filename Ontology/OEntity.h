@@ -36,8 +36,11 @@ class OUTOFTHECAVE_01_API UOEntity : public UItem
 
 public:
 
-	enum State {
-		idle, plot, react
+	UENUM(BlueprintType)
+	enum class State : uint8 {
+		idle UMETA(DisplayName = "idle"),
+		plot UMETA(DisplayName = "plot"),
+		react UMETA(DisplayName = "react")
 	};
 
 	//Graph* GetBrain();

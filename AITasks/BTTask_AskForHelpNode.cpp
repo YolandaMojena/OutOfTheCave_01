@@ -41,25 +41,14 @@ EBTNodeResult::Type UBTTask_AskForHelpNode::ExecuteTask(UBehaviorTreeComponent& 
 			}
 		}
 
-		//Graph plotGraph = plotEntity->GetCurrentPlot()->GetGraph();
-		/*Node* comeToEntity = new Node();
-		comeToEntity->SetNodeType(NodeType::goTo);
-		comeToEntity->SetPosition(plotEntity->GetOwner()->GetActorLocation());
-		plotEntity->AddInstantNode(comeToEntity);*/
-		//plotGraph.AddInstantNode(comeToEntity);
-		//plotGraph.NextNode();
-		
-
 		for (UOEntity* e : plotEntity->GetCurrentPlot()->GetInvolvedInPlot()) {
 			e->SetMainPlotEntity(plotEntity);
-			e->SetState(UOEntity::State::plot);
+			if(e->GetCurrentState() == UOEntity::State::idle)
+				e->SetState(UOEntity::State::plot);
 		}
 
-		//plotEntity->brain.SetNodeCompleted(true);
 		return EBTNodeResult::Succeeded;
 	}
-
-
 	return EBTNodeResult::Succeeded;
 }
 

@@ -19,7 +19,6 @@ void AEntityAIController::SetNode(Node* n) {
 		break;
 	case NodeType::attack:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("EntityA") , n->nBlackboard.entityA);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Attacking " + n->nBlackboard.entityA->GetOwner()->GetActorLabel()));
 		break;
 	case NodeType::branch:
 		break;
@@ -38,6 +37,8 @@ void AEntityAIController::SetNode(Node* n) {
 	case NodeType::goTo:
 		entityBlackboard->SetValue<UBlackboardKeyType_Vector>(positionID, n->nBlackboard.position);
 		break;
+	case NodeType::goToItem:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("ActorA"), n->nBlackboard.actorA);
 	case NodeType::grab:
 		break;
 	case NodeType::cultivate:
@@ -49,6 +50,10 @@ void AEntityAIController::SetNode(Node* n) {
 	default:
 		break;
 	}
+}
+
+void AEntityAIController::SetState(UOEntity::State s) {
+	entityBlackboard->SetValue<UBlackboardKeyType_Enum>(entityBlackboard->GetKeyID("EntityState"), static_cast<UBlackboardKeyType_Enum::FDataType>(s));
 }
 
 void AEntityAIController::Possess(APawn* pawn) {
@@ -64,11 +69,12 @@ void AEntityAIController::Possess(APawn* pawn) {
 			nodeTypeID = entityBlackboard->GetKeyID("NodeType");
 			positionID = entityBlackboard->GetKeyID("Position");
 
-			behaviorTree->StartTree(*entity->entityBehaviorTree);
 
+			//behaviorTree->StartTree(*entity->entityBehaviorTree);
 			RunBehaviorTree(entity->entityBehaviorTree);
 
-			//entity->SetState(UOEntity::State::idle);
+			// Default value is true
+			entityBlackboard->SetValue<UBlackboardKeyType_Bool>(entityBlackboard->GetKeyID("CompletedOk"), true);
 		}
 	}
 }
