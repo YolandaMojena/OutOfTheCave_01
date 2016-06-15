@@ -74,11 +74,15 @@ void ATroll::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	if(isAttacking){
+
+	if(_isAttacking){
 		if (!SkelMesh->AnimScriptInstance->Montage_IsPlaying(myMontage)) {
-			isAttacking = false;	
+			_isAttacking = false;	
+			if (_victims.Num() > 0)
+				_victims.Empty();
 		}
 	}
+
 	
 	for (TArray<const FAnimNotifyEvent*>::TIterator it = SkelMesh->AnimScriptInstance->AnimNotifies.CreateIterator(); it; ++it) {
 		if ((*it)->NotifyName.ToString() == "AttackBegins") _canDamage = true;
@@ -313,8 +317,8 @@ void ATroll::PickUpSecondary() {
 
 void ATroll::AttackMain() {
 
-	if (!isAttacking) {
-		isAttacking = true;
+	if (!_isAttacking) {
+		_isAttacking = true;
 	}
 }
 
@@ -336,23 +340,28 @@ void ATroll::AttachToSocket(AActor* target, string socket) {
 
 void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
 
-	if (OtherActor->GetActorLabel().Contains("_DM")){
+	UOEdification* edificationComp = OtherActor->FindComponentByClass<UOEdification>();
+	UOEntity* hitEntity = _myEntityComp->GetEntityComponent(OtherActor);
 
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Hit a destrutible"));
+	if (edificationComp /*&& _isAttacking*/ && _canDamage && !_victims.Contains(edificationComp->GetOwner())){
 
-		ADestructibleActor* targetDestructible = dynamic_cast<ADestructibleActor*>(OtherActor);
-		targetDestructible->GetDestructibleComponent()->ApplyRadiusDamage(10, targetDestructible->GetDestructibleComponent()->GetCenterOfMass(), 32, 100, false);
+		_victims.Add(edificationComp->GetOwner());
+
+		edificationComp->ReceiveDamage(_TROLL_DMG, FindComponentByClass<UOEntity>());
+		UDestructibleComponent* targetDestructible = dynamic_cast<UDestructibleComponent*>(OtherComp);
+
+		if (targetDestructible) {
+
+			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Hit a destrutible"));
+			//MUST DEPEND ON DAMAGE
+			targetDestructible->ApplyRadiusDamage(10, GetMesh()->GetSocketLocation("MainSocket"), 35, 0.01, false);
+		}
 	}
-	else if (_myEntityComp->GetEntityComponent(OtherActor) && isAttacking && _canDamage) {
 
-		UOEntity* hitEntity = _myEntityComp->GetEntityComponent(OtherActor);
-		hitEntity->ReceiveDamage(_TROLL_DMG, _myEntityComp->GetEntityComponent(this));
-	}
+	else if (hitEntity /*&& _isAttacking*/ && _canDamage && !_victims.Contains(hitEntity->GetOwner())) {
 
-	else if (_myEntityComp->GetOwnableComponent(OtherActor) && isAttacking && _canDamage) {
-
-		UOOwnable* hitOwnable = _myEntityComp->GetOwnableComponent(OtherActor);
-		hitOwnable->ReceiveDamage(_TROLL_DMG, _myEntityComp->GetEntityComponent(this));
+		hitEntity->ReceiveDamage(_TROLL_DMG, FindComponentByClass<UOEntity>());
+		_victims.Add(hitEntity->GetOwner());
 	}
 }
 

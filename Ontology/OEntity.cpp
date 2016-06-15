@@ -32,15 +32,6 @@ void UOEntity::BeginPlay() {
 void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (!_canBeDamaged) {
-		_hurtCooldown += DeltaTime;
-
-		if (_hurtCooldown >= _HURT_COOLDOWN) {
-			_hurtCooldown = 0;
-			_canBeDamaged = true;
-		}
-	}
 }
 
 
@@ -63,6 +54,9 @@ OPersonality* UOEntity::GetPersonality(){
 
 int UOEntity::GetNotoriety() {
 	return _notoriety;
+}
+void UOEntity::ChangeNotoriety(int value) {
+	_notoriety += value;
 }
 
 bool UOEntity::GetIsDead() {
@@ -185,11 +179,10 @@ void UOEntity::EntityNotify(UOEntity* pasiva, UOEntity* activa, UItem::_NotifyTa
 
 void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 {
-	if (!_isDead && _canBeDamaged) {
+	if (!_isDead) {
 
 		_integrity -= damage;
 		_attacker = damager;
-		_canBeDamaged = false;
 
 		if (_integrity < MIN_INTEGRITY) {
 			Die();

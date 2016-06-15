@@ -113,9 +113,13 @@ void APlotGenerator::GetPlotFromReportLog() {
 			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, currentReport->GetTargetEntity()->GetOwner()->GetActorLabel());
 			if (plot == strings.ATTACK_PLOT) {
 				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity());
+				currentReport->GetReportEntity()->ChangeNotoriety(3);
+				currentReport->GetTargetEntity()->ChangeNotoriety(2);
 				if (!newPlot->GetIsExclusive()) {
-					for (UOEntity* entity : WeHaveALotInCommon(currentReport))
+					for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
 						newPlot->AddInvolvedInPlot(entity);
+						entity->ChangeNotoriety(1);
+					}
 				}
 				reactivePlots.push_back(newPlot);
 			}

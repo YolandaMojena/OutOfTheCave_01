@@ -61,6 +61,7 @@ public:
 	vector<OTerritory*> GetTerritories();
 	OPersonality* GetPersonality();
 	int GetNotoriety();
+	void ChangeNotoriety(int value);
 
 	void AddRelationship(ORelation* newRelation);
 	void AddRelationship(UOEntity* newEntity);
@@ -124,12 +125,8 @@ protected:
 	vector<OTerritory*> _landlord;
 
 	UOEntity* _attacker;
-
 	bool _isDead = false;
-
 	float MIN_INTEGRITY = 20.0f;
-
-	bool _highPriority = false;
 	
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 	OPersonality* _personality;
@@ -138,7 +135,5 @@ protected:
 	int _notifyID;
 
 	Graph* _idleGraph;
-
-
 	AEntityAIController* _entityAIController;
 };

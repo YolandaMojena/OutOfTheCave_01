@@ -115,9 +115,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _integrity;
 
-	float _canBeDamaged;
-	const float _HURT_COOLDOWN = 0.75f;
-	float _hurtCooldown;
 	/*float _inertiaMomentum{
 		get{
 			return FVector.Distance(_grabPos, _funcPos);

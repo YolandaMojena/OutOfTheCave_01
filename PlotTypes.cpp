@@ -42,9 +42,9 @@ void AttackPlot::BuildGraph() {
 	_plotGraph->AddNode(getNode);*/
 
 	//ASK TROLL FOR HELP
-	Node* askTrollForHelpNode = new Node();
-	askForHelpNode->SetNodeType(NodeType::askTroll);
-	_plotGraph.AddNode(askTrollForHelpNode);
+	/*Node* askTrollForHelpNode = new Node();
+	askTrollForHelpNode->SetNodeType(NodeType::askTroll);
+	_plotGraph.AddNode(askTrollForHelpNode);*/
 
 	//GO TO KILLER
 	Node* goToNode = new Node();

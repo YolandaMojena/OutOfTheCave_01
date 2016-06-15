@@ -34,6 +34,7 @@ class OUTOFTHECAVE_01_API UOEdification : public UOOwnable
 	
 public:
 
+	UOEdification(const FObjectInitializer& ObjectInitializer);
 	UOEdification();
 	~UOEdification();
 
@@ -49,6 +50,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSettings)
 		EdificationType edificationType;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSettings)
+		float timeToRebuild;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSettings)
+		UDestructibleMesh* mesh;
+
+	void ReceiveDamage(float damage, UOEntity* damager);
+	bool GetIsDestroyed();
+
+	bool RebuildEdification();
+
 protected:
 	//virtual void UOOwnable::IHaveBeenDamagedBySomeone(UOEntity* damager) override;
 	//virtual void UOOwnable::IHaveBeenDestroyedBySomeone(UOEntity* damager) override;
@@ -56,7 +68,20 @@ protected:
 	AVillage* _village;
 
 private:
+
+	void IHaveBeenDestroyedBySomeone(UOEntity* damager);
+	void IHaveBeenDamagedBySomeone(UOEntity* damager);
 	void FindVillage();
 
+	UOEntity* _attacker;
+	bool _isDestroyed;
+	void DestroyEdification();
+
+
+	USkeletalMesh* originalMesh;
 	
+
+	UDestructibleComponent* destructibleComp;
+
+
 };
