@@ -1,11 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OutOfTheCave_01.h"
-#include "BTTask_GetNode.h"
+#include "BTTask_GetOwnable.h"
 
 
 
-EBTNodeResult::Type UBTTask_GetNode::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
+EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
+
+	const int STRENGTH_TO_WEIGHT = 0.5f;
+	const int APPRECIATION_TO_BORROW = 60;
+	const int FEAR_TO_BORROW = 70;
+	const int RESPECT_TO_BORROW = 80;
 
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
@@ -15,7 +20,11 @@ EBTNodeResult::Type UBTTask_GetNode::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 
-	/*vector<UOOwnable*> candidates = FindNearbyOwnables(entity->GetOwner());
+	vector<UOOwnable*> candidates = entity->GetInventory();
+	vector<UOOwnable*> nearbyOwnables = FindNearbyOwnables(entity->GetOwner());
+	candidates.insert(candidates.end(), nearbyOwnables.begin(), nearbyOwnables.end());
+		
+	/*FindNearbyOwnables(entity->GetOwner());
 	for (UOOwnable* o : entity->GetInventory()) {
 		candidates.push_back(o);
 	}*/
@@ -24,20 +33,21 @@ EBTNodeResult::Type UBTTask_GetNode::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 
 	UOOwnable* bestChoice = ontF.GetHands();
 	int bestChoiceAffordance = ontF.GetAffordance(affordableUse, bestChoice);
+	bool bestChoiceSomeoneWhoCares = true;
 
-
-	for (UOOwnable* ownable : FindNearbyOwnables(entity->GetOwner())) {
-		if (ownable->GetMass() <= entity->GetStrength() / 2) {
+	for (UOOwnable* ownable : candidates) {
+		if (ownable->GetMass() <= entity->GetStrength() * STRENGTH_TO_WEIGHT) {
+			bool someoneWhoCares = true; // to not try to possess the object if you already own it or if you are taking it because of HighPriority
 			// Consider or not who owns the object if you don't own it depending on if the node is HighPriority
 			if (!entity->DoesOwn(ownable) && !blackboard->GetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("HighPriority"))) {
 				// Search for a friend/dominated/lackey entity to borrow from
 				bool borrow = false;
-				bool someoneWhoCares = false;
+				someoneWhoCares = false;
 				for (UOEntity* owner : ownable->GetOwners()) {
 					ORelation* relation = owner->GetRelationWith(entity);
 					if (relation) {
 						someoneWhoCares = true;
-						if (relation->GetAppreciation() >= 60 || relation->GetFear() >= 70 || relation->GetRespect() >= 80)
+						if (relation->GetAppreciation() >= APPRECIATION_TO_BORROW || relation->GetFear() >= FEAR_TO_BORROW || relation->GetRespect() >= RESPECT_TO_BORROW)
 							borrow = true;
 					}	
 				}
@@ -48,14 +58,28 @@ EBTNodeResult::Type UBTTask_GetNode::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 			if (newAffordance > bestChoiceAffordance) {
 				bestChoice = ownable;
 				bestChoiceAffordance = newAffordance;
+				bestChoiceSomeoneWhoCares = someoneWhoCares;
 			}
 		}
+	}
+
+	if (!bestChoiceSomeoneWhoCares && entity->GetPersonality()->GetMaterialist() > 50) {
+		//create ownership!
+		entity->AddPossession(bestChoice);
+	}
+
+	if (bestChoice != ontF.GetHands()) {
+		/*Node* n = new Node();
+		n->SetNodeType(NodeType::grab);
+		n->SetOwnable(bestChoice);
+		entity->AddInstantNode(n);*/
+		blackboard->SetValueAsObject(blackboard->GetKeyID("Item"), bestChoice);
 	}
 
 	return EBTNodeResult::Succeeded;
 }
 
-vector<UOOwnable*> UBTTask_GetNode::FindNearbyOwnables(AActor* actor) {
+vector<UOOwnable*> UBTTask_GetOwnable::FindNearbyOwnables(AActor* actor) {
 	float const _SEARCH_RADIUS = 300.0f;
 	FVector start = actor->GetActorLocation();
 	FVector end = start + FVector(0, 0, _SEARCH_RADIUS * 2);

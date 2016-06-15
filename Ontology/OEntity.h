@@ -71,6 +71,7 @@ public:
 	void AddDesire(OOwnership* newOwnership);
 	void AddDesire(UOOwnable* newOwnable);
 	bool DoesOwn(UOOwnable* ownable);
+	bool DoesOwn(UItem* item);
 
 	bool IsInSight(AActor* actor);
 	void OwnableNotify(UOOwnable* ownable, UOEntity* entity, UItem::_NotifyTag tag, bool grito, string notifyID);

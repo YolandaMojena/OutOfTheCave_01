@@ -171,6 +171,15 @@ bool UOEntity::DoesOwn(UOOwnable* ownable) {
 			return true;
 	return false;
 }
+bool UOEntity::DoesOwn(UItem* item) {
+	UOOwnable* ownable = item->GetOwner()->FindComponentByClass<UOOwnable*>();
+	if (ownable) {
+		for (OOwnership* ownership : _possessions)
+			if (ownable == ownership->GetOwnable())
+				return true;
+	}
+	return false;
+}
 
 
 

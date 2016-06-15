@@ -13,13 +13,13 @@
 #include "Ontology/OntologicFunctions.h"
 #include "Node.h"
 #include <vector.h>
-#include "BTTask_GetNode.generated.h"
+#include "BTTask_GetOwnable.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class OUTOFTHECAVE_01_API UBTTask_GetNode : public UBTTask_BlackboardBase
+class OUTOFTHECAVE_01_API UBTTask_GetOwnable : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
 	
@@ -28,6 +28,4 @@ public:
 	
 private:
 	vector<UOOwnable*> FindNearbyOwnables(AActor* actor);
-	
-	TArray<UOOwnable*> _priorityQueueCandidates;
 };
