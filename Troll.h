@@ -85,6 +85,9 @@ protected:
 	UFUNCTION()
 		void StopSprint();
 
+	UFUNCTION()
+		void RebuildEdification();
+
 private:
 
 	void AttachToSocket(AActor* target, string socket);

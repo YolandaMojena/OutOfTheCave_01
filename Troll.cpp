@@ -2,6 +2,7 @@
 
 #include "OutOfTheCave_01.h"
 #include "Troll.h"
+#include "RebuildableEdification.h"
 #include "Engine.h"
 
 // Sets default values
@@ -109,6 +110,7 @@ void ATroll::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 	InputComponent->BindAction("PickUpSecondary", IE_Pressed, this, &ATroll::PickUpSecondary);
 	InputComponent->BindAction("AttackMain", IE_Pressed, this, &ATroll::AttackMain);
 	InputComponent->BindAction("AttackSecondary", IE_Pressed, this, &ATroll::AttackSecondary);
+	InputComponent->BindAction("Rebuild", IE_Pressed, this, &ATroll::RebuildEdification);
 	
 
 	InputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
@@ -343,12 +345,12 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 	UOEdification* edificationComp = OtherActor->FindComponentByClass<UOEdification>();
 	UOEntity* hitEntity = _myEntityComp->GetEntityComponent(OtherActor);
 
-	if (edificationComp /*&& _isAttacking*/ && _canDamage && !_victims.Contains(edificationComp->GetOwner())){
+	if (edificationComp /*&& _isAttacking*/ && !edificationComp->GetIsDestroyed() && _canDamage && !_victims.Contains(edificationComp->GetOwner())){
 
 		_victims.Add(edificationComp->GetOwner());
 
 		edificationComp->ReceiveDamage(_TROLL_DMG, FindComponentByClass<UOEntity>());
-		UDestructibleComponent* targetDestructible = dynamic_cast<UDestructibleComponent*>(OtherComp);
+		UDestructibleComponent* targetDestructible = OtherActor->FindComponentByClass<UDestructibleComponent>();
 
 		if (targetDestructible) {
 
@@ -362,6 +364,17 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 
 		hitEntity->ReceiveDamage(_TROLL_DMG, FindComponentByClass<UOEntity>());
 		_victims.Add(hitEntity->GetOwner());
+	}
+}
+
+void ATroll::RebuildEdification() {
+
+	for (TActorIterator<ARebuildableEdification> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
+		ARebuildableEdification* edification = *ActorItr;
+
+		if(edification) edification->RebuildEdification();
 	}
 }
 

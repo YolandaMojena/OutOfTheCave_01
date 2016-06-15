@@ -5,13 +5,8 @@
 #include "Village.h"
 #include "Ontology/OEntity.h"
 
-UOEdification::UOEdification(const FObjectInitializer& ObjectInitializer) : UOOwnable() {
-
-	destructibleComp = ObjectInitializer.CreateDefaultSubobject<UDestructibleComponent>(this->GetOwner(), TEXT("DM"));
+UOEdification::UOEdification() : UOOwnable() {
 }
-
-UOEdification::UOEdification()
-{}
 
 UOEdification::~UOEdification()
 {}
@@ -122,19 +117,14 @@ void UOEdification::DestroyEdification() {
 
 	if (part) {
 		part->ActivateSystem();
-		RebuildEdification();
+		//RebuildEdification();
 	}
 }
 
 bool UOEdification::RebuildEdification() {
 
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> DestructibleMesh(TEXT("DestructibleMesh'/Game/MyContent/humbleHouse_DM.humbleHouse_DM'"));
-	originalMesh = DestructibleMesh.Object;
-
-	GetOwner()->FindComponentByClass<UDestructibleComponent>()->DestroyComponent();
-	destructibleComp->AttachTo(GetOwner()->GetRootComponent());
-
 	return true;
+	//return dynamic_cast<ARebuildableEdification*>(GetOwner())->RebuildEdification();
 }
 
 
