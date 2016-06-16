@@ -18,8 +18,8 @@ ARebuildableEdification::ARebuildableEdification(const FObjectInitializer& Objec
 	destructible->SetDestructibleMesh(originalMesh);
 	destructible->AttachTo(RootComponent);
 
-	UObject *outer = originalMesh->GetOuter();
-	copy = DuplicateObject(originalMesh, outer);
+	//UObject* outer = originalMesh->GetOuter();
+	_copy = DuplicateObject(originalMesh, nullptr);
 }
 
 // Called when the game starts or when spawned
@@ -39,7 +39,7 @@ void ARebuildableEdification::Tick( float DeltaTime )
 
 bool ARebuildableEdification::RebuildEdification() {
 
-	destructible->SetDestructibleMesh(copy);
+	destructible->SetDestructibleMesh(_copy);
 	return true;
 }
 

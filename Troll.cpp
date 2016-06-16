@@ -53,7 +53,7 @@ ATroll::ATroll(const FObjectInitializer& ObjectInitializer)
 	secondaryHandCollider->SetVisibility(false, true);
 
 	SkelMesh = FindComponentByClass<USkeletalMeshComponent>();
-	ConstructorHelpers::FObjectFinder<UAnimMontage> anim_attack_montage(TEXT("AnimMontage'/Game/Animations/RunAttack.RunAttack'"));
+	ConstructorHelpers::FObjectFinder<UAnimMontage> anim_attack_montage(TEXT("AnimMontage'/Game/Animations/Troll/RunAttack.RunAttack'"));
 	myMontage = anim_attack_montage.Object;
 
 	_chargingJump = false;

@@ -24,9 +24,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Edification)
 		UDestructibleComponent* destructible;
 
+	UPROPERTY(VisibleAnywhere)
 	UDestructibleMesh* originalMesh;
 
-	UDestructibleMesh* copy;
-
 	bool RebuildEdification();
+
+private:
+
+	UDestructibleMesh* _copy;
+
+
 };
