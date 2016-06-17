@@ -8,14 +8,13 @@
 APlotGenerator::APlotGenerator()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = true;	
 }
 
 // Called when the game starts or when spawned
 void APlotGenerator::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -50,6 +49,7 @@ void APlotGenerator::SpawnReactivePlot()
 		BasePlot* currentPlot = reactivePlots.at(0);
 		reactivePlots.erase(reactivePlots.begin());
 		currentPlot->PrintSentence();
+		currentPlot->SavePlotToFile(SavePath, PlotFile);
 
 		UOEntity* plotEntity = currentPlot->GetMainEntity();
 		plotEntity->AddCurrentPlot(currentPlot);
@@ -64,6 +64,7 @@ void APlotGenerator::AddReportToLog(Report* newReport)
 {
 	if (!ContainsReport(newReport)) {
 		_pReportLog.HeapPush(newReport, Report::ReportNotoriety());
+		newReport->SaveReportToFile(SavePath, ReportFile);
 	}
 }
 
@@ -109,10 +110,8 @@ void APlotGenerator::GetPlotFromReportLog() {
 			string plot = plotCandidates[randType];
 			BasePlot* newPlot;
 
-			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, currentReport->GetReportEntity()->GetOwner()->GetActorLabel());
-			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, currentReport->GetTargetEntity()->GetOwner()->GetActorLabel());
 			if (plot == strings.ATTACK_PLOT) {
-				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity());
+				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
 				currentReport->GetReportEntity()->ChangeNotoriety(3);
 				currentReport->GetTargetEntity()->ChangeNotoriety(2);
 				if (!newPlot->GetIsExclusive()) {
@@ -121,6 +120,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 						entity->ChangeNotoriety(1);
 					}
 				}
+				newPlot->BuildSentence();
 				reactivePlots.push_back(newPlot);
 			}
 		}
@@ -128,14 +128,14 @@ void APlotGenerator::GetPlotFromReportLog() {
 }
 
 // Associates types of plots with plot identificators
-APlotGenerator::PlotDictionary::PlotDictionary() {
+PlotDictionary::PlotDictionary() {
 
-	_plotDictionary = { {BasePlot::TypeOfPlot::aggressive, {strings.ATTACK_PLOT, strings.DESTROY_PLOT}},
-	{ BasePlot::TypeOfPlot::resources, { strings.GATHER_PLOT } },
-	{ BasePlot::TypeOfPlot::possessive , { strings.ROBBERY_PLOT } } };
+	_plotDictionary = { {TypeOfPlot::aggressive, {strings.ATTACK_PLOT, strings.DESTROY_PLOT}},
+	{ TypeOfPlot::resources, { strings.GATHER_PLOT } },
+	{ TypeOfPlot::possessive , { strings.ROBBERY_PLOT } } };
 }
 
-vector<string> APlotGenerator::PlotDictionary::GetPlotsOfType(BasePlot::TypeOfPlot type)
+vector<string> PlotDictionary::GetPlotsOfType(TypeOfPlot type)
 {
 	return _plotDictionary.at(type);
 }
@@ -170,3 +170,6 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 	return helpers;
 }
+
+
+

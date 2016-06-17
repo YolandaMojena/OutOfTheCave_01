@@ -6,6 +6,7 @@
 #include <vector>
 #include "BasePlot.h"
 #include "PlotTypes.h"
+#include "Utilities.h"
 #include <unordered_map>
 #include "Report.h"
 #include "StringCollection.h"
@@ -13,23 +14,23 @@
 
 using namespace std;
 
+class PlotDictionary {
+
+public:
+	PlotDictionary();
+	vector<string> GetPlotsOfType(TypeOfPlot type);
+
+private:
+	unordered_map<TypeOfPlot, vector<string>> _plotDictionary;
+	StringCollection strings;
+};
+
 UCLASS()
 class OUTOFTHECAVE_01_API APlotGenerator : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-
-	class PlotDictionary {
-
-	public:
-		PlotDictionary();
-		vector<string> GetPlotsOfType(BasePlot::TypeOfPlot type);
-
-	private:
-		unordered_map<BasePlot::TypeOfPlot, vector<string>> _plotDictionary;
-		StringCollection strings;
-	};
 
 	APlotGenerator();
 	virtual void BeginPlay() override;
@@ -58,5 +59,10 @@ private:
 	float _timeToSpawnPlot;
 
 	const float _TIME_TO_SPAWN = 25.0f;
+	const FString SavePath = FPaths::GameDir() + "SavedFiles/";
+	const FString PlotFile = "PlotReport.txt";
+	const FString ReportFile = "ReportReport.txt";
 };
+
+
 

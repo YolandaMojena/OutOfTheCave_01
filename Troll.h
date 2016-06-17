@@ -8,6 +8,7 @@
 #include "Ontology/OCivilian.h"
 #include "Ontology/OOwnable.h"
 #include "Ontology/OEdification.h"
+#include "NarrativeGeneration/Utilities.h"
 #include "Troll.generated.h"
 
 using namespace std;
@@ -87,6 +88,8 @@ protected:
 
 	UFUNCTION()
 		void RebuildEdification();
+
+	void TestReadWriteFile();
 
 private:
 

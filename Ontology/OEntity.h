@@ -56,6 +56,9 @@ public:
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+		FString _entityName;
+
 	vector<ORelation*> GetRelationships();
 	vector<OOwnership*> GetPossessions();
 	vector<OTerritory*> GetTerritories();
@@ -85,15 +88,12 @@ public:
 	bool GetIsDead();
 
 	void ReceiveDamage(float damage, UOEntity* damager);
-	bool CheckValidPersonality(BasePlot::TypeOfPlot type);
+	bool CheckValidPersonality(TypeOfPlot type);
 	void SendReport(Report* newReport);
 
 	// It must be considered whether if the entity is the player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 		bool IsPlayer;
-
-	// All entities will send reports to the plotGenerator situated in the game world
-	APlotGenerator* plotGenerator;
 
 	UPROPERTY(EditAnywhere, Category = Behaviour)
 	class UBehaviorTree* entityBehaviorTree;
@@ -103,6 +103,11 @@ public:
 	void SetIdleGraph(Graph* g);
 	UOEntity* GetMainPlotEntity();
 	void SetMainPlotEntity(UOEntity* mpe);
+	APlotGenerator* GetPlotGenerator();
+	FString GetRace();
+	void SetRace(ERace race);
+	void SetEntityName(const FString name);
+	FString GetEntityName();
 
 	void SetAIController(AEntityAIController* eaic);
 	void ExecuteGraph();
@@ -111,13 +116,21 @@ public:
 	float _currentTime = 10;
 	
 protected:
+
+	void Die();
+	void IHaveBeenKilledBySomeone(UOEntity* killer);
+
 	State _currentState;
+	FString _raceName;
 	vector<BasePlot*> _currentPlots;
 	UOEntity* _mainPlotEntity;
 	Graph _brain;
-	
-	void Die();
-	void IHaveBeenKilledBySomeone(UOEntity* killer);
+	Graph* _idleGraph;
+	AEntityAIController* _entityAIController;
+
+
+	// All entities will send reports to the plotGenerator situated in the game world
+	APlotGenerator* _plotGenerator;
 
 	vector<ORelation*> _relationships;
 	vector<OOwnership*> _possessions;
@@ -133,7 +146,4 @@ protected:
 
 	int _notoriety = 0;
 	int _notifyID;
-
-	Graph* _idleGraph;
-	AEntityAIController* _entityAIController;
 };

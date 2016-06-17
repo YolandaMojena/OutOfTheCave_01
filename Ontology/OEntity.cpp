@@ -24,8 +24,7 @@ void UOEntity::BeginPlay() {
 	
 	if (!IsPlayer) {
 		for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
-			plotGenerator = *Itr;
-		//SetState(State::idle);
+			_plotGenerator = *Itr;
 	}
 }
 
@@ -70,6 +69,24 @@ UOEntity* UOEntity::GetMainPlotEntity() {
 /*Graph* UOEntity::GetBrain() {
 	return &_brain;
 }*/
+FString UOEntity::GetRace()
+{
+	return _raceName;
+}
+
+void UOEntity::SetRace(ERace race)
+{
+	const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ERace"), true);
+	if(EnumPtr) _raceName = EnumPtr->GetEnumName((int32)race);
+}
+
+FString UOEntity::GetEntityName() {
+	return _entityName;
+}
+void UOEntity::SetEntityName(const FString name) {
+	_entityName = name;
+	GetOwner()->SetActorLabel(name);
+}
 
 
 
@@ -195,7 +212,7 @@ void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 void UOEntity::SendReport(Report * newReport)
 {
 	if (CheckValidPersonality(newReport->GetType())) {
-		plotGenerator->AddReportToLog(newReport);
+		_plotGenerator->AddReportToLog(newReport);
 	}
 }
 
@@ -275,7 +292,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 				relationWithKiller->ChangeAppreciation(-relationFromOther->GetAppreciation());
 
 				//if (relationWithKiller->GetAppreciation() < relationWithKiller->LOW_APPRECIATION)
-				relationFromOther->GetEntity()->SendReport(new Report(relationWithKiller, BasePlot::TypeOfPlot::aggressive, this));
+				relationFromOther->GetEntity()->SendReport(new Report(relationWithKiller, TypeOfPlot::aggressive, this));
 			}
 			o->GetOtherEntity()->DeleteRelation(this);
 		}
@@ -284,6 +301,11 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 
 void UOEntity::SetMainPlotEntity(UOEntity* mpe) {
 	_mainPlotEntity = mpe;
+}
+
+APlotGenerator * UOEntity::GetPlotGenerator()
+{
+	return _plotGenerator;
 }
 
 vector<BasePlot*> UOEntity::GetCurrentPlots() {
@@ -297,25 +319,25 @@ void UOEntity::AddCurrentPlot(BasePlot* bp) {
 }
 
 
-bool UOEntity::CheckValidPersonality(BasePlot::TypeOfPlot type) {
+bool UOEntity::CheckValidPersonality(TypeOfPlot type) {
 
 	switch (type) {
 
-	case BasePlot::TypeOfPlot::aggressive:
+	case TypeOfPlot::aggressive:
 	//	if (_personality->GetAggressiveness() < 50 || _personality->GetBraveness() < 50) return false;
 		return true;
 
-	case BasePlot::TypeOfPlot::possessive:
+	case TypeOfPlot::possessive:
 	//	if (_personality->GetMaterialist() < 50 || _personality->GetAggressiveness() < 50) return false;
 		return true;
 
-	case BasePlot::TypeOfPlot::resources: 
+	case TypeOfPlot::resources: 
 		return true;
 
-	case BasePlot::TypeOfPlot::thankful:
+	case TypeOfPlot::thankful:
 		if (_personality->GetKindness() < 50 || _personality->GetSocial() < 50) return false;
 
-	case BasePlot::TypeOfPlot::preventive:
+	case TypeOfPlot::preventive:
 		return true;
 	}
 

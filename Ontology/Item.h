@@ -27,7 +27,8 @@ enum class ERace : uint8 {
 	R_Bear		UMETA(DisplayName = "Bear"),
 	R_Wolf		UMETA(DisplayName = "Wolf"),
 	R_Golem		UMETA(DisplayName = "Golem"),
-	R_Beast		UMETA(DisplayName = "Beast")
+	R_Beast		UMETA(DisplayName = "Beast"),
+	R_Troll		UMETA(DisplayName = "Troll")
 };
 
 UENUM(BlueprintType)
@@ -61,10 +62,7 @@ public:
 
 		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		FString uname;
-
-	string name;
-
+		FString UName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _density;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)

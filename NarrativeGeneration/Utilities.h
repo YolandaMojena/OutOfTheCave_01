@@ -12,8 +12,16 @@ public:
 	Utilities();
 	~Utilities();
 
-	/**
-	* Write the FString to a file.
-	*/
-	static bool SaveStringToFile(const FString& String, const FString SaveDirectory, const FString Filename,  bool AllowOverwriting);
+	// Write the FString to a file.
+	static bool SaveStringToFile(const FString& String, const FString SaveDirectory, const FString Filename);
+
+	// Read file as array of FStrings
+	static TArray<FString> ReadFileToVector(const FString SaveDirectory, const FString Filename);
+
+	// Verify directory
+	static bool VerifyOrCreateDirectory(const FString& TestDir);
+
+	
+
+
 };

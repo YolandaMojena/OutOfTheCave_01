@@ -20,12 +20,17 @@ void BasePlot::ExecutePlot() {
 void BasePlot::PrintSentence() {
 
 	// Print on screen
-	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, _sentence.c_str());
+	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, _sentence);
 }
 
 void BasePlot::AddInvolvedInPlot(UOEntity * entity)
 {
 	_involvedInPlot.push_back(entity);
+}
+
+void BasePlot::SavePlotToFile(const FString path, const FString fileName)
+{
+	Utilities::SaveStringToFile(_sentence, path, fileName);
 }
 
 Graph BasePlot::GetGraph() {

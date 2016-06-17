@@ -19,13 +19,14 @@ class UOEdification;
 class OUTOFTHECAVE_01_API AttackPlot : public BasePlot
 {
 public:
-	AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity);
+	AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation);
 	~AttackPlot();
+
+	void BuildSentence();
 
 private:
 
 	void BuildGraph();
-	string BuildSentence();
 	void ConsiderReactions();
 
 	UOEntity* _targetEntity;
@@ -40,10 +41,11 @@ public:
 	GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource);
 	~GatherPlot();
 
+	void BuildSentence();
+
 private:
 
 	void BuildGraph();
-	string BuildSentence();
 	void ConsiderReactions();
 
 	UOOwnable* _targetResource;
@@ -58,10 +60,11 @@ public:
 	DestroyPlot(UOEntity* plotEntity, UOOwnable* target);
 	~DestroyPlot();
 
+	void BuildSentence();
+
 private:
 
 	void BuildGraph();
-	string BuildSentence();
 	void ConsiderReactions();
 
 	UOOwnable* _targetOwnable;
@@ -76,10 +79,11 @@ public:
 	StealPlot(UOEntity* plotEntity, UOEntity* who, UOOwnable* target);
 	~StealPlot();
 
+	void BuildSentence();
+
 private:
 
 	void BuildGraph();
-	string BuildSentence();
 	void ConsiderReactions();
 
 	UOEntity* _targetEntity;
@@ -95,10 +99,11 @@ public:
 	BuildPlot(UOEntity* plotEntity, UOEdification* target);
 	~BuildPlot();
 
+	void BuildSentence();
+
 private:
 
 	void BuildGraph();
-	string BuildSentence();
 	void ConsiderReactions();
 
 	UOEdification* _targetEdification;
@@ -114,10 +119,11 @@ public:
 	GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what);
 	~GivePlot();
 
+	void BuildSentence();
+
 private:
 
 	void BuildGraph();
-	string BuildSentence();
 	void ConsiderReactions();
 
 	UOEntity* _targetEntity;

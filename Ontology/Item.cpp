@@ -16,8 +16,6 @@ UItem::UItem()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
-
-	name = TCHAR_TO_UTF8(*uname);
 }
 
 

@@ -57,8 +57,6 @@ ATroll::ATroll(const FObjectInitializer& ObjectInitializer)
 	myMontage = anim_attack_montage.Object;
 
 	_chargingJump = false;
-	
-	_myEntityComp = FindComponentByClass<UOEntity>();;
 }
 
 // Called when the game starts or when spawned
@@ -66,8 +64,9 @@ void ATroll::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Troll initialized"));	
+	_myEntityComp = FindComponentByClass<UOEntity>();
+	_myEntityComp->SetEntityName("Troll");
+	_myEntityComp->SetRace(ERace::R_Troll);
 }
 
 // Called every frame
@@ -376,6 +375,21 @@ void ATroll::RebuildEdification() {
 
 		if(edification) edification->RebuildEdification();
 	}
+}
+
+void ATroll::TestReadWriteFile(){
+
+	//FString SaveDirectory = FString("C:\\Users\\Yolanda\\Desktop\\SavedFiles");
+	FString FileName = FString("TestFile.txt");
+	FString TextToSave = FString("Lorem ipsum");
+	FString SaveDirectory = FPaths::GameDir() + "Content/";
+
+	//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, FPaths::GameDir());
+
+	//Utilities::VerifyOrCreateDirectory(SaveDirectory);
+	//Utilities::SaveStringToFile(TextToSave + "\n", SaveDirectory, FileName, true);
+
+	//TArray<FString> test = Utilities::ReadFileToVector(SaveDirectory, "OOTC_femaleNames.txt");
 }
 
 

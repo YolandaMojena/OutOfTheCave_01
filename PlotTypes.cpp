@@ -11,19 +11,37 @@
 //ATTACK PLOT
 //**************************************************************************************
 
-AttackPlot::AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity) : BasePlot(plotEntity) {
+AttackPlot::AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation) : BasePlot(plotEntity) {
 
 	_targetEntity = targetEntity;
-	_sentence = BuildSentence();
 	_isExclusive = false;
+	_motivation = motivation;
 
 	BuildGraph();
 }
 
 AttackPlot::~AttackPlot() {}
 
-string AttackPlot::BuildSentence() {
-	return TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is attacking " + _targetEntity->GetOwner()->GetActorLabel()));
+void AttackPlot::BuildSentence() {
+
+	_sentence += "The brave " + _plotEntity->GetRace() + " " + _plotEntity->GetEntityName()
+		+ " has began an attack against the despicable " + _targetEntity->GetRace() + " "
+		+ _targetEntity->GetEntityName() + ", who " + _targetEntity->GetRace();
+		_sentence += _motivation->IsA<UOEntity>() ?
+		" hurt his friend" + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetEntityName()
+		: " damaged his " + _motivation->GetOwner()->GetActorLabel();
+
+		_sentence += " He counts with the help of ";
+
+	if (_involvedInPlot.size() > 0) {
+		for (int i = 0; i < _involvedInPlot.size(); i++) {
+			_sentence += _involvedInPlot[i]->GetEntityName();
+			if (i <= _involvedInPlot.size() - 1)
+				_sentence += ", ";
+		}
+		_sentence += " and ";
+	}
+	_sentence += "some allies. .\n\n";
 }
 
 void AttackPlot::BuildGraph() {
@@ -70,7 +88,6 @@ void AttackPlot::ConsiderReactions() {
 GatherPlot::GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource) : BasePlot(plotEntity) {
 
 	_targetResource = targetResource;
-	_sentence = BuildSentence();
 	_isExclusive = false;
 
 	BuildGraph();
@@ -78,8 +95,8 @@ GatherPlot::GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource) : BasePl
 
 GatherPlot::~GatherPlot() {}
 
-string GatherPlot::BuildSentence() {
-	return TCHAR_TO_UTF8(*("Entity " + _plotEntity->GetOwner()->GetActorLabel() + " is gathering " + _targetResource->GetOwner()->GetActorLabel()));
+void GatherPlot::BuildSentence() {
+	_sentence = TCHAR_TO_UTF8(*("Entity " + _plotEntity->GetOwner()->GetActorLabel() + " is gathering " + _targetResource->GetOwner()->GetActorLabel()));
 }
 
 void GatherPlot::BuildGraph() {
@@ -96,7 +113,6 @@ void GatherPlot::ConsiderReactions() {
 DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOOwnable* target) : BasePlot(plotEntity) {
 
 	_targetOwnable = target;
-	_sentence = BuildSentence();
 	_isExclusive = false;
 
 	BuildGraph();
@@ -104,8 +120,8 @@ DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOOwnable* target) : BasePlot(plo
 
 DestroyPlot::~DestroyPlot() {}
 
-string DestroyPlot::BuildSentence() {
-	return TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is destroying " + _targetOwnable->GetOwner()->GetActorLabel()));
+void DestroyPlot::BuildSentence() {
+	_sentence = TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is destroying " + _targetOwnable->GetOwner()->GetActorLabel()));
 }
 
 void DestroyPlot::BuildGraph() {
@@ -147,7 +163,6 @@ StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* who, UOOwnable* target) : B
 
 	_targetOwnable = target;
 	_targetEntity = who;
-	_sentence = BuildSentence();
 	_isExclusive = true;
 
 	BuildGraph();
@@ -155,8 +170,8 @@ StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* who, UOOwnable* target) : B
 
 StealPlot::~StealPlot() {}
 
-string StealPlot::BuildSentence() {
-	return TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is stealing " + _targetOwnable->GetOwner()->GetActorLabel() + " " + _targetEntity->GetOwner()->GetActorLabel()));
+void StealPlot::BuildSentence() {
+	_sentence = TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is stealing " + _targetOwnable->GetOwner()->GetActorLabel() + " " + _targetEntity->GetOwner()->GetActorLabel()));
 }
 
 void StealPlot::BuildGraph() {
@@ -187,7 +202,6 @@ void StealPlot::ConsiderReactions() {
 BuildPlot::BuildPlot(UOEntity* plotEntity, UOEdification* target) : BasePlot(plotEntity) {
 
 	_targetEdification = target;
-	_sentence = BuildSentence();
 	_isExclusive = false;
 
 	BuildGraph();
@@ -195,8 +209,8 @@ BuildPlot::BuildPlot(UOEntity* plotEntity, UOEdification* target) : BasePlot(plo
 
 BuildPlot::~BuildPlot() {}
 
-string BuildPlot::BuildSentence() {
-	return TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is building " + _targetEdification->GetOwner()->GetActorLabel()));
+void BuildPlot::BuildSentence() {
+	_sentence = TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is building " + _targetEdification->GetOwner()->GetActorLabel()));
 }
 
 void BuildPlot::BuildGraph() {
@@ -244,7 +258,6 @@ GivePlot::GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what) : Ba
 
 	_targetEntity = target;
 	_targetOwnable = what;
-	_sentence = BuildSentence();
 	_isExclusive = true;
 
 	BuildGraph();
@@ -252,8 +265,8 @@ GivePlot::GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what) : Ba
 
 GivePlot::~GivePlot() {}
 
-string GivePlot::BuildSentence() {
-	return TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is giving " + _targetOwnable->GetOwner()->GetActorLabel() + " to " + _targetEntity->GetOwner()->GetActorLabel()));
+void GivePlot::BuildSentence() {
+	_sentence = TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is giving " + _targetOwnable->GetOwner()->GetActorLabel() + " to " + _targetEntity->GetOwner()->GetActorLabel()));
 }
 
 void GivePlot::BuildGraph() {
