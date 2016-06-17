@@ -8,6 +8,9 @@
 #include "NarrativeGeneration/Report.h"
 #include "Ontology/OOwnable.h"
 
+UOOwnable::UOOwnable() {}
+UOOwnable::~UOOwnable(){}
+
 void UOOwnable::BeginPlay() {
 
 	Super::BeginPlay();

@@ -65,6 +65,7 @@ public:
 	OPersonality* GetPersonality();
 	int GetNotoriety();
 	void ChangeNotoriety(int value);
+	int GetStrength();
 
 	void AddRelationship(ORelation* newRelation);
 	void AddRelationship(UOEntity* newEntity);
@@ -73,7 +74,8 @@ public:
 	void AddTerritory(OTerritory* newTerritory);
 	void AddDesire(OOwnership* newOwnership);
 	void AddDesire(UOOwnable* newOwnable);
-
+	bool DoesOwn(UOOwnable* ownable);
+	bool DoesOwn(UItem* item);
 
 	bool IsInSight(AActor* actor);
 	void OwnableNotify(UOOwnable* ownable, UOEntity* entity, UItem::_NotifyTag tag, bool grito, string notifyID);
@@ -112,6 +114,12 @@ public:
 	void SetAIController(AEntityAIController* eaic);
 	void ExecuteGraph();
 	void NodeCompleted(bool completedOk);
+	void AddInstantNode(Node* n);
+
+	vector<UOOwnable*> GetInventory();
+	void StoreInInventory(UOOwnable* o);
+	bool RemoveFromInventory(UOOwnable* o);
+	bool RemoveFromInventory(int i);
 
 	float _currentTime = 10;
 	
@@ -119,6 +127,7 @@ protected:
 
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
+	int _strength = 20;
 
 	State _currentState;
 	FString _raceName;
@@ -146,4 +155,6 @@ protected:
 
 	int _notoriety = 0;
 	int _notifyID;
+
+	vector<UOOwnable*> _inventory;
 };

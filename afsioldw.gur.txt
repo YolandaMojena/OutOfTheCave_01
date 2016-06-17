@@ -1,0 +1,36 @@
+﻿Merge remote-tracking branch 'refs/remotes/origin/Saprolin' into Landa
+
+# Conflicts:
+#	Ontology/Item.h
+#	Ontology/OEntity.h
+#
+# It looks like you may be committing a merge.
+# If this is not correct, please remove the file
+#	.git/MERGE_HEAD
+# and try again.
+
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch Landa
+# Your branch is ahead of 'origin/Landa' by 1 commit.
+#   (use "git push" to publish your local commits)
+#
+# All conflicts fixed but you are still merging.
+#
+# Changes to be committed:
+#	deleted:    AITasks/BTTask_GetNode.cpp
+#	new file:   AITasks/BTTask_GetOwnable.cpp
+#	renamed:    AITasks/BTTask_GetNode.h -> AITasks/BTTask_GetOwnable.h
+#	new file:   AITasks/BTTask_GrabItem.cpp
+#	new file:   AITasks/BTTask_GrabItem.h
+#	modified:   Ontology/Item.cpp
+#	modified:   Ontology/Item.h
+#	modified:   Ontology/OEntity.cpp
+#	modified:   Ontology/OEntity.h
+#	modified:   Ontology/OOwnable.cpp
+#	modified:   Ontology/OOwnable.h
+#	new file:   Ontology/OntologicFunctions.cpp
+#	new file:   Ontology/OntologicFunctions.h
+#
+

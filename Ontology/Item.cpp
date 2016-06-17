@@ -62,3 +62,26 @@ UOEdification * UItem::GetEdificationComponent(AActor * actor)
 	UOEdification* foundComponent = actor->FindComponentByClass<UOEdification>();
 	return foundComponent;
 }
+
+
+
+float UItem::GetDensity() { return _mass / _volume; }
+float UItem::GetMass() { return _mass; }
+float UItem::GetVolume() { return _volume; }
+
+float UItem::GetMaxLength() { return _maxLength; }
+float UItem::GetElongation() { return pow(_maxLength, 3) / _volume; }
+
+float UItem::GetToughness() { return _toughness; }
+FVector UItem::GetGrabPos() { return _grabPos; }
+FVector UItem::GetGrabDir() { return _grabDir; }
+FVector UItem::GetFuncPos() { return _funcPos; }
+FVector UItem::GetFuncDir() { return _funcDir; } //Think of an axe!
+FVector UItem::GetCenterOfMass() { return _centerOfMass; }
+float UItem::GetAngularInertia() { return FVector::Dist(_grabPos, _centerOfMass); }
+float UItem::GetAngularMomentumTransmission() { return (FVector::Dist(_centerOfMass, _funcPos) * sin(acosf(FVector::DotProduct((_funcPos - _centerOfMass).GetSafeNormal(), _funcDir)))); }
+//float UItem::GetAngularMomentumTransmission() { return FVector::Dist(_centerOfMass, _funcPos); }
+float UItem::GetEdgeSharpness() { return _edgeSharpness; }
+float UItem::GetEdgeLength() { return _edgeLength; }
+float UItem::GetSpiky() { return _spiky; }
+float UItem::GetSpikes() { return _spikes; }

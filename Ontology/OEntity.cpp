@@ -66,6 +66,10 @@ UOEntity* UOEntity::GetMainPlotEntity() {
 	return _mainPlotEntity;
 }
 
+int UOEntity::GetStrength() {
+	return _strength;
+}
+
 /*Graph* UOEntity::GetBrain() {
 	return &_brain;
 }*/
@@ -170,6 +174,22 @@ void UOEntity::DeleteDesire(UOOwnable * desire)
 		else i++;
 	}
 	_materialDesires.erase(_materialDesires.begin() + i);
+}
+
+bool UOEntity::DoesOwn(UOOwnable* ownable) {
+	for (OOwnership* ownership : _possessions)
+		if (ownable == ownership->GetOwnable())
+			return true;
+	return false;
+}
+bool UOEntity::DoesOwn(UItem* item) {
+	UOOwnable* ownable = item->GetOwner()->FindComponentByClass<UOOwnable*>();
+	if (ownable) {
+		for (OOwnership* ownership : _possessions)
+			if (ownable == ownership->GetOwnable())
+				return true;
+	}
+	return false;
 }
 
 
@@ -420,6 +440,7 @@ void UOEntity::ExecuteGraph() {
 }
 
 
+
 // If a node can't be completed or is the last one, plot is considered completed
 void UOEntity::NodeCompleted(bool completedOk) {
 	//if (_mainPlotEntity && _currentState == State::idle) /*&& !_brain.Peek()->high_priority && !_brain.Peek()->nextNode->high_priority)*/
@@ -446,4 +467,38 @@ void UOEntity::NodeCompleted(bool completedOk) {
 				SetState(State::idle);
 		}
 	}
+}
+
+
+void UOEntity::AddInstantNode(Node* n) {
+	_brain.AddInstantNode(n);
+}
+
+
+
+//	 I N V E N T O R Y
+
+vector<UOOwnable*> UOEntity::GetInventory() {
+	return _inventory;
+}
+void UOEntity::StoreInInventory(UOOwnable* o) {
+	_inventory.push_back(o);
+}
+bool UOEntity::RemoveFromInventory(UOOwnable* o) {
+	int i = 0;
+	for (UOOwnable* strd : _inventory) {
+		if (o == strd) {
+			RemoveFromInventory(i);
+			return true;
+		}
+		i++;
+	}
+	return false;
+		
+}
+bool UOEntity::RemoveFromInventory(int i) {
+	if (i >= _inventory.size())
+		return false;
+	_inventory.erase(_inventory.begin() + i);
+	return true;
 }
