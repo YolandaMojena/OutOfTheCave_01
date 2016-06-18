@@ -17,16 +17,23 @@ AttackPlot::AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* moti
 	_isExclusive = false;
 	_motivation = motivation;
 
-	BuildGraph();
+	// Check necessary conditions for the plot to be executed
+	_isPlotValid = ValidatePlot();
+	if (_isPlotValid) {
+		_identifier = "Attack " + targetEntity->GetEntityName();
+		BuildGraph();
+	}
 }
 
 AttackPlot::~AttackPlot() {}
 
 void AttackPlot::BuildSentence() {
 
-	_sentence += "The brave " + _plotEntity->GetRace() + " " + _plotEntity->GetEntityName()
+	_sentence += _identifier + ":\n\n";
+
+	_sentence += "The brave, yet aggressive, " + _plotEntity->GetRace() + " " + _plotEntity->GetEntityName()
 		+ " has began an attack against the despicable " + _targetEntity->GetRace() + " "
-		+ _targetEntity->GetEntityName() + ", who " + _targetEntity->GetRace();
+		+ _targetEntity->GetEntityName() + ", who ";
 		_sentence += _motivation->IsA<UOEntity>() ?
 		" hurt his friend" + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetEntityName()
 		: " damaged his " + _motivation->GetOwner()->GetActorLabel();
@@ -41,7 +48,12 @@ void AttackPlot::BuildSentence() {
 		}
 		_sentence += " and ";
 	}
-	_sentence += "some allies. .\n\n";
+	_sentence += "some allies. .\n\n\n";
+}
+
+bool AttackPlot::ValidatePlot() {
+
+	return true;
 }
 
 void AttackPlot::BuildGraph() {
@@ -73,6 +85,7 @@ void AttackPlot::BuildGraph() {
 	//ATTACK
 	Node* attackNode = new Node();
 	attackNode->SetNodeType(NodeType::attack);
+	attackNode->SetHighPriority(true);
 	attackNode->SetEntityA(_targetEntity);
 	_plotGraph.AddNode(attackNode);
 }
@@ -81,10 +94,149 @@ void AttackPlot::BuildGraph() {
 void AttackPlot::ConsiderReactions() {
 }
 
+//DESTROY PLOT
+//**************************************************************************************
+
+DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation) : BasePlot(plotEntity) {
+
+	_targetEntity = targetEntity;
+	_isExclusive = false;
+	_motivation = motivation;
+
+	for (OOwnership* o : _targetEntity->GetPossessions()) {
+
+		if (dynamic_cast<UOEdification*>(o->GetOwnable())) {
+			_targetOwnable = o->GetOwnable();
+			break;
+		}
+	}
+
+	// Check necessary conditions for the plot to be executed
+	_isPlotValid = ValidatePlot();
+	if (_isPlotValid) {
+		_identifier = "Destroy " + _targetOwnable->GetOwner()->GetActorLabel();
+		BuildGraph();
+	}
+}
+
+DestroyPlot::~DestroyPlot() {}
+
+bool DestroyPlot::ValidatePlot() {
+
+	if (!_targetOwnable)
+		return false;
+
+	return true;
+}
+
+void DestroyPlot::BuildSentence() {
+
+	_sentence += _identifier + ":\n\n";
+
+	_sentence += "The brave, yet aggressive, " + _plotEntity->GetRace() + " " + _plotEntity->GetEntityName()
+		+ " has began to destroy the " + _targetOwnable->GetOwner()->GetActorLabel()  + " "
+		", which belongs to ";
+
+	if (_targetOwnable->GetOwners().size() > 0) {
+		for (int i = 0; i < _targetOwnable->GetOwners().size(); i++) {
+			_sentence += _targetOwnable->GetOwners()[i]->GetEntityName();
+			if (i <= _targetOwnable->GetOwners().size() - 1)
+				_sentence += ", ";
+			else _sentence += " and ";
+		}
+	}
+	_sentence += ", since " + _targetEntity->GetEntityName();
+	_sentence += _motivation->IsA<UOEntity>() ?
+		" hurt his friend" + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetEntityName()
+		: " damaged his " + _motivation->GetOwner()->GetActorLabel();
+
+	_sentence += " He counts with the help of ";
+
+	if (_involvedInPlot.size() > 0) {
+		for (int i = 0; i < _involvedInPlot.size(); i++) {
+			_sentence += _involvedInPlot[i]->GetEntityName();
+			if (i <= _involvedInPlot.size() - 1)
+				_sentence += ", ";
+		}
+		_sentence += " and ";
+	}
+	_sentence += "some allies. .\n\n";
+}
+
+void DestroyPlot::BuildGraph() {
+
+	_plotGraph = Graph();
+
+	//ASK FOR HELP
+	Node* askForHelpNode = new Node();
+	askForHelpNode->SetNodeType(NodeType::askForHelp);
+	_plotGraph.AddNode(askForHelpNode);
+
+	//GET TOOLS
+	/*Node* getNode = new Node();
+	getNode->SetNodeType(NodeType::get);
+	_plotGraph->AddNode(getNode);*/
+
+	//ASK TROLL FOR HELP
+	/*Node* askTrollForHelpNode = new Node();
+	askTrollForHelpNode->SetNodeType(NodeType::askTroll);
+	_plotGraph.AddNode(askTrollForHelpNode);*/
+
+	//GO TO TARGET
+	Node* goToNode = new Node();
+	goToNode->SetNodeType(NodeType::goToItem);
+	goToNode->SetActorA(_targetOwnable->GetOwner());
+	_plotGraph.AddNode(goToNode);
+
+	//DESTROY
+	Node* destroyNode = new Node();
+	destroyNode->SetNodeType(NodeType::destroy);
+	destroyNode->SetOwnable(_targetOwnable);
+	_plotGraph.AddNode(destroyNode);
+}
+
+
+void DestroyPlot::ConsiderReactions() {
+}
+
+//STAMPEDE
+//*************************************************************************************
+
+Stampede::Stampede(ERace race, FVector spawnLocation, FVector targetLocation, int num) : BasePlot() {
+
+	_raceToSpawn = race;
+	_spawnLocation = spawnLocation;
+	_targetLocation = targetLocation;
+	_num = num;
+
+}
+
+bool Stampede::ValidatePlot() {
+
+	return true;
+}
+
+void Stampede::BuildSentence() {
+
+	_sentence = "A stampede is approaching!";
+
+}
+
+void Stampede::BuildGraph() {
+
+	_plotGraph = Graph();
+
+	
+}
+
+
+void Stampede::ConsiderReactions() {
+}
+
 
 //GATHER PLOT
 //**************************************************************************************
-
+/*
 GatherPlot::GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource) : BasePlot(plotEntity) {
 
 	_targetResource = targetResource;
@@ -105,60 +257,12 @@ void GatherPlot::BuildGraph() {
 
 void GatherPlot::ConsiderReactions() {
 }
-
-
-//DESTROY PLOT
-//**************************************************************************************
-
-DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOOwnable* target) : BasePlot(plotEntity) {
-
-	_targetOwnable = target;
-	_isExclusive = false;
-
-	BuildGraph();
-}
-
-DestroyPlot::~DestroyPlot() {}
-
-void DestroyPlot::BuildSentence() {
-	_sentence = TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is destroying " + _targetOwnable->GetOwner()->GetActorLabel()));
-}
-
-void DestroyPlot::BuildGraph() {
-
-	//_plotGraph = new Graph();
-
-	//ASK FOR HELP
-	Node* askForHelpNode = new Node();
-	askForHelpNode->SetNodeType(NodeType::askForHelp);
-	_plotGraph.AddNode(askForHelpNode);
-
-	//GET TOOLS
-	/*Node* getNode = new Node();
-	getNode->SetNodeType(NodeType::get);
-	_plotGraph->AddNode(getNode);*/
-
-	//GO TO TARGET
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goTo);
-	goToNode->SetPosition(_targetOwnable->GetOwner()->GetActorLocation());
-	_plotGraph.AddNode(goToNode);
-
-	//DESTROY
-	Node* destroyNode = new Node();
-	destroyNode->SetNodeType(NodeType::destroy);
-	destroyNode->SetOwnable(_targetOwnable);
-	_plotGraph.AddNode(destroyNode);
-}
-
-
-void DestroyPlot::ConsiderReactions() {
-}
+*/
 
 
 //STEAL PLOT
 //**************************************************************************************
-
+/*
 StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* who, UOOwnable* target) : BasePlot(plotEntity) {
 
 	_targetOwnable = target;
@@ -194,8 +298,10 @@ void StealPlot::BuildGraph() {
 
 void StealPlot::ConsiderReactions() {
 }
+*/
 
 
+/*
 //BUILD PLOT
 //**************************************************************************************
 
@@ -227,7 +333,7 @@ void BuildPlot::BuildGraph() {
 	getNode->SetNodeType(NodeType::get);
 	getNode->SetArquetypeObject("martillo")
 	_plotGraph->AddNode(getNode);*/
-
+/*
 	//GATHER RESOURCES
 	Node* getNode = new Node();
 	getNode->SetNodeType(NodeType::gather);
@@ -249,8 +355,9 @@ void BuildPlot::BuildGraph() {
 
 void BuildPlot::ConsiderReactions() {
 }
+*/
 
-
+/*
 //GIVE PLOT
 //**************************************************************************************
 
@@ -287,6 +394,6 @@ void GivePlot::BuildGraph() {
 }
 
 void GivePlot::ConsiderReactions() {
-}
+}*/
 
 

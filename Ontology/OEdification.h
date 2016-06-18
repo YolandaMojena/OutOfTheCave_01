@@ -7,6 +7,7 @@
 #include "Ontology/OCivilian.h"
 #include "Ontology/ORelation.h"
 #include "Ontology/OOwnership.h"
+#include "NarrativeGeneration/Report.h"
 #include "Graph.h"
 #include <vector>
 #include <cstdlib>

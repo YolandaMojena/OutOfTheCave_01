@@ -85,30 +85,29 @@ void UOEdification::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 		UOEntity* entity = hr.GetActor()->FindComponentByClass<UOEntity>();
 		if (entity->IsInSight(GetOwner()))
 			entity->OwnableNotify(this, damager, UItem::_NotifyTag::destroyed, false, UItem::GenerateNotifyID(this, damager, UItem::_NotifyTag::destroyed));
-	}
+	}*/
 
 
 	//   P L O T S
 	//	For each owner, check existing ownership and relation with damager, change ontological relation if required and send reports
 
-	for (UOEntity* o : _owners) {
+	for(UOEntity* o : GetOwners()) {
 
 		OOwnership* ownership = o->GetOwnershipWith(this);
 		ORelation* relation = o->GetRelationWith(damager);
 
 		if (!relation) {
 			o->AddRelationship(new ORelation(o, damager));
-			ORelation* relation = o->GetRelationWith(damager);
+			relation = o->GetRelationWith(damager);
 		}
 
 		relation->ChangeAppreciation(-ownership->GetWorth());
 		if (relation->GetAppreciation() <= relation->LOW_APPRECIATION)
-			o->SendReport(new Report(relation, BasePlot::TypeOfPlot::aggressive, this));
+			o->SendReport(new Report(relation, TypeOfPlot::aggressive, this));
 
-		//o->SendReport(new Report(relation, BasePlot::TypeOfPlot::possessive, this));
-
+		// NOTIFY ABSENSE OF HOME
 		//o->DeletePossession(this);
-	}*/
+	}
 }
 
 void UOEdification::DestroyEdification() {
@@ -117,14 +116,12 @@ void UOEdification::DestroyEdification() {
 
 	if (part) {
 		part->ActivateSystem();
-		//RebuildEdification();
 	}
 }
 
 bool UOEdification::RebuildEdification() {
 
 	return true;
-	//return dynamic_cast<ARebuildableEdification*>(GetOwner())->RebuildEdification();
 }
 
 

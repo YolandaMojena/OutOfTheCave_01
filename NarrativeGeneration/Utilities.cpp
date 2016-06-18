@@ -3,6 +3,10 @@
 #include "OutOfTheCave_01.h"
 #include "Utilities.h"
 
+FString Utilities::SavePath = FPaths::GameDir() + "SavedFiles/";
+FString Utilities::PlotFile = "PlotReport.txt";
+FString Utilities::ReportFile = "ReportReport.txt";
+
 Utilities::Utilities()
 {
 }

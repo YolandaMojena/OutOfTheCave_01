@@ -33,14 +33,14 @@ void APlotGenerator::Tick( float DeltaTime )
 
 bool APlotGenerator::ValidateReport(Report* report)
 {
-	/*if (report->GetTag() == Report::ReportTag::relation) {
+	if (report->GetTag() == Report::ReportTag::relation) {
 		return (!report->GetReportEntity()->GetIsDead() || !report->GetTargetEntity()->GetIsDead());
 	}
 	else if (report->GetTag() == Report::ReportTag::ownership) {
 		return (!report->GetReportEntity()->GetIsDead());
 	}
 
-	else */return true;
+	else return true;
 }
 
 void APlotGenerator::SpawnReactivePlot()
@@ -105,23 +105,47 @@ void APlotGenerator::GetPlotFromReportLog() {
 
 			vector<string> plotCandidates = plotDictionary.GetPlotsOfType(currentReport->GetType());
 
-			// A random plot from the given type is elected
-			int randType = rand() % plotCandidates.size();
-			string plot = plotCandidates[randType];
+			bool plotIsValid = false;
 			BasePlot* newPlot;
 
+			// A random plot from the given type is elected
+			// Types should be iterated until valid
+			int randType = rand() % plotCandidates.size();
+			string plot = plotCandidates[randType];
+			
 			if (plot == strings.ATTACK_PLOT) {
 				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
-				currentReport->GetReportEntity()->ChangeNotoriety(3);
-				currentReport->GetTargetEntity()->ChangeNotoriety(2);
-				if (!newPlot->GetIsExclusive()) {
-					for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
-						newPlot->AddInvolvedInPlot(entity);
-						entity->ChangeNotoriety(1);
+				bool plotIsValid = newPlot->GetPlotIsValid();
+				if (plotIsValid) {
+					currentReport->GetReportEntity()->ChangeNotoriety(3);
+					currentReport->GetTargetEntity()->ChangeNotoriety(2);
+
+					if (!newPlot->GetIsExclusive()) {
+						for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
+							newPlot->AddInvolvedInPlot(entity);
+							entity->ChangeNotoriety(1);
+						}
 					}
+					newPlot->BuildSentence();
+					reactivePlots.push_back(newPlot);
 				}
-				newPlot->BuildSentence();
-				reactivePlots.push_back(newPlot);
+			}
+			else if (plot == strings.DESTROY_PLOT) {
+				newPlot = new DestroyPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
+				plotIsValid = newPlot->GetPlotIsValid();
+				if (plotIsValid) {
+					currentReport->GetReportEntity()->ChangeNotoriety(3);
+					currentReport->GetTargetEntity()->ChangeNotoriety(2);
+
+					if (!newPlot->GetIsExclusive()) {
+						for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
+							newPlot->AddInvolvedInPlot(entity);
+							entity->ChangeNotoriety(1);
+						}
+					}
+					newPlot->BuildSentence();
+					reactivePlots.push_back(newPlot);
+				}
 			}
 		}
 	}
@@ -153,7 +177,6 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 		if (_pReportLog[i]->GetTag() == tag && tag == Report::ReportTag::ownership) {
 			if ( _pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetOwnable() == report->GetTargetOwnable()) {
-				//if(_pReportLog[i]->GetReportEntity()->GetStat
 					helpers.push_back(_pReportLog[i]->GetReportEntity());
 				_pReportLog.RemoveAt(i);
 			}

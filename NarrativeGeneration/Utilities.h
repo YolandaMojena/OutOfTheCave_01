@@ -21,7 +21,9 @@ public:
 	// Verify directory
 	static bool VerifyOrCreateDirectory(const FString& TestDir);
 
-	
+	static FString SavePath;
+	static FString PlotFile;
+	static FString ReportFile;
 
 
 };

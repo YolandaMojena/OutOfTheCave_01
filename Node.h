@@ -58,6 +58,7 @@ public:
 		float daytime = -1.0f;
 		bool branch;
 		bool completedOk = true;
+		bool isHighPriority = false;
 		//UOEntity::State entityState;
 	};
 
@@ -80,6 +81,8 @@ public:
 	void SetDaytime(float d);
 	void SetAsBranch();
 	void SetCompletedOk();
+	void SetHighPriority(bool isHP);
+	
 	//void SetEntityState(UOEntity::State s);
 
 	NBlackboard nBlackboard;

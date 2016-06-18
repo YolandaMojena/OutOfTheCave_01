@@ -23,6 +23,7 @@ public:
 	~AttackPlot();
 
 	void BuildSentence();
+	bool ValidatePlot();
 
 private:
 
@@ -32,9 +33,56 @@ private:
 	UOEntity* _targetEntity;
 };
 
-//GATHER PLOT
+
+//DESTROY PLOT
 //**************************************************************************************
 
+class OUTOFTHECAVE_01_API DestroyPlot : public BasePlot
+{
+public:
+	DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation);
+	~DestroyPlot();
+
+	void BuildSentence();
+	bool ValidatePlot();
+
+private:
+
+	void BuildGraph();
+	void ConsiderReactions();
+
+	UOOwnable* _targetOwnable;
+	UOEntity* _targetEntity;
+};
+
+//STAMPEDE
+//**************************************************************************************
+
+class OUTOFTHECAVE_01_API Stampede: public BasePlot
+{
+public:
+	Stampede(ERace race, FVector spawnLocation, FVector targetLocation, int num);
+	Stampede();
+	~Stampede();
+
+	void BuildSentence();
+	bool ValidatePlot();
+
+private:
+
+	void BuildGraph();
+	void ConsiderReactions();
+
+	ERace _raceToSpawn;
+	FVector _spawnLocation;
+	FVector _targetLocation;
+	int _num;
+};
+
+
+//GATHER PLOT
+//**************************************************************************************
+/*
 class OUTOFTHECAVE_01_API GatherPlot : public BasePlot
 {
 public:
@@ -49,30 +97,11 @@ private:
 	void ConsiderReactions();
 
 	UOOwnable* _targetResource;
-};
-
-//DESTROY PLOT
-//**************************************************************************************
-
-class OUTOFTHECAVE_01_API DestroyPlot : public BasePlot
-{
-public:
-	DestroyPlot(UOEntity* plotEntity, UOOwnable* target);
-	~DestroyPlot();
-
-	void BuildSentence();
-
-private:
-
-	void BuildGraph();
-	void ConsiderReactions();
-
-	UOOwnable* _targetOwnable;
-};
+};*/
 
 //STEAL PLOT
 //**************************************************************************************
-
+/*
 class OUTOFTHECAVE_01_API StealPlot : public BasePlot
 {
 public:
@@ -88,11 +117,11 @@ private:
 
 	UOEntity* _targetEntity;
 	UOOwnable* _targetOwnable;
-};
+};*/
 
 //BUILD PLOT
 //**************************************************************************************
-
+/*
 class OUTOFTHECAVE_01_API BuildPlot : public BasePlot
 {
 public:
@@ -107,12 +136,12 @@ private:
 	void ConsiderReactions();
 
 	UOEdification* _targetEdification;
-};
+};*/
 
 
 //GIVE PLOT
 //**************************************************************************************
-
+/*
 class OUTOFTHECAVE_01_API GivePlot : public BasePlot
 {
 public:
@@ -128,6 +157,6 @@ private:
 
 	UOEntity* _targetEntity;
 	UOOwnable* _targetOwnable;
-};
+};*/
 
 

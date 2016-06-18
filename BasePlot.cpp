@@ -14,9 +14,6 @@ BasePlot::BasePlot() {}
 BasePlot::~BasePlot() {}
 
 
-void BasePlot::ExecutePlot() {
-}
-
 void BasePlot::PrintSentence() {
 
 	// Print on screen
@@ -30,8 +27,14 @@ void BasePlot::AddInvolvedInPlot(UOEntity * entity)
 
 void BasePlot::SavePlotToFile(const FString path, const FString fileName)
 {
-	Utilities::SaveStringToFile(_sentence, path, fileName);
+	Utilities::SaveStringToFile(_sentence, Utilities::SavePath, Utilities::PlotFile);
 }
+
+void BasePlot::AbortPlot(const FString path, const FString fileName) {
+
+	Utilities::SaveStringToFile(_identifier + " plot aborted.\n\n\n", Utilities::SavePath, Utilities::PlotFile);
+}
+
 
 Graph BasePlot::GetGraph() {
 	return _plotGraph;
@@ -49,3 +52,6 @@ bool BasePlot::GetIsExclusive() {
 	return _isExclusive;
 }
 
+bool BasePlot::GetPlotIsValid() {
+	return _isPlotValid;
+}

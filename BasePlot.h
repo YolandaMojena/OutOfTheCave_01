@@ -32,26 +32,31 @@ public:
 	BasePlot(UOEntity* plotEntity);
 	~BasePlot();
 
-	void ExecutePlot();
 	void PrintSentence();
 	void AddInvolvedInPlot(UOEntity* entity);
 	void SavePlotToFile(const FString path, const FString fileName);
+	void AbortPlot(const FString path, const FString fileName);
+
 	virtual void BuildSentence() = 0;
+	virtual bool ValidatePlot() = 0;
 
 	Graph GetGraph();
 	UOEntity* GetMainEntity();
 	vector<UOEntity*> GetInvolvedInPlot();
 	bool GetIsExclusive();
+	bool GetPlotIsValid();
 
 
 protected:
 	
 	FString _sentence;
+	FString _identifier;
 	UOEntity* _plotEntity;
 	Graph _plotGraph;
 	vector<UOEntity*> _involvedInPlot;
 	UItem* _motivation;
 	bool _isExclusive;
+	bool _isPlotValid;
 
 	virtual void BuildGraph() = 0;
 	virtual void ConsiderReactions() = 0;

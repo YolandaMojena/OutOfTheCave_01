@@ -183,7 +183,7 @@ bool UOEntity::DoesOwn(UOOwnable* ownable) {
 	return false;
 }
 bool UOEntity::DoesOwn(UItem* item) {
-	UOOwnable* ownable = item->GetOwner()->FindComponentByClass<UOOwnable*>();
+	UOOwnable* ownable = item->GetOwner()->FindComponentByClass<UOOwnable>();
 	if (ownable) {
 		for (OOwnership* ownership : _possessions)
 			if (ownable == ownership->GetOwnable())
@@ -405,7 +405,6 @@ void UOEntity::SetState(State s, Graph* g) {
 
 				Node* comeToEntity = new Node();
 				comeToEntity->SetNodeType(NodeType::goToItem);
-				//comeToEntity->SetPosition(_mainPlotEntity->GetOwner()->GetActorLocation());
 				comeToEntity->SetActorA(_mainPlotEntity->GetOwner());
 				_brain.AddInstantNode(comeToEntity);
 				_brain.NextNode();
