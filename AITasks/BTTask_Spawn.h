@@ -12,8 +12,13 @@ UCLASS()
 class OUTOFTHECAVE_01_API UBTTask_Spawn : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+
+public:
+
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
+private:
+
+	TSubclassOf<class ACharacter> BP_Wolf;
+
 };

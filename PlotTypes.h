@@ -62,7 +62,6 @@ class OUTOFTHECAVE_01_API Stampede: public BasePlot
 {
 public:
 	Stampede(ERace race, FVector spawnLocation, FVector targetLocation, int num);
-	Stampede();
 	~Stampede();
 
 	void BuildSentence();

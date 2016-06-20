@@ -35,10 +35,10 @@ void AttackPlot::BuildSentence() {
 		+ " has began an attack against the despicable " + _targetEntity->GetRace() + " "
 		+ _targetEntity->GetEntityName() + ", who ";
 		_sentence += _motivation->IsA<UOEntity>() ?
-		" hurt his friend" + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetEntityName()
+		" hurt his friend " + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetEntityName()
 		: " damaged his " + _motivation->GetOwner()->GetActorLabel();
 
-		_sentence += " He counts with the help of ";
+		_sentence += ". He counts with the help of ";
 
 	if (_involvedInPlot.size() > 0) {
 		for (int i = 0; i < _involvedInPlot.size(); i++) {
@@ -211,6 +211,10 @@ Stampede::Stampede(ERace race, FVector spawnLocation, FVector targetLocation, in
 
 }
 
+Stampede::~Stampede() {
+
+}
+
 bool Stampede::ValidatePlot() {
 
 	return true;
@@ -225,8 +229,6 @@ void Stampede::BuildSentence() {
 void Stampede::BuildGraph() {
 
 	_plotGraph = Graph();
-
-	
 }
 
 

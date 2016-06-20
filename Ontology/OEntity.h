@@ -59,6 +59,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 		FString _entityName;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
+		bool _isEntityAttacking;
+
+	// It must be considered whether if the entity is the player
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+		bool IsPlayer;
+
+	UPROPERTY(EditAnywhere, Category = Behaviour)
+	class UBehaviorTree* entityBehaviorTree;
+
 	vector<ORelation*> GetRelationships();
 	vector<OOwnership*> GetPossessions();
 	vector<OTerritory*> GetTerritories();
@@ -93,13 +103,6 @@ public:
 	bool CheckValidPersonality(TypeOfPlot type);
 	void SendReport(Report* newReport);
 
-	// It must be considered whether if the entity is the player
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
-		bool IsPlayer;
-
-	UPROPERTY(EditAnywhere, Category = Behaviour)
-	class UBehaviorTree* entityBehaviorTree;
-
 	State GetCurrentState();
 	void SetState(State s, Graph* g = nullptr);
 	void SetIdleGraph(Graph* g);
@@ -120,6 +123,11 @@ public:
 	void StoreInInventory(UOOwnable* o);
 	bool RemoveFromInventory(UOOwnable* o);
 	bool RemoveFromInventory(int i);
+
+	void Attack();
+	bool GetIsEntityAttacking();
+	void SetIsEntityAttacking(bool attacking);
+	
 
 	float _currentTime = 10;
 	

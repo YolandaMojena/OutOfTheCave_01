@@ -93,7 +93,6 @@ void UOEntity::SetEntityName(const FString name) {
 }
 
 
-
 // R E L A T I O N S
 
 void UOEntity::AddRelationship(ORelation* newRelation) {
@@ -257,7 +256,7 @@ void UOEntity::Die() {
 // Deletes entity from the relationships lists of its relationships
 void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("I have been killed by " + killer->GetOwner()->GetActorLabel()));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("I have been killed by " + killer->GetOwner()->GetActorLabel()));
 
 	//  R E A C T I V I T Y
 	FVector start = GetOwner()->GetActorLocation();
@@ -501,3 +500,19 @@ bool UOEntity::RemoveFromInventory(int i) {
 	_inventory.erase(_inventory.begin() + i);
 	return true;
 }
+
+
+
+// M E C H A N I C S
+
+void UOEntity::Attack()
+{
+	if (!_isEntityAttacking) _isEntityAttacking = true;
+}
+bool UOEntity::GetIsEntityAttacking() {
+	return _isEntityAttacking;
+}
+void UOEntity::SetIsEntityAttacking(bool attacking) {
+	_isEntityAttacking = attacking;
+}
+
