@@ -93,6 +93,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 		bool IsPlayer;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+		float _strength;	// mainly attack damage and max item weight to grab | human soldier ~30
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+		float _speed;		// mainly movement speed
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+		float _agility;		// mainly attack cooldown
+
 	// All entities will send reports to the plotGenerator situated in the game world
 	APlotGenerator* plotGenerator;
 
@@ -118,7 +125,6 @@ public:
 	float _currentTime = 10;
 	
 protected:
-	int _strength = 20;
 
 	State _currentState;
 	vector<BasePlot*> _currentPlots;
@@ -153,4 +159,5 @@ protected:
 	AEntityAIController* _entityAIController;
 
 	vector<UOOwnable*> _inventory;
+	UItem* grabbedItem;
 };

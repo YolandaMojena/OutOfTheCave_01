@@ -172,7 +172,7 @@ bool UOEntity::DoesOwn(UOOwnable* ownable) {
 	return false;
 }
 bool UOEntity::DoesOwn(UItem* item) {
-	UOOwnable* ownable = item->GetOwner()->FindComponentByClass<UOOwnable*>();
+	UOOwnable* ownable = item->GetOwner()->FindComponentByClass<UOOwnable>();
 	if (ownable) {
 		for (OOwnership* ownership : _possessions)
 			if (ownable == ownership->GetOwnable())
