@@ -66,6 +66,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = Behaviour)
 	class UBehaviorTree* entityBehaviorTree;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+		float _strength;	// mainly attack damage and max item weight to grab | human soldier ~30
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+		float _speed;		// mainly movement speed
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+		float _agility;		// mainly attack cooldown
+
+
 	vector<ORelation*> GetRelationships();
 	vector<OOwnership*> GetPossessions();
 	vector<OTerritory*> GetTerritories();
@@ -100,22 +108,8 @@ public:
 	bool CheckValidPersonality(TypeOfPlot type);
 	void SendReport(Report* newReport);
 
-	// It must be considered whether if the entity is the player
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
-		bool IsPlayer;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
-		float _strength;	// mainly attack damage and max item weight to grab | human soldier ~30
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
-		float _speed;		// mainly movement speed
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
-		float _agility;		// mainly attack cooldown
-
 	// All entities will send reports to the plotGenerator situated in the game world
 	APlotGenerator* plotGenerator;
-
-	UPROPERTY(EditAnywhere, Category = Behaviour)
-	class UBehaviorTree* entityBehaviorTree;
 
 	State GetCurrentState();
 	void SetState(State s, Graph* g = nullptr);
@@ -144,13 +138,8 @@ public:
 	float _currentTime = 10;
 	
 protected:
-<<<<<<< HEAD
-
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
-	int _strength = 20;
-=======
->>>>>>> refs/remotes/origin/Saprolin
 
 	State _currentState;
 	FString _raceName;
@@ -180,5 +169,5 @@ protected:
 	int _notifyID;
 
 	vector<UOOwnable*> _inventory;
-	UItem* grabbedItem;
+	UItem* _grabbedItem;
 };

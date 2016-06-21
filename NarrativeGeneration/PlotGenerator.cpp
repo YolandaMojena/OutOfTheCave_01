@@ -22,7 +22,7 @@ void APlotGenerator::BeginPlay()
 	Super::BeginPlay();
 
 	//Insert on of each
-	worldPlots.push_back(new Stampede("Bear", GetActorLocation(), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), SpawnEntities(rand() % 10 + 5, ERace::R_Bear)));
+	//worldPlots.push_back(new Stampede("Bear", GetActorLocation(), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), SpawnEntities(rand() % 10 + 5, ERace::R_Bear)));
 
 
 	//worldPlots[0]->InitPlot();
