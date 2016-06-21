@@ -7,6 +7,8 @@
 #include "Ontology/OEntity.h"
 #include "Ontology/OCivilian.h"
 #include "Ontology/OOwnable.h"
+#include "Ontology/OEdification.h"
+#include "NarrativeGeneration/Utilities.h"
 #include "Troll.generated.h"
 
 using namespace std;
@@ -48,8 +50,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Colliders)
 		UStaticMeshComponent*  secondaryHandCollider;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Custom)
-		bool isAttacking;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Troll)
+		bool _isAttacking;
 
 protected:
 
@@ -83,6 +86,11 @@ protected:
 	UFUNCTION()
 		void StopSprint();
 
+	UFUNCTION()
+		void RebuildEdification();
+
+	void TestReadWriteFile();
+
 private:
 
 	void AttachToSocket(AActor* target, string socket);
@@ -100,15 +108,17 @@ private:
 	float _secondaryZ;
 
 	const float _PICK_UP_RADIO = 256.0f;
-	const float _TROLL_DMG = 50.0f;
+	const float _TROLL_DMG = 30.0f;
 
 	USkeletalMeshComponent* SkelMesh;
 	UAnimMontage* myMontage;
 	TScriptDelegate<FWeakObjectPtr> HitFunc;
 	UOEntity* _myEntityComp;
+	TArray<AActor*> _victims;
 
 	bool _chargingJump;
 	float _jumpMultiplier;
+
 	const float _minJumpMultiplier = 0.75f;
 	const float _growthJumpMultiplier = 0.5f;
 	const float _maxJumpMultiplier = 1.5f;
@@ -118,5 +128,4 @@ private:
 	const float _SPRINT_SPEED = 2200.0f;
 	const float _NORMAL_GROUNDFRICTION = 2.0f;
 	const float _SPRINT_GROUNDFRICTION = 1.0f;
-
 };

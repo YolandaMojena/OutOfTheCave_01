@@ -2,6 +2,7 @@
 
 #include "OutOfTheCave_01.h"
 #include "Troll.h"
+#include "RebuildableEdification.h"
 #include "Engine.h"
 
 // Sets default values
@@ -52,12 +53,10 @@ ATroll::ATroll(const FObjectInitializer& ObjectInitializer)
 	secondaryHandCollider->SetVisibility(false, true);
 
 	SkelMesh = FindComponentByClass<USkeletalMeshComponent>();
-	ConstructorHelpers::FObjectFinder<UAnimMontage> anim_attack_montage(TEXT("AnimMontage'/Game/Animations/RunAttack.RunAttack'"));
+	ConstructorHelpers::FObjectFinder<UAnimMontage> anim_attack_montage(TEXT("AnimMontage'/Game/Animations/Troll/RunAttack.RunAttack'"));
 	myMontage = anim_attack_montage.Object;
 
 	_chargingJump = false;
-	
-	_myEntityComp = FindComponentByClass<UOEntity>();;
 }
 
 // Called when the game starts or when spawned
@@ -65,8 +64,9 @@ void ATroll::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Troll initialized"));	
+	_myEntityComp = FindComponentByClass<UOEntity>();
+	_myEntityComp->SetName("Troll");
+	_myEntityComp->SetRace(ERace::R_Troll);
 }
 
 // Called every frame
@@ -74,11 +74,15 @@ void ATroll::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	if(isAttacking){
+
+	if(_isAttacking){
 		if (!SkelMesh->AnimScriptInstance->Montage_IsPlaying(myMontage)) {
-			isAttacking = false;	
+			_isAttacking = false;	
+			if (_victims.Num() > 0)
+				_victims.Empty();
 		}
 	}
+
 	
 	for (TArray<const FAnimNotifyEvent*>::TIterator it = SkelMesh->AnimScriptInstance->AnimNotifies.CreateIterator(); it; ++it) {
 		if ((*it)->NotifyName.ToString() == "AttackBegins") _canDamage = true;
@@ -105,6 +109,7 @@ void ATroll::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 	InputComponent->BindAction("PickUpSecondary", IE_Pressed, this, &ATroll::PickUpSecondary);
 	InputComponent->BindAction("AttackMain", IE_Pressed, this, &ATroll::AttackMain);
 	InputComponent->BindAction("AttackSecondary", IE_Pressed, this, &ATroll::AttackSecondary);
+	InputComponent->BindAction("Rebuild", IE_Pressed, this, &ATroll::RebuildEdification);
 	
 
 	InputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
@@ -169,8 +174,8 @@ void ATroll::PickUpMain() {
 
 	if (!_equipedMain) {
 
-		FVector Start = GetActorLocation() - FVector(0, 0, GetActorLocation().Z + _PICK_UP_RADIO) + GetActorRotation().Vector() * _PICK_UP_RADIO;
-		FVector End = Start + FVector(0, 0, _PICK_UP_RADIO * 2);
+		FVector Start = GetActorLocation() /*- FVector(0, 0, GetActorLocation().Z + _PICK_UP_RADIO) + GetActorRotation().Vector() * _PICK_UP_RADIO*/;
+		FVector End = Start + /*FVector(0, 0, _PICK_UP_RADIO * 2)*/ GetActorRotation().Vector() * _PICK_UP_RADIO *2;
 		FHitResult HitData(ForceInit);
 
 		FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
@@ -243,8 +248,8 @@ void ATroll::PickUpSecondary() {
 
 	if (!_equipedSecondary) {
 
-		FVector Start = GetActorLocation() - FVector(0, 0, GetActorLocation().Z + _PICK_UP_RADIO) + GetActorRotation().Vector() * _PICK_UP_RADIO;
-		FVector End = Start + FVector(0, 0, _PICK_UP_RADIO * 2);
+		FVector Start = GetActorLocation() /*- FVector(0, 0, GetActorLocation().Z + _PICK_UP_RADIO) + GetActorRotation().Vector() * _PICK_UP_RADIO*/;
+		FVector End = Start + /*FVector(0, 0, _PICK_UP_RADIO * 2)*/ GetActorRotation().Vector() * _PICK_UP_RADIO * 2;
 		FHitResult HitData(ForceInit);
 
 		FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
@@ -313,8 +318,8 @@ void ATroll::PickUpSecondary() {
 
 void ATroll::AttackMain() {
 
-	if (!isAttacking) {
-		isAttacking = true;
+	if (!_isAttacking) {
+		_isAttacking = true;
 	}
 }
 
@@ -336,24 +341,55 @@ void ATroll::AttachToSocket(AActor* target, string socket) {
 
 void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
 
-	if (OtherActor->GetActorLabel().Contains("_DM")){
+	UOEdification* edificationComp = OtherActor->FindComponentByClass<UOEdification>();
+	UOEntity* hitEntity = _myEntityComp->GetEntityComponent(OtherActor);
 
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Hit a destrutible"));
+	if (edificationComp /*&& _isAttacking*/ && !edificationComp->GetIsDestroyed() && _canDamage && !_victims.Contains(edificationComp->GetOwner())){
 
-		ADestructibleActor* targetDestructible = dynamic_cast<ADestructibleActor*>(OtherActor);
-		targetDestructible->GetDestructibleComponent()->ApplyRadiusDamage(10, targetDestructible->GetDestructibleComponent()->GetCenterOfMass(), 32, 100, false);
+		_victims.Add(edificationComp->GetOwner());
+
+		edificationComp->ReceiveDamage(_TROLL_DMG, FindComponentByClass<UOEntity>());
+		UDestructibleComponent* targetDestructible = OtherActor->FindComponentByClass<UDestructibleComponent>();
+
+		if (targetDestructible) {
+
+			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Hit a destrutible"));
+			//MUST DEPEND ON DAMAGE
+			targetDestructible->ApplyRadiusDamage(10, GetMesh()->GetSocketLocation("MainSocket"), 35, 0.01, false);
+		}
 	}
-	else if (_myEntityComp->GetEntityComponent(OtherActor) && isAttacking && _canDamage) {
 
-		UOEntity* hitEntity = _myEntityComp->GetEntityComponent(OtherActor);
-		hitEntity->ReceiveDamage(_TROLL_DMG, _myEntityComp->GetEntityComponent(this));
+	else if (hitEntity /*&& _isAttacking*/ && _canDamage && !_victims.Contains(hitEntity->GetOwner())) {
+
+		hitEntity->ReceiveDamage(_TROLL_DMG, FindComponentByClass<UOEntity>());
+		_victims.Add(hitEntity->GetOwner());
 	}
+}
 
-	else if (_myEntityComp->GetOwnableComponent(OtherActor) && isAttacking && _canDamage) {
+void ATroll::RebuildEdification() {
 
-		UOOwnable* hitOwnable = _myEntityComp->GetOwnableComponent(OtherActor);
-		hitOwnable->ReceiveDamage(_TROLL_DMG, _myEntityComp->GetEntityComponent(this));
+	for (TActorIterator<ARebuildableEdification> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
+		ARebuildableEdification* edification = *ActorItr;
+
+		if(edification) edification->RebuildEdification();
 	}
+}
+
+void ATroll::TestReadWriteFile(){
+
+	//FString SaveDirectory = FString("C:\\Users\\Yolanda\\Desktop\\SavedFiles");
+	FString FileName = FString("TestFile.txt");
+	FString TextToSave = FString("Lorem ipsum");
+	FString SaveDirectory = FPaths::GameDir() + "Content/";
+
+	//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, FPaths::GameDir());
+
+	//Utilities::VerifyOrCreateDirectory(SaveDirectory);
+	//Utilities::SaveStringToFile(TextToSave + "\n", SaveDirectory, FileName, true);
+
+	//TArray<FString> test = Utilities::ReadFileToVector(SaveDirectory, "OOTC_femaleNames.txt");
 }
 
 

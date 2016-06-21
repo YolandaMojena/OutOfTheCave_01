@@ -4,6 +4,8 @@
 #include "OResidence.h"
 #include "Village.h"
 #include "Ontology/OEntity.h"
+#include "Ontology/OCivilian.h"
+#include "NarrativeGeneration/PlotGenerator.h"
 
 UOResidence::UOResidence() {
 
@@ -89,14 +91,35 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 	AActor* compOwner = GetOwner();
 	ACharacter* tentantCharacter;
 	switch (race) {
-	case ERace::R_Human:
-		if((rand() % 10) < 5)
+	case ERace::R_Human: {
+		if ((rand() % 10) < 5) {
 			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Male, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
-		else 
+			UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
+			if (entityComp) {
+				entityComp->SetName(_village->AssignMaleHumanName());
+				entityComp->SetRace(race);
+			}
+				
+		}
+		else {
 			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Female, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
-		break;
+			UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
+			if (entityComp) {
+				entityComp->SetName(_village->AssignFemaleHumanName());
+				entityComp->SetRace(race);
+			}		
+		}
+	}
+	break;
 	case ERace::R_Goblin:
+	{
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+		UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
+		if (entityComp) {
+			entityComp->SetName(_village->AssignGoblinName());
+			entityComp->SetRace(race);
+		}
+	}
 		break;
 	case ERace::R_Mixt_HG:
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);

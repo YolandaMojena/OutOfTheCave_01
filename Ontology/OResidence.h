@@ -9,6 +9,7 @@
 #include "OResidence.generated.h"
 
 class UOEntity;
+class UOCivilian;
 class AVillage;
 
 /**

@@ -4,7 +4,7 @@
 #include "Report.h"
 
 
-Report::Report(ORelation * newRelation, BasePlot::TypeOfPlot type, UItem* motivation)
+Report::Report(ORelation * newRelation, TypeOfPlot type, UItem* motivation)
 {
 	_reportEntity =  newRelation->GetEntity();
 	_targetEntity = newRelation->GetOtherEntity();
@@ -15,7 +15,7 @@ Report::Report(ORelation * newRelation, BasePlot::TypeOfPlot type, UItem* motiva
 	_tag = ReportTag::relation;
 }
 
-Report::Report(OOwnership* newOwnership, BasePlot::TypeOfPlot type, UItem* motivation)
+Report::Report(OOwnership* newOwnership, TypeOfPlot type, UItem* motivation)
 {
 	_reportEntity = newOwnership->GetOwner();
 	_targetOwnable = newOwnership->GetOwnable();
@@ -37,19 +37,55 @@ Report::~Report()
 {
 }
 
-void Report::PrintReport() {
+void Report::SaveReportToFile(const FString SaveDirectory, const FString FileName)
+{
+	FString report;
 
 	if (GetTag() == Report::ReportTag::relation) {
 
-		FString report = "Report from entity " + GetReportEntity()->GetOwner()->GetActorLabel() + " about entity " + GetTargetEntity()->GetOwner()->GetActorLabel() + " caused by " + GetMotivation()->GetOwner()->GetActorLabel();
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, report);
+		 /*"Report from entity " + GetReportEntity()->GetOwner()->GetActorLabel() + " about entity " + GetTargetEntity()->GetOwner()->GetActorLabel() + " caused by " + GetMotivation()->GetOwner()->GetActorLabel();*/
+		report += "Change in relation report\n";
+		report += "Report entity: " + GetReportEntity()->GetName() + "\n";
+		report += "Target entity: " + GetTargetEntity()->GetName() + "\n";
+		report += "Motivation: " + GetMotivation()->GetOwner()->GetActorLabel() + "\n";
+		//report += "Report type: " + FindObject<UEnum>(ANY_PACKAGE, TEXT("TypeOfPlot"), true)->GetEnumName((int32)_type);
 	}
 	else if (GetTag() == Report::ReportTag::ownership) {
 
-		FString report = "Report from entity " + GetReportEntity()->GetOwner()->GetActorLabel() + " about ownable " + GetTargetOwnable()->GetOwner()->GetActorLabel() + " caused by: " + GetMotivation()->GetOwner()->GetActorLabel();
-		GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, report);
+		/*FString report = "Report from entity " + GetReportEntity()->GetOwner()->GetActorLabel() + " about ownable " + GetTargetOwnable()->GetOwner()->GetActorLabel() + " caused by: " + GetMotivation()->GetOwner()->GetActorLabel();*/
+		report += "Change in ownership report\n";
+		report += "Report entity: " + GetReportEntity()->GetName() + "\n";
+		report += "Target ownable: " + GetTargetOwnable()->GetOwner()->GetActorLabel() + "\n";
+		report += "Motivation: " + GetMotivation()->GetOwner()->GetActorLabel() + "\n";
+		//report += "Report type: " + FindObject<UEnum>(ANY_PACKAGE, TEXT("TypeOfPlot"), true)->GetEnumName((int32)_type);
 	}
+
+	switch (_type) {
+	case TypeOfPlot::aggressive:
+		report += "Report type: aggressive";
+		break;
+
+	case TypeOfPlot::possessive:
+		report += "Report type: possessive";
+		break;
+
+	case TypeOfPlot::resources:
+		report += "Report type: resources";
+		break;
+
+	case TypeOfPlot::thankful:
+		report += "Report type: thankful";
+		break;
+
+	case TypeOfPlot::preventive:
+		report += "Report type: preventive";
+		break;
+	}
+
+	report += "\n\n\n";
+	Utilities::SaveStringToFile(report, SaveDirectory, FileName);
 }
+
 
 UOEntity* Report::GetReportEntity() {
 	return _reportEntity;
@@ -69,7 +105,7 @@ OOwnership* Report::GetNewOwnership() {
 Report::ReportTag Report::GetTag() {
 	return _tag;
 }
-BasePlot::TypeOfPlot Report::GetType() {
+TypeOfPlot Report::GetType() {
 	return _type;
 }
 UItem* Report::GetMotivation() {

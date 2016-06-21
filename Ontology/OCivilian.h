@@ -15,12 +15,13 @@ class OUTOFTHECAVE_01_API UOCivilian : public UOEntity
 
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Civilian)
 		FString currentIconPath;
 
 	// Allows to load a texture from a given path
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LoadTextureFromPath", Keywords = "Load texture from path"), Category = Game)
-	static UTexture2D* LoadTextureFromPath(const FString& Path);
+		static UTexture2D* LoadTextureFromPath(const FString& Path);
+
 
 private:
 

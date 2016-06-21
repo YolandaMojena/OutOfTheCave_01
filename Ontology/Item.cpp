@@ -16,8 +16,6 @@ UItem::UItem()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// ...
-
-	name = TCHAR_TO_UTF8(*uname);
 }
 
 
@@ -87,3 +85,14 @@ float UItem::GetEdgeSharpness() { return _edgeSharpness; }
 float UItem::GetEdgeLength() { return _edgeLength; }
 float UItem::GetSpiky() { return _spiky; }
 float UItem::GetSpikes() { return _spikes; }
+
+FString UItem::GetName()
+{
+	return _name;
+}
+
+void UItem::SetName(FString name)
+{
+	_name = name;
+	GetOwner()->SetActorLabel(name);
+}

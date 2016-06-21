@@ -24,8 +24,7 @@ void UOEntity::BeginPlay() {
 	
 	if (!IsPlayer) {
 		for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
-			plotGenerator = *Itr;
-		//SetState(State::idle);
+			_plotGenerator = *Itr;
 	}
 }
 
@@ -33,16 +32,12 @@ void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (!_canBeDamaged) {
-		_hurtCooldown += DeltaTime;
-
-		if (_hurtCooldown >= _HURT_COOLDOWN) {
-			_hurtCooldown = 0;
-			_canBeDamaged = true;
-		}
+	if (_currentPlots.size() > 0 && _currentState == State::idle) {
+		
+		//Start Plot
+		_plotGenerator->ChangeCurrentPlotsInAction(1);
 	}
 }
-
 
 
 // G E T T E R S
@@ -64,6 +59,9 @@ OPersonality* UOEntity::GetPersonality(){
 int UOEntity::GetNotoriety() {
 	return _notoriety;
 }
+void UOEntity::ChangeNotoriety(int value) {
+	_notoriety += value;
+}
 
 bool UOEntity::GetIsDead() {
 	return _isDead;
@@ -80,7 +78,16 @@ int UOEntity::GetStrength() {
 /*Graph* UOEntity::GetBrain() {
 	return &_brain;
 }*/
+FString UOEntity::GetRace()
+{
+	return _raceName;
+}
 
+void UOEntity::SetRace(ERace race)
+{
+	const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ERace"), true);
+	if(EnumPtr) _raceName = EnumPtr->GetEnumName((int32)race);
+}
 
 
 // R E L A T I O N S
@@ -205,11 +212,10 @@ void UOEntity::EntityNotify(UOEntity* pasiva, UOEntity* activa, UItem::_NotifyTa
 
 void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 {
-	if (!_isDead && _canBeDamaged) {
+	if (!_isDead) {
 
 		_integrity -= damage;
 		_attacker = damager;
-		_canBeDamaged = false;
 
 		if (_integrity < MIN_INTEGRITY) {
 			Die();
@@ -222,7 +228,7 @@ void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 void UOEntity::SendReport(Report * newReport)
 {
 	if (CheckValidPersonality(newReport->GetType())) {
-		plotGenerator->AddReportToLog(newReport);
+		_plotGenerator->AddReportToLog(newReport);
 	}
 }
 
@@ -247,7 +253,7 @@ void UOEntity::Die() {
 // Deletes entity from the relationships lists of its relationships
 void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("I have been killed by " + killer->GetOwner()->GetActorLabel()));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("I have been killed by " + killer->GetOwner()->GetActorLabel()));
 
 	//  R E A C T I V I T Y
 	FVector start = GetOwner()->GetActorLocation();
@@ -302,7 +308,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 				relationWithKiller->ChangeAppreciation(-relationFromOther->GetAppreciation());
 
 				//if (relationWithKiller->GetAppreciation() < relationWithKiller->LOW_APPRECIATION)
-				relationFromOther->GetEntity()->SendReport(new Report(relationWithKiller, BasePlot::TypeOfPlot::aggressive, this));
+				relationFromOther->GetEntity()->SendReport(new Report(relationWithKiller, TypeOfPlot::aggressive, this));
 			}
 			o->GetOtherEntity()->DeleteRelation(this);
 		}
@@ -311,6 +317,11 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 
 void UOEntity::SetMainPlotEntity(UOEntity* mpe) {
 	_mainPlotEntity = mpe;
+}
+
+APlotGenerator * UOEntity::GetPlotGenerator()
+{
+	return _plotGenerator;
 }
 
 vector<BasePlot*> UOEntity::GetCurrentPlots() {
@@ -324,25 +335,25 @@ void UOEntity::AddCurrentPlot(BasePlot* bp) {
 }
 
 
-bool UOEntity::CheckValidPersonality(BasePlot::TypeOfPlot type) {
+bool UOEntity::CheckValidPersonality(TypeOfPlot type) {
 
 	switch (type) {
 
-	case BasePlot::TypeOfPlot::aggressive:
+	case TypeOfPlot::aggressive:
 	//	if (_personality->GetAggressiveness() < 50 || _personality->GetBraveness() < 50) return false;
 		return true;
 
-	case BasePlot::TypeOfPlot::possessive:
+	case TypeOfPlot::possessive:
 	//	if (_personality->GetMaterialist() < 50 || _personality->GetAggressiveness() < 50) return false;
 		return true;
 
-	case BasePlot::TypeOfPlot::resources: 
+	case TypeOfPlot::resources: 
 		return true;
 
-	case BasePlot::TypeOfPlot::thankful:
+	case TypeOfPlot::thankful:
 		if (_personality->GetKindness() < 50 || _personality->GetSocial() < 50) return false;
 
-	case BasePlot::TypeOfPlot::preventive:
+	case TypeOfPlot::preventive:
 		return true;
 	}
 
@@ -390,7 +401,6 @@ void UOEntity::SetState(State s, Graph* g) {
 
 				Node* comeToEntity = new Node();
 				comeToEntity->SetNodeType(NodeType::goToItem);
-				//comeToEntity->SetPosition(_mainPlotEntity->GetOwner()->GetActorLocation());
 				comeToEntity->SetActorA(_mainPlotEntity->GetOwner());
 				_brain.AddInstantNode(comeToEntity);
 				_brain.NextNode();
@@ -442,6 +452,7 @@ void UOEntity::NodeCompleted(bool completedOk) {
 					e->SetMainPlotEntity(nullptr);
 				_mainPlotEntity = nullptr;
 				_currentPlots.erase(_currentPlots.begin());
+				_plotGenerator->ChangeCurrentPlotsInAction(-1);
 			}
 			SetState(State::idle);
 		}
@@ -487,3 +498,19 @@ bool UOEntity::RemoveFromInventory(int i) {
 	_inventory.erase(_inventory.begin() + i);
 	return true;
 }
+
+
+
+// M E C H A N I C S
+
+void UOEntity::Attack()
+{
+	if (!_isEntityAttacking) _isEntityAttacking = true;
+}
+bool UOEntity::GetIsEntityAttacking() {
+	return _isEntityAttacking;
+}
+void UOEntity::SetIsEntityAttacking(bool attacking) {
+	_isEntityAttacking = attacking;
+}
+

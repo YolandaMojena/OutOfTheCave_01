@@ -28,7 +28,8 @@ enum class ERace : uint8 {
 	R_Bear		UMETA(DisplayName = "Bear"),
 	R_Wolf		UMETA(DisplayName = "Wolf"),
 	R_Golem		UMETA(DisplayName = "Golem"),
-	R_Beast		UMETA(DisplayName = "Beast")
+	R_Beast		UMETA(DisplayName = "Beast"),
+	R_Troll		UMETA(DisplayName = "Troll")
 };
 
 UENUM(BlueprintType)
@@ -62,12 +63,10 @@ public:
 
 		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		FString uname;
+		FString _name;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		float _density;
 
-	string name;
-
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		float density;*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _mass; //CharacterMovement Component!?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
@@ -104,9 +103,6 @@ public:
 		float _spikes;
 
 
-	float _canBeDamaged;
-	const float _HURT_COOLDOWN = 0.75f;
-	float _hurtCooldown;
 	/*float _inertiaMomentum{
 		get{
 			return FVector.Distance(_grabPos, _funcPos);
@@ -136,6 +132,9 @@ public:
 	float GetEdgeLength();
 	float GetSpiky();
 	float GetSpikes();
+	FString GetName();
+
+	void SetName(FString name);
 
 
 protected:

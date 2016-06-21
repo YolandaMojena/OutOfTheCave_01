@@ -56,11 +56,22 @@ public:
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
+		bool _isEntityAttacking;
+
+	// It must be considered whether if the entity is the player
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+		bool IsPlayer;
+
+	UPROPERTY(EditAnywhere, Category = Behaviour)
+	class UBehaviorTree* entityBehaviorTree;
+
 	vector<ORelation*> GetRelationships();
 	vector<OOwnership*> GetPossessions();
 	vector<OTerritory*> GetTerritories();
 	OPersonality* GetPersonality();
 	int GetNotoriety();
+	void ChangeNotoriety(int value);
 	int GetStrength();
 
 	void AddRelationship(ORelation* newRelation);
@@ -86,7 +97,7 @@ public:
 	bool GetIsDead();
 
 	void ReceiveDamage(float damage, UOEntity* damager);
-	bool CheckValidPersonality(BasePlot::TypeOfPlot type);
+	bool CheckValidPersonality(TypeOfPlot type);
 	void SendReport(Report* newReport);
 
 	// It must be considered whether if the entity is the player
@@ -111,6 +122,9 @@ public:
 	void SetIdleGraph(Graph* g);
 	UOEntity* GetMainPlotEntity();
 	void SetMainPlotEntity(UOEntity* mpe);
+	APlotGenerator* GetPlotGenerator();
+	FString GetRace();
+	void SetRace(ERace race);
 
 	void SetAIController(AEntityAIController* eaic);
 	void ExecuteGraph();
@@ -122,17 +136,33 @@ public:
 	bool RemoveFromInventory(UOOwnable* o);
 	bool RemoveFromInventory(int i);
 
+	void Attack();
+	bool GetIsEntityAttacking();
+	void SetIsEntityAttacking(bool attacking);
+	
+
 	float _currentTime = 10;
 	
 protected:
+<<<<<<< HEAD
+
+	void Die();
+	void IHaveBeenKilledBySomeone(UOEntity* killer);
+	int _strength = 20;
+=======
+>>>>>>> refs/remotes/origin/Saprolin
 
 	State _currentState;
+	FString _raceName;
 	vector<BasePlot*> _currentPlots;
 	UOEntity* _mainPlotEntity;
 	Graph _brain;
-	
-	void Die();
-	void IHaveBeenKilledBySomeone(UOEntity* killer);
+	Graph* _idleGraph;
+	AEntityAIController* _entityAIController;
+
+
+	// All entities will send reports to the plotGenerator situated in the game world
+	APlotGenerator* _plotGenerator;
 
 	vector<ORelation*> _relationships;
 	vector<OOwnership*> _possessions;
@@ -140,23 +170,14 @@ protected:
 	vector<OTerritory*> _landlord;
 
 	UOEntity* _attacker;
-
 	bool _isDead = false;
-
 	float MIN_INTEGRITY = 20.0f;
-
-	bool _highPriority = false;
 	
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 	OPersonality* _personality;
 
 	int _notoriety = 0;
 	int _notifyID;
-
-	Graph* _idleGraph;
-
-
-	AEntityAIController* _entityAIController;
 
 	vector<UOOwnable*> _inventory;
 	UItem* grabbedItem;

@@ -7,6 +7,7 @@
 #include "Ontology/ORelation.h"
 #include "Ontology/OOwnable.h"
 #include "Ontology/OOwnership.h"
+#include "NarrativeGeneration/Utilities.h"
 #include "BasePlot.h"
 
 using namespace std;
@@ -22,13 +23,13 @@ public:
 		relation, ownership, world
 	};
 
-	Report(ORelation* newRelation, BasePlot::TypeOfPlot type, UItem* motivation);
-	Report(OOwnership* newOwnership, BasePlot::TypeOfPlot types, UItem* motivation);
+	Report(ORelation* newRelation, TypeOfPlot type, UItem* motivation);
+	Report(OOwnership* newOwnership, TypeOfPlot types, UItem* motivation);
 	Report(UOEntity* reportEntity);
 
 	~Report();
 
-	void PrintReport();
+	void SaveReportToFile(const FString SaveDirectory, const FString FileName);
 
 	UOEntity* GetReportEntity();
 	UOEntity* GetTargetEntity();
@@ -37,7 +38,7 @@ public:
 	OOwnership* GetNewOwnership();
 	UItem* GetMotivation();
 	ReportTag GetTag();
-	BasePlot::TypeOfPlot GetType();
+	TypeOfPlot GetType();
 
 	//void RemoveTagFromReport(BasePlot::TypeOfPlot type);
 
@@ -60,5 +61,5 @@ private:
 	UItem* _motivation;
 
 	ReportTag _tag;
-	BasePlot::TypeOfPlot _type;
+	TypeOfPlot _type;
 };

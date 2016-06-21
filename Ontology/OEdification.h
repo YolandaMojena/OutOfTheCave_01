@@ -7,9 +7,11 @@
 #include "Ontology/OCivilian.h"
 #include "Ontology/ORelation.h"
 #include "Ontology/OOwnership.h"
+#include "NarrativeGeneration/Report.h"
 #include "Graph.h"
 #include <vector>
 #include <cstdlib>
+#include "RebuildableEdification.h"
 #include "OEdification.generated.h"
 
 using namespace std;
@@ -49,6 +51,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSettings)
 		EdificationType edificationType;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSettings)
+		float timeToRebuild;
+
+	void ReceiveDamage(float damage, UOEntity* damager);
+	bool GetIsDestroyed();
+
+	bool RebuildEdification();
+
 protected:
 	//virtual void UOOwnable::IHaveBeenDamagedBySomeone(UOEntity* damager) override;
 	//virtual void UOOwnable::IHaveBeenDestroyedBySomeone(UOEntity* damager) override;
@@ -56,7 +66,13 @@ protected:
 	AVillage* _village;
 
 private:
+
+	void IHaveBeenDestroyedBySomeone(UOEntity* damager);
+	void IHaveBeenDamagedBySomeone(UOEntity* damager);
 	void FindVillage();
 
-	
+	UOEntity* _attacker;
+	bool _isDestroyed;
+	void DestroyEdification();
+
 };

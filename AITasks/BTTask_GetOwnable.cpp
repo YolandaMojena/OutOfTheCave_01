@@ -73,7 +73,7 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 		n->SetNodeType(NodeType::grab);
 		n->SetOwnable(bestChoice);
 		entity->AddInstantNode(n);*/
-		blackboard->SetValueAsObject(blackboard->GetKeyID("Item"), bestChoice);
+		//blackboard->SetValue<UBlackboardTypeObject>(blackboard->GetKeyID("Item"), bestChoice);
 	}
 
 	return EBTNodeResult::Succeeded;

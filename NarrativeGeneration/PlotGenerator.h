@@ -6,6 +6,7 @@
 #include <vector>
 #include "BasePlot.h"
 #include "PlotTypes.h"
+#include "Utilities.h"
 #include <unordered_map>
 #include "Report.h"
 #include "StringCollection.h"
@@ -13,23 +14,23 @@
 
 using namespace std;
 
+class PlotDictionary {
+
+public:
+	PlotDictionary();
+	vector<string> GetPlotsOfType(TypeOfPlot type);
+
+private:
+	unordered_map<TypeOfPlot, vector<string>> _plotDictionary;
+	StringCollection strings;
+};
+
 UCLASS()
 class OUTOFTHECAVE_01_API APlotGenerator : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-
-	class PlotDictionary {
-
-	public:
-		PlotDictionary();
-		vector<string> GetPlotsOfType(BasePlot::TypeOfPlot type);
-
-	private:
-		unordered_map<BasePlot::TypeOfPlot, vector<string>> _plotDictionary;
-		StringCollection strings;
-	};
 
 	APlotGenerator();
 	virtual void BeginPlay() override;
@@ -39,6 +40,7 @@ public:
 
 	void AddReportToLog(Report* newReport);
 	bool ValidateReport(Report* report);
+	void ChangeCurrentPlotsInAction(int dif);
 
 	PlotDictionary plotDictionary;
 
@@ -52,11 +54,24 @@ private:
 	bool ContainsReport(Report* newReport);
 	void GetPlotFromReportLog();
 	vector<UOEntity*> WeHaveALotInCommon(Report* report);
+	vector<UOEntity*> SpawnEntities(int num, ERace race);
+	FVector RandomDisplacementVector(int radius);
 
 	TArray<Report*> _pReportLog;
 	bool _lastPlotCompleted = true;
 	float _timeToSpawnPlot;
+	int _currentPlotsInAction;
+	TSubclassOf<class ACharacter> BP_Bear;
 
 	const float _TIME_TO_SPAWN = 25.0f;
+	const FString SavePath = FPaths::GameDir() + "SavedFiles/";
+	const FString PlotFile = "PlotReport.txt";
+	const FString ReportFile = "ReportReport.txt";
+
+	bool ValidateAttackPlot(AttackPlot* plot);
+	//bool ValidateBuildPlot(BuildPlot* build);
+	bool ValidateDestroyPlot(DestroyPlot* plot);
 };
+
+
 

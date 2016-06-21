@@ -8,14 +8,25 @@
 APlotGenerator::APlotGenerator()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = true;	
+
+	static ConstructorHelpers::FObjectFinder<UBlueprint> BearBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_Bear.BP_Bear'"));
+	if (BearBlueprint.Object) {
+		BP_Bear = (UClass*)BearBlueprint.Object->GeneratedClass;
+	}
 }
 
 // Called when the game starts or when spawned
 void APlotGenerator::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	//Insert on of each
+	worldPlots.push_back(new Stampede("Bear", GetActorLocation(), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), SpawnEntities(rand() % 10 + 5, ERace::R_Bear)));
+
+
+	//worldPlots[0]->InitPlot();
+	//worldPlots[0]->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
 }
 
 // Called every frame
@@ -34,14 +45,19 @@ void APlotGenerator::Tick( float DeltaTime )
 
 bool APlotGenerator::ValidateReport(Report* report)
 {
-	/*if (report->GetTag() == Report::ReportTag::relation) {
+	if (report->GetTag() == Report::ReportTag::relation) {
 		return (!report->GetReportEntity()->GetIsDead() || !report->GetTargetEntity()->GetIsDead());
 	}
 	else if (report->GetTag() == Report::ReportTag::ownership) {
 		return (!report->GetReportEntity()->GetIsDead());
 	}
 
-	else */return true;
+	else return true;
+}
+
+void APlotGenerator::ChangeCurrentPlotsInAction(int dif)
+{
+	_currentPlotsInAction += dif;
 }
 
 void APlotGenerator::SpawnReactivePlot()
@@ -50,12 +66,14 @@ void APlotGenerator::SpawnReactivePlot()
 		BasePlot* currentPlot = reactivePlots.at(0);
 		reactivePlots.erase(reactivePlots.begin());
 		currentPlot->PrintSentence();
+		currentPlot->SavePlotToFile(SavePath, PlotFile);
 
 		UOEntity* plotEntity = currentPlot->GetMainEntity();
 		plotEntity->AddCurrentPlot(currentPlot);
 		plotEntity->SetMainPlotEntity(plotEntity);
 		if (plotEntity->GetCurrentState() == UOEntity::State::idle) {
 			plotEntity->SetState(UOEntity::State::plot);
+			_currentPlotsInAction++;
 		}
 	}
 }
@@ -64,6 +82,7 @@ void APlotGenerator::AddReportToLog(Report* newReport)
 {
 	if (!ContainsReport(newReport)) {
 		_pReportLog.HeapPush(newReport, Report::ReportNotoriety());
+		newReport->SaveReportToFile(SavePath, ReportFile);
 	}
 }
 
@@ -89,6 +108,7 @@ bool APlotGenerator::ContainsReport(Report* newReport) {
 // Removes X reports from _pReportLog and converts them into plots
 // It is verified that each report is valid before converting it
 // When creating the plot, involved entities are obtained from redundant plots and these are deleted from the log
+// Plot types are also validates and removed if not valid
 void APlotGenerator::GetPlotFromReportLog() {
 
 	if (_pReportLog.Num() > 0) {
@@ -104,34 +124,74 @@ void APlotGenerator::GetPlotFromReportLog() {
 
 			vector<string> plotCandidates = plotDictionary.GetPlotsOfType(currentReport->GetType());
 
-			// A random plot from the given type is elected
-			int randType = rand() % plotCandidates.size();
-			string plot = plotCandidates[randType];
+			bool plotIsValid = false;
 			BasePlot* newPlot;
 
-			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, currentReport->GetReportEntity()->GetOwner()->GetActorLabel());
-			//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green, currentReport->GetTargetEntity()->GetOwner()->GetActorLabel());
-			if (plot == strings.ATTACK_PLOT) {
-				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity());
-				if (!newPlot->GetIsExclusive()) {
-					for (UOEntity* entity : WeHaveALotInCommon(currentReport))
-						newPlot->AddInvolvedInPlot(entity);
+			while (!plotIsValid) {
+
+				int randType = rand() % plotCandidates.size();
+				string plot = plotCandidates[randType];
+
+				if (plot == strings.ATTACK_PLOT) {
+					newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
+
+					plotIsValid = ValidateAttackPlot((AttackPlot*) newPlot);
+
+					if (plotIsValid) {
+						newPlot->InitPlot();
+						currentReport->GetReportEntity()->ChangeNotoriety(3);
+						currentReport->GetTargetEntity()->ChangeNotoriety(2);
+
+						if (!newPlot->GetIsExclusive()) {
+							for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
+								newPlot->AddInvolvedInPlot(entity);
+								entity->ChangeNotoriety(1);
+							}
+						}
+						newPlot->BuildSentence();
+						reactivePlots.push_back(newPlot);
+					}
+
+					else plotCandidates.erase(plotCandidates.begin() + randType);
 				}
-				reactivePlots.push_back(newPlot);
+
+				else if (plot == strings.DESTROY_PLOT) {
+					newPlot = new DestroyPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
+					plotIsValid = ValidateDestroyPlot((DestroyPlot*)newPlot);	
+
+					if (plotIsValid) {
+						newPlot->InitPlot();
+						currentReport->GetReportEntity()->ChangeNotoriety(3);
+						currentReport->GetTargetEntity()->ChangeNotoriety(2);
+
+						if (!newPlot->GetIsExclusive()) {
+							for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
+								newPlot->AddInvolvedInPlot(entity);
+								entity->ChangeNotoriety(1);
+							}
+						}
+						newPlot->BuildSentence();
+						reactivePlots.push_back(newPlot);
+					}
+					else plotCandidates.erase(plotCandidates.begin() + randType);
+				}
+
+				if (plotCandidates.size() == 0)
+					break;
 			}
 		}
 	}
 }
 
 // Associates types of plots with plot identificators
-APlotGenerator::PlotDictionary::PlotDictionary() {
+PlotDictionary::PlotDictionary() {
 
-	_plotDictionary = { {BasePlot::TypeOfPlot::aggressive, {strings.ATTACK_PLOT, strings.DESTROY_PLOT}},
-	{ BasePlot::TypeOfPlot::resources, { strings.GATHER_PLOT } },
-	{ BasePlot::TypeOfPlot::possessive , { strings.ROBBERY_PLOT } } };
+	_plotDictionary = { {TypeOfPlot::aggressive, {strings.ATTACK_PLOT, strings.DESTROY_PLOT}},
+	{ TypeOfPlot::resources, { strings.GATHER_PLOT } },
+	{ TypeOfPlot::possessive , { strings.ROBBERY_PLOT } } };
 }
 
-vector<string> APlotGenerator::PlotDictionary::GetPlotsOfType(BasePlot::TypeOfPlot type)
+vector<string> PlotDictionary::GetPlotsOfType(TypeOfPlot type)
 {
 	return _plotDictionary.at(type);
 }
@@ -149,7 +209,6 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 		if (_pReportLog[i]->GetTag() == tag && tag == Report::ReportTag::ownership) {
 			if ( _pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetOwnable() == report->GetTargetOwnable()) {
-				//if(_pReportLog[i]->GetReportEntity()->GetStat
 					helpers.push_back(_pReportLog[i]->GetReportEntity());
 				_pReportLog.RemoveAt(i);
 			}
@@ -166,3 +225,55 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 	return helpers;
 }
+
+bool APlotGenerator::ValidateAttackPlot(AttackPlot * plot)
+{
+	return true;
+}
+
+bool APlotGenerator::ValidateDestroyPlot(DestroyPlot * plot)
+{
+	bool ownsEdification = false;
+
+	for (OOwnership* o : plot->GetTargetEntity()->GetPossessions()) {
+
+		if (o->GetOwnable()->IsA<UOEdification>()) {
+			ownsEdification = true;
+			break;
+		}
+	}
+	return ownsEdification;
+}
+
+
+vector<UOEntity*> APlotGenerator::SpawnEntities(int num, ERace race) {
+
+	FActorSpawnParameters SpawnParams;
+	vector<UOEntity*> spawnedHeard;
+
+	switch (race) {
+		case ERace::R_Bear: {
+
+			for (int i = 0; i < num; i++) {
+				ACharacter* creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Bear, GetActorLocation() + RandomDisplacementVector(1000), GetActorRotation(), SpawnParams);
+				
+				if (creatureToSpawn) {
+					float scale = rand() % 10 + 6;
+					creatureToSpawn->SetActorScale3D(FVector(scale / 10, scale / 10, scale / 10));
+					spawnedHeard.push_back(creatureToSpawn->FindComponentByClass<UOEntity>());
+				}
+			}
+		}
+	}
+
+	return spawnedHeard;
+}
+
+FVector APlotGenerator::RandomDisplacementVector(int radius)
+{
+	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
+}
+
+
+
+
