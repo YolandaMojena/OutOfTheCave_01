@@ -6,6 +6,9 @@
 FString Utilities::SavePath = FPaths::GameDir() + "SavedFiles/";
 FString Utilities::PlotFile = "PlotReport.txt";
 FString Utilities::ReportFile = "ReportReport.txt";
+FString Utilities::goblinPath = "OOTC_goblinNames.txt";
+FString Utilities::femaleHumanPath = "OOTC_femaleNames.txt";
+FString  Utilities::maleHumanPath = "OOTC_maleNames.txt";
 
 Utilities::Utilities()
 {

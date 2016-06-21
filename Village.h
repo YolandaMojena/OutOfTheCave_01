@@ -5,6 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "Ontology/OEdification.h"
 #include <vector>
+#include "NarrativeGeneration/Utilities.h"
 #include "Village.generated.h"
 
 
@@ -24,4 +25,15 @@ public:
 		int32 villageID;
 
 	vector<UOEdification*> edifications;
+
+	FString AssignFemaleHumanName();
+	FString AssignMaleHumanName();
+	FString AssignGoblinName();
+
+private:
+
+	TArray<FString> _goblinNames;
+	TArray<FString> _maleHumanNames;
+	TArray<FString> _femaleHumanNames;
+
 };

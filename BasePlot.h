@@ -38,13 +38,14 @@ public:
 	void AbortPlot(const FString path, const FString fileName);
 
 	virtual void BuildSentence() = 0;
-	virtual bool ValidatePlot() = 0;
+	//virtual bool ValidatePlot() = 0;
+	virtual void InitPlot() = 0;
 
 	Graph GetGraph();
 	UOEntity* GetMainEntity();
 	vector<UOEntity*> GetInvolvedInPlot();
 	bool GetIsExclusive();
-	bool GetPlotIsValid();
+	//bool GetPlotIsValid();
 
 
 protected:

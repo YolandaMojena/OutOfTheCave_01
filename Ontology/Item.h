@@ -63,7 +63,7 @@ public:
 
 		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		FString UName;
+		FString _name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _density;
 
@@ -132,6 +132,9 @@ public:
 	float GetEdgeLength();
 	float GetSpiky();
 	float GetSpikes();
+	FString GetName();
+
+	void SetName(FString name);
 
 
 protected:

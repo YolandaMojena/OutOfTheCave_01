@@ -31,8 +31,13 @@ void UOEntity::BeginPlay() {
 void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
 
+	if (_currentPlots.size() > 0 && _currentState == State::idle) {
+		
+		//Start Plot
+		_plotGenerator->ChangeCurrentPlotsInAction(1);
+	}
+}
 
 
 // G E T T E R S
@@ -82,14 +87,6 @@ void UOEntity::SetRace(ERace race)
 {
 	const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ERace"), true);
 	if(EnumPtr) _raceName = EnumPtr->GetEnumName((int32)race);
-}
-
-FString UOEntity::GetEntityName() {
-	return _entityName;
-}
-void UOEntity::SetEntityName(const FString name) {
-	_entityName = name;
-	GetOwner()->SetActorLabel(name);
 }
 
 
@@ -455,6 +452,7 @@ void UOEntity::NodeCompleted(bool completedOk) {
 					e->SetMainPlotEntity(nullptr);
 				_mainPlotEntity = nullptr;
 				_currentPlots.erase(_currentPlots.begin());
+				_plotGenerator->ChangeCurrentPlotsInAction(-1);
 			}
 			SetState(State::idle);
 		}

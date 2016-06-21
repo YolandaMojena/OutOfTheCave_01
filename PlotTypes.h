@@ -11,6 +11,7 @@ using namespace std;
 class UOEntity;
 class UOOwnable;
 class UOEdification;
+class APlotGenerator;
 
 
 //ATTACK PLOT
@@ -23,7 +24,9 @@ public:
 	~AttackPlot();
 
 	void BuildSentence();
-	bool ValidatePlot();
+	//bool ValidatePlot();
+	UOEntity* GetTargetEntity();
+	void InitPlot();
 
 private:
 
@@ -44,7 +47,9 @@ public:
 	~DestroyPlot();
 
 	void BuildSentence();
-	bool ValidatePlot();
+	//bool ValidatePlot();
+	UOEntity* GetTargetEntity();
+	void InitPlot();
 
 private:
 
@@ -61,21 +66,25 @@ private:
 class OUTOFTHECAVE_01_API Stampede: public BasePlot
 {
 public:
-	Stampede(ERace race, FVector spawnLocation, FVector targetLocation, int num);
+	Stampede(FString race, FVector spawnLocation, FVector targetLocation, vector<UOEntity*> heard);
+	Stampede(FString race, FVector spawnLocation, UOEntity* targetActor, vector<UOEntity*> heard);
 	~Stampede();
 
 	void BuildSentence();
-	bool ValidatePlot();
+	//bool ValidatePlot();
+	void InitPlot();
+
 
 private:
 
 	void BuildGraph();
 	void ConsiderReactions();
-
-	ERace _raceToSpawn;
+	FString _race;
 	FVector _spawnLocation;
 	FVector _targetLocation;
-	int _num;
+	UOEntity* _targetActor;
+
+	vector<UOEntity*> _heard;
 };
 
 

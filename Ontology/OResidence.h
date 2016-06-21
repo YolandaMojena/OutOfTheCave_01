@@ -59,22 +59,9 @@ private:
 
 	FVector UOResidence::RandomDisplacementVector(int radius);
 
-	FString AssignFemaleHumanName();
-	FString AssignMaleHumanName();
-	FString AssignGoblinName();
-
 	TSubclassOf<class ACharacter> BP_Civilian_Goblin;
 	TSubclassOf<class ACharacter> BP_Civilian_Human_Male;
 	TSubclassOf<class ACharacter> BP_Civilian_Human_Female;
 
 	vector<UOEntity*> _inside;
-
-	TArray<FString> _goblinNames;
-	TArray<FString> _maleHumanNames;
-	TArray<FString> _femaleHumanNames;
-
-	const FString _savedPath = FPaths::GameDir() + "SavedFiles/"/*"C:\\Users\\Yolanda\\Desktop\\SavedFiles\\"*/;
-	const FString _goblinPath = "OOTC_goblinNames.txt";
-	const FString _femaleHumanPath = "OOTC_femaleNames.txt";
-	const FString _maleHumanPath = "OOTC_maleNames.txt";
 };

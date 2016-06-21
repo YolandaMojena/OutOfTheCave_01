@@ -56,9 +56,6 @@ public:
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
-		FString _entityName;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
 		bool _isEntityAttacking;
 
@@ -111,8 +108,6 @@ public:
 	APlotGenerator* GetPlotGenerator();
 	FString GetRace();
 	void SetRace(ERace race);
-	void SetEntityName(const FString name);
-	FString GetEntityName();
 
 	void SetAIController(AEntityAIController* eaic);
 	void ExecuteGraph();

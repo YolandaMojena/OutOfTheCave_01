@@ -6,10 +6,12 @@
 
 BasePlot::BasePlot(UOEntity* plotEntity) {
 
-	this->_plotEntity = plotEntity;
+	_plotEntity = plotEntity;
 }
 
-BasePlot::BasePlot() {}
+BasePlot::BasePlot() {
+
+}
 
 BasePlot::~BasePlot() {}
 
@@ -52,6 +54,6 @@ bool BasePlot::GetIsExclusive() {
 	return _isExclusive;
 }
 
-bool BasePlot::GetPlotIsValid() {
+/*bool BasePlot::GetPlotIsValid() {
 	return _isPlotValid;
-}
+}*/

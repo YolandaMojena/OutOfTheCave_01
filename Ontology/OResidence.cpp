@@ -26,10 +26,6 @@ UOResidence::UOResidence() {
 	if (FemaleBlueprint.Object) {
 		BP_Civilian_Human_Female = (UClass*)FemaleBlueprint.Object->GeneratedClass;
 	}
-
-	_goblinNames = Utilities::ReadFileToVector(_savedPath, _goblinPath);
-	_femaleHumanNames = Utilities::ReadFileToVector(_savedPath, _femaleHumanPath);
-	_maleHumanNames = Utilities::ReadFileToVector(/*FPaths::GameDir() + */_savedPath, _maleHumanPath);
 }
 
 UOResidence::~UOResidence() {
@@ -100,7 +96,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Male, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
 			UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
 			if (entityComp) {
-				entityComp->SetEntityName(AssignMaleHumanName());
+				entityComp->SetName(_village->AssignMaleHumanName());
 				entityComp->SetRace(race);
 			}
 				
@@ -109,7 +105,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Female, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
 			UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
 			if (entityComp) {
-				entityComp->SetEntityName(AssignFemaleHumanName());
+				entityComp->SetName(_village->AssignFemaleHumanName());
 				entityComp->SetRace(race);
 			}		
 		}
@@ -120,7 +116,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
 		UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
 		if (entityComp) {
-			entityComp->SetEntityName(AssignGoblinName());
+			entityComp->SetName(_village->AssignGoblinName());
 			entityComp->SetRace(race);
 		}
 	}
@@ -246,34 +242,4 @@ void UOResidence::IWantToGetOut(UOEntity* e) {
 
 FVector UOResidence::RandomDisplacementVector(int radius){
 	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
-}
-
-FString UOResidence::AssignFemaleHumanName() {
-
-	FString name;
-	if (_femaleHumanNames.Num() > 0) {
-		name = _femaleHumanNames[rand() % _femaleHumanNames.Num()];
-		_femaleHumanNames.Remove(name);
-	}
-	return name;
-}
-FString UOResidence::AssignMaleHumanName() {
-
-	FString name;
-	if (_maleHumanNames.Num() > 0) {
-		name = _maleHumanNames[rand() % _maleHumanNames.Num()];
-		_maleHumanNames.Remove(name);
-	}
-	return name;
-
-}
-FString UOResidence::AssignGoblinName() {
-
-	FString name;
-	if (_goblinNames.Num() > 0) {
-		name = _goblinNames[rand() % _goblinNames.Num()];
-		_goblinNames.Remove(name);
-	}
-	return name;
-
 }

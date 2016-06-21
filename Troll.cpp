@@ -65,7 +65,7 @@ void ATroll::BeginPlay()
 	Super::BeginPlay();
 
 	_myEntityComp = FindComponentByClass<UOEntity>();
-	_myEntityComp->SetEntityName("Troll");
+	_myEntityComp->SetName("Troll");
 	_myEntityComp->SetRace(ERace::R_Troll);
 }
 
@@ -174,8 +174,8 @@ void ATroll::PickUpMain() {
 
 	if (!_equipedMain) {
 
-		FVector Start = GetActorLocation() - FVector(0, 0, GetActorLocation().Z + _PICK_UP_RADIO) + GetActorRotation().Vector() * _PICK_UP_RADIO;
-		FVector End = Start + FVector(0, 0, _PICK_UP_RADIO * 2);
+		FVector Start = GetActorLocation() /*- FVector(0, 0, GetActorLocation().Z + _PICK_UP_RADIO) + GetActorRotation().Vector() * _PICK_UP_RADIO*/;
+		FVector End = Start + /*FVector(0, 0, _PICK_UP_RADIO * 2)*/ GetActorRotation().Vector() * _PICK_UP_RADIO *2;
 		FHitResult HitData(ForceInit);
 
 		FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
@@ -248,8 +248,8 @@ void ATroll::PickUpSecondary() {
 
 	if (!_equipedSecondary) {
 
-		FVector Start = GetActorLocation() - FVector(0, 0, GetActorLocation().Z + _PICK_UP_RADIO) + GetActorRotation().Vector() * _PICK_UP_RADIO;
-		FVector End = Start + FVector(0, 0, _PICK_UP_RADIO * 2);
+		FVector Start = GetActorLocation() /*- FVector(0, 0, GetActorLocation().Z + _PICK_UP_RADIO) + GetActorRotation().Vector() * _PICK_UP_RADIO*/;
+		FVector End = Start + /*FVector(0, 0, _PICK_UP_RADIO * 2)*/ GetActorRotation().Vector() * _PICK_UP_RADIO * 2;
 		FHitResult HitData(ForceInit);
 
 		FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);

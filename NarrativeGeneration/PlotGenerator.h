@@ -40,6 +40,7 @@ public:
 
 	void AddReportToLog(Report* newReport);
 	bool ValidateReport(Report* report);
+	void ChangeCurrentPlotsInAction(int dif);
 
 	PlotDictionary plotDictionary;
 
@@ -53,15 +54,23 @@ private:
 	bool ContainsReport(Report* newReport);
 	void GetPlotFromReportLog();
 	vector<UOEntity*> WeHaveALotInCommon(Report* report);
+	vector<UOEntity*> SpawnEntities(int num, ERace race);
+	FVector RandomDisplacementVector(int radius);
 
 	TArray<Report*> _pReportLog;
 	bool _lastPlotCompleted = true;
 	float _timeToSpawnPlot;
+	int _currentPlotsInAction;
+	TSubclassOf<class ACharacter> BP_Bear;
 
 	const float _TIME_TO_SPAWN = 25.0f;
 	const FString SavePath = FPaths::GameDir() + "SavedFiles/";
 	const FString PlotFile = "PlotReport.txt";
 	const FString ReportFile = "ReportReport.txt";
+
+	bool ValidateAttackPlot(AttackPlot* plot);
+	//bool ValidateBuildPlot(BuildPlot* build);
+	bool ValidateDestroyPlot(DestroyPlot* plot);
 };
 
 

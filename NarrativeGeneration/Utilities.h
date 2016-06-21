@@ -25,5 +25,9 @@ public:
 	static FString PlotFile;
 	static FString ReportFile;
 
+	static FString goblinPath;
+	static FString femaleHumanPath;
+	static FString maleHumanPath;
+
 
 };

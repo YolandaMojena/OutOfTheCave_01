@@ -4,6 +4,7 @@
 #include "StringCollection.h"
 #include "Ontology/OEntity.h"
 #include "Ontology/OOwnable.h"
+#include "NarrativeGeneration/PlotGenerator.h"
 #include "Ontology/OEdification.h"
 #include "PlotTypes.h"
 
@@ -16,13 +17,6 @@ AttackPlot::AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* moti
 	_targetEntity = targetEntity;
 	_isExclusive = false;
 	_motivation = motivation;
-
-	// Check necessary conditions for the plot to be executed
-	_isPlotValid = ValidatePlot();
-	if (_isPlotValid) {
-		_identifier = "Attack " + targetEntity->GetEntityName();
-		BuildGraph();
-	}
 }
 
 AttackPlot::~AttackPlot() {}
@@ -31,29 +25,24 @@ void AttackPlot::BuildSentence() {
 
 	_sentence += _identifier + ":\n\n";
 
-	_sentence += "The brave, yet aggressive, " + _plotEntity->GetRace() + " " + _plotEntity->GetEntityName()
+	_sentence += "The brave, yet aggressive, " + _plotEntity->GetRace() + " " + _plotEntity->GetName()
 		+ " has began an attack against the despicable " + _targetEntity->GetRace() + " "
-		+ _targetEntity->GetEntityName() + ", who ";
+		+ _targetEntity->GetName() + ", who ";
 		_sentence += _motivation->IsA<UOEntity>() ?
-		" hurt his friend " + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetEntityName()
-		: " damaged his " + _motivation->GetOwner()->GetActorLabel();
+		"hurt his friend " + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetName()
+		: "damaged his " + _motivation->GetOwner()->GetActorLabel();
 
 		_sentence += ". He counts with the help of ";
 
 	if (_involvedInPlot.size() > 0) {
 		for (int i = 0; i < _involvedInPlot.size(); i++) {
-			_sentence += _involvedInPlot[i]->GetEntityName();
+			_sentence += _involvedInPlot[i]->GetName();
 			if (i <= _involvedInPlot.size() - 1)
 				_sentence += ", ";
 		}
 		_sentence += " and ";
 	}
 	_sentence += "some allies. .\n\n\n";
-}
-
-bool AttackPlot::ValidatePlot() {
-
-	return true;
 }
 
 void AttackPlot::BuildGraph() {
@@ -90,8 +79,18 @@ void AttackPlot::BuildGraph() {
 	_plotGraph.AddNode(attackNode);
 }
 
+void AttackPlot::InitPlot() {
+
+	_identifier = "Attack " + _targetEntity->GetName() + "\n";
+	BuildGraph();
+}
+
 
 void AttackPlot::ConsiderReactions() {
+}
+
+UOEntity* AttackPlot::GetTargetEntity() {
+	return _targetEntity;
 }
 
 //DESTROY PLOT
@@ -102,59 +101,36 @@ DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* mo
 	_targetEntity = targetEntity;
 	_isExclusive = false;
 	_motivation = motivation;
-
-	for (OOwnership* o : _targetEntity->GetPossessions()) {
-
-		if (dynamic_cast<UOEdification*>(o->GetOwnable())) {
-			_targetOwnable = o->GetOwnable();
-			break;
-		}
-	}
-
-	// Check necessary conditions for the plot to be executed
-	_isPlotValid = ValidatePlot();
-	if (_isPlotValid) {
-		_identifier = "Destroy " + _targetOwnable->GetOwner()->GetActorLabel();
-		BuildGraph();
-	}
 }
 
 DestroyPlot::~DestroyPlot() {}
-
-bool DestroyPlot::ValidatePlot() {
-
-	if (!_targetOwnable)
-		return false;
-
-	return true;
-}
 
 void DestroyPlot::BuildSentence() {
 
 	_sentence += _identifier + ":\n\n";
 
-	_sentence += "The brave, yet aggressive, " + _plotEntity->GetRace() + " " + _plotEntity->GetEntityName()
+	_sentence += "The brave, yet aggressive, " + _plotEntity->GetRace() + " " + _plotEntity->GetName()
 		+ " has began to destroy the " + _targetOwnable->GetOwner()->GetActorLabel()  + " "
 		", which belongs to ";
 
 	if (_targetOwnable->GetOwners().size() > 0) {
 		for (int i = 0; i < _targetOwnable->GetOwners().size(); i++) {
-			_sentence += _targetOwnable->GetOwners()[i]->GetEntityName();
+			_sentence += _targetOwnable->GetOwners()[i]->GetName();
 			if (i <= _targetOwnable->GetOwners().size() - 1)
 				_sentence += ", ";
 			else _sentence += " and ";
 		}
 	}
-	_sentence += ", since " + _targetEntity->GetEntityName();
+	_sentence += ", since " + _targetEntity->GetName();
 	_sentence += _motivation->IsA<UOEntity>() ?
-		" hurt his friend" + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetEntityName()
+		" hurt his friend" + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetName()
 		: " damaged his " + _motivation->GetOwner()->GetActorLabel();
 
 	_sentence += " He counts with the help of ";
 
 	if (_involvedInPlot.size() > 0) {
 		for (int i = 0; i < _involvedInPlot.size(); i++) {
-			_sentence += _involvedInPlot[i]->GetEntityName();
+			_sentence += _involvedInPlot[i]->GetName();
 			if (i <= _involvedInPlot.size() - 1)
 				_sentence += ", ";
 		}
@@ -195,45 +171,88 @@ void DestroyPlot::BuildGraph() {
 	_plotGraph.AddNode(destroyNode);
 }
 
+void DestroyPlot::InitPlot() {
+
+	for (OOwnership* o : _targetEntity->GetPossessions()) {
+
+		if (dynamic_cast<UOEdification*>(o->GetOwnable())) {
+			_targetOwnable = o->GetOwnable();
+			break;
+		}
+	}
+
+	_identifier = "Destroy " + _targetOwnable->GetOwner()->GetActorLabel() + "\n";;
+	BuildGraph();
+}
+
 
 void DestroyPlot::ConsiderReactions() {
+}
+
+UOEntity* DestroyPlot::GetTargetEntity() {
+	return _targetEntity;
 }
 
 //STAMPEDE
 //*************************************************************************************
 
-Stampede::Stampede(ERace race, FVector spawnLocation, FVector targetLocation, int num) : BasePlot() {
+Stampede::Stampede(FString race, FVector spawnLocation, FVector targetLocation, vector<UOEntity*> heard)  {
 
-	_raceToSpawn = race;
+	_race = race;
 	_spawnLocation = spawnLocation;
 	_targetLocation = targetLocation;
-	_num = num;
-
+	_heard = heard;
 }
 
-Stampede::~Stampede() {
+Stampede::Stampede(FString race, FVector spawnLocation, UOEntity* targetActor, vector<UOEntity*> heard) {
 
+	_race = race;
+	_spawnLocation = spawnLocation;
+	_targetActor = targetActor;
+	_heard = heard;
 }
 
-bool Stampede::ValidatePlot() {
-
-	return true;
-}
+Stampede::~Stampede() {}
 
 void Stampede::BuildSentence() {
 
-	_sentence = "A stampede is approaching!";
-
+	_sentence = "A stampede of " + _race + "s is approaching!";
 }
 
 void Stampede::BuildGraph() {
 
 	_plotGraph = Graph();
+
+	//GO TO LOCATION
+	Node* goToNode = new Node();
+	goToNode->SetNodeType(NodeType::goToItem);
+	goToNode->SetActorA(_targetActor->GetOwner());
+	_plotGraph.AddNode(goToNode);
+
+	//RETURN TO LOCATION
+	/*goToNode = new Node();
+	goToNode->SetNodeType(NodeType::goTo);
+	goToNode->SetPosition(_spawnLocation);
+	_plotGraph.AddNode(goToNode);*/
+}
+
+void Stampede::InitPlot() {
+
+	_identifier = "Stampede plot\n";
+	BuildGraph();
+
+	for (int i = 0; i < _heard.size(); i++) {
+
+		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "bear");
+		_heard[i]->SetIdleGraph(&_plotGraph);
+		_heard[i]->SetState(UOEntity::State::idle);
+	}
+
+	BuildSentence();
 }
 
 
-void Stampede::ConsiderReactions() {
-}
+void Stampede::ConsiderReactions() {}
 
 
 //GATHER PLOT
