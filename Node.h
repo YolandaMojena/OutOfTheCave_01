@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Ontology/OntologicFunctions.h"
 #include <vector>
 #include <string>
 
@@ -51,9 +52,8 @@ public:
 		UOEntity* entityB;
 		AActor* actorA;
 		UOOwnable* ownable;
-		string arquetypeObject;
+		OntologicFunctions::AffordableUse affordableUse;
 		UOEdification* edification;
-		UOGrabbable* grabbable;
 		FVector position;
 		float daytime = -1.0f;
 		bool branch;
@@ -67,14 +67,14 @@ public:
 	void NodeCompleted(bool completedOk);
 
 	// Allows nullptr if a value is not required
-	void PopulateBlackboard(UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr);
-	void PopulateBlackboard(FVector position, UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr);
+	//void PopulateBlackboard(UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr);
+	//void PopulateBlackboard(FVector position, UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr);
 
 	void SetEntityA(UOEntity* e); //TBI
 	void SetEntityB(UOEntity* e); //TBI
 	void SetActorA(AActor* a); //TBI
 	void SetOwnable(UOOwnable* o); //TBI
-	void SetArquetypeObject(string s); //TBI
+	void SetAffordableUse(OntologicFunctions::AffordableUse au);
 	void SetEdification(UOEdification* edf);
 	void SetGrabbable(UOGrabbable* grb);
 	void SetPosition(FVector v);

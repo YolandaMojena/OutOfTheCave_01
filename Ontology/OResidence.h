@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Ontology/OEdification.h"
+#include "Ontology/OntologicFunctions.h"
 #include <vector>
 #include <cstdlib>
 #include <time.h> 

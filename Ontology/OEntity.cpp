@@ -12,10 +12,12 @@
 
 UOEntity::UOEntity() {
 	_personality = new OPersonality();
+	HitFunc.BindUFunction(this, "OnOverlapBegin");
 }
 
 UOEntity::UOEntity(OPersonality* personality) {
 	_personality = personality;
+	HitFunc.BindUFunction(this, "OnOverlapBegin");
 }
 
 void UOEntity::BeginPlay() {
@@ -73,6 +75,13 @@ UOEntity* UOEntity::GetMainPlotEntity() {
 
 int UOEntity::GetStrength() {
 	return _strength;
+}
+
+UItem* UOEntity::GetGrabbedItem() {
+	return _grabbedItem;
+}
+bool UOEntity::HasGrabbedItem() {
+	return _grabbedItem != nullptr;
 }
 
 /*Graph* UOEntity::GetBrain() {
@@ -514,3 +523,36 @@ void UOEntity::SetIsEntityAttacking(bool attacking) {
 	_isEntityAttacking = attacking;
 }
 
+void UOEntity::GrabItem(UItem* item) {
+	if (GetStrength() / 2.0f >= item->GetMass()) { // should this block be managed on UOEntity::GrabItem()?
+		if (HasGrabbedItem()) {
+			if (item->IsA<UOOwnable>())
+				StoreInInventory((UOOwnable*)item);
+			else
+				ReleaseGrabbedItem();
+		}
+	}
+	_grabbedItem = item;
+	AActor* grabbedItemActor = _grabbedItem->GetOwner();
+	grabbedItemActor->SetActorEnableCollision(false);
+	AttachToSocket(grabbedItemActor, "RightHandSocket");
+	grabbedItemActor->OnActorBeginOverlap.Add(HitFunc);
+}
+
+void UOEntity::ReleaseGrabbedItem() {
+	AActor* grabbedItemActor = _grabbedItem->GetOwner();
+	//dejar
+	grabbedItemActor->OnActorBeginOverlap.Remove(HitFunc);
+	grabbedItemActor->DetachRootComponentFromParent(true);
+	grabbedItemActor->SetActorEnableCollision(true);
+}
+
+void UOEntity::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
+}
+
+void UOEntity::AttachToSocket(AActor* target, string socket) {
+
+	if (((ACharacter*)GetOwner())->GetMesh()->DoesSocketExist(socket.c_str()))
+		target->AttachRootComponentTo(((ACharacter*)GetOwner())->GetMesh(), socket.c_str(), EAttachLocation::SnapToTarget, true);
+	else GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Trying to Attach to non-existing socket"));
+}

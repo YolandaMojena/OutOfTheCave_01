@@ -18,6 +18,11 @@ UItem::UItem()
 	// ...
 }
 
+UItem::~UItem()
+{
+	
+}
+
 
 // Called when the game starts
 void UItem::BeginPlay()

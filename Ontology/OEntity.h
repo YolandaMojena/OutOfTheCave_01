@@ -133,6 +133,16 @@ public:
 	void Attack();
 	bool GetIsEntityAttacking();
 	void SetIsEntityAttacking(bool attacking);
+
+	void GrabItem(UItem* item);
+	UItem* GetGrabbedItem();
+	bool HasGrabbedItem();
+	void ReleaseGrabbedItem();
+	TScriptDelegate<FWeakObjectPtr> HitFunc;
+	void AttachToSocket(AActor* target, string socket);
+	UFUNCTION()
+		void OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	
 
 	float _currentTime = 10;
