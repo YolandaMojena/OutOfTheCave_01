@@ -25,6 +25,7 @@ void UOEntity::BeginPlay() {
 	Super::BeginPlay();
 	
 	if (!IsPlayer) {
+		//((ACharacter*)GetOwner())->GetMesh()->SetAllBodiesBelowSimulatePhysics(((ACharacter*)GetOwner())->GetMesh()->GetBoneName(1), true);
 		for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
 			_plotGenerator = *Itr;
 	}

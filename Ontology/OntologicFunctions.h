@@ -72,6 +72,7 @@ private:
 	int LinearGrowth(int x, int m);
 	int ExponentialGrowth(int x, int m);
 
+	int HyperbolicDecay(int x, int m, int n);
 	int HyperbolicDecay(int x, int m);
 	int LinearDecay(int x, int m);
 	int ExponentialDecay(int x, int m);

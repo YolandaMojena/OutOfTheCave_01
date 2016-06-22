@@ -44,7 +44,7 @@ int OntologicFunctions::GetAffordance(AffordableUse au, UItem* i) {
 }
 
 int OntologicFunctions::UseAsWeapon(UItem* i) {
-	int nfactors = 3;
+	int nfactors = 4;
 	/*return ThresholdValue(ExponentialGrowth(i->GetToughness()))
 		* (ThresholdValue(LinearGrowth(i->GetAngularMomentumTransmission())) * ThresholdValue(HyperbolicGrowth(i->GetMass(), 5)) / (pow(100,2-1))
 			+ ThresholdValue(LinearGrowth(i->GetAngularInertia())) * ThresholdValue(HyperbolicDecay(i->GetMass(), 2))) / (pow(100, 2 - 1))
@@ -53,19 +53,21 @@ int OntologicFunctions::UseAsWeapon(UItem* i) {
 		/ (pow(100, nfactors - 1));*/
 
 	int term1 = ThresholdValue(ExponentialGrowth(i->GetToughness()));
-	int term2 = (ThresholdValue(LinearGrowth(i->GetAngularMomentumTransmission())) * ThresholdValue(HyperbolicGrowth(i->GetMass(), 5)) / (pow(100, 2 - 1))
-		+ ThresholdValue(HyperbolicDecay(i->GetAngularInertia(), 10)) * ThresholdValue(HyperbolicDecay(i->GetMass(), 2))) / (pow(100, 2 - 1));
-	int term3 = (ThresholdValue(LinearGrowth(i->GetElongation()))
-		+ (ThresholdValue(ExponentialGrowth(i->GetEdgeSharpness())) * ThresholdValue(HyperbolicGrowth(i->GetEdgeLength()))) / (pow(100, 2 - 1))
-		+ ThresholdValue(ExponentialGrowth(i->GetSpiky())));
+	int term2 = (ThresholdValue(LinearGrowth(i->GetAngularMomentumTransmission())) * ThresholdValue(HyperbolicGrowth(i->GetMass(), 7)) / (pow(100, 2 - 1))
+		+ ThresholdValue(HyperbolicDecay(i->GetAngularInertia(), 10)) * ThresholdValue(HyperbolicDecay(i->GetMass(), 2)) / (pow(100, 2 - 1)));
+	int term3 = ThresholdValue(LinearGrowth(i->GetElongation()));
+	int term4 = (ThresholdValue(ExponentialGrowth(i->GetEdgeSharpness())) * ThresholdValue(HyperbolicGrowth(i->GetEdgeLength()))) / (pow(100, 2 - 1))
+		+ ThresholdValue(ExponentialGrowth(i->GetSpiky()));
 
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   mass decay: ") + FString::SanitizeFloat(ThresholdValue(HyperbolicDecay(i->GetMass(), 2))));
+	int result = ThresholdValue(term1) * ThresholdValue(term2) * ThresholdValue(term3) * ThresholdValue(term4) / (pow(100, nfactors - 1));
+
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   score: ") + FString::SanitizeFloat(result));
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 4: ") + FString::SanitizeFloat(term4));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 3: ") + FString::SanitizeFloat(term3));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 2: ") + FString::SanitizeFloat(term2));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 1: ") + FString::SanitizeFloat(term1));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("Evaluating: ") + i->GetName());
 
-	int result = term1 * term2 * term3 / (pow(100, nfactors - 1));
 	return result;
 
 }
@@ -75,18 +77,19 @@ int OntologicFunctions::Pierce(UItem* i) {
 int OntologicFunctions::UseAsCultivator(UItem* i){
 	int nfactors = 4;
 	int term1 = ThresholdValue(LinearGrowth(i->GetToughness(), 80));
-	int term2 = ThresholdValue(LinearGrowth(i->GetElongation(), 1406));
+	int term2 = ThresholdValue(LinearGrowth(i->GetElongation(), 1200));
 	int term3 = (ThresholdValue(HyperbolicGrowth(i->GetEdgeSharpness(), 80)) * ExponentialEqualization(i->GetEdgeLength(), 20) / pow(100, (2 - 1)))
 		+ ThresholdValue(ExponentialGrowth(i->GetSpikes(), 6));
 	int term4 = ThresholdValue(ExponentialDecay(i->GetMass(), 3));
 	
-	/*GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 4: ") + FString::SanitizeFloat(term4));
+	int result = term1 * term2 * term3 * term4 / (pow(100, nfactors - 1));
+
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   score: ") + FString::SanitizeFloat(result));
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 4: ") + FString::SanitizeFloat(term4));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 3: ") + FString::SanitizeFloat(term3));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 2: ") + FString::SanitizeFloat(term2));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 1: ") + FString::SanitizeFloat(term1));
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("Evaluating: ") + i->GetName());*/
-
-	int result = term1 * term2 * term3 * term4 / (pow(100, nfactors - 1));
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("Evaluating: ") + i->GetName());
 
 	return result;
 
@@ -140,19 +143,32 @@ int OntologicFunctions::ExponentialGrowth(int x, int m) {
 
 
 // DECAY
+int OntologicFunctions::HyperbolicDecay(int x, int m, int n) {
+	if (m < n)
+		return BotThresholdValue((int)((-1.0f / (((float)-x + (float)n) / (((float)n- (float)m) / 1.5f) + 1.0f) + 1.0f) * 0.6f * 277.777778f));
+
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("FUCK THIS HYPERBOLIC DECAY SHIT"));
+	return -1;
+}
 int OntologicFunctions::HyperbolicDecay(int x, int m) {
 	//return (int)((-1.0f / (((float)-x + 2.0f*(float)m) / ((float)m / 1.5f) + 1.0f) + 1.0f) * 0.6f * 100);
-	return BotThresholdValue(HyperbolicGrowth(-x + 2 * m, m));
+	//return BotThresholdValue(HyperbolicGrowth(-x + 2 * m, m));
+	/*if(m < 100.f)
+		return BotThresholdValue((int)((-1.0f / (((float)-x + 100.f)/ ((100.f - m) / 1.5f) + 1.0f) + 1.0f) * 0.6f * 277.777778f));
+	
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("FUCK THIS HYPERBOLIC DECAY SHIT"));
+	return -1;*/
+	return HyperbolicDecay(x, m, 2 * m);
 }
 int OntologicFunctions::LinearDecay(int x, int m) {
 	return BotThresholdValue(LinearGrowth(-x + 2 * m, m));
 }
 int OntologicFunctions::ExponentialDecay(int x, int m) {
-	return (int)(pow((float)LinearDecay(x, m), 2.0f) / 100.0f);
+	return BotThresholdValue((int)(pow((float)LinearDecay(x, m), 2.0f) / 100.0f));
 }
 
 int OntologicFunctions::HyperbolicDecay(int x) {
-	return HyperbolicDecay(x, 100);
+	return HyperbolicDecay(x, 0, 100);
 }
 int OntologicFunctions::LinearDecay(int x) {
 	return LinearDecay(x, 100);

@@ -175,7 +175,7 @@ Graph* UOResidence::GenerateIdleFromJob() {
 		idleGraph->AddNode(n);
 		//MAÑANA
 		n = new Node();
-		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::weapon); n->SetDaytime(13);
+		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::cultivator); n->SetDaytime(13);
 		idleGraph->AddNode(n);
 		if (peasantField) {
 			n = new Node();
