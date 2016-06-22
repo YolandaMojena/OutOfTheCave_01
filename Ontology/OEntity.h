@@ -21,6 +21,7 @@ using namespace std;
 
 class ORelation;
 class OOwnership;
+class OEdification;
 class UOOwnable;
 class APlotGenerator;
 class Report;
@@ -58,6 +59,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
 		bool _isEntityAttacking;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
+		bool _isEntityBuilding;
 
 	// It must be considered whether if the entity is the player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
@@ -131,6 +135,8 @@ public:
 	bool RemoveFromInventory(int i);
 
 	void Attack();
+	void RebuildEdification(UOEdification* home);
+	void StopRebuildEdification();
 	bool GetIsEntityAttacking();
 	void SetIsEntityAttacking(bool attacking);
 	

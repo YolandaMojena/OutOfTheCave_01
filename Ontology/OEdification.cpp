@@ -41,12 +41,10 @@ void UOEdification::ReceiveDamage(float damage, UOEntity* damager) {
 
 		_integrity -= damage;
 		_attacker = damager;
-		//_canBeDamaged = false;
 
 		if (_integrity <= 0) {
-			_isDestroyed = true;
 			DestroyEdification();
-			//IHaveBeenDestroyedBySomeone(damager);
+			IHaveBeenDestroyedBySomeone(damager);
 		}
 	}
 }
@@ -102,26 +100,35 @@ void UOEdification::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 		}
 
 		relation->ChangeAppreciation(-ownership->GetWorth());
-		if (relation->GetAppreciation() <= relation->LOW_APPRECIATION)
-			o->SendReport(new Report(relation, TypeOfPlot::aggressive, this));
+		//if (relation->GetAppreciation() <= relation->LOW_APPRECIATION)
+			//o->SendReport(new Report(relation, TypeOfPlot::aggressive, this));
 
 		// NOTIFY ABSENSE OF HOME
-		//o->DeletePossession(this);
+		o->SendReport(new Report(ownership, TypeOfPlot::resources, damager));
+		
 	}
 }
 
 void UOEdification::DestroyEdification() {
 
+	_isDestroyed = true;
 	UParticleSystemComponent* part = GetOwner()->FindComponentByClass<UParticleSystemComponent>();
-
 	if (part) {
 		part->ActivateSystem();
 	}
 }
 
-bool UOEdification::RebuildEdification() {
+void UOEdification::RebuildEdification(float addedValue) {
 
-	return true;
+	_accumulatedTime += addedValue;
+
+	if (_accumulatedTime >= timeToRebuild) {
+
+		((ARebuildableEdification*)GetOwner())->RebuildEdification();
+		_isDestroyed = false;
+		_integrity = 100;
+		_accumulatedTime = 0;
+	}
 }
 
 

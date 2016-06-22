@@ -24,7 +24,6 @@ public:
 	~AttackPlot();
 
 	void BuildSentence();
-	//bool ValidatePlot();
 	UOEntity* GetTargetEntity();
 	void InitPlot();
 
@@ -47,7 +46,6 @@ public:
 	~DestroyPlot();
 
 	void BuildSentence();
-	//bool ValidatePlot();
 	UOEntity* GetTargetEntity();
 	void InitPlot();
 
@@ -56,7 +54,7 @@ private:
 	void BuildGraph();
 	void ConsiderReactions();
 
-	UOOwnable* _targetOwnable;
+	UOEdification* _targetEdification;
 	UOEntity* _targetEntity;
 };
 
@@ -66,25 +64,47 @@ private:
 class OUTOFTHECAVE_01_API Stampede: public BasePlot
 {
 public:
-	Stampede(FString race, FVector spawnLocation, FVector targetLocation, vector<UOEntity*> heard);
-	Stampede(FString race, FVector spawnLocation, UOEntity* targetActor, vector<UOEntity*> heard);
+	Stampede(ERace race, FVector spawnLocation, FVector targetLocation, float num, APlotGenerator* plotGenerator);
+	Stampede(ERace race, FVector spawnLocation, UOEntity* targetActor, float num, APlotGenerator* plotGenerator);
 	~Stampede();
 
 	void BuildSentence();
-	//bool ValidatePlot();
 	void InitPlot();
-
 
 private:
 
 	void BuildGraph();
 	void ConsiderReactions();
-	FString _race;
+	ERace _race;
+	FString _raceString;
 	FVector _spawnLocation;
 	FVector _targetLocation;
 	UOEntity* _targetActor;
-
+	APlotGenerator* _plotGenerator;
+	float _num;
 	vector<UOEntity*> _heard;
+};
+
+//BUILD PLOT
+//**************************************************************************************
+
+class OUTOFTHECAVE_01_API BuildPlot : public BasePlot
+{
+public:
+	BuildPlot(UOEntity* plotEntity, UOEdification* target, UItem* motivation);
+	~BuildPlot();
+
+	void BuildSentence();
+	UOEdification* GetTargetEdification();
+	void InitPlot();
+
+private:
+
+	void BuildGraph();
+	void ConsiderReactions();
+
+	UOEdification* _targetEdification;
+	UItem* _motivation;
 };
 
 
@@ -127,24 +147,6 @@ private:
 	UOOwnable* _targetOwnable;
 };*/
 
-//BUILD PLOT
-//**************************************************************************************
-/*
-class OUTOFTHECAVE_01_API BuildPlot : public BasePlot
-{
-public:
-	BuildPlot(UOEntity* plotEntity, UOEdification* target);
-	~BuildPlot();
-
-	void BuildSentence();
-
-private:
-
-	void BuildGraph();
-	void ConsiderReactions();
-
-	UOEdification* _targetEdification;
-};*/
 
 
 //GIVE PLOT

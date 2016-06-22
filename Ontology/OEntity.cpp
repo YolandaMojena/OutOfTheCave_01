@@ -3,6 +3,7 @@
 #include "OutOfTheCave_01.h"
 #include "Ontology/ORelation.h"
 #include "Ontology/OOwnership.h"
+#include "Ontology/OEdification.h"
 #include "Ontology/OOwnable.h"
 #include "NarrativeGeneration/PlotGenerator.h"
 #include "EntityAIController.h"
@@ -225,7 +226,7 @@ void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 }
 
 // BEFORE SENDING, ELEGIBLE TYPE MUST BE CHECKED WITH PERSONALITY
-void UOEntity::SendReport(Report * newReport)
+void UOEntity::SendReport(Report* newReport)
 {
 	if (CheckValidPersonality(newReport->GetType())) {
 		_plotGenerator->AddReportToLog(newReport);
@@ -347,11 +348,13 @@ bool UOEntity::CheckValidPersonality(TypeOfPlot type) {
 	//	if (_personality->GetMaterialist() < 50 || _personality->GetAggressiveness() < 50) return false;
 		return true;
 
+	// Avery entity worries about it's home and basic needs 
 	case TypeOfPlot::resources: 
 		return true;
 
 	case TypeOfPlot::thankful:
 		if (_personality->GetKindness() < 50 || _personality->GetSocial() < 50) return false;
+		return true;
 
 	case TypeOfPlot::preventive:
 		return true;
@@ -394,6 +397,7 @@ void UOEntity::SetState(State s, Graph* g) {
 		if (_currentPlots.size() > 0) {
 			_brain = _currentPlots[0]->GetGraph();
 			_mainPlotEntity = this;
+			_plotGenerator->ChangeCurrentPlotsInAction(+1);
 		}
 		else {
 			if (_mainPlotEntity) {
@@ -512,5 +516,15 @@ bool UOEntity::GetIsEntityAttacking() {
 }
 void UOEntity::SetIsEntityAttacking(bool attacking) {
 	_isEntityAttacking = attacking;
+}
+void UOEntity::RebuildEdification(UOEdification * home)
+{
+	if (!_isEntityBuilding) _isEntityBuilding = true;
+	//SET HOW MUCH
+	home->RebuildEdification(5);
+}
+void UOEntity::StopRebuildEdification()
+{
+	_isEntityBuilding = false;
 }
 

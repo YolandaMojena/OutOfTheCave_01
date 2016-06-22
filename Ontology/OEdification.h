@@ -52,12 +52,12 @@ public:
 		EdificationType edificationType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSettings)
-		float timeToRebuild;
+		float timeToRebuild = 2000.0f;
 
 	void ReceiveDamage(float damage, UOEntity* damager);
 	bool GetIsDestroyed();
 
-	bool RebuildEdification();
+	void RebuildEdification(float addedValue);
 
 protected:
 	//virtual void UOOwnable::IHaveBeenDamagedBySomeone(UOEntity* damager) override;
@@ -74,5 +74,7 @@ private:
 	UOEntity* _attacker;
 	bool _isDestroyed;
 	void DestroyEdification();
+
+	float _accumulatedTime;
 
 };
