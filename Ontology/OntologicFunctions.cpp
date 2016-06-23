@@ -61,12 +61,12 @@ int OntologicFunctions::UseAsWeapon(UItem* i) {
 
 	int result = ThresholdValue(term1) * ThresholdValue(term2) * ThresholdValue(term3) * ThresholdValue(term4) / (pow(100, nfactors - 1));
 
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   score: ") + FString::SanitizeFloat(result));
+	/*GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   score: ") + FString::SanitizeFloat(result));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 4: ") + FString::SanitizeFloat(term4));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 3: ") + FString::SanitizeFloat(term3));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 2: ") + FString::SanitizeFloat(term2));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 1: ") + FString::SanitizeFloat(term1));
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("Evaluating: ") + i->GetName());
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("Evaluating: ") + i->GetName());*/
 
 	return result;
 
@@ -84,12 +84,12 @@ int OntologicFunctions::UseAsCultivator(UItem* i){
 	
 	int result = term1 * term2 * term3 * term4 / (pow(100, nfactors - 1));
 
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   score: ") + FString::SanitizeFloat(result));
+	/*GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   score: ") + FString::SanitizeFloat(result));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 4: ") + FString::SanitizeFloat(term4));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 3: ") + FString::SanitizeFloat(term3));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 2: ") + FString::SanitizeFloat(term2));
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 1: ") + FString::SanitizeFloat(term1));
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("Evaluating: ") + i->GetName());
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("Evaluating: ") + i->GetName());*/
 
 	return result;
 

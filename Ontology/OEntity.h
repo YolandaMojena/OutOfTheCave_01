@@ -66,11 +66,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = Behaviour)
 	class UBehaviorTree* entityBehaviorTree;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EntityTraits)
 		float _strength;	// mainly attack damage and max item weight to grab | human soldier ~30
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EntityTraits)
 		float _speed;		// mainly movement speed
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EntityTraits)
 		float _agility;		// mainly attack cooldown
 
 

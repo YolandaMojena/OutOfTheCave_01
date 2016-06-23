@@ -32,4 +32,11 @@ void UOOwnable::AddOwner(UOEntity* e) {
 	_owners.push_back(e);
 }
 
+Rarity UOOwnable::GetRarity() {
+	return _rarity;
+}
+int UOOwnable::GetRarityAsInt() {
+	return (int)_rarity;
+}
+
 
