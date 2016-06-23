@@ -41,14 +41,16 @@ public:
 	void ChangeCurrentPlotsInAction(int dif);
 	vector<UOEntity*> SpawnEntities(int num, ERace race);
 	vector<UOOwnable*> GetValuables();
+	void AddValuable(UOOwnable* valuable);
 	vector<UOEntity*> GetNotoriousEntitiesByRace(ERace race);
+	void AddNotorious(UOEntity* notorious);
 
 private:
 
 	bool ContainsReport(Report* newReport);
 	void GetPlotFromReportLog();
 	vector<UOEntity*> WeHaveALotInCommon(Report* report);
-	FVector RandomDisplacementVector(int radius);
+	FVector RandomDisplacement(int radius);
 
 	void SpawnReactivePlot();
 	void SpawnWorldPlot();

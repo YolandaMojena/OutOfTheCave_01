@@ -7,15 +7,24 @@
 #include "Ontology/ORelation.h"
 #include "Ontology/OPersonality.h"
 #include "Ontology/OOwnership.h"
-#include "BasePlot.h"
 #include "NarrativeGeneration/PlotGenerator.h"
-#include "PlotTypes.h"
-/**
- * 
- */
+
+class BasePlot;
+
+enum  TypeOfAmbition : uint8 {
+
+	possessions,
+	extermination,
+	notoriety,
+	appreciation,
+	fear,
+	friendTroll
+};
+
 class OUTOFTHECAVE_01_API Ambition
 {
 public:
+
 	Ambition();
 	Ambition(APlotGenerator* plotGenerator, UOEntity* troll);
 	~Ambition();

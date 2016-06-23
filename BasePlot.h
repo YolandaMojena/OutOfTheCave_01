@@ -6,14 +6,15 @@
 #include <vector>
 #include "NarrativeGeneration/Utilities.h"
 #include "Graph.h"
-#include "Ontology/OEntity.h"
 #include "Ontology/Item.h"
 #include "Ontology/OOwnable.h"
 #include "StringCollection.h"
+//#include "NarrativeGeneration/Ambition.h"
 
 using namespace std;
 
 class UOEntity;
+enum TypeOfAmbition;
 
 enum class TypeOfPlot : uint8 {
 	aggressive,
@@ -56,6 +57,7 @@ protected:
 	Graph _plotGraph;
 	vector<UOEntity*> _involvedInPlot;
 	UItem* _motivation;
+	TypeOfAmbition _ambition;
 	bool _isExclusive;
 	bool _isPlotValid;
 

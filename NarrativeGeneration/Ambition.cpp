@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OutOfTheCave_01.h"
+#include "BasePlot.h"
 #include "Ambition.h"
 
 Ambition::Ambition(){}
@@ -69,7 +70,7 @@ BasePlot * Ambition::GetPosessionsAmbition(UOEntity * entity)
 
 			// Check inventory
 			// If it has to be stolen
-			// ambitionPlot = new StealPlot(entity, o, valuableToOwn, entity);
+			// ambitionPlot = new StealPlot(entity, o, valuableToOwn, TypeOfAmbition::possessive);
 			// If not 
 			// ambitionPlot = new GetPlot(entity, valuableToOwn, entity);
 		}

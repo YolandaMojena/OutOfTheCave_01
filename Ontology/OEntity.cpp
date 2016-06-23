@@ -26,12 +26,6 @@ UOEntity::UOEntity(OPersonality* personality) {
 void UOEntity::BeginPlay() {
 
 	Super::BeginPlay();
-	
-	if (!IsPlayer) {
-		//((ACharacter*)GetOwner())->GetMesh()->SetAllBodiesBelowSimulatePhysics(((ACharacter*)GetOwner())->GetMesh()->GetBoneName(1), true);
-		for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
-			_plotGenerator = *Itr;
-	}
 }
 
 void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -427,11 +421,6 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 
 void UOEntity::SetMainPlotEntity(UOEntity* mpe) {
 	_mainPlotEntity = mpe;
-}
-
-APlotGenerator * UOEntity::GetPlotGenerator()
-{
-	return _plotGenerator;
 }
 
 vector<BasePlot*> UOEntity::GetCurrentPlots() {

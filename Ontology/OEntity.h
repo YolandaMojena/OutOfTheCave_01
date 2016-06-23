@@ -44,6 +44,15 @@ public:
 		react UMETA(DisplayName = "react")
 	};
 
+	struct EntityNotoriety
+	{
+		bool operator()(UOEntity& A, UOEntity& B) const
+		{
+			// Inverted compared to std::priority_queue - higher priorities float to the top
+			return A.GetNotoriety() >= B.GetNotoriety();
+		}
+	};
+
 	//Graph* GetBrain();
 	//void SetBrain(Graph* b);
 
@@ -117,15 +126,11 @@ public:
 	bool CheckValidPersonality(TypeOfPlot type);
 	void SendReport(Report* newReport);
 
-	// All entities will send reports to the plotGenerator situated in the game world
-	APlotGenerator* plotGenerator;
-
 	State GetCurrentState();
 	void SetState(State s, Graph* g = nullptr);
 	void SetIdleGraph(Graph* g);
 	UOEntity* GetMainPlotEntity();
 	void SetMainPlotEntity(UOEntity* mpe);
-	APlotGenerator* GetPlotGenerator();
 	ERace GetRace();
 	FString GetRaceString();
 	void SetRace(ERace race);
@@ -172,10 +177,6 @@ protected:
 	Graph _brain;
 	Graph* _idleGraph;
 	AEntityAIController* _entityAIController;
-
-
-	// All entities will send reports to the plotGenerator situated in the game world
-	APlotGenerator* _plotGenerator;
 
 	vector<ORelation*> _relationships;
 	vector<UOEntity*> _potentialRelationships;

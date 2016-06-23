@@ -3,6 +3,7 @@
 #include "OutOfTheCave_01.h"
 #include "Item.h"
 #include "OOwnable.h"
+#include "NarrativeGeneration/PlotGenerator.h"
 #include "OEntity.h"
 #include "OEdification.h"
 
@@ -14,14 +15,9 @@ UItem::UItem()
 	// off to improve performance if you don't need them.
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
-UItem::~UItem()
-{
-	
-}
+UItem::~UItem(){}
 
 
 // Called when the game starts
@@ -29,8 +25,8 @@ void UItem::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
+		_plotGenerator = *Itr;
 }
 
 
@@ -66,6 +62,10 @@ UOEdification * UItem::GetEdificationComponent(AActor * actor)
 {
 	UOEdification* foundComponent = actor->FindComponentByClass<UOEdification>();
 	return foundComponent;
+}
+
+APlotGenerator* UItem::GetPlotGenerator() {
+	return _plotGenerator;
 }
 
 

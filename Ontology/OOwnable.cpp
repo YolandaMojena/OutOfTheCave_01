@@ -6,7 +6,10 @@
 #include "Ontology/OOwnership.h"
 #include "Ontology/ORelation.h"
 #include "NarrativeGeneration/Report.h"
+#include "NarrativeGeneration/PlotGenerator.h"
 #include "Ontology/OOwnable.h"
+
+
 
 UOOwnable::UOOwnable() {}
 UOOwnable::~UOOwnable(){}
@@ -18,6 +21,9 @@ void UOOwnable::BeginPlay() {
 	//EXAMPLE OF OBJECT ITERATOR
 	/*for (TObjectIterator<UOCivilian> Itr; Itr; ++Itr){
 	}*/
+
+	if ((int)_rarity >= 3)
+		_plotGenerator->AddValuable(this);
 }
 
 void UOOwnable::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

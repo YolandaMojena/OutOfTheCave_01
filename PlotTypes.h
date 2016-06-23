@@ -11,6 +11,7 @@ using namespace std;
 class UOEntity;
 class UOOwnable;
 class UOEdification;
+class Ambition;
 class APlotGenerator;
 
 
@@ -21,6 +22,7 @@ class OUTOFTHECAVE_01_API AttackPlot : public BasePlot
 {
 public:
 	AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation);
+	AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition);
 	~AttackPlot();
 
 	void BuildSentence();
@@ -43,6 +45,7 @@ class OUTOFTHECAVE_01_API DestroyPlot : public BasePlot
 {
 public:
 	DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation);
+	DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition);
 	~DestroyPlot();
 
 	void BuildSentence();
@@ -92,6 +95,7 @@ class OUTOFTHECAVE_01_API BuildPlot : public BasePlot
 {
 public:
 	BuildPlot(UOEntity* plotEntity, UOEdification* target, UItem* motivation);
+	//BuildPlot(UOEntity* plotEntity, UOEdification* target, TypeOfAmbition ambition);
 	~BuildPlot();
 
 	void BuildSentence();
@@ -108,35 +112,20 @@ private:
 };
 
 
-//GATHER PLOT
-//**************************************************************************************
-/*
-class OUTOFTHECAVE_01_API GatherPlot : public BasePlot
-{
-public:
-	GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource);
-	~GatherPlot();
-
-	void BuildSentence();
-
-private:
-
-	void BuildGraph();
-	void ConsiderReactions();
-
-	UOOwnable* _targetResource;
-};*/
-
 //STEAL PLOT
 //**************************************************************************************
-/*
+
 class OUTOFTHECAVE_01_API StealPlot : public BasePlot
 {
 public:
-	StealPlot(UOEntity* plotEntity, UOEntity* who, UOOwnable* target);
+	StealPlot(UOEntity* plotEntity, UOEntity* who, UOOwnable* target, UItem* motivation);
+	StealPlot(UOEntity* plotEntity, UOEntity* who, UOOwnable* target, TypeOfAmbition ambition);
 	~StealPlot();
 
 	void BuildSentence();
+	void InitPlot();
+	void GetTargetEntity();
+	void GetTargetOwnable();
 
 private:
 
@@ -145,8 +134,28 @@ private:
 
 	UOEntity* _targetEntity;
 	UOOwnable* _targetOwnable;
-};*/
+};
 
+
+
+//GATHER PLOT
+//**************************************************************************************
+/*
+class OUTOFTHECAVE_01_API GatherPlot : public BasePlot
+{
+public:
+GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource);
+~GatherPlot();
+
+void BuildSentence();
+
+private:
+
+void BuildGraph();
+void ConsiderReactions();
+
+UOOwnable* _targetResource;
+};*/
 
 
 //GIVE PLOT

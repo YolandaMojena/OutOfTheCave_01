@@ -91,7 +91,7 @@ void APlotGenerator::SpawnWorldPlot()
 
 void APlotGenerator::AddReportToLog(Report* newReport)
 {
-	if (!ContainsReport(newReport)) {
+	if (!_pReportLog.Contains(newReport)) {
 		_pReportLog.HeapPush(newReport, Report::ReportNotoriety());
 		newReport->SaveReportToFile(Utilities::SavePath, Utilities::ReportFile);
 	}
@@ -274,7 +274,7 @@ vector<UOEntity*> APlotGenerator::SpawnEntities(int num, ERace race) {
 		case ERace::R_Bear: {
 
 			for (int i = 0; i < num; i++) {
-				ACharacter* creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Bear, GetActorLocation() + RandomDisplacementVector(1000), GetActorRotation(), SpawnParams);
+				ACharacter* creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Bear, GetActorLocation() + RandomDisplacement(1000), GetActorRotation(), SpawnParams);
 				
 				if (creatureToSpawn) {
 					float scale = rand() % 10 + 6;
@@ -293,6 +293,11 @@ vector<UOOwnable*> APlotGenerator::GetValuables()
 	return _valuables;
 }
 
+void APlotGenerator::AddValuable(UOOwnable * valuable)
+{
+	_valuables.push_back(valuable);
+}
+
 vector<UOEntity*> APlotGenerator::GetNotoriousEntitiesByRace(ERace race)
 {
 	vector<UOEntity*> entities;
@@ -304,10 +309,18 @@ vector<UOEntity*> APlotGenerator::GetNotoriousEntitiesByRace(ERace race)
 	return entities;
 }
 
-FVector APlotGenerator::RandomDisplacementVector(int radius)
+void APlotGenerator::AddNotorious(UOEntity * notorious)
 {
+	if (!_notoriousEntities.Contains(notorious)) {
+		_notoriousEntities.HeapPush(notorious, UOEntity::EntityNotoriety());
+	}
+}
+
+FVector APlotGenerator::RandomDisplacement(int radius){
+	
 	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
 }
+
 
 
 

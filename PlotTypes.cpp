@@ -5,8 +5,10 @@
 #include "Ontology/OEntity.h"
 #include "Ontology/OOwnable.h"
 #include "NarrativeGeneration/PlotGenerator.h"
+#include "NarrativeGeneration/Ambition.h"
 #include "Ontology/OEdification.h"
 #include "PlotTypes.h"
+
 
 
 //ATTACK PLOT
@@ -19,30 +21,46 @@ AttackPlot::AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* moti
 	_motivation = motivation;
 }
 
+AttackPlot::AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition) : BasePlot(plotEntity) {
+
+	_targetEntity = targetEntity;
+	_isExclusive = true;
+	_ambition = ambition;
+}
+
 AttackPlot::~AttackPlot() {}
 
 void AttackPlot::BuildSentence() {
 
 	_sentence += _identifier + "\n";
 
-	_sentence += "The brave, yet aggressive, " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-		+ " has began an attack against the despicable " + _targetEntity->GetRaceString() + " "
-		+ _targetEntity->GetName() + ", who ";
+	if(_motivation){
+
+		_sentence += "The brave " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
+			+ " has began an attack against the despicable " + _targetEntity->GetRaceString() + " "
+			+ _targetEntity->GetName() + ", who ";
 		_sentence += _motivation->IsA<UOEntity>() ?
-		"hurt his friend " + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetName()
-		: "damaged his " + _motivation->GetOwner()->GetActorLabel();
+			"hurt his friend " + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetName()
+			: "damaged his " + _motivation->GetOwner()->GetActorLabel();
 
 		_sentence += ". He counts with the help of ";
 
-	if (_involvedInPlot.size() > 0) {
-		for (int i = 0; i < _involvedInPlot.size(); i++) {
-			_sentence += _involvedInPlot[i]->GetName();
-			if (i <= _involvedInPlot.size() - 1)
-				_sentence += ", ";
+		if (_involvedInPlot.size() > 0) {
+			for (int i = 0; i < _involvedInPlot.size(); i++) {
+				_sentence += _involvedInPlot[i]->GetName();
+				if (i <= _involvedInPlot.size() - 1)
+					_sentence += ", ";
+			}
+			_sentence += " and ";
 		}
-		_sentence += " and ";
+		_sentence += "some allies.\n\n";
 	}
-	_sentence += "some allies.\n\n\n";
+	else if (_ambition == TypeOfAmbition::extermination) {
+
+		_sentence += "The aggressive " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
+			+ " has began an attack against the unfortunate " + _targetEntity->GetRaceString() + " "
+			+ _targetEntity->GetName() + ", in order to exterminate his race.\n\n\n";
+	}
 }
 
 void AttackPlot::BuildGraph() {
@@ -103,40 +121,55 @@ DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* mo
 	_motivation = motivation;
 }
 
+DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition) : BasePlot(plotEntity) {
+
+	_targetEntity = targetEntity;
+	_isExclusive = true;
+	_ambition = ambition;
+}
+
 DestroyPlot::~DestroyPlot() {}
 
 void DestroyPlot::BuildSentence() {
 
 	_sentence += _identifier + "\n";
 
-	_sentence += "The brave, yet aggressive, " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-		+ " has began to destroy the " + _targetEdification->GetOwner()->GetActorLabel()  + " "
-		", which belongs to ";
+	if (_motivation) {
+		_sentence += "The brave, yet aggressive, " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
+			+ " has began to destroy the " + _targetEdification->GetOwner()->GetActorLabel() + " "
+			", which belongs to ";
 
-	if (_targetEdification->GetOwners().size() > 0) {
-		for (int i = 0; i <  _targetEdification->GetOwners().size(); i++) {
-			_sentence += _targetEdification->GetOwners()[i]->GetName();
-			if (i <= _targetEdification->GetOwners().size() - 1)
-				_sentence += ", ";
-			else _sentence += " and ";
+		if (_targetEdification->GetOwners().size() > 0) {
+			for (int i = 0; i < _targetEdification->GetOwners().size(); i++) {
+				_sentence += _targetEdification->GetOwners()[i]->GetName();
+				if (i <= _targetEdification->GetOwners().size() - 1)
+					_sentence += ", ";
+				else _sentence += " and ";
+			}
 		}
-	}
-	_sentence += ", since " + _targetEntity->GetName();
-	_sentence += _motivation->IsA<UOEntity>() ?
-		" hurt his friend" + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetName()
-		: " damaged his " + _motivation->GetOwner()->GetActorLabel();
+		_sentence += ", since " + _targetEntity->GetName();
+		_sentence += _motivation->IsA<UOEntity>() ?
+			" hurt his friend" + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetName()
+			: " damaged his " + _motivation->GetOwner()->GetActorLabel();
 
-	_sentence += " He counts with the help of ";
+		_sentence += " He counts with the help of ";
 
-	if (_involvedInPlot.size() > 0) {
-		for (int i = 0; i < _involvedInPlot.size(); i++) {
-			_sentence += _involvedInPlot[i]->GetName();
-			if (i <= _involvedInPlot.size() - 1)
-				_sentence += ", ";
+		if (_involvedInPlot.size() > 0) {
+			for (int i = 0; i < _involvedInPlot.size(); i++) {
+				_sentence += _involvedInPlot[i]->GetName();
+				if (i <= _involvedInPlot.size() - 1)
+					_sentence += ", ";
+			}
+			_sentence += " and ";
 		}
-		_sentence += " and ";
+		_sentence += "some allies. .\n\n";
 	}
-	_sentence += "some allies. .\n\n";
+
+	else {
+
+	}
+
+	
 }
 
 void DestroyPlot::BuildGraph() {
@@ -193,10 +226,88 @@ UOEntity* DestroyPlot::GetTargetEntity() {
 }
 
 
+//BUILD PLOT
+//**************************************************************************************
+
+BuildPlot::BuildPlot(UOEntity* plotEntity, UOEdification* target, UItem* motivation) : BasePlot(plotEntity) {
+
+	_targetEdification = target;
+	_isExclusive = false;
+	_motivation = motivation;
+}
+
+BuildPlot::~BuildPlot() {}
+
+void BuildPlot::BuildSentence() {
+
+	_sentence = "The unfortunate " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " is rebuilding his/her home, which was destroyed by the merciless " + ((UOEntity*)_motivation)->GetRaceString() + " " + _motivation->GetName();
+	_sentence += ". He counts with the help of ";
+
+	if (_involvedInPlot.size() > 0) {
+		for (int i = 0; i < _involvedInPlot.size(); i++) {
+			_sentence += _involvedInPlot[i]->GetName();
+			if (i <= _involvedInPlot.size() - 1)
+				_sentence += ", ";
+		}
+		_sentence += " and ";
+	}
+	_sentence += "some allies.\n\n";
+}
+
+void BuildPlot::BuildGraph() {
+
+	//_plotGraph = new Graph();
+
+	//ASK FOR HELP
+	Node* askForHelpNode = new Node();
+	askForHelpNode->SetNodeType(NodeType::askForHelp);
+	_plotGraph.AddNode(askForHelpNode);
+
+	//GET TOOLS
+	/*Node* getNode = new Node();
+	getNode->SetNodeType(NodeType::get);
+	getNode->SetArquetypeObject("martillo")
+	_plotGraph->AddNode(getNode);*/
+	/*
+	//GATHER RESOURCES
+	Node* getNode = new Node();
+	getNode->SetNodeType(NodeType::gather);
+	//gather what?
+	_plotGraph.AddNode(getNode);*/
+
+	//GO TO TARGET
+	Node* goToNode = new Node();
+	goToNode->SetNodeType(NodeType::goToItem);
+	goToNode->SetActorA(_targetEdification->GetOwner());
+	_plotGraph.AddNode(goToNode);
+
+	//BUILD
+	Node* buildNode = new Node();
+	buildNode->SetNodeType(NodeType::build);
+	buildNode->SetEdification(_targetEdification);
+	_plotGraph.AddNode(buildNode);
+}
+
+void BuildPlot::InitPlot() {
+
+	_identifier = "Rebuild " + _plotEntity->GetName() + "'s home";
+	BuildGraph();
+
+}
+
+void BuildPlot::ConsiderReactions() {}
+
+UOEdification* BuildPlot::GetTargetEdification() {
+	return _targetEdification;
+}
+	
+
+
+
 //STAMPEDE
 //*************************************************************************************
 
-Stampede::Stampede(ERace race, FVector spawnLocation, FVector targetLocation, float num, APlotGenerator* plotGenerator)  {
+Stampede::Stampede(ERace race, FVector spawnLocation, FVector targetLocation, float num, APlotGenerator* plotGenerator) {
 
 	_race = race;
 	_spawnLocation = spawnLocation;
@@ -257,76 +368,73 @@ void Stampede::InitPlot() {
 void Stampede::ConsiderReactions() {}
 
 
-//BUILD PLOT
+
+//STEAL PLOT
 //**************************************************************************************
 
-BuildPlot::BuildPlot(UOEntity* plotEntity, UOEdification* target, UItem* motivation) : BasePlot(plotEntity) {
+StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* target, UItem* motivation) : BasePlot(plotEntity) {
 
-	_targetEdification = target;
-	_isExclusive = false;
+	_targetOwnable = target;
+	_targetEntity = targetEntity;
 	_motivation = motivation;
+	_isExclusive = true;
+
+	BuildGraph();
 }
 
-BuildPlot::~BuildPlot() {}
+StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* target, TypeOfAmbition ambition) : BasePlot(plotEntity) {
 
-void BuildPlot::BuildSentence() {
-	_sentence = "The unfortunate " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " is rebuilding his/her home, which was destroyed by the merciless " + ((UOEntity*)_motivation)->GetRaceString() + " " + _motivation->GetName();
-	_sentence += ". He counts with the help of ";
+	_targetOwnable = target;
+	_targetEntity = targetEntity;
+	_ambition = ambition;
+	_isExclusive = true;
 
-	if (_involvedInPlot.size() > 0) {
-		for (int i = 0; i < _involvedInPlot.size(); i++) {
-			_sentence += _involvedInPlot[i]->GetName();
-			if (i <= _involvedInPlot.size() - 1)
-				_sentence += ", ";
-		}
-		_sentence += " and ";
+	BuildGraph();
+}
+
+StealPlot::~StealPlot() {}
+
+void StealPlot::BuildSentence() {
+
+	if (_motivation) {
+		_sentence = "The vengeful " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
+			+ " is stealing a " + _targetOwnable->GetName() + " from the " + _targetEntity->GetRaceString() +
+			" " + _targetEntity->GetName() + ", since it was also stolen from him/her.";
 	}
-	_sentence += "some allies.\n\n\n";
+	else if (_ambition == TypeOfAmbition::possessions) {
+		_sentence = "The materialistic " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
+			+ " is stealing a precious " + _targetOwnable->GetName() + " from the " + _targetEntity->GetRaceString() +
+			" " + _targetEntity->GetName() + ", since his/her ambition in life is to own lots of valuable possessions.";
+	}
 }
 
-void BuildPlot::BuildGraph() {
+void StealPlot::BuildGraph() {
 
-	//_plotGraph = new Graph();
-
-	/*//ASK FOR HELP
-	Node* askForHelpNode = new Node();
-	askForHelpNode->SetNodeType(NodeType::askForHelp);
-	_plotGraph.AddNode(askForHelpNode);
-
-	//GET TOOLS
-	Node* getNode = new Node();
-	getNode->SetNodeType(NodeType::get);
-	getNode->SetArquetypeObject("martillo")
-	_plotGraph->AddNode(getNode);*/
-	/*
-	//GATHER RESOURCES
-	Node* getNode = new Node();
-	getNode->SetNodeType(NodeType::gather);
-	//gather what?
-	_plotGraph.AddNode(getNode);*/
+	_plotGraph = Graph();
 
 	//GO TO TARGET
 	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToItem);
-	goToNode->SetActorA(_targetEdification->GetOwner());
+	goToNode->SetNodeType(NodeType::goTo);
+	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
 	_plotGraph.AddNode(goToNode);
 
-	//BUILD
-	Node* buildNode = new Node();
-	buildNode->SetNodeType(NodeType::build);
-	buildNode->SetEdification(_targetEdification);
-	_plotGraph.AddNode(buildNode);
+	//STEAL
+	Node* stealNode = new Node();
+	stealNode->SetNodeType(NodeType::steal);
+	stealNode->SetEntityA(_targetEntity);
+	stealNode->SetOwnable(_targetOwnable);
+	_plotGraph.AddNode(stealNode);
 }
 
-void BuildPlot::InitPlot() {
+void StealPlot::InitPlot() {
 
-	_identifier = "Rebuild " + _plotEntity->GetName() + "'s home";
+	_identifier = "";
 	BuildGraph();
-
 }
 
-void BuildPlot::ConsiderReactions() {}
-	
+void StealPlot::ConsiderReactions() {
+}
+
 
 
 //GATHER PLOT
@@ -351,47 +459,6 @@ void GatherPlot::BuildGraph() {
 }
 
 void GatherPlot::ConsiderReactions() {
-}
-*/
-
-
-//STEAL PLOT
-//**************************************************************************************
-/*
-StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* who, UOOwnable* target) : BasePlot(plotEntity) {
-
-	_targetOwnable = target;
-	_targetEntity = who;
-	_isExclusive = true;
-
-	BuildGraph();
-}
-
-StealPlot::~StealPlot() {}
-
-void StealPlot::BuildSentence() {
-	_sentence = TCHAR_TO_UTF8(*("Entity: " + _plotEntity->GetOwner()->GetActorLabel() + " is stealing " + _targetOwnable->GetOwner()->GetActorLabel() + " " + _targetEntity->GetOwner()->GetActorLabel()));
-}
-
-void StealPlot::BuildGraph() {
-
-	//_plotGraph = new Graph();
-
-	//GO TO TARGET
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goTo);
-	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
-	_plotGraph.AddNode(goToNode);
-
-	//STEAL
-	Node* stealNode = new Node();
-	stealNode->SetNodeType(NodeType::steal);
-	stealNode->SetEntityA(_targetEntity);
-	stealNode->SetOwnable(_targetOwnable);
-	_plotGraph.AddNode(stealNode);
-}
-
-void StealPlot::ConsiderReactions() {
 }
 */
 
