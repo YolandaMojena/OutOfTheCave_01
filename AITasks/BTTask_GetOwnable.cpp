@@ -7,10 +7,11 @@
 
 EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
 
-	const int STRENGTH_TO_WEIGHT = 0.5f;
+	const int STRENGTH_TO_WEIGHT = 2;
 	const int APPRECIATION_TO_BORROW = 60;
 	const int FEAR_TO_BORROW = 70;
 	const int RESPECT_TO_BORROW = 80;
+
 
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
@@ -23,6 +24,7 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 	vector<UOOwnable*> candidates = entity->GetInventory();
 	vector<UOOwnable*> nearbyOwnables = FindNearbyOwnables(entity->GetOwner());
 	candidates.insert(candidates.end(), nearbyOwnables.begin(), nearbyOwnables.end());
+	
 		
 	/*FindNearbyOwnables(entity->GetOwner());
 	for (UOOwnable* o : entity->GetInventory()) {
@@ -35,8 +37,16 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 	int bestChoiceAffordance = ontF.GetAffordance(affordableUse, bestChoice);
 	bool bestChoiceSomeoneWhoCares = true;
 
+	if (entity->HasGrabbedItem()){
+		UOOwnable* grabbedItem = (UOOwnable*)entity->GetGrabbedItem();
+		int grabbedItemAffordance = ontF.GetAffordance(affordableUse, grabbedItem);
+		if (grabbedItemAffordance > bestChoiceAffordance) {
+			bestChoice = grabbedItem;
+		}
+	}
+
 	for (UOOwnable* ownable : candidates) {
-		if (ownable->GetMass() <= entity->GetStrength() * STRENGTH_TO_WEIGHT) {
+		if (ownable->GetMass() <= entity->GetStrength() / STRENGTH_TO_WEIGHT) {
 			bool someoneWhoCares = true; // to not try to possess the object if you already own it or if you are taking it because of HighPriority
 			// Consider or not who owns the object if you don't own it depending on if the node is HighPriority
 			if (!entity->DoesOwn(ownable) && !blackboard->GetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("HighPriority"))) {
@@ -51,8 +61,9 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 							borrow = true;
 					}	
 				}
-				if (someoneWhoCares && !borrow)
+				if (someoneWhoCares && !borrow) {
 					continue;
+				}
 			}
 			int newAffordance = ontF.GetAffordance(affordableUse, ownable);
 			if (newAffordance > bestChoiceAffordance) {
@@ -68,19 +79,22 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 		entity->AddPossession(bestChoice);
 	}
 
-	if (bestChoice != ontF.GetHands()) {
+	if (bestChoice != ontF.GetHands() && bestChoice != entity->GetGrabbedItem()) {
 		/*Node* n = new Node();
 		n->SetNodeType(NodeType::grab);
 		n->SetOwnable(bestChoice);
 		entity->AddInstantNode(n);*/
-		//blackboard->SetValue<UBlackboardTypeObject>(blackboard->GetKeyID("Item"), bestChoice);
+		blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"), (UItem*) bestChoice);
+		blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("ActorA"), bestChoice->GetOwner());
+		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("   score: ") + FString::SanitizeFloat(bestChoiceAffordance));
+		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("Chosen item: ") + bestChoice->GetOwner()->GetActorLabel());
 	}
 
 	return EBTNodeResult::Succeeded;
 }
 
 vector<UOOwnable*> UBTTask_GetOwnable::FindNearbyOwnables(AActor* actor) {
-	float const _SEARCH_RADIUS = 300.0f;
+	float const _SEARCH_RADIUS = 500.0f;
 	FVector start = actor->GetActorLocation();
 	FVector end = start + FVector(0, 0, _SEARCH_RADIUS * 2);
 	TArray<FHitResult> hitData;

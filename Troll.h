@@ -120,7 +120,7 @@ private:
 	float _jumpMultiplier;
 
 	const float _minJumpMultiplier = 0.75f;
-	const float _growthJumpMultiplier = 0.5f;
+	const float _growthJumpMultiplier = 0.72f;
 	const float _maxJumpMultiplier = 1.5f;
 	const float _averageJump = 1900.0f;
 

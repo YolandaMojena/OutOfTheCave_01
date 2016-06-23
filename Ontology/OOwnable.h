@@ -12,6 +12,14 @@ using namespace std;
 class UOEntity;
 class OOwnership;
 
+UENUM(BlueprintType)
+enum class Rarity : uint8 {
+	common UMETA(DisplayName = "common"),
+	uncommon UMETA(DisplayName = "uncommon"),
+	rare UMETA(DisplayName = "rare"),
+	mythic UMETA(DisplayName = "mythic")
+};
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class OUTOFTHECAVE_01_API UOOwnable : public UItem
 {
@@ -31,11 +39,10 @@ public:
 	vector<UOEntity*> GetOwners();
 	void AddOwner(UOEntity* e);
 	
-
-protected:
-
-	void IHaveBeenStolenBySomeone(UOEntity* buggler);
-	void IHaveBeenGivenToSomeone();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ownable)
+		Rarity _rarity;
+	Rarity GetRarity();
+	int GetRarityAsInt();
 
 private:
 
@@ -43,4 +50,6 @@ private:
 	vector<UOEntity*> _owners;
 	UOEntity* _buggler;
 
+	void IHaveBeenStolenBySomeone(UOEntity* buggler);
+	void IHaveBeenGivenToSomeone();
 };

@@ -70,11 +70,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = Behaviour)
 	class UBehaviorTree* entityBehaviorTree;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EntityTraits)
 		float _strength;	// mainly attack damage and max item weight to grab | human soldier ~30
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EntityTraits)
 		float _speed;		// mainly movement speed
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EntityTraits)
 		float _agility;		// mainly attack cooldown
 
 
@@ -141,6 +141,16 @@ public:
 	void StopRebuildEdification();
 	bool GetIsEntityAttacking();
 	void SetIsEntityAttacking(bool attacking);
+
+	void GrabItem(UItem* item);
+	UItem* GetGrabbedItem();
+	bool HasGrabbedItem();
+	void ReleaseGrabbedItem();
+	TScriptDelegate<FWeakObjectPtr> HitFunc;
+	void AttachToSocket(AActor* target, string socket);
+	UFUNCTION()
+		void OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	
 
 	float _currentTime = 10;

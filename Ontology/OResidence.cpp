@@ -174,9 +174,9 @@ Graph* UOResidence::GenerateIdleFromJob() {
 		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(8);
 		idleGraph->AddNode(n);
 		//MAÑANA
-		//n = new Node();
-		//n->SetNodeType(NodeType::get); n->SetArquetypeObject("azada"); n->SetDaytime(13);
-		//idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::cultivator); n->SetDaytime(13);
+		idleGraph->AddNode(n);
 		if (peasantField) {
 			n = new Node();
 			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(13);
@@ -194,7 +194,7 @@ Graph* UOResidence::GenerateIdleFromJob() {
 		idleGraph->AddNode(n);
 		//TARDE
 		n = new Node();
-		n->SetNodeType(NodeType::get); n->SetArquetypeObject("azada"); n->SetDaytime(21);
+		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::cultivator); n->SetDaytime(21);
 		idleGraph->AddNode(n);
 		if (peasantField) {
 			n = new Node();

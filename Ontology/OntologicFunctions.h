@@ -30,6 +30,7 @@ public:
 	int UseForBuilding(UItem* i);
 
 	UOOwnable* GetHands();
+	UOOwnable* _hands;
 
 
 	/*struct PriorityCandidates {
@@ -63,8 +64,6 @@ public:
 
 
 private:
-	int ReduceWeight(int value);
-	int AmplifyWeight(int value);
 	
 	int HyperbolicGrowth(int value);
 	int LinearGrowth(int x);
@@ -73,9 +72,13 @@ private:
 	int LinearGrowth(int x, int m);
 	int ExponentialGrowth(int x, int m);
 
+	int HyperbolicDecay(int x, int m, int n);
 	int HyperbolicDecay(int x, int m);
 	int LinearDecay(int x, int m);
 	int ExponentialDecay(int x, int m);
+	int HyperbolicDecay(int );
+	int LinearDecay(int x);
+	int ExponentialDecay(int x);
 
 	int HyperbolicEqualization(int x, int m);
 	int LinearEqualization(int x, int m);
@@ -85,5 +88,5 @@ private:
 	int ThresholdValue(int x);
 	int BotThresholdValue(int x);
 
-	UOOwnable _hands;
+
 };

@@ -127,6 +127,7 @@ void ATroll::ChargeJump() {
 
 void ATroll::Jump() {
 	_chargingJump = false;
+	//GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity * 1.2f;
 	GetCharacterMovement()->JumpZVelocity = _averageJump * _jumpMultiplier;
 	ACharacter::Jump();
 }

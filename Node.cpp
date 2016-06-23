@@ -32,7 +32,7 @@ NodeType Node::GetNodeType() {
 	return _nodeType;
 }
 
-void Node::PopulateBlackboard(UOEntity* entityA, UOEntity* entityB, UOOwnable* ownable, UOEdification* edification, UOGrabbable* grabbable) {
+/*void Node::PopulateBlackboard(UOEntity* entityA, UOEntity* entityB, UOOwnable* ownable, UOEdification* edification, UOGrabbable* grabbable) {
 
 	nBlackboard.entityA = entityA;
 	nBlackboard.entityB = entityB;
@@ -49,7 +49,7 @@ void Node::PopulateBlackboard(FVector position, UOEntity* entityA, UOEntity* ent
 	nBlackboard.edification = edification;
 	nBlackboard.grabbable = grabbable;
 	nBlackboard.position = position;
-}
+}*/
 
 void Node::SetEntityA(UOEntity* e) {
 	nBlackboard.entityA = e;
@@ -63,14 +63,11 @@ void Node::SetActorA(AActor* a) {
 void Node::SetOwnable(UOOwnable* o) {
 	nBlackboard.ownable = o;
 }
-void Node::SetArquetypeObject(string s) {
-	nBlackboard.arquetypeObject = s;
+void Node::SetAffordableUse(OntologicFunctions::AffordableUse au) {
+	nBlackboard.affordableUse = au;
 }
 void Node::SetEdification(UOEdification* edf) {
 	nBlackboard.edification = edf;
-}
-void Node::SetGrabbable(UOGrabbable* grb) {
-	nBlackboard.grabbable = grb;
 }
 void Node::SetPosition(FVector v) {
 	nBlackboard.position = v;

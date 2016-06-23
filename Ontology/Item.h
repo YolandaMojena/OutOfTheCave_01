@@ -54,6 +54,7 @@ class OUTOFTHECAVE_01_API UItem : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UItem();
+	~UItem();
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
