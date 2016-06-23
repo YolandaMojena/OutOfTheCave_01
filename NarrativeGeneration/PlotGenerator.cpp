@@ -37,32 +37,26 @@ void APlotGenerator::Tick( float DeltaTime )
 
 	else {
 		if (_currentPlotsInAction <= _MAX_PLOTS) {
-			if (rand() % 10 <= 2) {
-				SpawnWorldPlot();
-				_timeToSpawnPlot = 0;
-			}
-			else {
+			//if (rand() % 100 >98) {
+				//SpawnWorldPlot();
+				//_timeToSpawnPlot = 0;
+			//}
+			//else {
 				if(reactivePlots.empty())
 					GetPlotFromReportLog();
 				if (reactivePlots.size() > 0) {
 					SpawnReactivePlot();
 					_timeToSpawnPlot = 0;
 				}
-			}
+			//}
 		}
 	}
 }
 
 bool APlotGenerator::ValidateReport(Report* report)
 {
-	if (report->GetTag() == Report::ReportTag::relation) {
-		return (!report->GetReportEntity()->GetIsDead() || !report->GetTargetEntity()->GetIsDead());
-	}
-	else if (report->GetTag() == Report::ReportTag::ownership) {
-		return (!report->GetReportEntity()->GetIsDead());
-	}
-
-	else return true;
+		//return (report->GetReportEntity() == nullptr);
+	return true;
 }
 
 void APlotGenerator::ChangeCurrentPlotsInAction(int dif)

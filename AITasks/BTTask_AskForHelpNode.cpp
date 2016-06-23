@@ -12,38 +12,18 @@ EBTNodeResult::Type UBTTask_AskForHelpNode::ExecuteTask(UBehaviorTreeComponent& 
 
 	if (plotEntity) {
 
-		FVector start = plotEntity->GetOwner()->GetActorLocation();
-		FVector end = start;
-		TArray<FHitResult> outHits;
+		TArray<UOEntity*> helpers;
 
-		FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, plotEntity->GetOwner());
-		RV_TraceParams.bTraceComplex = true;
-		RV_TraceParams.bTraceAsyncScene = true;
-		RV_TraceParams.bReturnPhysicalMaterial = false;
+		for (UOEntity* e : plotEntity->GetCurrentPlot()->GetInvolvedInPlot())
+			if (!helpers.Contains(e) && e!=plotEntity) helpers.Add(e);
 
-		plotEntity->GetOwner()->GetWorld()->SweepMultiByChannel(
-			outHits,
-			start,
-			end,
-			FQuat(),
-			ECollisionChannel::ECC_Visibility,
-			FCollisionShape::MakeSphere(searchRatio),
-			RV_TraceParams
-			);
+		/*for (ORelation* r : plotEntity->GetRelationships()) {
+			if (!r->GetOtherEntity()->IsPlayer && !helpers.Contains(r->GetOtherEntity())) helpers.Add(r->GetOtherEntity());
+		}*/
 
-		for (FHitResult hr : outHits) {
-			UOEntity* entity = hr.GetActor()->FindComponentByClass<UOEntity>();
-			if (entity && entity->IsInSight(plotEntity->GetOwner()) && entity->GetCurrentState() == UOEntity::State::idle) {
-				ORelation* relation = entity->GetRelationWith(plotEntity);
-				if (relation && relation->GetAppreciation() >= relation->HIGH_APPRECIATION) {
-					plotEntity->GetCurrentPlot()->AddInvolvedInPlot(entity);
-				}
-			}
-		}
-
-		for (UOEntity* e : plotEntity->GetCurrentPlot()->GetInvolvedInPlot()) {
+		for (UOEntity* e : helpers) {
 			e->SetMainPlotEntity(plotEntity);
-			if(e->GetCurrentState() == UOEntity::State::idle)
+			if (e->GetCurrentState() == UOEntity::State::idle)
 				e->SetState(UOEntity::State::plot);
 		}
 

@@ -1,5 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+#define LOCTEXT_NAMESPACE "FText Namespace" 
 #pragma once
 
 #include "Ontology/Item.h"
@@ -88,6 +88,7 @@ public:
 
 	void AddRelationship(ORelation* newRelation);
 	void AddRelationship(UOEntity* newEntity);
+	void AddPotentialRelationship(UOEntity* newEntity);
 	void AddPossession(OOwnership* newOwnership);
 	void AddPossession(UOOwnable* newOwnable);
 	void AddTerritory(OTerritory* newTerritory);
@@ -103,6 +104,7 @@ public:
 	ORelation* GetRelationWith(UOEntity* other);
 	OOwnership* GetOwnershipWith(UOOwnable* other);
 	void DeleteRelation(UOEntity* relation);
+	void DeletePotentitalRelationship(UOEntity* entity);
 	void DeletePossession(UOOwnable* possession);
 	void DeleteDesire(UOOwnable* desire);
 
@@ -160,6 +162,7 @@ protected:
 	APlotGenerator* _plotGenerator;
 
 	vector<ORelation*> _relationships;
+	vector<UOEntity*> _potentialRelationships;
 	vector<OOwnership*> _possessions;
 	vector<OOwnership*> _materialDesires;
 	vector<OTerritory*> _landlord;
@@ -176,4 +179,12 @@ protected:
 
 	vector<UOOwnable*> _inventory;
 	UItem* _grabbedItem;
+
+private:
+
+	class UOOwnable* _deadOwnable;
+
+		
 };
+
+#undef LOCTEXT_NAMESPACE 

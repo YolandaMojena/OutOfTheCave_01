@@ -64,7 +64,7 @@ private:
 	int _currentPlotsInAction;
 	TSubclassOf<class ACharacter> BP_Bear;
 
-	const float _TIME_TO_SPAWN = 15.0f;
+	const float _TIME_TO_SPAWN = 5.0f;
 	const int _MAX_PLOTS = 3;
 
 	bool ValidateAttackPlot(AttackPlot* plot);

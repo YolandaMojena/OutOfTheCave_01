@@ -23,7 +23,7 @@ AttackPlot::~AttackPlot() {}
 
 void AttackPlot::BuildSentence() {
 
-	_sentence += _identifier + ":\n\n";
+	_sentence += _identifier + "\n";
 
 	_sentence += "The brave, yet aggressive, " + _plotEntity->GetRace() + " " + _plotEntity->GetName()
 		+ " has began an attack against the despicable " + _targetEntity->GetRace() + " "
@@ -81,7 +81,7 @@ void AttackPlot::BuildGraph() {
 
 void AttackPlot::InitPlot() {
 
-	_identifier = "Attack " + _targetEntity->GetName() + "\n";
+	_identifier = "Attack " + _targetEntity->GetName() + ":\n";
 	BuildGraph();
 }
 
@@ -107,7 +107,7 @@ DestroyPlot::~DestroyPlot() {}
 
 void DestroyPlot::BuildSentence() {
 
-	_sentence += _identifier + ":\n\n";
+	_sentence += _identifier + "\n";
 
 	_sentence += "The brave, yet aggressive, " + _plotEntity->GetRace() + " " + _plotEntity->GetName()
 		+ " has began to destroy the " + _targetEdification->GetOwner()->GetActorLabel()  + " "
@@ -247,7 +247,6 @@ void Stampede::InitPlot() {
 
 	for (int i = 0; i < _heard.size(); i++) {
 
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "bear");
 		_heard[i]->SetIdleGraph(&_plotGraph);
 		_heard[i]->SetState(UOEntity::State::idle);
 	}
