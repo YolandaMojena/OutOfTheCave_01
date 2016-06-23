@@ -85,15 +85,32 @@ bool UOEntity::HasGrabbedItem() {
 /*Graph* UOEntity::GetBrain() {
 	return &_brain;
 }*/
-FString UOEntity::GetRace()
+ERace UOEntity::GetRace()
 {
-	return _raceName;
+	return _race;
 }
-
+FString UOEntity::GetRaceString()
+{
+	FString raceName;
+	const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ERace"), true);
+	if (EnumPtr) raceName = EnumPtr->GetEnumName((int32)_race);
+	raceName.RemoveFromStart("R_");
+	return raceName;
+}
 void UOEntity::SetRace(ERace race)
 {
-	const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ERace"), true);
-	if(EnumPtr) _raceName = EnumPtr->GetEnumName((int32)race);
+	_race = race;
+}
+
+// S E T T E R S
+void UOEntity::SetStrength(float st) {
+	_strength = st;
+}
+void UOEntity::SetSpeed(float sd) {
+	_speed = sd;
+}
+void UOEntity::SetAgility(float ag) {
+	_agility = ag;
 }
 
 
