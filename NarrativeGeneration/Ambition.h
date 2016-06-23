@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-#include "Ontology/OEntity.h"
 #include "Ontology/OEdification.h"
 #include "Ontology/OOwnable.h"
 #include "Ontology/ORelation.h"
@@ -10,6 +9,7 @@
 #include "NarrativeGeneration/PlotGenerator.h"
 
 class BasePlot;
+class UOEntity;
 
 enum  TypeOfAmbition : uint8 {
 

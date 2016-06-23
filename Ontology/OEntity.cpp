@@ -6,6 +6,7 @@
 #include "Ontology/OOwnable.h"
 #include "NarrativeGeneration/PlotGenerator.h"
 #include "EntityAIController.h"
+#include "NarrativeGeneration/Ambition.h"
 #include "Ontology/OEntity.h"
 #include "Ontology/Ocivilian.h"
 #include "BasePlot.h"

@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include "NarrativeGeneration/Ambition.h"
 #include "BasePlot.h"
 
 using namespace std;
@@ -11,7 +12,6 @@ using namespace std;
 class UOEntity;
 class UOOwnable;
 class UOEdification;
-class Ambition;
 class APlotGenerator;
 
 
@@ -61,32 +61,6 @@ private:
 	UOEntity* _targetEntity;
 };
 
-//STAMPEDE
-//**************************************************************************************
-
-class OUTOFTHECAVE_01_API Stampede: public BasePlot
-{
-public:
-	Stampede(ERace race, FVector spawnLocation, FVector targetLocation, float num, APlotGenerator* plotGenerator);
-	Stampede(ERace race, FVector spawnLocation, UOEntity* targetActor, float num, APlotGenerator* plotGenerator);
-	~Stampede();
-
-	void BuildSentence();
-	void InitPlot();
-
-private:
-
-	void BuildGraph();
-	void ConsiderReactions();
-	ERace _race;
-	FString _raceString;
-	FVector _spawnLocation;
-	FVector _targetLocation;
-	UOEntity* _targetActor;
-	APlotGenerator* _plotGenerator;
-	float _num;
-	vector<UOEntity*> _heard;
-};
 
 //BUILD PLOT
 //**************************************************************************************
@@ -124,8 +98,8 @@ public:
 
 	void BuildSentence();
 	void InitPlot();
-	void GetTargetEntity();
-	void GetTargetOwnable();
+	UOEntity* GetTargetEntity();
+	UOOwnable* GetTargetOwnable();
 
 private:
 
@@ -136,6 +110,104 @@ private:
 	UOOwnable* _targetOwnable;
 };
 
+//COLLECT PLOT = GET
+//**************************************************************************************
+
+class OUTOFTHECAVE_01_API GetPlot : public BasePlot
+{
+public:
+	GetPlot(UOEntity* plotEntity, UOOwnable* target, UItem* motivation);
+	GetPlot(UOEntity* plotEntity, UOOwnable* target, TypeOfAmbition ambition);
+	~GetPlot();
+
+	void BuildSentence();
+	void InitPlot();
+	UOOwnable* GetTargetOwnable();
+
+private:
+
+	void BuildGraph();
+	void ConsiderReactions();
+
+	UOOwnable* _targetOwnable;
+	vector<UOEntity*> _owners;
+};
+
+
+
+//AMBUSH OR ASSAULT
+//**************************************************************************************
+
+class OUTOFTHECAVE_01_API AmbushPlot : public BasePlot
+{
+public:
+	AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation);
+	AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition);
+	~AmbushPlot();
+
+	void BuildSentence();
+	UOEntity* GetTargetEntity();
+	void InitPlot();
+
+private:
+
+	void BuildGraph();
+	void ConsiderReactions();
+
+	UOEntity* _targetEntity;
+};
+
+
+//HELP PLOT = IMITATE
+//**************************************************************************************
+
+class OUTOFTHECAVE_01_API HelpPlot : public BasePlot
+{
+public:
+	HelpPlot(UOEntity* plotEntity, UOEntity* target, UItem* motivation);
+	HelpPlot(UOEntity* plotEntity, UOEntity* target, TypeOfAmbition ambition);
+	~HelpPlot();
+
+	void BuildSentence();
+	void InitPlot();
+	UOEntity* GetTargetEntity();
+
+private:
+
+	void BuildGraph();
+	void ConsiderReactions();
+
+	UOEntity* _targetEntity;
+};
+
+
+
+//STAMPEDE
+//**************************************************************************************
+
+class OUTOFTHECAVE_01_API Stampede : public BasePlot
+{
+public:
+	Stampede(ERace race, FVector spawnLocation, FVector targetLocation, float num, APlotGenerator* plotGenerator);
+	Stampede(ERace race, FVector spawnLocation, UOEntity* targetActor, float num, APlotGenerator* plotGenerator);
+	~Stampede();
+
+	void BuildSentence();
+	void InitPlot();
+
+private:
+
+	void BuildGraph();
+	void ConsiderReactions();
+	ERace _race;
+	FString _raceString;
+	FVector _spawnLocation;
+	FVector _targetLocation;
+	UOEntity* _targetActor;
+	APlotGenerator* _plotGenerator;
+	float _num;
+	vector<UOEntity*> _heard;
+};
 
 
 //GATHER PLOT
