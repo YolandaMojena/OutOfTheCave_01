@@ -40,13 +40,8 @@ public:
 	bool ValidateReport(Report* report);
 	void ChangeCurrentPlotsInAction(int dif);
 	vector<UOEntity*> SpawnEntities(int num, ERace race);
-
-	PlotDictionary plotDictionary;
-
-	vector<BasePlot*> reactivePlots;
-	vector<BasePlot*> ambitionPlots;
-	vector<BasePlot*> worldPlots;
-	StringCollection strings;
+	vector<UOOwnable*> GetValuables();
+	vector<UOEntity*> GetNotoriousEntitiesByRace(ERace race);
 
 private:
 
@@ -58,11 +53,22 @@ private:
 	void SpawnReactivePlot();
 	void SpawnWorldPlot();
 
+	PlotDictionary plotDictionary;
+	StringCollection strings;
+
+	vector<BasePlot*> reactivePlots;
+	vector<BasePlot*> ambitionPlots;
+	vector<BasePlot*> worldPlots;
+
 	TArray<Report*> _pReportLog;
 	bool _lastPlotCompleted = true;
 	float _timeToSpawnPlot;
 	int _currentPlotsInAction;
+
 	TSubclassOf<class ACharacter> BP_Bear;
+	vector<UOOwnable*> _valuables;
+	TArray<UOEntity*> _notoriousEntities;
+
 
 	const float _TIME_TO_SPAWN = 5.0f;
 	const int _MAX_PLOTS = 3;

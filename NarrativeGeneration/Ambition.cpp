@@ -19,7 +19,7 @@ BasePlot * Ambition::GenerateAmbitionForEntity(UOEntity * entity)
 	vector<BasePlot*> candidates;
 
 	//POSSESSIONS
-	if (entPersonality->GetMaterialist() > 50 /* && entPersonality->GetCuriousity() > 50*/)
+	if (entPersonality->GetMaterialist() > 50  && entPersonality->GetCurious() > 50)
 		candidates.push_back(GetPosessionsAmbition(entity));
 
 	//EXTERMINATE
@@ -35,11 +35,11 @@ BasePlot * Ambition::GenerateAmbitionForEntity(UOEntity * entity)
 		candidates.push_back(BecomeAppreciatedAmbition(entity));
 
 	//BE FEARED
-	if (entPersonality->GetBraveness < 50 && entPersonality->GetAggressiveness() > 50)
+	if (entPersonality->GetBraveness() < 50 && entPersonality->GetAggressiveness() > 50)
 		candidates.push_back(BecomeFearedAmbition(entity));
 
 	//FRIEND TROLL
-	if (entPersonality->GetSocial < 50 /* && entPersonality->GetCurious() > 50*/)
+	if (entPersonality->GetSocial() < 50 && entPersonality->GetCurious() > 50)
 		candidates.push_back(FriendTrollAmbition(entity));
 
 
@@ -51,8 +51,8 @@ BasePlot * Ambition::GenerateAmbitionForEntity(UOEntity * entity)
 
 BasePlot * Ambition::GetPosessionsAmbition(UOEntity * entity)
 {
-	BasePlot* ambitionPlot;
-	UOOwnable* valuableToOwn;
+	BasePlot* ambitionPlot = nullptr;
+	UOOwnable* valuableToOwn = nullptr;
 	vector<UOOwnable*> valuables;
 	//valuables = _plotGenerator->GetValuables();
 
@@ -64,7 +64,7 @@ BasePlot * Ambition::GetPosessionsAmbition(UOEntity * entity)
 	}
 
 	if (valuableToOwn->GetOwners().size() > 0) {
-		
+
 		for (UOEntity* o : valuableToOwn->GetOwners()) {
 
 			// Check inventory
@@ -76,6 +76,7 @@ BasePlot * Ambition::GetPosessionsAmbition(UOEntity * entity)
 	}
 	// else ambitionPlot = new GetPlot(entity, valuableToOwn, entity);
 
+
 	return ambitionPlot;
 }
 
@@ -83,7 +84,7 @@ BasePlot * Ambition::ExterminateAmbition(UOEntity * entity)
 {
 	//check race
 	//check notorious entities from that race
-	BasePlot* ambitionPlot;
+	BasePlot* ambitionPlot = nullptr;
 
 
 	return ambitionPlot;
@@ -91,24 +92,24 @@ BasePlot * Ambition::ExterminateAmbition(UOEntity * entity)
 
 BasePlot * Ambition::BecomeNotoriousAmbition(UOEntity * entity)
 {
-	BasePlot* ambitionPlot;
+	BasePlot* ambitionPlot = nullptr;
 	return ambitionPlot;
 }
 
 BasePlot * Ambition::BecomeAppreciatedAmbition(UOEntity * entity)
 {
-	BasePlot* ambitionPlot;
+	BasePlot* ambitionPlot = nullptr;
 	return ambitionPlot;
 }
 
 BasePlot * Ambition::BecomeFearedAmbition(UOEntity * entity)
 {
-	BasePlot* ambitionPlot;
+	BasePlot* ambitionPlot = nullptr;
 	return ambitionPlot;
 }
 
 BasePlot * Ambition::FriendTrollAmbition(UOEntity * entity)
 {
-	BasePlot* ambitionPlot;
+	BasePlot* ambitionPlot = nullptr;
 	return ambitionPlot;
 }

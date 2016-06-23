@@ -288,6 +288,22 @@ vector<UOEntity*> APlotGenerator::SpawnEntities(int num, ERace race) {
 	return spawnedHeard;
 }
 
+vector<UOOwnable*> APlotGenerator::GetValuables()
+{
+	return _valuables;
+}
+
+vector<UOEntity*> APlotGenerator::GetNotoriousEntitiesByRace(ERace race)
+{
+	vector<UOEntity*> entities;
+
+	for (UOEntity* e : _notoriousEntities)
+		if (e->GetRace() == race)
+			entities.push_back(e);
+
+	return entities;
+}
+
 FVector APlotGenerator::RandomDisplacementVector(int radius)
 {
 	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);

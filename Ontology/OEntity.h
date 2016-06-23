@@ -123,7 +123,8 @@ public:
 	UOEntity* GetMainPlotEntity();
 	void SetMainPlotEntity(UOEntity* mpe);
 	APlotGenerator* GetPlotGenerator();
-	FString GetRace();
+	ERace GetRace();
+	FString GetRaceString();
 	void SetRace(ERace race);
 
 	void SetAIController(AEntityAIController* eaic);
@@ -160,7 +161,7 @@ protected:
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
 
 	State _currentState;
-	FString _raceName;
+	ERace _race;
 	vector<BasePlot*> _currentPlots;
 	UOEntity* _mainPlotEntity;
 	Graph _brain;
