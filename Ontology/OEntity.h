@@ -9,6 +9,7 @@
 #include "BasePlot.h"
 #include <algorithm>
 #include <string>
+#include <cstdlib>
 
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
@@ -76,10 +77,7 @@ public:
 		float _speed;		// mainly movement speed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EntityTraits)
 		float _agility;		// mainly attack cooldown
-	void SetStrength(float st);
-	void SetSpeed(float sd);
-	void SetAgility(float ag);
-	void GenerateTraits();
+	
 
 	vector<ORelation*> GetRelationships();
 	vector<OOwnership*> GetPossessions();
@@ -87,7 +85,11 @@ public:
 	OPersonality* GetPersonality();
 	int GetNotoriety();
 	void ChangeNotoriety(int value);
-	int GetStrength();
+	float GetStrength();
+	float GetSpeed();
+	float GetAgility();
+
+
 
 	void AddRelationship(ORelation* newRelation);
 	void AddRelationship(UOEntity* newEntity);
@@ -129,6 +131,8 @@ public:
 	ERace GetRace();
 	FString GetRaceString();
 	void SetRace(ERace race);
+	EJob GetJob();
+	void SetJob(EJob);
 
 	void SetAIController(AEntityAIController* eaic);
 	void ExecuteGraph();
@@ -160,6 +164,11 @@ public:
 	float _currentTime = 10;
 	
 protected:
+	void SetStrength(float st);
+	void SetSpeed(float sd);
+	void SetAgility(float ag);
+	void GenerateTraits();
+
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
 

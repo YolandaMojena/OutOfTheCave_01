@@ -31,6 +31,8 @@ void UOEntity::BeginPlay() {
 		//((ACharacter*)GetOwner())->GetMesh()->SetAllBodiesBelowSimulatePhysics(((ACharacter*)GetOwner())->GetMesh()->GetBoneName(1), true);
 		for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
 			_plotGenerator = *Itr;
+		
+		GenerateTraits();
 	}
 }
 
@@ -71,17 +73,12 @@ UOEntity* UOEntity::GetMainPlotEntity() {
 	return _mainPlotEntity;
 }
 
-int UOEntity::GetStrength() {
-	return _strength;
-}
-
 UItem* UOEntity::GetGrabbedItem() {
 	return _grabbedItem;
 }
 bool UOEntity::HasGrabbedItem() {
 	return _grabbedItem != nullptr;
 }
-
 /*Graph* UOEntity::GetBrain() {
 	return &_brain;
 }*/
@@ -97,10 +94,19 @@ FString UOEntity::GetRaceString()
 	raceName.RemoveFromStart("R_");
 	return raceName;
 }
-void UOEntity::SetRace(ERace race)
-{
-	_race = race;
+float UOEntity::GetStrength() {
+	return _strength;
 }
+float UOEntity::GetSpeed() {
+	return _speed;
+}
+float UOEntity::GetAgility() {
+	return _agility;
+}
+EJob UOEntity::GetJob() {
+	return _job;
+}
+
 
 // S E T T E R S
 void UOEntity::SetStrength(float st) {
@@ -112,7 +118,73 @@ void UOEntity::SetSpeed(float sd) {
 void UOEntity::SetAgility(float ag) {
 	_agility = ag;
 }
+void UOEntity::SetRace(ERace race)
+{
+	_race = race;
+}
+void UOEntity::SetJob(EJob job) {
+	_job = job;
+}
+void UOEntity::GenerateTraits() {
+	const float BASE_MOVEMENT_SPEED = 300.f;
+	const float MOVEMENT_SPEED_GROWTH = 6.f;
+	const float BASE_JUMP_FORCE = 1400.f;
+	const float JUMP_FORCE_GROWTH = 2.f;
 
+	const int RANDOM_WIDTH = 5;
+	//+ rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH
+
+	switch (_job) {
+	case EJob::J_Farmer:
+		SetStrength(20);
+		SetSpeed(25);
+		SetAgility(10);
+		break;
+	case EJob::J_Ironsmith:
+		SetStrength(30);
+		SetSpeed(15);
+		SetAgility(10);
+		break;
+	case EJob::J_Miner:
+		SetStrength(30);
+		SetSpeed(15);
+		SetAgility(15);
+		break;
+	case EJob::J_Peasant:
+		SetStrength(20);
+		SetSpeed(20);
+		SetAgility(10);
+		break;
+	case EJob::J_Shaman:
+		SetStrength(10);
+		SetSpeed(10);
+		SetAgility(10);
+		break;
+	case EJob::J_Soldier:
+		SetStrength(30);
+		SetSpeed(30);
+		SetAgility(30);
+		break;
+	
+	case EJob::J_Herbibore:
+		SetStrength(50);
+		SetSpeed(50);
+		SetAgility(50);
+		break;
+	case EJob::J_Predator:
+		SetStrength(60);
+		SetSpeed(60);
+		SetAgility(60);
+		break;
+	}
+
+	SetStrength(GetStrength() + rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH);
+	SetSpeed(GetSpeed() + rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH);
+	SetAgility(GetAgility() + rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH);
+
+	((ACharacter*)GetOwner())->GetCharacterMovement()->MaxWalkSpeed = BASE_MOVEMENT_SPEED + MOVEMENT_SPEED_GROWTH * GetSpeed();
+	((ACharacter*)GetOwner())->GetCharacterMovement()->JumpZVelocity = BASE_JUMP_FORCE + JUMP_FORCE_GROWTH * (GetStrength() + GetAgility());
+}
 
 // R E L A T I O N S
 
