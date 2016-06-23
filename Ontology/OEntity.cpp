@@ -102,6 +102,17 @@ void UOEntity::SetRace(ERace race)
 	_race = race;
 }
 
+// S E T T E R S
+void UOEntity::SetStrength(float st) {
+	_strength = st;
+}
+void UOEntity::SetSpeed(float sd) {
+	_speed = sd;
+}
+void UOEntity::SetAgility(float ag) {
+	_agility = ag;
+}
+
 
 // R E L A T I O N S
 

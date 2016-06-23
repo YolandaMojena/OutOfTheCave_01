@@ -79,6 +79,8 @@ void UOResidence::SpawnTenants() {
 				ten->SetIdleGraph(GenerateIdleFromJob());
 				ten->SetState(UOEntity::State::idle);
 
+				ten->SetStrength();
+
 				tentants.push_back(ten);
 			}
 		}

@@ -76,7 +76,10 @@ public:
 		float _speed;		// mainly movement speed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EntityTraits)
 		float _agility;		// mainly attack cooldown
-
+	void SetStrength(float st);
+	void SetSpeed(float sd);
+	void SetAgility(float ag);
+	void GenerateTraits();
 
 	vector<ORelation*> GetRelationships();
 	vector<OOwnership*> GetPossessions();
@@ -162,6 +165,8 @@ protected:
 
 	State _currentState;
 	ERace _race;
+	EJob _job;
+
 	vector<BasePlot*> _currentPlots;
 	UOEntity* _mainPlotEntity;
 	Graph _brain;
