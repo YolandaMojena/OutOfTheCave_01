@@ -25,8 +25,8 @@ void AttackPlot::BuildSentence() {
 
 	_sentence += _identifier + "\n";
 
-	_sentence += "The brave, yet aggressive, " + _plotEntity->GetRace() + " " + _plotEntity->GetName()
-		+ " has began an attack against the despicable " + _targetEntity->GetRace() + " "
+	_sentence += "The brave, yet aggressive, " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
+		+ " has began an attack against the despicable " + _targetEntity->GetRaceString() + " "
 		+ _targetEntity->GetName() + ", who ";
 		_sentence += _motivation->IsA<UOEntity>() ?
 		"hurt his friend " + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetName()
@@ -109,7 +109,7 @@ void DestroyPlot::BuildSentence() {
 
 	_sentence += _identifier + "\n";
 
-	_sentence += "The brave, yet aggressive, " + _plotEntity->GetRace() + " " + _plotEntity->GetName()
+	_sentence += "The brave, yet aggressive, " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
 		+ " has began to destroy the " + _targetEdification->GetOwner()->GetActorLabel()  + " "
 		", which belongs to ";
 
@@ -270,7 +270,7 @@ BuildPlot::BuildPlot(UOEntity* plotEntity, UOEdification* target, UItem* motivat
 BuildPlot::~BuildPlot() {}
 
 void BuildPlot::BuildSentence() {
-	_sentence = "The unfortunate " + _plotEntity->GetRace() + " " + _plotEntity->GetName() + " is rebuilding his/her home, which was destroyed by the merciless " + ((UOEntity*)_motivation)->GetRace() + " " + _motivation->GetName();
+	_sentence = "The unfortunate " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " is rebuilding his/her home, which was destroyed by the merciless " + ((UOEntity*)_motivation)->GetRaceString() + " " + _motivation->GetName();
 	_sentence += ". He counts with the help of ";
 
 	if (_involvedInPlot.size() > 0) {

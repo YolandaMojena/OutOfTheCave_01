@@ -126,7 +126,8 @@ public:
 	UOEntity* GetMainPlotEntity();
 	void SetMainPlotEntity(UOEntity* mpe);
 	APlotGenerator* GetPlotGenerator();
-	FString GetRace();
+	ERace GetRace();
+	FString GetRaceString();
 	void SetRace(ERace race);
 
 	void SetAIController(AEntityAIController* eaic);
@@ -164,8 +165,8 @@ protected:
 
 	State _currentState;
 	ERace _race;
-	FString _raceName;
 	EJob _job;
+
 	vector<BasePlot*> _currentPlots;
 	UOEntity* _mainPlotEntity;
 	Graph _brain;
