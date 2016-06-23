@@ -36,11 +36,10 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
 
-	void SpawnReactivePlot();
-
 	void AddReportToLog(Report* newReport);
 	bool ValidateReport(Report* report);
 	void ChangeCurrentPlotsInAction(int dif);
+	vector<UOEntity*> SpawnEntities(int num, ERace race);
 
 	PlotDictionary plotDictionary;
 
@@ -54,8 +53,10 @@ private:
 	bool ContainsReport(Report* newReport);
 	void GetPlotFromReportLog();
 	vector<UOEntity*> WeHaveALotInCommon(Report* report);
-	vector<UOEntity*> SpawnEntities(int num, ERace race);
 	FVector RandomDisplacementVector(int radius);
+
+	void SpawnReactivePlot();
+	void SpawnWorldPlot();
 
 	TArray<Report*> _pReportLog;
 	bool _lastPlotCompleted = true;
@@ -63,10 +64,8 @@ private:
 	int _currentPlotsInAction;
 	TSubclassOf<class ACharacter> BP_Bear;
 
-	const float _TIME_TO_SPAWN = 25.0f;
-	const FString SavePath = FPaths::GameDir() + "SavedFiles/";
-	const FString PlotFile = "PlotReport.txt";
-	const FString ReportFile = "ReportReport.txt";
+	const float _TIME_TO_SPAWN = 5.0f;
+	const int _MAX_PLOTS = 3;
 
 	bool ValidateAttackPlot(AttackPlot* plot);
 	//bool ValidateBuildPlot(BuildPlot* build);

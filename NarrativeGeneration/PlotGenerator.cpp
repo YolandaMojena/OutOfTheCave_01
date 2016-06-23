@@ -22,11 +22,7 @@ void APlotGenerator::BeginPlay()
 	Super::BeginPlay();
 
 	//Insert on of each
-	//worldPlots.push_back(new Stampede("Bear", GetActorLocation(), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), SpawnEntities(rand() % 10 + 5, ERace::R_Bear)));
-
-
-	//worldPlots[0]->InitPlot();
-	//worldPlots[0]->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
+	worldPlots.push_back(new Stampede(ERace::R_Bear, GetActorLocation(), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), rand() % 10 + 5, this));
 }
 
 // Called every frame
@@ -34,25 +30,33 @@ void APlotGenerator::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	GetPlotFromReportLog();
+	// PLOT SPAWN
 
-	if (_lastPlotCompleted && reactivePlots.size() > 0) {
+	if (_timeToSpawnPlot < _TIME_TO_SPAWN)
+		_timeToSpawnPlot += DeltaTime;
 
-		_lastPlotCompleted = false;
-		SpawnReactivePlot();
+	else {
+		if (_currentPlotsInAction <= _MAX_PLOTS) {
+			//if (rand() % 100 >98) {
+				//SpawnWorldPlot();
+				//_timeToSpawnPlot = 0;
+			//}
+			//else {
+				if(reactivePlots.empty())
+					GetPlotFromReportLog();
+				if (reactivePlots.size() > 0) {
+					SpawnReactivePlot();
+					_timeToSpawnPlot = 0;
+				}
+			//}
+		}
 	}
 }
 
 bool APlotGenerator::ValidateReport(Report* report)
 {
-	if (report->GetTag() == Report::ReportTag::relation) {
-		return (!report->GetReportEntity()->GetIsDead() || !report->GetTargetEntity()->GetIsDead());
-	}
-	else if (report->GetTag() == Report::ReportTag::ownership) {
-		return (!report->GetReportEntity()->GetIsDead());
-	}
-
-	else return true;
+		//return (report->GetReportEntity() == nullptr);
+	return true;
 }
 
 void APlotGenerator::ChangeCurrentPlotsInAction(int dif)
@@ -66,7 +70,7 @@ void APlotGenerator::SpawnReactivePlot()
 		BasePlot* currentPlot = reactivePlots.at(0);
 		reactivePlots.erase(reactivePlots.begin());
 		currentPlot->PrintSentence();
-		currentPlot->SavePlotToFile(SavePath, PlotFile);
+		currentPlot->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
 
 		UOEntity* plotEntity = currentPlot->GetMainEntity();
 		plotEntity->AddCurrentPlot(currentPlot);
@@ -78,11 +82,18 @@ void APlotGenerator::SpawnReactivePlot()
 	}
 }
 
+void APlotGenerator::SpawnWorldPlot()
+{
+	int randPlot = rand()% worldPlots.size();
+	worldPlots[randPlot]->InitPlot();
+	worldPlots[randPlot]->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
+}
+
 void APlotGenerator::AddReportToLog(Report* newReport)
 {
 	if (!ContainsReport(newReport)) {
 		_pReportLog.HeapPush(newReport, Report::ReportNotoriety());
-		newReport->SaveReportToFile(SavePath, ReportFile);
+		newReport->SaveReportToFile(Utilities::SavePath, Utilities::ReportFile);
 	}
 }
 
@@ -116,16 +127,19 @@ void APlotGenerator::GetPlotFromReportLog() {
 		Report* currentReport;
 		_pReportLog.HeapPop(currentReport, Report::ReportNotoriety());
 
-		while (!ValidateReport(currentReport) && _pReportLog.Num() > 0) {
+		bool validReport = ValidateReport(currentReport);
+
+		while (!validReport && _pReportLog.Num() > 0) {
 			_pReportLog.HeapPop(currentReport, Report::ReportNotoriety());
+			validReport = ValidateReport(currentReport);
 		}
 
-		if (ValidateReport(currentReport)) {
+		if (validReport) {
 
 			vector<string> plotCandidates = plotDictionary.GetPlotsOfType(currentReport->GetType());
 
 			bool plotIsValid = false;
-			BasePlot* newPlot;
+			BasePlot* newPlot = nullptr;
 
 			while (!plotIsValid) {
 
@@ -134,24 +148,13 @@ void APlotGenerator::GetPlotFromReportLog() {
 
 				if (plot == strings.ATTACK_PLOT) {
 					newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
-
 					plotIsValid = ValidateAttackPlot((AttackPlot*) newPlot);
 
 					if (plotIsValid) {
 						newPlot->InitPlot();
 						currentReport->GetReportEntity()->ChangeNotoriety(3);
 						currentReport->GetTargetEntity()->ChangeNotoriety(2);
-
-						if (!newPlot->GetIsExclusive()) {
-							for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
-								newPlot->AddInvolvedInPlot(entity);
-								entity->ChangeNotoriety(1);
-							}
-						}
-						newPlot->BuildSentence();
-						reactivePlots.push_back(newPlot);
 					}
-
 					else plotCandidates.erase(plotCandidates.begin() + randType);
 				}
 
@@ -163,21 +166,37 @@ void APlotGenerator::GetPlotFromReportLog() {
 						newPlot->InitPlot();
 						currentReport->GetReportEntity()->ChangeNotoriety(3);
 						currentReport->GetTargetEntity()->ChangeNotoriety(2);
+					}
+					else plotCandidates.erase(plotCandidates.begin() + randType);
+				}
+				else if (plot == strings.BUILD_PLOT) {
+					newPlot = new BuildPlot(currentReport->GetReportEntity(), (UOEdification*)currentReport->GetTargetOwnable(), currentReport->GetMotivation());
+					plotIsValid = true;
 
-						if (!newPlot->GetIsExclusive()) {
-							for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
-								newPlot->AddInvolvedInPlot(entity);
-								entity->ChangeNotoriety(1);
-							}
-						}
-						newPlot->BuildSentence();
-						reactivePlots.push_back(newPlot);
+					if (plotIsValid) {
+						newPlot->InitPlot();
+						currentReport->GetReportEntity()->ChangeNotoriety(3);
 					}
 					else plotCandidates.erase(plotCandidates.begin() + randType);
 				}
 
+				// Unknown type
+				else plotCandidates.erase(plotCandidates.begin() + randType);
+
 				if (plotCandidates.size() == 0)
 					break;
+			}
+
+
+			if (plotIsValid) {
+				if (!newPlot->GetIsExclusive()) {
+					for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
+						newPlot->AddInvolvedInPlot(entity);
+						entity->ChangeNotoriety(1);
+					}
+				}
+				newPlot->BuildSentence();
+				reactivePlots.push_back(newPlot);
 			}
 		}
 	}
@@ -187,7 +206,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 PlotDictionary::PlotDictionary() {
 
 	_plotDictionary = { {TypeOfPlot::aggressive, {strings.ATTACK_PLOT, strings.DESTROY_PLOT}},
-	{ TypeOfPlot::resources, { strings.GATHER_PLOT } },
+	{ TypeOfPlot::resources, { strings.BUILD_PLOT } },
 	{ TypeOfPlot::possessive , { strings.ROBBERY_PLOT } } };
 }
 

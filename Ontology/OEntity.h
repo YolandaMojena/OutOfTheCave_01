@@ -1,5 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+#define LOCTEXT_NAMESPACE "FText Namespace" 
 #pragma once
 
 #include "Ontology/Item.h"
@@ -21,6 +21,7 @@ using namespace std;
 
 class ORelation;
 class OOwnership;
+class OEdification;
 class UOOwnable;
 class APlotGenerator;
 class Report;
@@ -59,6 +60,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
 		bool _isEntityAttacking;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
+		bool _isEntityBuilding;
+
 	// It must be considered whether if the entity is the player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 		bool IsPlayer;
@@ -84,6 +88,7 @@ public:
 
 	void AddRelationship(ORelation* newRelation);
 	void AddRelationship(UOEntity* newEntity);
+	void AddPotentialRelationship(UOEntity* newEntity);
 	void AddPossession(OOwnership* newOwnership);
 	void AddPossession(UOOwnable* newOwnable);
 	void AddTerritory(OTerritory* newTerritory);
@@ -99,6 +104,7 @@ public:
 	ORelation* GetRelationWith(UOEntity* other);
 	OOwnership* GetOwnershipWith(UOOwnable* other);
 	void DeleteRelation(UOEntity* relation);
+	void DeletePotentitalRelationship(UOEntity* entity);
 	void DeletePossession(UOOwnable* possession);
 	void DeleteDesire(UOOwnable* desire);
 
@@ -131,6 +137,8 @@ public:
 	bool RemoveFromInventory(int i);
 
 	void Attack();
+	void RebuildEdification(UOEdification* home);
+	void StopRebuildEdification();
 	bool GetIsEntityAttacking();
 	void SetIsEntityAttacking(bool attacking);
 
@@ -164,6 +172,7 @@ protected:
 	APlotGenerator* _plotGenerator;
 
 	vector<ORelation*> _relationships;
+	vector<UOEntity*> _potentialRelationships;
 	vector<OOwnership*> _possessions;
 	vector<OOwnership*> _materialDesires;
 	vector<OTerritory*> _landlord;
@@ -180,4 +189,12 @@ protected:
 
 	vector<UOOwnable*> _inventory;
 	UItem* _grabbedItem;
+
+private:
+
+	class UOOwnable* _deadOwnable;
+
+		
 };
+
+#undef LOCTEXT_NAMESPACE 

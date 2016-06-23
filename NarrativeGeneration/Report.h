@@ -24,7 +24,7 @@ public:
 	};
 
 	Report(ORelation* newRelation, TypeOfPlot type, UItem* motivation);
-	Report(OOwnership* newOwnership, TypeOfPlot types, UItem* motivation);
+	Report(OOwnership* newOwnership, TypeOfPlot type, UItem* motivation);
 	Report(UOEntity* reportEntity);
 
 	~Report();
@@ -47,7 +47,7 @@ public:
 		bool operator()(Report& A, Report& B) const
 		{
 			// Inverted compared to std::priority_queue - higher priorities float to the top
-			return A.GetReportEntity()->GetNotoriety() > B.GetReportEntity()->GetNotoriety();
+			return A.GetReportEntity()->GetNotoriety() >= B.GetReportEntity()->GetNotoriety();
 		}
 	};
 

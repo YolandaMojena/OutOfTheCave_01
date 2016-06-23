@@ -23,10 +23,12 @@ void AEntityAIController::SetNode(Node* n) {
 	case NodeType::branch:
 		break;
 	case NodeType::build:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Edification"), n->nBlackboard.edification);
 		break;
 	case NodeType::celebrate:
 		break;
 	case NodeType::destroy:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Edification"), n->nBlackboard.edification);
 		break;
 	case NodeType::enter:
 		break;

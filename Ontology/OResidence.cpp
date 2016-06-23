@@ -50,37 +50,37 @@ void UOResidence::SpawnTenants() {
 	for (int i = 0; i < numTenants; i++) {
 		// Spawn Params -> https://wiki.unrealengine.com/Templates_in_C%2B%2B
 		ACharacter* tentantCharacter = GetTentantCharacterFromRace();
-
 		if (tentantCharacter) {
 			UOEntity* ten = tentantCharacter->FindComponentByClass<UOEntity>();
+			if (ten) {
+				// SET RELATIONS
+				for (UOEntity* ent : tentants) {
+					ORelation* rel = new ORelation(ten, ent);
+					ten->AddRelationship(rel);
+					rel = new ORelation(ent, ten);
+					ent->AddRelationship(rel);
+				}
 
-			// SET RELATIONS
-			for (UOEntity* ent : tentants) {
-				ORelation* rel = new ORelation(ten, ent);
-				ten->AddRelationship(rel);
-				rel = new ORelation(ent, ten);
-				ent->AddRelationship(rel);
-			}
-
-			if (villageID != 0) {
-				for (UOEdification* edf : _village->edifications) {
-					UOResidence* res = (UOResidence*)edf;
-					for (UOEntity* ent : res->tentants) {
-						ORelation* rel = new ORelation(ten, ent);
-						ten->AddRelationship(rel);
-						rel = new ORelation(ent, ten);
-						ent->AddRelationship(rel);
+				if (villageID != 0) {
+					for (UOEdification* edf : _village->edifications) {
+						UOResidence* res = (UOResidence*)edf;
+						for (UOEntity* ent : res->tentants) {
+							ORelation* rel = new ORelation(ten, ent);
+							ten->AddRelationship(rel);
+							rel = new ORelation(ent, ten);
+							ent->AddRelationship(rel);
+						}
 					}
 				}
+
+				// SET OWNERSHIP WITH THE EDIFICATION
+				ten->AddPossession(new OOwnership(ten, ((UOOwnable*)this), 25 + ten->GetPersonality()->GetMaterialist()));
+
+				ten->SetIdleGraph(GenerateIdleFromJob());
+				ten->SetState(UOEntity::State::idle);
+
+				tentants.push_back(ten);
 			}
-
-			// SET OWNERSHIP WITH THE EDIFICATION
-			ten->AddPossession(new OOwnership(ten, ((UOOwnable*)this), 25 + ten->GetPersonality()->GetMaterialist()));
-
-			ten->SetIdleGraph(GenerateIdleFromJob());
-			ten->SetState(UOEntity::State::idle);
-
-			tentants.push_back(ten);
 		}
 	}
 	_village->edifications.push_back(this);

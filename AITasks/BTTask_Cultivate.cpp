@@ -18,6 +18,6 @@ EBTNodeResult::Type UBTTask_Cultivate::ExecuteTask(UBehaviorTreeComponent& Owner
 		}
 	}
 
-	return EBTNodeResult::InProgress;
+	return EBTNodeResult::Succeeded;
 }
 

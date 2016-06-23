@@ -354,7 +354,6 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 
 		if (targetDestructible) {
 
-			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Hit a destrutible"));
 			//MUST DEPEND ON DAMAGE
 			targetDestructible->ApplyRadiusDamage(10, GetMesh()->GetSocketLocation("MainSocket"), 35, 0.01, false);
 		}

@@ -5,6 +5,7 @@
 #include "AIController.h"
 #include "Node.h"
 #include "Ontology/OEntity.h"
+#include "Ontology/OEdification.h"
 
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
