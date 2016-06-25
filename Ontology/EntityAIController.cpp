@@ -18,7 +18,7 @@ void AEntityAIController::SetNode(Node* n) {
 	case NodeType::askForHelp:
 		break;
 	case NodeType::attack:
-		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("EntityA") , n->nBlackboard.entityA);
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity") , n->nBlackboard.entity);
 		break;
 	case NodeType::branch:
 		break;
@@ -41,7 +41,7 @@ void AEntityAIController::SetNode(Node* n) {
 		entityBlackboard->SetValue<UBlackboardKeyType_Vector>(positionID, n->nBlackboard.position);
 		break;
 	case NodeType::goToItem:
-		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("ActorA"), n->nBlackboard.actorA);
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
 	case NodeType::grab:
 		break;
 	case NodeType::cultivate:

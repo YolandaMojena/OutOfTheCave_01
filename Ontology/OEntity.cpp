@@ -14,25 +14,35 @@
 UOEntity::UOEntity() {
 	_personality = new OPersonality();
 	_deadOwnable = CreateDefaultSubobject<UOOwnable>(TEXT("DeadOwnable"));
-	HitFunc.BindUFunction(this, "OnOverlapBegin");
 }
 
 UOEntity::UOEntity(OPersonality* personality) {
 	_personality = personality;
-	_deadOwnable = CreateDefaultSubobject<UOOwnable>(TEXT("DeadOwnable"));
-
-	HitFunc.BindUFunction(this, "OnOverlapBegin");
+	_deadOwnable = CreateDefaultSubobject<UOOwnable>(TEXT("DeadOwnable"));	
 }
 
 void UOEntity::BeginPlay() {
 
 	Super::BeginPlay();
-	_plotGenerator->AddNotorious(this);
+
+	if (!IsPlayer) {
+		//((ACharacter*)GetOwner())->GetMesh()->SetAllBodiesBelowSimulatePhysics(((ACharacter*)GetOwner())->GetMesh()->GetBoneName(1), true);
+		for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
+			_plotGenerator = *Itr;
+		
+		GenerateTraits();
+		HitFunc.BindUFunction(GetOwner(), "OnOverlapBegin");
+		plotGenerator->AddNotorious(this);
+	}
 }
 
 void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (_isEntityAttacking && _attackCooldown > 0) {
+		_attackCooldown -= DeltaTime;
+	}
 }
 
 
@@ -68,17 +78,12 @@ UOEntity* UOEntity::GetMainPlotEntity() {
 	return _mainPlotEntity;
 }
 
-int UOEntity::GetStrength() {
-	return _strength;
-}
-
 UItem* UOEntity::GetGrabbedItem() {
 	return _grabbedItem;
 }
 bool UOEntity::HasGrabbedItem() {
 	return _grabbedItem != nullptr;
 }
-
 /*Graph* UOEntity::GetBrain() {
 	return &_brain;
 }*/
@@ -97,10 +102,37 @@ FString UOEntity::GetRaceString()
 		return raceName;
 	}
 }
-void UOEntity::SetRace(ERace race)
-{
-	_race = race;
+float UOEntity::GetStrength() {
+	return _strength;
 }
+float UOEntity::GetSpeed() {
+	return _speed;
+}
+float UOEntity::GetAgility() {
+	return _agility;
+}
+float UOEntity::GetKindness() {
+	return _personality->GetKindness();
+}
+float UOEntity::GetAggressiveness() {
+	return _personality->GetAggressiveness();
+}
+float UOEntity::GetBraveness() {
+	return _personality->GetBraveness();
+}
+float UOEntity::GetAppreciationTo(UOEntity* ent) {
+	return GetRelationWith(ent)->GetAppreciation();
+}
+float UOEntity::GetRespectTo(UOEntity* ent) {
+	return GetRelationWith(ent)->GetRespect();
+}
+float UOEntity::GetFearTo(UOEntity* ent) {
+	return GetRelationWith(ent)->GetFear();
+}
+EJob UOEntity::GetJob() {
+	return _job;
+}
+
 
 // S E T T E R S
 void UOEntity::SetStrength(float st) {
@@ -112,7 +144,73 @@ void UOEntity::SetSpeed(float sd) {
 void UOEntity::SetAgility(float ag) {
 	_agility = ag;
 }
+void UOEntity::SetRace(ERace race)
+{
+	_race = race;
+}
+void UOEntity::SetJob(EJob job) {
+	_job = job;
+}
+void UOEntity::GenerateTraits() {
+	const float BASE_MOVEMENT_SPEED = 300.f;
+	const float MOVEMENT_SPEED_GROWTH = 6.f;
+	const float BASE_JUMP_FORCE = 1400.f;
+	const float JUMP_FORCE_GROWTH = 2.f;
 
+	const int RANDOM_WIDTH = 5;
+	//+ rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH
+
+	switch (_job) {
+	case EJob::J_Farmer:
+		SetStrength(20);
+		SetSpeed(25);
+		SetAgility(10);
+		break;
+	case EJob::J_Ironsmith:
+		SetStrength(30);
+		SetSpeed(15);
+		SetAgility(10);
+		break;
+	case EJob::J_Miner:
+		SetStrength(30);
+		SetSpeed(15);
+		SetAgility(15);
+		break;
+	case EJob::J_Peasant:
+		SetStrength(20);
+		SetSpeed(20);
+		SetAgility(10);
+		break;
+	case EJob::J_Shaman:
+		SetStrength(10);
+		SetSpeed(10);
+		SetAgility(10);
+		break;
+	case EJob::J_Soldier:
+		SetStrength(30);
+		SetSpeed(30);
+		SetAgility(30);
+		break;
+	
+	case EJob::J_Herbibore:
+		SetStrength(50);
+		SetSpeed(50);
+		SetAgility(50);
+		break;
+	case EJob::J_Predator:
+		SetStrength(60);
+		SetSpeed(60);
+		SetAgility(60);
+		break;
+	}
+
+	SetStrength(GetStrength() + rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH);
+	SetSpeed(GetSpeed() + rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH);
+	SetAgility(GetAgility() + rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH);
+
+	((ACharacter*)GetOwner())->GetCharacterMovement()->MaxWalkSpeed = BASE_MOVEMENT_SPEED + MOVEMENT_SPEED_GROWTH * GetSpeed();
+	((ACharacter*)GetOwner())->GetCharacterMovement()->JumpZVelocity = BASE_JUMP_FORCE + JUMP_FORCE_GROWTH * (GetStrength() + GetAgility());
+}
 
 // R E L A T I O N S
 
@@ -507,7 +605,7 @@ void UOEntity::SetState(State s, Graph* g) {
 
 				Node* comeToEntity = new Node();
 				comeToEntity->SetNodeType(NodeType::goToItem);
-				comeToEntity->SetActorA(_mainPlotEntity->GetOwner());
+				comeToEntity->SetActor(_mainPlotEntity->GetOwner());
 				_brain.AddInstantNode(comeToEntity);
 				_brain.NextNode();
 			}
@@ -613,14 +711,25 @@ bool UOEntity::RemoveFromInventory(int i) {
 
 void UOEntity::Attack()
 {
-	if (!_isEntityAttacking) _isEntityAttacking = true;
+	const float BASE_ATTACK_COOLDOWN = 1.2f;
+
+	if (!_isEntityAttacking) {
+		_isEntityAttacking = true;
+		_attackCooldown = BASE_ATTACK_COOLDOWN - _agility / 100.f;
+	}
 }
-bool UOEntity::GetIsEntityAttacking() {
+void UOEntity::EndAttack() {
+	_isEntityAttacking = false;
+}
+bool UOEntity::IsEntityAttacking() {
 	return _isEntityAttacking;
 }
-void UOEntity::SetIsEntityAttacking(bool attacking) {
-	_isEntityAttacking = attacking;
+float UOEntity::GetAttackCooldown() {
+	return _attackCooldown;
 }
+/*void UOEntity::SetIsEntityAttacking(bool attacking) {
+	_isEntityAttacking = attacking;
+}*/
 void UOEntity::RebuildEdification(UOEdification * home)
 {
 	if (!_isEntityBuilding) _isEntityBuilding = true;

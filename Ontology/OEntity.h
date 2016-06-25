@@ -9,6 +9,7 @@
 #include "BasePlot.h"
 #include <algorithm>
 #include <string>
+#include <cstdlib>
 
 
 #include "BehaviorTree/BehaviorTree.h"
@@ -86,10 +87,7 @@ public:
 		float _speed;		// mainly movement speed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EntityTraits)
 		float _agility;		// mainly attack cooldown
-	void SetStrength(float st);
-	void SetSpeed(float sd);
-	void SetAgility(float ag);
-	void GenerateTraits();
+	
 
 	vector<ORelation*> GetRelationships();
 	vector<OOwnership*> GetPossessions();
@@ -97,7 +95,28 @@ public:
 	OPersonality* GetPersonality();
 	int GetNotoriety();
 	void ChangeNotoriety(int value);
-	int GetStrength();
+	UFUNCTION(BlueprintCallable, Category = "Entity")
+		float GetStrength();
+	UFUNCTION(BlueprintCallable, Category = "Entity")
+		float GetSpeed();
+	UFUNCTION(BlueprintCallable, Category = "Entity")
+		float GetAgility();
+
+	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
+		float GetKindness();
+	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
+		float GetAggressiveness();
+	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
+		float GetBraveness();
+
+	UFUNCTION(BlueprintCallable, Category = "EntityRelations")
+		float GetAppreciationTo(UOEntity* ent);
+	UFUNCTION(BlueprintCallable, Category = "EntityRelations")
+		float GetFearTo(UOEntity* ent);
+	UFUNCTION(BlueprintCallable, Category = "EntityRelations")
+		float GetRespectTo(UOEntity* ent);
+
+
 
 	void AddRelationship(ORelation* newRelation);
 	void AddRelationship(UOEntity* newEntity);
@@ -135,6 +154,8 @@ public:
 	ERace GetRace();
 	FString GetRaceString();
 	void SetRace(ERace race);
+	EJob GetJob();
+	void SetJob(EJob);
 
 	void SetAIController(AEntityAIController* eaic);
 	void ExecuteGraph();
@@ -147,10 +168,13 @@ public:
 	bool RemoveFromInventory(int i);
 
 	void Attack();
+	UFUNCTION(BlueprintCallable, Category = "Entity")
+		void EndAttack();
 	void RebuildEdification(UOEdification* home);
 	void StopRebuildEdification();
-	bool GetIsEntityAttacking();
-	void SetIsEntityAttacking(bool attacking);
+	bool IsEntityAttacking();
+	float GetAttackCooldown();
+	//void SetIsEntityAttacking(bool attacking);
 
 	void GrabItem(UItem* item);
 	UItem* GetGrabbedItem();
@@ -166,6 +190,11 @@ public:
 	float _currentTime = 10;
 	
 protected:
+	void SetStrength(float st);
+	void SetSpeed(float sd);
+	void SetAgility(float ag);
+	void GenerateTraits();
+
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
 
@@ -188,6 +217,7 @@ protected:
 	UOEntity* _attacker;
 	bool _isDead = false;
 	float MIN_INTEGRITY = 20.0f;
+	float _attackCooldown;
 	
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 	OPersonality* _personality;

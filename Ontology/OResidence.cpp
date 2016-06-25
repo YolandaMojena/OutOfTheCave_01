@@ -75,12 +75,11 @@ void UOResidence::SpawnTenants() {
 
 				// SET OWNERSHIP WITH THE EDIFICATION
 				ten->AddPossession(new OOwnership(ten, ((UOOwnable*)this), 25 + ten->GetPersonality()->GetMaterialist()));
-
 				ten->SetIdleGraph(GenerateIdleFromJob());
 				ten->SetState(UOEntity::State::idle);
-
 				//ten->SetStrength();
-
+				ten->SetJob(job);
+				
 				tentants.push_back(ten);
 			}
 		}
@@ -176,12 +175,14 @@ Graph* UOResidence::GenerateIdleFromJob() {
 		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(8);
 		idleGraph->AddNode(n);
 		//MAÑANA
-		n = new Node();
+		/*n = new Node();
 		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::cultivator); n->SetDaytime(13);
-		idleGraph->AddNode(n);
+		idleGraph->AddNode(n);*/
 		if (peasantField) {
 			n = new Node();
-			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(13);
+			//n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(13);
+			UOEntity* troll = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>();
+			n->SetNodeType(NodeType::goTo); n->SetPosition(troll->GetOwner()->GetActorLocation() * FVector(1,1,0) + RandomDisplacementVector(400));  n->SetDaytime(13);
 			idleGraph->AddNode(n);
 			n = new Node();
 			n->SetNodeType(NodeType::cultivate); /*n->SetEdification(peasantField);*/  n->SetDaytime(13);

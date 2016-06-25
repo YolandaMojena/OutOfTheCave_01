@@ -44,7 +44,7 @@ void UOEdification::ReceiveDamage(float damage, UOEntity* damager) {
 
 		if (_integrity <= 0) {
 			DestroyEdification();
-			IHaveBeenDestroyedBySomeone(damager);
+			//IHaveBeenDestroyedBySomeone(damager);
 		}
 	}
 }

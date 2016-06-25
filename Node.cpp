@@ -51,14 +51,11 @@ void Node::PopulateBlackboard(FVector position, UOEntity* entityA, UOEntity* ent
 	nBlackboard.position = position;
 }*/
 
-void Node::SetEntityA(UOEntity* e) {
-	nBlackboard.entityA = e;
+void Node::SetEntity(UOEntity* e) {
+	nBlackboard.entity = e;
 }
-void Node::SetEntityB(UOEntity* e) {
-	nBlackboard.entityB = e;
-}
-void Node::SetActorA(AActor* a) {
-	nBlackboard.actorA = a;
+void Node::SetActor(AActor* a) {
+	nBlackboard.actor = a;
 }
 void Node::SetOwnable(UOOwnable* o) {
 	nBlackboard.ownable = o;

@@ -1,13 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OutOfTheCave_01.h"
-#include "Ontology/EntityAIController.h"
-#include "Ontology/OEntity.h"
 
-#include "BehaviorTree/BehaviorTree.h"
-#include "BehaviorTree/BehaviorTreeComponent.h"
-#include "BehaviorTree/BlackboardComponent.h"
-#include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 #include "BTTask_Attack.h"
 
 
@@ -18,11 +12,16 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 
-	if (entity) {
-
-		entity->Attack();
+	if (entity) {	
+		if (!entity->IsEntityAttacking()) {
+			blackboard->SetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("FloatKey"), entity->GetAttackCooldown());
+			return EBTNodeResult::Succeeded;
+		}
+		/*else
+			return EBTNodeResult::InProgress;*/
 	}
-		
-	return EBTNodeResult::Succeeded;
+	
+
+	return EBTNodeResult::Failed;
 }
 

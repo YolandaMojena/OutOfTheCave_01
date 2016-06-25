@@ -98,14 +98,14 @@ void AttackPlot::BuildGraph() {
 	//GO TO KILLER
 	Node* goToNode = new Node();
 	goToNode->SetNodeType(NodeType::goToItem);
-	goToNode->SetActorA(_targetEntity->GetOwner());
+	goToNode->SetActor(_targetEntity->GetOwner());
 	_plotGraph.AddNode(goToNode);
 
 	//ATTACK
 	Node* attackNode = new Node();
 	attackNode->SetNodeType(NodeType::attack);
 	attackNode->SetHighPriority(true);
-	attackNode->SetEntityA(_targetEntity);
+	attackNode->SetEntity(_targetEntity);
 	_plotGraph.AddNode(attackNode);
 }
 
@@ -205,7 +205,7 @@ void DestroyPlot::BuildGraph() {
 	//GO TO TARGET
 	Node* goToNode = new Node();
 	goToNode->SetNodeType(NodeType::goToItem);
-	goToNode->SetActorA(_targetEdification->GetOwner());
+	goToNode->SetActor(_targetEdification->GetOwner());
 	_plotGraph.AddNode(goToNode);
 
 	//DESTROY
@@ -291,7 +291,7 @@ void BuildPlot::BuildGraph() {
 	//GO TO TARGET
 	Node* goToNode = new Node();
 	goToNode->SetNodeType(NodeType::goToItem);
-	goToNode->SetActorA(_targetEdification->GetOwner());
+	goToNode->SetActor(_targetEdification->GetOwner());
 	_plotGraph.AddNode(goToNode);
 
 	//BUILD
@@ -468,7 +468,7 @@ void StealPlot::BuildGraph() {
 	//STEAL
 	Node* stealNode = new Node();
 	stealNode->SetNodeType(NodeType::steal);
-	stealNode->SetEntityA(_targetEntity);
+	stealNode->SetEntity(_targetEntity);
 	stealNode->SetOwnable(_targetOwnable);
 	_plotGraph.AddNode(stealNode);
 
