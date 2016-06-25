@@ -14,7 +14,7 @@ EBTNodeResult::Type UBTTask_AttackMove::ExecuteTask(UBehaviorTreeComponent& Owne
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 
-	//UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 	//FVector entityPosition = entity->GetOwner()->GetActorLocation();
 	UOEntity* enemy = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 	FVector enemyPosition = enemy->GetOwner()->GetActorLocation();
@@ -23,6 +23,8 @@ EBTNodeResult::Type UBTTask_AttackMove::ExecuteTask(UBehaviorTreeComponent& Owne
 	targetPosition *= FVector(1, 1, 0);
 
 	blackboard->SetValue<UBlackboardKeyType_Vector>(blackboard->GetKeyID("Position"), targetPosition);
+
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, entity->GetName() + TEXT("'s agressivenes: ") + FString::SanitizeFloat(entity->GetAggressiveness()));
 
 	return EBTNodeResult::Succeeded;
 }

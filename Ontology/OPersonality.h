@@ -12,7 +12,8 @@ public:
 	OPersonality(int kind, int brave, int aggressive, int social, int materialist, int curious, int astute);
 	OPersonality();
 	~OPersonality();
-
+	
+	
 	int GetKindness();
 	int GetBraveness();
 	int GetAggressiveness();
