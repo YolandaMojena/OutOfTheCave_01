@@ -21,8 +21,20 @@ void APlotGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//Insert on of each
-	worldPlots.push_back(new Stampede(ERace::R_Bear, GetActorLocation(), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), rand() % 10 + 5, this));
+	//INSERT WORLD PLOTS FROM THE BEGINNING
+	_worldPlots.push_back(new Stampede(ERace::R_Bear, GetActorLocation(), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), rand() % 10 + 5, this));
+
+	/*int a = 1;
+	int b = 2;
+	int c = 3;
+
+	TArray<int*> heapTest;
+	heapTest.HeapPush(&a, intTest());
+	heapTest.HeapPush(&b, intTest());
+	heapTest.HeapPush(&c, intTest());
+
+	int last = *heapTest[1];
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, "\nLast: " + FString::SanitizeFloat(last));*/
 }
 
 // Called every frame
@@ -37,26 +49,28 @@ void APlotGenerator::Tick( float DeltaTime )
 
 	else {
 		if (_currentPlotsInAction <= _MAX_PLOTS) {
-			//if (rand() % 100 >98) {
-				//SpawnWorldPlot();
-				//_timeToSpawnPlot = 0;
-			//}
-			//else {
-				if(reactivePlots.empty())
+
+		/*	if (rand() % 100 <= (25 * _MAX_PLOTS - _currentPlotsInAction) ) {
+
+				if (_reactivePlots.empty()) {
 					GetPlotFromReportLog();
-				if (reactivePlots.size() > 0) {
+				}
+				if (_reactivePlots.size() > 0) {
+					_reactivePlots[0]->PrintSentence();
 					SpawnReactivePlot();
 					_timeToSpawnPlot = 0;
 				}
-			//}
+			}*/
+			if (rand() % 100 <= 100) {
+				SpawnAmbitionPlot();
+				_timeToSpawnPlot = 0;
+			}
+			if (rand() % 100 <= 5) {
+				SpawnWorldPlot();
+				_timeToSpawnPlot = 0;
+			}
 		}
 	}
-}
-
-bool APlotGenerator::ValidateReport(Report* report)
-{
-		//return (report->GetReportEntity() == nullptr);
-	return true;
 }
 
 void APlotGenerator::ChangeCurrentPlotsInAction(int dif)
@@ -64,29 +78,50 @@ void APlotGenerator::ChangeCurrentPlotsInAction(int dif)
 	_currentPlotsInAction += dif;
 }
 
-void APlotGenerator::SpawnReactivePlot()
+bool APlotGenerator::SpawnReactivePlot()
 {
-	if (reactivePlots.size() > 0) {
-		BasePlot* currentPlot = reactivePlots.at(0);
-		reactivePlots.erase(reactivePlots.begin());
-		currentPlot->PrintSentence();
-		currentPlot->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
+	if (_reactivePlots.size() > 0) {
+
+		BasePlot* currentPlot = _reactivePlots.at(0);
+		_reactivePlots.erase(_reactivePlots.begin());
 
 		UOEntity* plotEntity = currentPlot->GetMainEntity();
 		plotEntity->AddCurrentPlot(currentPlot);
-		plotEntity->SetMainPlotEntity(plotEntity);
-		if (plotEntity->GetCurrentState() == UOEntity::State::idle) {
+		if (plotEntity->GetCurrentState() == UOEntity::State::idle)
 			plotEntity->SetState(UOEntity::State::plot);
-			_currentPlotsInAction++;
-		}
+
+		return true;
 	}
+	return false;
 }
 
-void APlotGenerator::SpawnWorldPlot()
+bool APlotGenerator::SpawnAmbitionPlot()
 {
-	int randPlot = rand()% worldPlots.size();
-	worldPlots[randPlot]->InitPlot();
-	worldPlots[randPlot]->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
+	Ambition ambition;
+	UOEntity* entity = _notoriousEntities.HeapTop();
+
+	if (entity) {
+
+		BasePlot* ambitionPlot = ambition.GenerateAmbitionForEntity(entity);
+
+		if (ambitionPlot) {
+			entity->AddCurrentPlot(ambitionPlot);
+			if (entity->GetCurrentState() == UOEntity::State::idle)
+				entity->SetState(UOEntity::State::plot);
+			return true;
+		}
+		else return false;
+	}
+	else return false;
+}
+
+bool APlotGenerator::SpawnWorldPlot()
+{
+	int randPlot = rand()% _worldPlots.size();
+	_worldPlots[randPlot]->InitPlot();
+	_worldPlots[randPlot]->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
+
+	return true;
 }
 
 void APlotGenerator::AddReportToLog(Report* newReport)
@@ -126,78 +161,62 @@ void APlotGenerator::GetPlotFromReportLog() {
 
 		Report* currentReport;
 		_pReportLog.HeapPop(currentReport, Report::ReportNotoriety());
+		vector<string> plotCandidates = plotDictionary.GetPlotsOfType(currentReport->GetType());
 
-		bool validReport = ValidateReport(currentReport);
+		bool plotIsValid = false;
+		BasePlot* newPlot = nullptr;
 
-		while (!validReport && _pReportLog.Num() > 0) {
-			_pReportLog.HeapPop(currentReport, Report::ReportNotoriety());
-			validReport = ValidateReport(currentReport);
+		while (!plotIsValid && plotCandidates.size() > 0) {
+
+			int randType = rand() % plotCandidates.size();
+			string plot = plotCandidates[randType];
+
+			if (plot == strings.ATTACK_PLOT) {
+				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
+				plotIsValid = ValidateAttackPlot((AttackPlot*) newPlot);
+
+				if (plotIsValid) {
+					newPlot->InitPlot();
+					currentReport->GetReportEntity()->ChangeNotoriety(3);
+					currentReport->GetTargetEntity()->ChangeNotoriety(2);
+				}
+				else plotCandidates.erase(plotCandidates.begin() + randType);
+			}
+
+			else if (plot == strings.DESTROY_PLOT) {
+				newPlot = new DestroyPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
+				plotIsValid = ValidateDestroyPlot((DestroyPlot*)newPlot);	
+
+				if (plotIsValid) {
+					newPlot->InitPlot();
+					currentReport->GetReportEntity()->ChangeNotoriety(3);
+					currentReport->GetTargetEntity()->ChangeNotoriety(2);
+				}
+				else plotCandidates.erase(plotCandidates.begin() + randType);
+			}
+			else if (plot == strings.BUILD_PLOT) {
+				newPlot = new BuildPlot(currentReport->GetReportEntity(), (UOEdification*)currentReport->GetTargetOwnable(), currentReport->GetMotivation());
+				plotIsValid = true;
+
+				if (plotIsValid) {
+					newPlot->InitPlot();
+					currentReport->GetReportEntity()->ChangeNotoriety(3);
+				}
+				else plotCandidates.erase(plotCandidates.begin() + randType);
+			}
+			// Unknown type
+			else plotCandidates.erase(plotCandidates.begin() + randType);
 		}
 
-		if (validReport) {
-
-			vector<string> plotCandidates = plotDictionary.GetPlotsOfType(currentReport->GetType());
-
-			bool plotIsValid = false;
-			BasePlot* newPlot = nullptr;
-
-			while (!plotIsValid) {
-
-				int randType = rand() % plotCandidates.size();
-				string plot = plotCandidates[randType];
-
-				if (plot == strings.ATTACK_PLOT) {
-					newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
-					plotIsValid = ValidateAttackPlot((AttackPlot*) newPlot);
-
-					if (plotIsValid) {
-						newPlot->InitPlot();
-						currentReport->GetReportEntity()->ChangeNotoriety(3);
-						currentReport->GetTargetEntity()->ChangeNotoriety(2);
-					}
-					else plotCandidates.erase(plotCandidates.begin() + randType);
+		if (plotIsValid) {
+			if (!newPlot->GetIsExclusive()) {
+				for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
+					newPlot->AddInvolvedInPlot(entity);
+					entity->ChangeNotoriety(1);
 				}
-
-				else if (plot == strings.DESTROY_PLOT) {
-					newPlot = new DestroyPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
-					plotIsValid = ValidateDestroyPlot((DestroyPlot*)newPlot);	
-
-					if (plotIsValid) {
-						newPlot->InitPlot();
-						currentReport->GetReportEntity()->ChangeNotoriety(3);
-						currentReport->GetTargetEntity()->ChangeNotoriety(2);
-					}
-					else plotCandidates.erase(plotCandidates.begin() + randType);
-				}
-				else if (plot == strings.BUILD_PLOT) {
-					newPlot = new BuildPlot(currentReport->GetReportEntity(), (UOEdification*)currentReport->GetTargetOwnable(), currentReport->GetMotivation());
-					plotIsValid = true;
-
-					if (plotIsValid) {
-						newPlot->InitPlot();
-						currentReport->GetReportEntity()->ChangeNotoriety(3);
-					}
-					else plotCandidates.erase(plotCandidates.begin() + randType);
-				}
-
-				// Unknown type
-				else plotCandidates.erase(plotCandidates.begin() + randType);
-
-				if (plotCandidates.size() == 0)
-					break;
 			}
-
-
-			if (plotIsValid) {
-				if (!newPlot->GetIsExclusive()) {
-					for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
-						newPlot->AddInvolvedInPlot(entity);
-						entity->ChangeNotoriety(1);
-					}
-				}
-				newPlot->BuildSentence();
-				reactivePlots.push_back(newPlot);
-			}
+			newPlot->BuildSentence();
+			_reactivePlots.push_back(newPlot);
 		}
 	}
 }
@@ -224,24 +243,32 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 	int i = 0;
 
-	while (i < _pReportLog.Num()) {
+	if (tag == Report::ReportTag::ownership) {
 
-		if (_pReportLog[i]->GetTag() == tag && tag == Report::ReportTag::ownership) {
-			if ( _pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetOwnable() == report->GetTargetOwnable()) {
+		while(i < _pReportLog.Num()){
+			if (_pReportLog[i]->GetTag() == tag) {
+				if (_pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetOwnable() == report->GetTargetOwnable() && _pReportLog[i]->GetMotivation() == report->GetMotivation()) {
 					helpers.push_back(_pReportLog[i]->GetReportEntity());
-				_pReportLog.RemoveAt(i);
-			}
-			else i++;
-		}
-		else if (_pReportLog[i]->GetTag() == tag && tag == Report::ReportTag::relation) {
-			if ( _pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetEntity() == report->GetTargetEntity()) {
-				helpers.push_back(_pReportLog[i]->GetReportEntity());
-				_pReportLog.RemoveAt(i);
+					_pReportLog.RemoveAt(i);
+				}
+				else i++;
 			}
 			else i++;
 		}
 	}
+	else if (tag == Report::ReportTag::relation) {
 
+		while (i < _pReportLog.Num()) {
+			if (_pReportLog[i]->GetTag() == tag) {
+				if (_pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetEntity() == report->GetTargetEntity() && _pReportLog[i]->GetMotivation() == report->GetMotivation()) {
+					helpers.push_back(_pReportLog[i]->GetReportEntity());
+					_pReportLog.RemoveAt(i);
+				}
+				else i++;
+			}
+			else i++;
+		}
+	}
 	return helpers;
 }
 
@@ -311,8 +338,26 @@ vector<UOEntity*> APlotGenerator::GetNotoriousEntitiesByRace(ERace race)
 
 void APlotGenerator::AddNotorious(UOEntity * notorious)
 {
-	if (!_notoriousEntities.Contains(notorious)) {
-		_notoriousEntities.HeapPush(notorious, UOEntity::EntityNotoriety());
+	if (_notoriousEntities.Num() < _MAX_NOTORIOUS) {
+
+		if (!_notoriousEntities.Contains(notorious)) {
+			_notoriousEntities.HeapPush(notorious, UOEntity::EntityNotoriety());
+		}
+		else {
+			_notoriousEntities.Remove(notorious);
+			_notoriousEntities.HeapPush(notorious, UOEntity::EntityNotoriety());
+		}
+	}
+	else if (notorious->GetNotoriety() > _notoriousEntities[1]->GetNotoriety()) {
+
+		if (!_notoriousEntities.Contains(notorious)) {
+			_notoriousEntities.HeapRemoveAt(1, UOEntity::EntityNotoriety());
+			_notoriousEntities.HeapPush(notorious, UOEntity::EntityNotoriety());
+		}
+		else {
+			_notoriousEntities.Remove(notorious);
+			_notoriousEntities.HeapPush(notorious, UOEntity::EntityNotoriety());
+		}
 	}
 }
 

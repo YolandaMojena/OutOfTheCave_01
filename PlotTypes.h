@@ -209,6 +209,30 @@ private:
 	vector<UOEntity*> _heard;
 };
 
+//GIVE PLOT
+//**************************************************************************************
+
+class OUTOFTHECAVE_01_API GivePlot : public BasePlot
+{
+public:
+	GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what, UItem* motivation);
+	//GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what, TypeOfAmbition ambition);
+	~GivePlot();
+
+	void BuildSentence();
+	void InitPlot();
+	UOEntity* GetTargetEntity();
+	UOOwnable* GetTargetOwnable();
+
+private:
+
+	void BuildGraph();
+	void ConsiderReactions();
+
+	UOEntity* _targetEntity;
+	UOOwnable* _targetOwnable;
+};
+
 
 //GATHER PLOT
 //**************************************************************************************
@@ -229,25 +253,5 @@ void ConsiderReactions();
 UOOwnable* _targetResource;
 };*/
 
-
-//GIVE PLOT
-//**************************************************************************************
-/*
-class OUTOFTHECAVE_01_API GivePlot : public BasePlot
-{
-public:
-	GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what);
-	~GivePlot();
-
-	void BuildSentence();
-
-private:
-
-	void BuildGraph();
-	void ConsiderReactions();
-
-	UOEntity* _targetEntity;
-	UOOwnable* _targetOwnable;
-};*/
 
 

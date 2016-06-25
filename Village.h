@@ -21,6 +21,8 @@ public:
 	AVillage();
 	~AVillage();
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSpawner)
 		int32 villageID;
 

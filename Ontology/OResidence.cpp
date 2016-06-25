@@ -40,9 +40,9 @@ void UOResidence::BeginPlay()
 
 	srand(time(NULL));
 
-	// ...
 	SpawnTenants();
 	initialized = true;
+	
 }
 
 

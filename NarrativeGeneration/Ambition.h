@@ -1,15 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-#include "Ontology/OEdification.h"
-#include "Ontology/OOwnable.h"
-#include "Ontology/ORelation.h"
-#include "Ontology/OPersonality.h"
-#include "Ontology/OOwnership.h"
-#include "NarrativeGeneration/PlotGenerator.h"
 
 class BasePlot;
 class UOEntity;
+class APlotGenerator;
 
 enum  TypeOfAmbition : uint8 {
 
@@ -18,7 +13,8 @@ enum  TypeOfAmbition : uint8 {
 	notoriety,
 	appreciation,
 	fear,
-	friendTroll
+	friendTroll,
+	noAmbition
 };
 
 class OUTOFTHECAVE_01_API Ambition

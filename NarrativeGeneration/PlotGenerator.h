@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include "Report.h"
 #include "StringCollection.h"
+#include "NarrativeGeneration/Ambition.h"
 #include "PlotGenerator.generated.h"
 
 using namespace std;
@@ -32,12 +33,20 @@ class OUTOFTHECAVE_01_API APlotGenerator : public AActor
 	
 public:	
 
+	struct intTest
+	{
+		bool operator()(int& A, int& B) const
+		{
+			// Inverted compared to std::priority_queue - higher priorities float to the top
+			return A >= B;
+		}
+	};
+
 	APlotGenerator();
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
 
 	void AddReportToLog(Report* newReport);
-	bool ValidateReport(Report* report);
 	void ChangeCurrentPlotsInAction(int dif);
 	vector<UOEntity*> SpawnEntities(int num, ERace race);
 	vector<UOOwnable*> GetValuables();
@@ -52,15 +61,16 @@ private:
 	vector<UOEntity*> WeHaveALotInCommon(Report* report);
 	FVector RandomDisplacement(int radius);
 
-	void SpawnReactivePlot();
-	void SpawnWorldPlot();
+	bool SpawnReactivePlot();
+	bool SpawnAmbitionPlot();
+	bool SpawnWorldPlot();
 
 	PlotDictionary plotDictionary;
 	StringCollection strings;
 
-	vector<BasePlot*> reactivePlots;
-	vector<BasePlot*> ambitionPlots;
-	vector<BasePlot*> worldPlots;
+	vector<BasePlot*> _reactivePlots;
+	vector<BasePlot*> _ambitionPlots;
+	vector<BasePlot*> _worldPlots;
 
 	TArray<Report*> _pReportLog;
 	bool _lastPlotCompleted = true;
@@ -72,7 +82,8 @@ private:
 	TArray<UOEntity*> _notoriousEntities;
 
 
-	const float _TIME_TO_SPAWN = 5.0f;
+	const float _TIME_TO_SPAWN = 10.0f;
+	const int _MAX_NOTORIOUS = 15;
 	const int _MAX_PLOTS = 3;
 
 	bool ValidateAttackPlot(AttackPlot* plot);

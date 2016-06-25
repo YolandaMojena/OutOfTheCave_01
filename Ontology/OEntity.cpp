@@ -27,6 +27,7 @@ UOEntity::UOEntity(OPersonality* personality) {
 void UOEntity::BeginPlay() {
 
 	Super::BeginPlay();
+	_plotGenerator->AddNotorious(this);
 }
 
 void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -56,6 +57,7 @@ int UOEntity::GetNotoriety() {
 }
 void UOEntity::ChangeNotoriety(int value) {
 	_notoriety += value;
+	_plotGenerator->AddNotorious(this);
 }
 
 bool UOEntity::GetIsDead() {
@@ -86,11 +88,14 @@ ERace UOEntity::GetRace()
 }
 FString UOEntity::GetRaceString()
 {
-	FString raceName;
-	const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ERace"), true);
-	if (EnumPtr) raceName = EnumPtr->GetEnumName((int32)_race);
-	raceName.RemoveFromStart("R_");
-	return raceName;
+	if (IsPlayer) return "";
+	else {
+		FString raceName;
+		const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ERace"), true);
+		if (EnumPtr) raceName = EnumPtr->GetEnumName((int32)_race);
+		raceName.RemoveFromStart("R_");
+		return raceName;
+	}
 }
 void UOEntity::SetRace(ERace race)
 {
@@ -390,9 +395,6 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 		}	
 	}
 
-
-
-
 	//   P L O T S
 	//	Search in relationships for those who appreciate entity, change ontology if required and send reports
 
@@ -447,7 +449,7 @@ bool UOEntity::CheckValidPersonality(TypeOfPlot type) {
 	//	if (_personality->GetMaterialist() < 50 || _personality->GetAggressiveness() < 50) return false;
 		return true;
 
-	// Avery entity worries about it's home and basic needs 
+	// Every entity worries about it's home and basic needs 
 	case TypeOfPlot::resources: 
 		return true;
 
@@ -493,10 +495,11 @@ void UOEntity::SetState(State s, Graph* g) {
 		break;
 	case State::plot:
 	{	
-		if (_currentPlots.size() > 0) {
+		if (_currentPlots.size() > 0 && !_mainPlotEntity) {
 			_brain = _currentPlots[0]->GetGraph();
 			_mainPlotEntity = this;
 			_plotGenerator->ChangeCurrentPlotsInAction(+1);
+			_currentPlots[0]->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
 		}
 		else {
 			if (_mainPlotEntity) {
@@ -551,6 +554,8 @@ void UOEntity::NodeCompleted(bool completedOk) {
 	{
 		if (_currentState == State::plot) {
 			if (_mainPlotEntity == this) {
+				if (!completedOk)
+					_currentPlots[0]->AbortPlot(Utilities::SavePath, Utilities::PlotFile);
 				for (UOEntity* e : _currentPlots[0]->GetInvolvedInPlot()) 
 					e->SetMainPlotEntity(nullptr);
 				_mainPlotEntity = nullptr;
@@ -571,7 +576,6 @@ void UOEntity::NodeCompleted(bool completedOk) {
 
 void UOEntity::AddInstantNode(Node* n) {
 	_brain.AddInstantNode(n);
-//	_brain.NextNode();
 }
 
 

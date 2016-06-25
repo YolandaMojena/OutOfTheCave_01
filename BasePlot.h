@@ -9,12 +9,11 @@
 #include "Ontology/Item.h"
 #include "Ontology/OOwnable.h"
 #include "StringCollection.h"
-//#include "NarrativeGeneration/Ambition.h"
+#include "NarrativeGeneration/Ambition.h"
 
 using namespace std;
 
 class UOEntity;
-enum TypeOfAmbition;
 
 enum class TypeOfPlot : uint8 {
 	aggressive,
@@ -45,6 +44,8 @@ public:
 	Graph GetGraph();
 	UOEntity* GetMainEntity();
 	vector<UOEntity*> GetInvolvedInPlot();
+	UItem* GetPlotMotivation();
+	TypeOfAmbition GetPlotTypeOfAmbition();
 	bool GetIsExclusive();
 	//bool GetPlotIsValid();
 
@@ -58,7 +59,7 @@ protected:
 	vector<UOEntity*> _involvedInPlot;
 	UItem* _motivation;
 	TypeOfAmbition _ambition;
-	bool _isExclusive;
+	bool _isExclusive = false;
 	bool _isPlotValid;
 
 	virtual void BuildGraph() = 0;

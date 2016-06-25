@@ -98,7 +98,6 @@ public:
 	int GetNotoriety();
 	void ChangeNotoriety(int value);
 	int GetStrength();
-	TypeOfAmbition GetAmbition();
 
 	void AddRelationship(ORelation* newRelation);
 	void AddRelationship(UOEntity* newEntity);

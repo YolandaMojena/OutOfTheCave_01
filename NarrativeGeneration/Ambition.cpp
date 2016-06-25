@@ -2,7 +2,14 @@
 
 #include "OutOfTheCave_01.h"
 #include "BasePlot.h"
+#include "PlotTypes.h"
 #include "Ontology/OEntity.h"
+#include "Ontology/OEdification.h"
+#include "Ontology/OOwnable.h"
+#include "Ontology/ORelation.h"
+#include "Ontology/OPersonality.h"
+#include "Ontology/OOwnership.h"
+#include "NarrativeGeneration/PlotGenerator.h"
 #include "Ambition.h"
 
 Ambition::Ambition(){}
@@ -17,38 +24,67 @@ Ambition::~Ambition(){}
 
 BasePlot * Ambition::GenerateAmbitionForEntity(UOEntity * entity)
 {
-	OPersonality* entPersonality = entity->GetPersonality();
-	vector<BasePlot*> candidates;
+	// If no ambition, generate from personality
+	if (((UOCivilian*)entity)->GetAmbition() == TypeOfAmbition::noAmbition) {
 
-	//POSSESSIONS
-	if (entPersonality->GetMaterialist() > 50  && entPersonality->GetCurious() > 50)
-		candidates.push_back(GetPosessionsAmbition(entity));
+		OPersonality* entPersonality = entity->GetPersonality();
+		vector<BasePlot*> candidates;
 
-	//EXTERMINATE
-	if (entPersonality->GetBraveness() > 50  && entPersonality->GetAggressiveness() > 50 && entPersonality->GetSocial() < 50)
-		candidates.push_back(ExterminateAmbition(entity));
-	
-	//NOTORIETY
-	if (entPersonality->GetAggressiveness() > 50 && entPersonality->GetSocial() > 50)
-		candidates.push_back(BecomeNotoriousAmbition(entity));
-	
-	//BE APPRECIATED
-	if (entPersonality->GetKindness() > 50  && entPersonality->GetSocial() > 50)
-		candidates.push_back(BecomeAppreciatedAmbition(entity));
+		//POSSESSIONS
+	//	if (entPersonality->GetMaterialist() > 50 && entPersonality->GetCurious() > 50)
+			candidates.push_back(GetPosessionsAmbition(entity));
 
-	//BE FEARED
-	if (entPersonality->GetBraveness() < 50 && entPersonality->GetAggressiveness() > 50)
-		candidates.push_back(BecomeFearedAmbition(entity));
+		/*//EXTERMINATE
+		if (entPersonality->GetBraveness() > 50 && entPersonality->GetAggressiveness() > 50 && entPersonality->GetSocial() < 50)
+			candidates.push_back(ExterminateAmbition(entity));
 
-	//FRIEND TROLL
-	if (entPersonality->GetSocial() < 50 && entPersonality->GetCurious() > 50)
-		candidates.push_back(FriendTrollAmbition(entity));
+		//NOTORIETY
+		if (entPersonality->GetAggressiveness() > 50 && entPersonality->GetSocial() > 50)
+			candidates.push_back(BecomeNotoriousAmbition(entity));
 
+		//BE APPRECIATED
+		if (entPersonality->GetKindness() > 50 && entPersonality->GetSocial() > 50)
+			candidates.push_back(BecomeAppreciatedAmbition(entity));
 
-	if (candidates.size() > 0) 
-		return candidates[rand() % candidates.size()];
-	else
-		return nullptr;
+		//BE FEARED
+		if (entPersonality->GetBraveness() < 50 && entPersonality->GetAggressiveness() > 50)
+			candidates.push_back(BecomeFearedAmbition(entity));
+
+		//FRIEND TROLL
+		if (entPersonality->GetSocial() < 50 && entPersonality->GetCurious() > 50)
+			candidates.push_back(FriendTrollAmbition(entity));*/
+
+		if (candidates.size() > 0) {
+			BasePlot* ambitionPlot = candidates[rand() % candidates.size()];
+			((UOCivilian*)entity)->SetAmbition(ambitionPlot->GetPlotTypeOfAmbition());
+			return ambitionPlot;
+		}
+	}
+	else {
+
+		switch (((UOCivilian*)entity)->GetAmbition()) {
+
+		case TypeOfAmbition::appreciation:
+			return nullptr;
+
+		case TypeOfAmbition::extermination:
+			return ExterminateAmbition(entity);
+
+		case TypeOfAmbition::notoriety:
+			return BecomeNotoriousAmbition(entity);
+
+		case TypeOfAmbition::fear:
+			return BecomeFearedAmbition(entity);
+
+		case TypeOfAmbition::friendTroll:
+			return FriendTrollAmbition(entity);
+
+		case TypeOfAmbition::possessions:
+			return GetPosessionsAmbition(entity);
+		}
+	}	
+
+	return nullptr;
 }
 
 // Materialistic ambition
@@ -67,7 +103,7 @@ BasePlot * Ambition::GetPosessionsAmbition(UOEntity * entity)
 			break;
 		}	
 	}
-	if (valuableToOwn->GetOwners().size() > 0) {
+	/*if (valuableToOwn->GetOwners().size() > 0) {
 
 		for (UOEntity* e : valuableToOwn->GetOwners()) {
 			bool savedInInventory = false;
@@ -80,8 +116,10 @@ BasePlot * Ambition::GetPosessionsAmbition(UOEntity * entity)
 			if (savedInInventory)
 				return new StealPlot(entity, e, valuableToOwn, TypeOfAmbition::possessions);
 		}
-	}
+	}*/
+	if(valuableToOwn)
 	return new GetPlot(entity, valuableToOwn, TypeOfAmbition::possessions);
+	else return nullptr;
 }
 
 //Ambition based on pure hate against a race

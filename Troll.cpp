@@ -82,7 +82,6 @@ void ATroll::Tick( float DeltaTime )
 				_victims.Empty();
 		}
 	}
-
 	
 	for (TArray<const FAnimNotifyEvent*>::TIterator it = SkelMesh->AnimScriptInstance->AnimNotifies.CreateIterator(); it; ++it) {
 		if ((*it)->NotifyName.ToString() == "AttackBegins") _canDamage = true;
