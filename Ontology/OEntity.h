@@ -85,9 +85,26 @@ public:
 	OPersonality* GetPersonality();
 	int GetNotoriety();
 	void ChangeNotoriety(int value);
-	float GetStrength();
-	float GetSpeed();
-	float GetAgility();
+	UFUNCTION(BlueprintCallable, Category = "Entity")
+		float GetStrength();
+	UFUNCTION(BlueprintCallable, Category = "Entity")
+		float GetSpeed();
+	UFUNCTION(BlueprintCallable, Category = "Entity")
+		float GetAgility();
+
+	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
+		float GetKindness();
+	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
+		float GetAggressiveness();
+	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
+		float GetBraveness();
+
+	UFUNCTION(BlueprintCallable, Category = "EntityRelations")
+		float GetAppreciationTo(UOEntity* ent);
+	UFUNCTION(BlueprintCallable, Category = "EntityRelations")
+		float GetFearTo(UOEntity* ent);
+	UFUNCTION(BlueprintCallable, Category = "EntityRelations")
+		float GetRespectTo(UOEntity* ent);
 
 
 
@@ -145,10 +162,13 @@ public:
 	bool RemoveFromInventory(int i);
 
 	void Attack();
+	UFUNCTION(BlueprintCallable, Category = "Entity")
+		void EndAttack();
 	void RebuildEdification(UOEdification* home);
 	void StopRebuildEdification();
-	bool GetIsEntityAttacking();
-	void SetIsEntityAttacking(bool attacking);
+	bool IsEntityAttacking();
+	float GetAttackCooldown();
+	//void SetIsEntityAttacking(bool attacking);
 
 	void GrabItem(UItem* item);
 	UItem* GetGrabbedItem();
@@ -195,6 +215,7 @@ protected:
 	UOEntity* _attacker;
 	bool _isDead = false;
 	float MIN_INTEGRITY = 20.0f;
+	float _attackCooldown;
 	
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 	OPersonality* _personality;

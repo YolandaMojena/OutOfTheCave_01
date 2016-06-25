@@ -13,14 +13,11 @@
 UOEntity::UOEntity() {
 	_personality = new OPersonality();
 	_deadOwnable = CreateDefaultSubobject<UOOwnable>(TEXT("DeadOwnable"));
-	HitFunc.BindUFunction(this, "OnOverlapBegin");
 }
 
 UOEntity::UOEntity(OPersonality* personality) {
 	_personality = personality;
-	_deadOwnable = CreateDefaultSubobject<UOOwnable>(TEXT("DeadOwnable"));
-
-	HitFunc.BindUFunction(this, "OnOverlapBegin");
+	_deadOwnable = CreateDefaultSubobject<UOOwnable>(TEXT("DeadOwnable"));	
 }
 
 void UOEntity::BeginPlay() {
@@ -33,12 +30,17 @@ void UOEntity::BeginPlay() {
 			_plotGenerator = *Itr;
 		
 		GenerateTraits();
+		HitFunc.BindUFunction(GetOwner(), "OnOverlapBegin");
 	}
 }
 
 void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (_isEntityAttacking && _attackCooldown > 0) {
+		_attackCooldown -= DeltaTime;
+	}
 }
 
 
@@ -102,6 +104,24 @@ float UOEntity::GetSpeed() {
 }
 float UOEntity::GetAgility() {
 	return _agility;
+}
+float UOEntity::GetKindness() {
+	return _personality->GetKindness();
+}
+float UOEntity::GetAggressiveness() {
+	return _personality->GetAggressiveness();
+}
+float UOEntity::GetBraveness() {
+	return _personality->GetBraveness();
+}
+float UOEntity::GetAppreciationTo(UOEntity* ent) {
+	return GetRelationWith(ent)->GetAppreciation();
+}
+float UOEntity::GetRespectTo(UOEntity* ent) {
+	return GetRelationWith(ent)->GetRespect();
+}
+float UOEntity::GetFearTo(UOEntity* ent) {
+	return GetRelationWith(ent)->GetFear();
 }
 EJob UOEntity::GetJob() {
 	return _job;
@@ -586,7 +606,7 @@ void UOEntity::SetState(State s, Graph* g) {
 
 				Node* comeToEntity = new Node();
 				comeToEntity->SetNodeType(NodeType::goToItem);
-				comeToEntity->SetActorA(_mainPlotEntity->GetOwner());
+				comeToEntity->SetActor(_mainPlotEntity->GetOwner());
 				_brain.AddInstantNode(comeToEntity);
 				_brain.NextNode();
 			}
@@ -691,14 +711,25 @@ bool UOEntity::RemoveFromInventory(int i) {
 
 void UOEntity::Attack()
 {
-	if (!_isEntityAttacking) _isEntityAttacking = true;
+	const float BASE_ATTACK_COOLDOWN = 1.2f;
+
+	if (!_isEntityAttacking) {
+		_isEntityAttacking = true;
+		_attackCooldown = BASE_ATTACK_COOLDOWN - _agility / 100.f;
+	}
 }
-bool UOEntity::GetIsEntityAttacking() {
+void UOEntity::EndAttack() {
+	_isEntityAttacking = false;
+}
+bool UOEntity::IsEntityAttacking() {
 	return _isEntityAttacking;
 }
-void UOEntity::SetIsEntityAttacking(bool attacking) {
-	_isEntityAttacking = attacking;
+float UOEntity::GetAttackCooldown() {
+	return _attackCooldown;
 }
+/*void UOEntity::SetIsEntityAttacking(bool attacking) {
+	_isEntityAttacking = attacking;
+}*/
 void UOEntity::RebuildEdification(UOEdification * home)
 {
 	if (!_isEntityBuilding) _isEntityBuilding = true;

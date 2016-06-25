@@ -48,9 +48,8 @@ public:
 	class NBlackboard {
 	public:
 
-		UOEntity* entityA;
-		UOEntity* entityB;
-		AActor* actorA;
+		UOEntity* entity;
+		AActor* actor;
 		UOOwnable* ownable;
 		OntologicFunctions::AffordableUse affordableUse;
 		UOEdification* edification;
@@ -70,10 +69,9 @@ public:
 	//void PopulateBlackboard(UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr);
 	//void PopulateBlackboard(FVector position, UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr);
 
-	void SetEntityA(UOEntity* e); //TBI
-	void SetEntityB(UOEntity* e); //TBI
-	void SetActorA(AActor* a); //TBI
-	void SetOwnable(UOOwnable* o); //TBI
+	void SetEntity(UOEntity* e);
+	void SetActor(AActor* a);
+	void SetOwnable(UOOwnable* o);
 	void SetAffordableUse(OntologicFunctions::AffordableUse au);
 	void SetEdification(UOEdification* edf);
 	void SetGrabbable(UOGrabbable* grb);

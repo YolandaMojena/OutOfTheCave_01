@@ -83,7 +83,6 @@ void ATroll::Tick( float DeltaTime )
 		}
 	}
 
-	
 	for (TArray<const FAnimNotifyEvent*>::TIterator it = SkelMesh->AnimScriptInstance->AnimNotifies.CreateIterator(); it; ++it) {
 		if ((*it)->NotifyName.ToString() == "AttackBegins") _canDamage = true;
 		if ((*it)->NotifyName.ToString() == "AttackPerformed") _canDamage = false;
@@ -355,7 +354,7 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 		if (targetDestructible) {
 
 			//MUST DEPEND ON DAMAGE
-			targetDestructible->ApplyRadiusDamage(10, GetMesh()->GetSocketLocation("MainSocket"), 35, 0.01, false);
+			targetDestructible->ApplyRadiusDamage(40, GetMesh()->GetSocketLocation("MainSocket"), 140, 0.01, false);
 		}
 	}
 
