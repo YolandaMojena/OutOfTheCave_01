@@ -43,6 +43,7 @@ void AEntityAIController::SetNode(Node* n) {
 	case NodeType::goToItem:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
 	case NodeType::grab:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Ownable"), n->nBlackboard.ownable);
 		break;
 	case NodeType::cultivate:
 		break;

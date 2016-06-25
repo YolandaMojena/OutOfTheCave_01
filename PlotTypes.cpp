@@ -91,7 +91,7 @@ void AttackPlot::BuildGraph() {
 		//ASK TROLL FOR HELP
 		Node* askTrollForHelpNode = new Node();
 		askTrollForHelpNode->SetNodeType(NodeType::goToItem);
-		askTrollForHelpNode->SetActorA(troll->GetOwner());
+		askTrollForHelpNode->SetActor(troll->GetOwner());
 		_plotGraph.AddNode(askTrollForHelpNode);
 	}
 
@@ -524,12 +524,12 @@ void GetPlot::BuildSentence() {
 	_sentence += _identifier + "\n";
 
 	if (_motivation) {
-		_sentence = "The " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
+		_sentence += "The " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
 			+ " is in need of a" + _targetOwnable->GetName()
 			+ ". As he/she doesn't own one/enough, he/she is trasversing the land to get it.\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::possessions) {
-		_sentence = "The materialistic " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
+		_sentence += "The materialistic " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
 			+ " is embarking on an adventure to find a precious " + _targetOwnable->GetName() +
 			", since his/her ambition in life is to own lots of valuable possessions.\n\n";
 	}
@@ -668,6 +668,7 @@ Stampede::~Stampede() {}
 
 void Stampede::BuildSentence() {
 
+	_sentence += _identifier + "\n";
 	_sentence = "A stampede is approaching!";
 }
 
@@ -690,7 +691,7 @@ void Stampede::BuildGraph() {
 
 void Stampede::InitPlot() {
 
-	_identifier = "Stampede plot\n";
+	_identifier = "Stampede: \n";
 	BuildGraph();
 
 	_heard = _plotGenerator->SpawnEntities(_num, _race);
@@ -726,7 +727,7 @@ void GivePlot::BuildSentence() {
 
 	_sentence += _identifier + "\n";
 
-	_sentence = "The generours: " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " is giving his precious " + _targetOwnable->GetName() + " to the " +
+	_sentence += "The generours: " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " is giving his precious " + _targetOwnable->GetName() + " to the " +
 		_targetEntity->GetRaceString() + " " + _targetEntity->GetName() + " , in grattitude for the help received with his " + _motivation->GetName() + ".\n\n";
 }
 
