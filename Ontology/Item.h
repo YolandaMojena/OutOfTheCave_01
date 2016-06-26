@@ -12,6 +12,8 @@ using namespace std;
 class UOOwnable;
 class UOEntity;
 class UOEdification;
+class UItem;
+class APlotGenerator;
 
 
 
@@ -113,6 +115,7 @@ public:
 	UOEntity* GetEntityComponent(AActor* actor);
 	UOOwnable* GetOwnableComponent(AActor* actor);
 	UOEdification* GetEdificationComponent(AActor* actor);
+	APlotGenerator* GetPlotGenerator();
 
 	float GetDensity();
 	float GetMass();
@@ -144,6 +147,9 @@ protected:
 	enum _NotifyTag {
 		damaged, destroyed, grabbed
 	};
+
+	// All entities will send reports to the plotGenerator situated in the game world
+	APlotGenerator* _plotGenerator;
 
 	string GenerateNotifyID(UOOwnable* ownable, UOEntity* entity, _NotifyTag tag);
 	string GenerateNotifyID(UOEntity* pasiva, UOEntity* activa, _NotifyTag tag);

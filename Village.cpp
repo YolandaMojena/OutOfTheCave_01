@@ -11,7 +11,11 @@ AVillage::AVillage()
 }
 
 AVillage::~AVillage()
+{}
+
+void AVillage::BeginPlay()
 {
+	Super::BeginPlay();
 }
 
 FString AVillage::AssignFemaleHumanName() {

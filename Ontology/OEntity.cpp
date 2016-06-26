@@ -6,6 +6,7 @@
 #include "Ontology/OOwnable.h"
 #include "NarrativeGeneration/PlotGenerator.h"
 #include "EntityAIController.h"
+#include "NarrativeGeneration/Ambition.h"
 #include "Ontology/OEntity.h"
 #include "Ontology/Ocivilian.h"
 #include "BasePlot.h"
@@ -23,7 +24,7 @@ UOEntity::UOEntity(OPersonality* personality) {
 void UOEntity::BeginPlay() {
 
 	Super::BeginPlay();
-	
+
 	if (!IsPlayer) {
 		//((ACharacter*)GetOwner())->GetMesh()->SetAllBodiesBelowSimulatePhysics(((ACharacter*)GetOwner())->GetMesh()->GetBoneName(1), true);
 		for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
@@ -31,6 +32,7 @@ void UOEntity::BeginPlay() {
 		
 		GenerateTraits();
 		HitFunc.BindUFunction(GetOwner(), "OnOverlapBegin");
+		_plotGenerator->AddNotorious(this);
 	}
 }
 
@@ -65,10 +67,16 @@ int UOEntity::GetNotoriety() {
 }
 void UOEntity::ChangeNotoriety(int value) {
 	_notoriety += value;
+	_plotGenerator->AddNotorious(this);
 }
 
-bool UOEntity::GetIsDead() {
-	return _isDead;
+bool UOEntity::GetIsNumb() {
+	return _isNumb;
+}
+
+void UOEntity::SetIsNumb(bool value)
+{
+	_isNumb = value;
 }
 
 UOEntity* UOEntity::GetMainPlotEntity() {
@@ -90,11 +98,14 @@ ERace UOEntity::GetRace()
 }
 FString UOEntity::GetRaceString()
 {
-	FString raceName;
-	const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ERace"), true);
-	if (EnumPtr) raceName = EnumPtr->GetEnumName((int32)_race);
-	raceName.RemoveFromStart("R_");
-	return raceName;
+	if (IsPlayer) return "";
+	else {
+		FString raceName;
+		const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("ERace"), true);
+		if (EnumPtr) raceName = EnumPtr->GetEnumName((int32)_race);
+		raceName.RemoveFromStart("R_");
+		return raceName;
+	}
 }
 float UOEntity::GetStrength() {
 	return _strength;
@@ -359,7 +370,7 @@ void UOEntity::EntityNotify(UOEntity* pasiva, UOEntity* activa, UItem::_NotifyTa
 
 void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 {
-	if (!_isDead) {
+	if (!_isNumb) {
 
 		_integrity -= damage;
 		_attacker = damager;
@@ -384,7 +395,7 @@ void UOEntity::SendReport(Report* newReport)
 // If the entity is involved in a plot, the most notorious entity ascends to main entity
 void UOEntity::Die() {
 
-	_isDead = true;
+	_isNumb = true;
 
 	ACharacter* character = (ACharacter*)GetOwner();
 	character->GetMesh()->SetSimulatePhysics(true);
@@ -422,33 +433,31 @@ void UOEntity::Die() {
 			other->DeleteRelation(this);
 			other->AddPossession(new OOwnership(other, _deadOwnable, worth));
 		}
-	}
+	}*/
 	
 	// Handle plot state and main entity
 
 	if (_currentState == State::plot) {
-
 		if (_mainPlotEntity == this) {
+			if (_currentPlots.size() > 0 && !_currentPlots[0]->GetIsExclusive() && _currentPlots[0]->GetInvolvedInPlot().size() > 0) {
 
-			if (_currentPlots.size() > 0 && !_currentPlots[0]->GetIsExclusive()) {
-
-				UOEntity* newMainEntity = new UOEntity();
-				newMainEntity->ChangeNotoriety(0);
-
+				UOEntity* notorious = _currentPlots[0]->GetInvolvedInPlot()[0];
 				for (UOEntity* entity : _currentPlots[0]->GetInvolvedInPlot()) {
-					if (entity->GetNotoriety() >= newMainEntity->GetNotoriety())
-						newMainEntity = entity;
+					if (entity->GetNotoriety() >= notorious->GetNotoriety())
+						notorious = entity;
 				}
-
 				for (UOEntity* entity : _currentPlots[0]->GetInvolvedInPlot()) {
-					entity->SetMainPlotEntity(newMainEntity);
+					entity->SetMainPlotEntity(notorious);
 				}
 			}
+			_plotGenerator->ChangeCurrentPlotsInAction(-1);
 		}
 	}
 
-	GetOwner()->RemoveOwnedComponent(this);
-	this->DestroyComponent();*/
+	_plotGenerator->DeleteNotorious(this);
+	SetState(State::numb);
+	//GetOwner()->RemoveOwnedComponent(this);
+	//this->DestroyComponent();
 }
 
 
@@ -487,9 +496,6 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 		}	
 	}
 
-
-
-
 	//   P L O T S
 	//	Search in relationships for those who appreciate entity, change ontology if required and send reports
 
@@ -521,11 +527,6 @@ void UOEntity::SetMainPlotEntity(UOEntity* mpe) {
 	_mainPlotEntity = mpe;
 }
 
-APlotGenerator * UOEntity::GetPlotGenerator()
-{
-	return _plotGenerator;
-}
-
 vector<BasePlot*> UOEntity::GetCurrentPlots() {
 	return _currentPlots;
 }
@@ -549,7 +550,7 @@ bool UOEntity::CheckValidPersonality(TypeOfPlot type) {
 	//	if (_personality->GetMaterialist() < 50 || _personality->GetAggressiveness() < 50) return false;
 		return true;
 
-	// Avery entity worries about it's home and basic needs 
+	// Every entity worries about it's home and basic needs 
 	case TypeOfPlot::resources: 
 		return true;
 
@@ -595,10 +596,12 @@ void UOEntity::SetState(State s, Graph* g) {
 		break;
 	case State::plot:
 	{	
-		if (_currentPlots.size() > 0) {
+		if (_currentPlots.size() > 0 && !_mainPlotEntity) {
 			_brain = _currentPlots[0]->GetGraph();
 			_mainPlotEntity = this;
 			_plotGenerator->ChangeCurrentPlotsInAction(+1);
+			_currentPlots[0]->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
+			_currentPlots[0]->PrintSentence();
 		}
 		else {
 			if (_mainPlotEntity) {
@@ -618,12 +621,25 @@ void UOEntity::SetState(State s, Graph* g) {
 		_brain = *g;
 	}
 		break;
+	case State::numb: 
+	{
+		_isNumb = true;
+		_brain = NULL;
+		if (IsA<UOCivilian>()) {
+			((UOCivilian*)this)->currentIconPath = "";
+			FText TestHUDText = NSLOCTEXT("FText Namespace", "Key", "");
+			GetOwner()->FindComponentByClass<UTextRenderComponent>()->Text = TestHUDText;
+		}
+		break;
+	}
+		
 	default:
 		_brain = *_idleGraph;
+		break;
 	}
 
 	_entityAIController->SetState(_currentState);
-	ExecuteGraph();
+	if(_currentState != State::numb) ExecuteGraph();
 }
 
 
@@ -653,6 +669,8 @@ void UOEntity::NodeCompleted(bool completedOk) {
 	{
 		if (_currentState == State::plot) {
 			if (_mainPlotEntity == this) {
+				if (!completedOk)
+					_currentPlots[0]->AbortPlot(Utilities::SavePath, Utilities::PlotFile);
 				for (UOEntity* e : _currentPlots[0]->GetInvolvedInPlot()) 
 					e->SetMainPlotEntity(nullptr);
 				_mainPlotEntity = nullptr;
@@ -670,12 +688,9 @@ void UOEntity::NodeCompleted(bool completedOk) {
 	}
 }
 
-
 void UOEntity::AddInstantNode(Node* n) {
 	_brain.AddInstantNode(n);
-//	_brain.NextNode();
 }
-
 
 
 //	 I N V E N T O R Y
@@ -685,11 +700,31 @@ vector<UOOwnable*> UOEntity::GetInventory() {
 }
 void UOEntity::StoreInInventory(UOOwnable* o) {
 	_inventory.push_back(o);
+
+	/*********************/
+	o->GetOwner()->Destroy();
+	/********************/
+
 }
 bool UOEntity::RemoveFromInventory(UOOwnable* o) {
 	int i = 0;
 	for (UOOwnable* strd : _inventory) {
 		if (o == strd) {
+
+			/***********************************/
+			//The location of the drop
+			FVector DropLocation = GetOwner()->GetActorLocation() + (GetOwner()->GetActorForwardVector() * 200);
+
+			FTransform Transform; 
+			Transform.SetLocation(DropLocation);
+
+			//Default actor spawn parameters
+			FActorSpawnParameters SpawnParams;
+
+			//Spawning our pickup
+			AActor* ItemToSpawn = GetOwner()->GetWorld()->SpawnActor<AActor>(o->GetOwner()->GetClass(), Transform, SpawnParams);
+
+			/***********************************/
 			RemoveFromInventory(i);
 			return true;
 		}

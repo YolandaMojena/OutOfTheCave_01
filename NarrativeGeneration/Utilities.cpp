@@ -25,8 +25,12 @@ bool Utilities::SaveStringToFile(const FString & String, const FString SaveDirec
 	if (PlatformFile.CreateDirectoryTree(*SaveDirectory))
 	{
 		FString AbsoluteFilePath = SaveDirectory + "/" + FileName;
-		IFileHandle* handle =  PlatformFile.OpenWrite(*AbsoluteFilePath, false);
-		if(handle) handle->Write((const uint8*)TCHAR_TO_ANSI(*String), String.Len());
+		IFileHandle* handle =  PlatformFile.OpenWrite(*AbsoluteFilePath, true, true);
+		if (handle) {
+			if(handle->Write((const uint8*)TCHAR_TO_ANSI(*String), String.Len()))
+			handle->~IFileHandle();
+			//PlatformFile.~IPlatformFile();
+		}
 		return true;
 	}
 	else GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "Failed to write file");

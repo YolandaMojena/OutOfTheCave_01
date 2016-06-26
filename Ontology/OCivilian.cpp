@@ -9,4 +9,14 @@ UTexture2D* UOCivilian::LoadTextureFromPath(const FString & Path)
 	return Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *(Path)));
 }
 
+TypeOfAmbition UOCivilian::GetAmbition()
+{
+	return _ambition;
+}
+
+void UOCivilian::SetAmbition(TypeOfAmbition ambition)
+{
+	_ambition = ambition;
+}
+
 

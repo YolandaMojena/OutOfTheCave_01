@@ -40,9 +40,9 @@ void UOResidence::BeginPlay()
 
 	srand(time(NULL));
 
-	// ...
 	SpawnTenants();
 	initialized = true;
+	
 }
 
 
@@ -75,12 +75,11 @@ void UOResidence::SpawnTenants() {
 
 				// SET OWNERSHIP WITH THE EDIFICATION
 				ten->AddPossession(new OOwnership(ten, ((UOOwnable*)this), 25 + ten->GetPersonality()->GetMaterialist()));
-
 				ten->SetIdleGraph(GenerateIdleFromJob());
 				ten->SetState(UOEntity::State::idle);
-
+				//ten->SetStrength();
 				ten->SetJob(job);
-
+				
 				tentants.push_back(ten);
 			}
 		}

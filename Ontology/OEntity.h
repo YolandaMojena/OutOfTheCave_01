@@ -11,6 +11,7 @@
 #include <string>
 #include <cstdlib>
 
+
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -42,7 +43,17 @@ public:
 	enum class State : uint8 {
 		idle UMETA(DisplayName = "idle"),
 		plot UMETA(DisplayName = "plot"),
-		react UMETA(DisplayName = "react")
+		react UMETA(DisplayName = "react"),
+		numb UMETA(DisplayName = "numb")
+	};
+
+	struct EntityNotoriety
+	{
+		bool operator()(UOEntity& A, UOEntity& B) const
+		{
+			// Inverted compared to std::priority_queue - higher priorities float to the top
+			return A.GetNotoriety() >= B.GetNotoriety();
+		}
 	};
 
 	//Graph* GetBrain();
@@ -67,6 +78,8 @@ public:
 	// It must be considered whether if the entity is the player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 		bool IsPlayer;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
+		bool _isNumb;
 
 	UPROPERTY(EditAnywhere, Category = Behaviour)
 	class UBehaviorTree* entityBehaviorTree;
@@ -130,21 +143,18 @@ public:
 	void DeletePossession(UOOwnable* possession);
 	void DeleteDesire(UOOwnable* desire);
 
-	bool GetIsDead();
+	bool GetIsNumb();
+	void SetIsNumb(bool value);
 
 	void ReceiveDamage(float damage, UOEntity* damager);
 	bool CheckValidPersonality(TypeOfPlot type);
 	void SendReport(Report* newReport);
-
-	// All entities will send reports to the plotGenerator situated in the game world
-	APlotGenerator* plotGenerator;
 
 	State GetCurrentState();
 	void SetState(State s, Graph* g = nullptr);
 	void SetIdleGraph(Graph* g);
 	UOEntity* GetMainPlotEntity();
 	void SetMainPlotEntity(UOEntity* mpe);
-	APlotGenerator* GetPlotGenerator();
 	ERace GetRace();
 	FString GetRaceString();
 	void SetRace(ERace race);
@@ -202,10 +212,6 @@ protected:
 	Graph* _idleGraph;
 	AEntityAIController* _entityAIController;
 
-
-	// All entities will send reports to the plotGenerator situated in the game world
-	APlotGenerator* _plotGenerator;
-
 	vector<ORelation*> _relationships;
 	vector<UOEntity*> _potentialRelationships;
 	vector<OOwnership*> _possessions;
@@ -213,7 +219,6 @@ protected:
 	vector<OTerritory*> _landlord;
 
 	UOEntity* _attacker;
-	bool _isDead = false;
 	float MIN_INTEGRITY = 20.0f;
 	float _attackCooldown;
 	

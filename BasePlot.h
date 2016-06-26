@@ -6,10 +6,10 @@
 #include <vector>
 #include "NarrativeGeneration/Utilities.h"
 #include "Graph.h"
-#include "Ontology/OEntity.h"
 #include "Ontology/Item.h"
 #include "Ontology/OOwnable.h"
 #include "StringCollection.h"
+#include "NarrativeGeneration/Ambition.h"
 
 using namespace std;
 
@@ -44,6 +44,8 @@ public:
 	Graph GetGraph();
 	UOEntity* GetMainEntity();
 	vector<UOEntity*> GetInvolvedInPlot();
+	UItem* GetPlotMotivation();
+	TypeOfAmbition GetPlotTypeOfAmbition();
 	bool GetIsExclusive();
 	//bool GetPlotIsValid();
 
@@ -55,8 +57,9 @@ protected:
 	UOEntity* _plotEntity;
 	Graph _plotGraph;
 	vector<UOEntity*> _involvedInPlot;
-	UItem* _motivation;
-	bool _isExclusive;
+	UItem* _motivation = nullptr;
+	TypeOfAmbition _ambition;
+	bool _isExclusive = false;
 	bool _isPlotValid;
 
 	virtual void BuildGraph() = 0;

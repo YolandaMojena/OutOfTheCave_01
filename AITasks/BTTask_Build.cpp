@@ -15,8 +15,6 @@ EBTNodeResult::Type UBTTask_Build::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 		UOEdification* home = (UOEdification*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Edification"));
 		entity->RebuildEdification(home);
 
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Build"));
-
 		if (!home->GetIsDestroyed()) {
 			entity->StopRebuildEdification();
 			blackboard->ClearValue(blackboard->GetKeyID("Edification"));

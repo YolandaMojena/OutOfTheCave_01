@@ -11,6 +11,7 @@ using namespace std;
 
 class UOEntity;
 class OOwnership;
+class APlotGenerator;
 
 UENUM(BlueprintType)
 enum class Rarity : uint8 {

@@ -3,11 +3,10 @@
 #pragma once
 
 #include "Ontology/OEntity.h"
+#include "NarrativeGeneration/Ambition.h"
 #include "OCivilian.generated.h"
 
-/**
- * 
- */
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class OUTOFTHECAVE_01_API UOCivilian : public UOEntity
 {
@@ -22,9 +21,12 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LoadTextureFromPath", Keywords = "Load texture from path"), Category = Game)
 		static UTexture2D* LoadTextureFromPath(const FString& Path);
 
+	TypeOfAmbition GetAmbition();
+	void SetAmbition(TypeOfAmbition ambition);
 
 private:
 
 	const FString _DEFAULT_PATH = "Texture2D'/Game/Icons/";
+	TypeOfAmbition _ambition = TypeOfAmbition::noAmbition;
 
 };

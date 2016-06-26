@@ -1,21 +1,28 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
-#include "Ontology/OEntity.h"
-#include "Ontology/OEdification.h"
-#include "Ontology/OOwnable.h"
-#include "Ontology/ORelation.h"
-#include "Ontology/OPersonality.h"
-#include "Ontology/OOwnership.h"
-#include "BasePlot.h"
-#include "NarrativeGeneration/PlotGenerator.h"
-#include "PlotTypes.h"
-/**
- * 
- */
+#include <vector>
+
+class BasePlot;
+class UOEntity;
+class APlotGenerator;
+
+using namespace std;
+
+enum  TypeOfAmbition : uint8 {
+
+	possessions,
+	extermination,
+	notoriety,
+	appreciation,
+	fear,
+	friendTroll,
+	noAmbition
+};
+
 class OUTOFTHECAVE_01_API Ambition
 {
 public:
+
 	Ambition();
 	Ambition(APlotGenerator* plotGenerator, UOEntity* troll);
 	~Ambition();

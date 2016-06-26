@@ -9,9 +9,7 @@ BasePlot::BasePlot(UOEntity* plotEntity) {
 	_plotEntity = plotEntity;
 }
 
-BasePlot::BasePlot() {
-
-}
+BasePlot::BasePlot() {}
 
 BasePlot::~BasePlot() {}
 
@@ -34,7 +32,7 @@ void BasePlot::SavePlotToFile(const FString path, const FString fileName)
 
 void BasePlot::AbortPlot(const FString path, const FString fileName) {
 
-	Utilities::SaveStringToFile(_identifier + " plot aborted.\n\n\n", Utilities::SavePath, Utilities::PlotFile);
+	Utilities::SaveStringToFile(_identifier + " plot aborted.\n\n", Utilities::SavePath, Utilities::PlotFile);
 }
 
 
@@ -54,6 +52,10 @@ bool BasePlot::GetIsExclusive() {
 	return _isExclusive;
 }
 
-/*bool BasePlot::GetPlotIsValid() {
-	return _isPlotValid;
-}*/
+UItem* BasePlot::GetPlotMotivation() {
+	return _motivation;
+}
+
+TypeOfAmbition BasePlot::GetPlotTypeOfAmbition() {
+	return _ambition;
+}

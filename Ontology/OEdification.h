@@ -64,12 +64,13 @@ protected:
 	//virtual void UOOwnable::IHaveBeenDestroyedBySomeone(UOEntity* damager) override;
 
 	AVillage* _village;
+	void FindVillage();
 
 private:
 
 	void IHaveBeenDestroyedBySomeone(UOEntity* damager);
 	void IHaveBeenDamagedBySomeone(UOEntity* damager);
-	void FindVillage();
+	
 
 	UOEntity* _attacker;
 	bool _isDestroyed;

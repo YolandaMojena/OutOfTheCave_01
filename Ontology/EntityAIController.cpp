@@ -12,6 +12,7 @@ AEntityAIController::~AEntityAIController() {}
 
 
 void AEntityAIController::SetNode(Node* n) {
+
 	entityBlackboard->SetValue<UBlackboardKeyType_Enum>(nodeTypeID, static_cast<UBlackboardKeyType_Enum::FDataType>(n->GetNodeType()));
 
 	switch (n->GetNodeType()) {
@@ -36,17 +37,23 @@ void AEntityAIController::SetNode(Node* n) {
 		entityBlackboard->SetValue<UBlackboardKeyType_Enum>(entityBlackboard->GetKeyID("AffordableUse"), static_cast<UBlackboardKeyType_Enum::FDataType>(n->nBlackboard.affordableUse));
 		break;
 	case NodeType::give:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Ownable"), n->nBlackboard.ownable);
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity"), n->nBlackboard.entity);
 		break;
 	case NodeType::goTo:
 		entityBlackboard->SetValue<UBlackboardKeyType_Vector>(positionID, n->nBlackboard.position);
 		break;
 	case NodeType::goToItem:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
+		break;
 	case NodeType::grab:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Ownable"), n->nBlackboard.ownable);
 		break;
 	case NodeType::cultivate:
 		break;
 	case NodeType::steal:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Ownable"), n->nBlackboard.ownable);
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity"), n->nBlackboard.entity);
 		break;
 	case NodeType::wait:
 		break;
@@ -57,6 +64,8 @@ void AEntityAIController::SetNode(Node* n) {
 
 void AEntityAIController::SetState(UOEntity::State s) {
 	entityBlackboard->SetValue<UBlackboardKeyType_Enum>(entityBlackboard->GetKeyID("EntityState"), static_cast<UBlackboardKeyType_Enum::FDataType>(s));
+
+	if (s == UOEntity::State::numb) entityBlackboard->ClearValue(nodeTypeID);
 }
 
 void AEntityAIController::Possess(APawn* pawn) {
