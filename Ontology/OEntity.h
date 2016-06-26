@@ -172,6 +172,7 @@ public:
 	bool RemoveFromInventory(int i);
 
 	void Attack();
+	void DamageEdification(UOEdification* targetEdification);
 	UFUNCTION(BlueprintCallable, Category = "Entity")
 		void EndAttack();
 	void RebuildEdification(UOEdification* home);

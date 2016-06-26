@@ -50,18 +50,18 @@ void APlotGenerator::Tick( float DeltaTime )
 	else {
 		if (_currentPlotsInAction <= _MAX_PLOTS) {
 
-		/*	if (rand() % 100 <= (25 * _MAX_PLOTS - _currentPlotsInAction) ) {
+			if (rand() % 100 <= (25 * _MAX_PLOTS - _currentPlotsInAction) ) {
 
 				if (_reactivePlots.empty()) {
 					GetPlotFromReportLog();
 				}
 				if (_reactivePlots.size() > 0) {
-					_reactivePlots[0]->PrintSentence();
+					//_reactivePlots[0]->PrintSentence();
 					SpawnReactivePlot();
 					_timeToSpawnPlot = 0;
 				}
-			}*/
-			if (rand() % 100 <= 100) {
+			}
+			if (rand() % 100 <= 25) {
 				SpawnAmbitionPlot();
 				_timeToSpawnPlot = 0;
 			}
@@ -196,7 +196,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 			}
 			else if (plot == strings.BUILD_PLOT) {
 				newPlot = new BuildPlot(currentReport->GetReportEntity(), (UOEdification*)currentReport->GetTargetOwnable(), currentReport->GetMotivation());
-				plotIsValid = true;
+				plotIsValid = ValidateBuildPlot((BuildPlot*)newPlot);
 
 				if (plotIsValid) {
 					currentReport->GetReportEntity()->ChangeNotoriety(3);
@@ -273,7 +273,7 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 bool APlotGenerator::ValidateAttackPlot(AttackPlot * plot)
 {
-	return true;
+	return(!(plot->GetTargetEntity()->GetIntegrity() <= 0));
 }
 
 bool APlotGenerator::ValidateDestroyPlot(DestroyPlot * plot)
@@ -288,6 +288,11 @@ bool APlotGenerator::ValidateDestroyPlot(DestroyPlot * plot)
 		}
 	}
 	return ownsEdification;
+}
+
+bool APlotGenerator::ValidateBuildPlot(BuildPlot * build)
+{
+	return build->GetTargetEdification()->GetIsDestroyed();
 }
 
 
@@ -370,3 +375,5 @@ FVector APlotGenerator::RandomDisplacement(int radius){
 	
 	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
 }
+
+

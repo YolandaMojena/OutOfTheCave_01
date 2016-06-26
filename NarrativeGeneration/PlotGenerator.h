@@ -88,8 +88,10 @@ private:
 	const int _MAX_PLOTS = 3;
 
 	bool ValidateAttackPlot(AttackPlot* plot);
-	//bool ValidateBuildPlot(BuildPlot* build);
+	bool ValidateBuildPlot(BuildPlot* build);
 	bool ValidateDestroyPlot(DestroyPlot* plot);
+
+	FVector _stampedeTargetLocation;
 };
 
 

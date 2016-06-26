@@ -99,8 +99,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 			if (entityComp) {
 				entityComp->SetName(_village->AssignMaleHumanName());
 				entityComp->SetRace(race);
-			}
-				
+			}	
 		}
 		else {
 			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Female, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
