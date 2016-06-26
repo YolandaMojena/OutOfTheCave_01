@@ -72,6 +72,12 @@ void Node::SetPosition(FVector v) {
 void Node::SetDaytime(float d) {
 	nBlackboard.daytime = d;
 }
+void Node::SetBoolKey(bool b) {
+	nBlackboard.boolKey = b;
+}
+void Node::SetFloatKey(float f) {
+	nBlackboard.floatKey = f;
+}
 void Node::SetAsBranch() {
 	nBlackboard.branch = true;
 }

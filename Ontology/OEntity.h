@@ -221,6 +221,7 @@ protected:
 	UOEntity* _attacker;
 	float MIN_INTEGRITY = 20.0f;
 	float _attackCooldown;
+	USkeletalMeshComponent* _skelMesh;
 	
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 	OPersonality* _personality;

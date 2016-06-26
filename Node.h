@@ -35,6 +35,7 @@ enum class NodeType : uint8 {
 	askTroll UMETA(DisplayName = "askTroll"),
 	spawn UMETA(DisplayName = "spawn"),
 	cultivate UMETA(DisplayName = "cultivate"),
+	mine UMETA(DisplayName = "mine"),
 	gather UMETA(DisplayName = "gather"),
 	help UMETA(DisplayName = "help"),
 	numb UMETA(DisplayName = "numb")
@@ -58,6 +59,8 @@ public:
 		UOEdification* edification;
 		FVector position;
 		float daytime = -1.0f;
+		bool boolKey;
+		float floatKey;
 		bool branch;
 		bool completedOk = true;
 		bool isHighPriority = false;
@@ -80,6 +83,8 @@ public:
 	void SetGrabbable(UOGrabbable* grb);
 	void SetPosition(FVector v);
 	void SetDaytime(float d);
+	void SetBoolKey(bool b);
+	void SetFloatKey(float f);
 	void SetAsBranch();
 	void SetCompletedOk();
 	void SetHighPriority(bool isHP);

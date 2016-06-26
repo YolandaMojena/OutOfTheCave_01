@@ -158,6 +158,53 @@ Graph* UOResidence::GenerateIdleFromJob() {
 	case EJob::J_Ironsmith:
 		break;
 	case EJob::J_Miner:
+	{
+		UOEdification* minerOre = nullptr;
+		for (TObjectIterator<UOEdification> ObjItr; ObjItr; ++ObjItr) {
+			UOEdification* aux = *ObjItr;
+			if (aux->edificationType == EdificationType::ore && aux->villageID == this->villageID && aux->edificationID == this->edificationID && aux != (UOEdification*)this)
+				minerOre = *ObjItr;
+		}
+		//MADRUGADA
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation());  n->SetDaytime(8);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(8);
+		idleGraph->AddNode(n);
+		//MAÑANA
+		n = new Node();
+		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::cultivator); n->SetDaytime(13);
+		idleGraph->AddNode(n);
+		if (minerOre) {
+			n = new Node();
+			n->SetNodeType(NodeType::goTo); n->SetPosition(minerOre->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(13);
+			//UOEntity* troll = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>();
+			//n->SetNodeType(NodeType::goTo); n->SetPosition(troll->GetOwner()->GetActorLocation() * FVector(1,1,0) + RandomDisplacementVector(400));  n->SetDaytime(13);
+			idleGraph->AddNode(n);
+			n = new Node();
+			n->SetNodeType(NodeType::mine); /*n->SetEdification(peasantField);*/  n->SetDaytime(13);
+			idleGraph->AddNode(n);
+		}
+		//MEDIODÍA
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation());  n->SetDaytime(16);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::enter); n->SetEdification((UOEdification*)this);  n->SetDaytime(16);
+		idleGraph->AddNode(n);
+		//TARDE
+		n = new Node();
+		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::cultivator); n->SetDaytime(21);
+		idleGraph->AddNode(n);
+		if (minerOre) {
+			n = new Node();
+			n->SetNodeType(NodeType::goTo); n->SetPosition(minerOre->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(21);
+			idleGraph->AddNode(n);
+			n = new Node();
+			n->SetNodeType(NodeType::mine); /*n->SetEdification(peasantField);*/  n->SetDaytime(21);
+			idleGraph->AddNode(n);
+		}
+	}
 		break;
 	case EJob::J_Peasant:
 	{
@@ -175,14 +222,14 @@ Graph* UOResidence::GenerateIdleFromJob() {
 		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(8);
 		idleGraph->AddNode(n);
 		//MAÑANA
-		/*n = new Node();
+		n = new Node();
 		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::cultivator); n->SetDaytime(13);
-		idleGraph->AddNode(n);*/
+		idleGraph->AddNode(n);
 		if (peasantField) {
 			n = new Node();
-			//n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(13);
-			UOEntity* troll = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>();
-			n->SetNodeType(NodeType::goTo); n->SetPosition(troll->GetOwner()->GetActorLocation() * FVector(1,1,0) + RandomDisplacementVector(400));  n->SetDaytime(13);
+			n->SetNodeType(NodeType::goTo); n->SetPosition(peasantField->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(13);
+			//UOEntity* troll = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>();
+			//n->SetNodeType(NodeType::goTo); n->SetPosition(troll->GetOwner()->GetActorLocation() * FVector(1,1,0) + RandomDisplacementVector(400));  n->SetDaytime(13);
 			idleGraph->AddNode(n);
 			n = new Node();
 			n->SetNodeType(NodeType::cultivate); /*n->SetEdification(peasantField);*/  n->SetDaytime(13);
@@ -208,16 +255,22 @@ Graph* UOResidence::GenerateIdleFromJob() {
 			idleGraph->AddNode(n);
 		}
 		//NOCHE
-		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation());  n->SetDaytime(8);
+		/*n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation());  n->SetDaytime(8);
 		idleGraph->AddNode(n);
 		n = new Node();
 		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(8);
-		idleGraph->AddNode(n);
+		idleGraph->AddNode(n);*/
 	}
 		break;
 	case EJob::J_Shaman:
 		break;
 	case EJob::J_Soldier:
+	{
+		UOEntity* troll = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>();
+		n = new Node();
+		n->SetNodeType(NodeType::attack); n->SetEntity(troll); n->SetActor(troll->GetOwner());  n->SetFloatKey(0.f); n->SetDaytime(23);
+		idleGraph->AddNode(n);
+	}
 		break;
 
 	case EJob::J_Herbibore:

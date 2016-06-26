@@ -17,8 +17,9 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 			blackboard->SetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("FloatKey"), entity->GetAttackCooldown());
 			return EBTNodeResult::Succeeded;
 		}
-		else
+		else {
 			return EBTNodeResult::InProgress;
+		}
 	}
 	
 

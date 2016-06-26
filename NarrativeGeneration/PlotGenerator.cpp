@@ -50,7 +50,7 @@ void APlotGenerator::Tick( float DeltaTime )
 	else {
 		if (_currentPlotsInAction <= _MAX_PLOTS) {
 
-		/*	if (rand() % 100 <= (25 * _MAX_PLOTS - _currentPlotsInAction) ) {
+			if (rand() % 100 <= (25 * _MAX_PLOTS - _currentPlotsInAction) ) {
 
 				if (_reactivePlots.empty()) {
 					GetPlotFromReportLog();
@@ -60,7 +60,7 @@ void APlotGenerator::Tick( float DeltaTime )
 					SpawnReactivePlot();
 					_timeToSpawnPlot = 0;
 				}
-			}*/
+			}
 			if (rand() % 100 <= 100) {
 				SpawnAmbitionPlot();
 				_timeToSpawnPlot = 0;
