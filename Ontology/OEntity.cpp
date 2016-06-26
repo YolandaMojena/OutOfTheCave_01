@@ -688,11 +688,9 @@ void UOEntity::NodeCompleted(bool completedOk) {
 	}
 }
 
-
 void UOEntity::AddInstantNode(Node* n) {
 	_brain.AddInstantNode(n);
 }
-
 
 
 //	 I N V E N T O R Y
@@ -702,11 +700,31 @@ vector<UOOwnable*> UOEntity::GetInventory() {
 }
 void UOEntity::StoreInInventory(UOOwnable* o) {
 	_inventory.push_back(o);
+
+	/*********************/
+	o->GetOwner()->Destroy();
+	/********************/
+
 }
 bool UOEntity::RemoveFromInventory(UOOwnable* o) {
 	int i = 0;
 	for (UOOwnable* strd : _inventory) {
 		if (o == strd) {
+
+			/***********************************/
+			//The location of the drop
+			FVector DropLocation = GetOwner()->GetActorLocation() + (GetOwner()->GetActorForwardVector() * 200);
+
+			FTransform Transform; 
+			Transform.SetLocation(DropLocation);
+
+			//Default actor spawn parameters
+			FActorSpawnParameters SpawnParams;
+
+			//Spawning our pickup
+			AActor* ItemToSpawn = GetOwner()->GetWorld()->SpawnActor<AActor>(o->GetOwner()->GetClass(), Transform, SpawnParams);
+
+			/***********************************/
 			RemoveFromInventory(i);
 			return true;
 		}
