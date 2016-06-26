@@ -103,6 +103,8 @@ BasePlot * Ambition::GetPosessionsAmbition(UOEntity * entity)
 			break;
 		}	
 	}
+
+	
 	/*if (valuableToOwn->GetOwners().size() > 0) {
 
 		for (UOEntity* e : valuableToOwn->GetOwners()) {

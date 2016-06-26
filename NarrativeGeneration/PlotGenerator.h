@@ -52,6 +52,7 @@ public:
 	vector<UOOwnable*> GetValuables();
 	void AddValuable(UOOwnable* valuable);
 	vector<UOEntity*> GetNotoriousEntitiesByRace(ERace race);
+	void DeleteNotorious(UOEntity* entity);
 	void AddNotorious(UOEntity* notorious);
 
 private:

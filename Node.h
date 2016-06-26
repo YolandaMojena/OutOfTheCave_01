@@ -36,7 +36,9 @@ enum class NodeType : uint8 {
 	spawn UMETA(DisplayName = "spawn"),
 	cultivate UMETA(DisplayName = "cultivate"),
 	gather UMETA(DisplayName = "gather"),
-	help UMETA(DisplayName = "help")
+	help UMETA(DisplayName = "help"),
+	numb UMETA(DisplayName = "numb")
+
 };
 
 class OUTOFTHECAVE_01_API Node

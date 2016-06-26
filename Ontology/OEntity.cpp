@@ -32,7 +32,7 @@ void UOEntity::BeginPlay() {
 		
 		GenerateTraits();
 		HitFunc.BindUFunction(GetOwner(), "OnOverlapBegin");
-		plotGenerator->AddNotorious(this);
+		_plotGenerator->AddNotorious(this);
 	}
 }
 
@@ -70,8 +70,13 @@ void UOEntity::ChangeNotoriety(int value) {
 	_plotGenerator->AddNotorious(this);
 }
 
-bool UOEntity::GetIsDead() {
-	return _isDead;
+bool UOEntity::GetIsNumb() {
+	return _isNumb;
+}
+
+void UOEntity::SetIsNumb(bool value)
+{
+	_isNumb = value;
 }
 
 UOEntity* UOEntity::GetMainPlotEntity() {
@@ -365,7 +370,7 @@ void UOEntity::EntityNotify(UOEntity* pasiva, UOEntity* activa, UItem::_NotifyTa
 
 void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 {
-	if (!_isDead) {
+	if (!_isNumb) {
 
 		_integrity -= damage;
 		_attacker = damager;
@@ -390,7 +395,7 @@ void UOEntity::SendReport(Report* newReport)
 // If the entity is involved in a plot, the most notorious entity ascends to main entity
 void UOEntity::Die() {
 
-	_isDead = true;
+	_isNumb = true;
 
 	ACharacter* character = (ACharacter*)GetOwner();
 	character->GetMesh()->SetSimulatePhysics(true);
@@ -428,33 +433,31 @@ void UOEntity::Die() {
 			other->DeleteRelation(this);
 			other->AddPossession(new OOwnership(other, _deadOwnable, worth));
 		}
-	}
+	}*/
 	
 	// Handle plot state and main entity
 
 	if (_currentState == State::plot) {
-
 		if (_mainPlotEntity == this) {
+			if (_currentPlots.size() > 0 && !_currentPlots[0]->GetIsExclusive() && _currentPlots[0]->GetInvolvedInPlot().size() > 0) {
 
-			if (_currentPlots.size() > 0 && !_currentPlots[0]->GetIsExclusive()) {
-
-				UOEntity* newMainEntity = new UOEntity();
-				newMainEntity->ChangeNotoriety(0);
-
+				UOEntity* notorious = _currentPlots[0]->GetInvolvedInPlot()[0];
 				for (UOEntity* entity : _currentPlots[0]->GetInvolvedInPlot()) {
-					if (entity->GetNotoriety() >= newMainEntity->GetNotoriety())
-						newMainEntity = entity;
+					if (entity->GetNotoriety() >= notorious->GetNotoriety())
+						notorious = entity;
 				}
-
 				for (UOEntity* entity : _currentPlots[0]->GetInvolvedInPlot()) {
-					entity->SetMainPlotEntity(newMainEntity);
+					entity->SetMainPlotEntity(notorious);
 				}
 			}
+			_plotGenerator->ChangeCurrentPlotsInAction(-1);
 		}
 	}
 
-	GetOwner()->RemoveOwnedComponent(this);
-	this->DestroyComponent();*/
+	_plotGenerator->DeleteNotorious(this);
+	SetState(State::numb);
+	//GetOwner()->RemoveOwnedComponent(this);
+	//this->DestroyComponent();
 }
 
 
@@ -598,6 +601,7 @@ void UOEntity::SetState(State s, Graph* g) {
 			_mainPlotEntity = this;
 			_plotGenerator->ChangeCurrentPlotsInAction(+1);
 			_currentPlots[0]->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
+			_currentPlots[0]->PrintSentence();
 		}
 		else {
 			if (_mainPlotEntity) {
@@ -617,12 +621,25 @@ void UOEntity::SetState(State s, Graph* g) {
 		_brain = *g;
 	}
 		break;
+	case State::numb: 
+	{
+		_isNumb = true;
+		_brain = NULL;
+		if (IsA<UOCivilian>()) {
+			((UOCivilian*)this)->currentIconPath = "";
+			FText TestHUDText = NSLOCTEXT("FText Namespace", "Key", "");
+			GetOwner()->FindComponentByClass<UTextRenderComponent>()->Text = TestHUDText;
+		}
+		break;
+	}
+		
 	default:
 		_brain = *_idleGraph;
+		break;
 	}
 
 	_entityAIController->SetState(_currentState);
-	ExecuteGraph();
+	if(_currentState != State::numb) ExecuteGraph();
 }
 
 

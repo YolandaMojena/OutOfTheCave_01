@@ -1,10 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
+#include <vector>
 
 class BasePlot;
 class UOEntity;
 class APlotGenerator;
+
+using namespace std;
 
 enum  TypeOfAmbition : uint8 {
 

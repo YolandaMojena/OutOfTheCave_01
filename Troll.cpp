@@ -206,11 +206,13 @@ void ATroll::PickUpMain() {
 
 				UOEntity* hitEntity = _myEntityComp->GetEntityComponent(_mainWeapon);
 
-				if (!hitEntity->GetIsDead()) {
+				if (!hitEntity->GetIsNumb()) {
 
 					ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
 					// BONE WILL PROBABLY DEPEND ON MESH
 					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(1), true);
+					hitEntity->SetState(UOEntity::State::numb);
+					hitEntity->SetIsNumb(true);
 				}
 				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
 			}
@@ -230,10 +232,10 @@ void ATroll::PickUpMain() {
 
 			UOEntity* hitEntity = _myEntityComp->GetEntityComponent(_mainWeapon);
 			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
-	
-			if (!hitEntity->GetIsDead()) {
-				weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
-			}
+
+			weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
+			hitEntity->SetState(UOEntity::State::idle);
+			hitEntity->SetIsNumb(false);
 		}
 
 		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
@@ -279,10 +281,12 @@ void ATroll::PickUpSecondary() {
 
 				UOEntity* hitEntity = _myEntityComp->GetEntityComponent(_secondaryWeapon);
 
-				if (!hitEntity->GetIsDead()) {
+				if (!hitEntity->GetIsNumb()) {
 
 					ACharacter* weaponChar = dynamic_cast<ACharacter*>(_secondaryWeapon);
 					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(1), true);
+					hitEntity->SetState(UOEntity::State::numb);
+					hitEntity->SetIsNumb(true);
 				}
 				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
 
@@ -303,9 +307,9 @@ void ATroll::PickUpSecondary() {
 			UOEntity* hitEntity = _myEntityComp->GetEntityComponent(_secondaryWeapon);
 			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_secondaryWeapon);
 
-			if (!hitEntity->GetIsDead()) {
-				weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
-			}
+			weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
+			hitEntity->SetState(UOEntity::State::idle);
+			hitEntity->SetIsNumb(false);
 		}
 
 		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED

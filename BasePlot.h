@@ -57,7 +57,7 @@ protected:
 	UOEntity* _plotEntity;
 	Graph _plotGraph;
 	vector<UOEntity*> _involvedInPlot;
-	UItem* _motivation;
+	UItem* _motivation = nullptr;
 	TypeOfAmbition _ambition;
 	bool _isExclusive = false;
 	bool _isPlotValid;

@@ -4,7 +4,11 @@
 #include "Village.h"
 
 AVillage::AVillage()
-{}
+{
+	_goblinNames = Utilities::ReadFileToVector(Utilities::SavePath, Utilities::goblinPath);
+	_femaleHumanNames = Utilities::ReadFileToVector(Utilities::SavePath, Utilities::femaleHumanPath);
+	_maleHumanNames = Utilities::ReadFileToVector(Utilities::SavePath, Utilities::maleHumanPath);
+}
 
 AVillage::~AVillage()
 {}
@@ -12,10 +16,6 @@ AVillage::~AVillage()
 void AVillage::BeginPlay()
 {
 	Super::BeginPlay();
-
-	_goblinNames = Utilities::ReadFileToVector(Utilities::SavePath, Utilities::goblinPath);
-	_femaleHumanNames = Utilities::ReadFileToVector(Utilities::SavePath, Utilities::femaleHumanPath);
-	_maleHumanNames = Utilities::ReadFileToVector(Utilities::SavePath, Utilities::maleHumanPath);
 }
 
 FString AVillage::AssignFemaleHumanName() {

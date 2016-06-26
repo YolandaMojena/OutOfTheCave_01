@@ -43,7 +43,8 @@ public:
 	enum class State : uint8 {
 		idle UMETA(DisplayName = "idle"),
 		plot UMETA(DisplayName = "plot"),
-		react UMETA(DisplayName = "react")
+		react UMETA(DisplayName = "react"),
+		numb UMETA(DisplayName = "numb")
 	};
 
 	struct EntityNotoriety
@@ -77,6 +78,8 @@ public:
 	// It must be considered whether if the entity is the player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 		bool IsPlayer;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
+		bool _isNumb;
 
 	UPROPERTY(EditAnywhere, Category = Behaviour)
 	class UBehaviorTree* entityBehaviorTree;
@@ -140,7 +143,8 @@ public:
 	void DeletePossession(UOOwnable* possession);
 	void DeleteDesire(UOOwnable* desire);
 
-	bool GetIsDead();
+	bool GetIsNumb();
+	void SetIsNumb(bool value);
 
 	void ReceiveDamage(float damage, UOEntity* damager);
 	bool CheckValidPersonality(TypeOfPlot type);
@@ -215,7 +219,6 @@ protected:
 	vector<OTerritory*> _landlord;
 
 	UOEntity* _attacker;
-	bool _isDead = false;
 	float MIN_INTEGRITY = 20.0f;
 	float _attackCooldown;
 	

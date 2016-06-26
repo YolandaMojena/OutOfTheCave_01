@@ -66,8 +66,8 @@ void APlotGenerator::Tick( float DeltaTime )
 				_timeToSpawnPlot = 0;
 			}
 			if (rand() % 100 <= 5) {
-				SpawnWorldPlot();
-				_timeToSpawnPlot = 0;
+			//	SpawnWorldPlot();
+			//	_timeToSpawnPlot = 0;
 			}
 		}
 	}
@@ -97,7 +97,7 @@ bool APlotGenerator::SpawnReactivePlot()
 
 bool APlotGenerator::SpawnAmbitionPlot()
 {
-	Ambition ambition;
+	Ambition ambition = Ambition(this, UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>());
 	UOEntity* entity = _notoriousEntities.HeapTop();
 
 	if (entity) {
@@ -105,6 +105,7 @@ bool APlotGenerator::SpawnAmbitionPlot()
 		BasePlot* ambitionPlot = ambition.GenerateAmbitionForEntity(entity);
 
 		if (ambitionPlot) {
+			ambitionPlot->InitPlot();
 			entity->AddCurrentPlot(ambitionPlot);
 			if (entity->GetCurrentState() == UOEntity::State::idle)
 				entity->SetState(UOEntity::State::plot);
@@ -120,6 +121,7 @@ bool APlotGenerator::SpawnWorldPlot()
 	int randPlot = rand()% _worldPlots.size();
 	_worldPlots[randPlot]->InitPlot();
 	_worldPlots[randPlot]->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
+	_worldPlots[randPlot]->PrintSentence();
 
 	return true;
 }
@@ -176,7 +178,6 @@ void APlotGenerator::GetPlotFromReportLog() {
 				plotIsValid = ValidateAttackPlot((AttackPlot*) newPlot);
 
 				if (plotIsValid) {
-					newPlot->InitPlot();
 					currentReport->GetReportEntity()->ChangeNotoriety(3);
 					currentReport->GetTargetEntity()->ChangeNotoriety(2);
 				}
@@ -188,7 +189,6 @@ void APlotGenerator::GetPlotFromReportLog() {
 				plotIsValid = ValidateDestroyPlot((DestroyPlot*)newPlot);	
 
 				if (plotIsValid) {
-					newPlot->InitPlot();
 					currentReport->GetReportEntity()->ChangeNotoriety(3);
 					currentReport->GetTargetEntity()->ChangeNotoriety(2);
 				}
@@ -199,7 +199,6 @@ void APlotGenerator::GetPlotFromReportLog() {
 				plotIsValid = true;
 
 				if (plotIsValid) {
-					newPlot->InitPlot();
 					currentReport->GetReportEntity()->ChangeNotoriety(3);
 				}
 				else plotCandidates.erase(plotCandidates.begin() + randType);
@@ -215,7 +214,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 					entity->ChangeNotoriety(1);
 				}
 			}
-			newPlot->BuildSentence();
+			newPlot->InitPlot();
 			_reactivePlots.push_back(newPlot);
 		}
 	}
@@ -247,7 +246,7 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 		while(i < _pReportLog.Num()){
 			if (_pReportLog[i]->GetTag() == tag) {
-				if (_pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetOwnable() == report->GetTargetOwnable() && _pReportLog[i]->GetMotivation() == report->GetMotivation()) {
+				if (_pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetOwnable() == report->GetTargetOwnable()) {
 					helpers.push_back(_pReportLog[i]->GetReportEntity());
 					_pReportLog.RemoveAt(i);
 				}
@@ -260,7 +259,7 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 		while (i < _pReportLog.Num()) {
 			if (_pReportLog[i]->GetTag() == tag) {
-				if (_pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetEntity() == report->GetTargetEntity() && _pReportLog[i]->GetMotivation() == report->GetMotivation()) {
+				if (_pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetEntity() == report->GetTargetEntity()) {
 					helpers.push_back(_pReportLog[i]->GetReportEntity());
 					_pReportLog.RemoveAt(i);
 				}
@@ -323,6 +322,8 @@ vector<UOOwnable*> APlotGenerator::GetValuables()
 void APlotGenerator::AddValuable(UOOwnable * valuable)
 {
 	_valuables.push_back(valuable);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Added valuable"));
+
 }
 
 vector<UOEntity*> APlotGenerator::GetNotoriousEntitiesByRace(ERace race)
@@ -360,13 +361,12 @@ void APlotGenerator::AddNotorious(UOEntity * notorious)
 		}
 	}
 }
+void APlotGenerator::DeleteNotorious(UOEntity * entity)
+{
+	_notoriousEntities.Remove(entity);
+}
 
 FVector APlotGenerator::RandomDisplacement(int radius){
 	
 	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
 }
-
-
-
-
-
