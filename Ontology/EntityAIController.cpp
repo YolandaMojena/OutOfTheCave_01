@@ -20,6 +20,8 @@ void AEntityAIController::SetNode(Node* n) {
 		break;
 	case NodeType::attack:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity") , n->nBlackboard.entity);
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.entity->GetOwner());
+		entityBlackboard->SetValue<UBlackboardKeyType_Float>(entityBlackboard->GetKeyID("FloatKey"), n->nBlackboard.floatKey);
 		break;
 	case NodeType::branch:
 		break;

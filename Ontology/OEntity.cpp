@@ -34,6 +34,8 @@ void UOEntity::BeginPlay() {
 		HitFunc.BindUFunction(GetOwner(), "OnOverlapBegin");
 		_plotGenerator->AddNotorious(this);
 	}
+
+	_skelMesh = ((ACharacter*)GetOwner())->GetMesh();
 }
 
 void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -42,6 +44,12 @@ void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 	if (_isEntityAttacking && _attackCooldown > 0) {
 		_attackCooldown -= DeltaTime;
+	}
+
+	if (!IsPlayer) {
+		for (TArray<const FAnimNotifyEvent*>::TIterator it = _skelMesh->AnimScriptInstance->AnimNotifies.CreateIterator(); it; ++it) {
+			if ((*it)->NotifyName.ToString() == "EndAttack") EndAttack();
+		}
 	}
 }
 
@@ -746,11 +754,11 @@ bool UOEntity::RemoveFromInventory(int i) {
 
 void UOEntity::Attack()
 {
-	const float BASE_ATTACK_COOLDOWN = 1.2f;
+	//const float BASE_ATTACK_COOLDOWN = 1.2f;
 
 	if (!_isEntityAttacking) {
 		_isEntityAttacking = true;
-		_attackCooldown = BASE_ATTACK_COOLDOWN - _agility / 100.f;
+		//_attackCooldown = BASE_ATTACK_COOLDOWN - _agility / 100.f;
 	}
 }
 void UOEntity::DamageEdification(UOEdification * targetEdification)
@@ -764,7 +772,10 @@ void UOEntity::DamageEdification(UOEdification * targetEdification)
 }
 
 void UOEntity::EndAttack() {
+	const float BASE_ATTACK_COOLDOWN = 1.2f;
+
 	_isEntityAttacking = false;
+	_attackCooldown = BASE_ATTACK_COOLDOWN - _agility / 100.f;
 }
 bool UOEntity::IsEntityAttacking() {
 	return _isEntityAttacking;

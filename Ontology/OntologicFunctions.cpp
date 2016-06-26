@@ -101,7 +101,15 @@ int OntologicFunctions::UseAsCultivator(UItem* i){
 		/ (pow(100, nfactors-1));*/
 }
 int OntologicFunctions::UseForMining(UItem* i) {
-	return i->GetToughness() * i->GetSpiky() * i->GetAngularMomentumTransmission() * i->GetMass();
+	int nfactors = 3;
+
+	int term1 = ThresholdValue(ExponentialGrowth(i->GetToughness(),90));
+	int term2 = ThresholdValue(ExponentialGrowth(i->GetSpiky(), 90));
+	int term3 = ThresholdValue(ExponentialGrowth(i->GetAngularMomentumTransmission()));
+	//int term4 = ThresholdValue(HyperbolicGrowth(i->GetMass(),5));
+	int result = term1 * term2 * term3 / (pow(100, nfactors - 1));
+
+	return result;
 }
 int OntologicFunctions::UseForBuilding(UItem* i) {
 	return i->GetToughness() * i->GetAngularMomentumTransmission() / i->GetMaxLength() / i->GetMass();

@@ -62,6 +62,7 @@ void APlotGenerator::Tick( float DeltaTime )
 				}
 			}
 			if (rand() % 100 <= 25) {
+
 				SpawnAmbitionPlot();
 				_timeToSpawnPlot = 0;
 			}

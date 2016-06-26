@@ -25,8 +25,10 @@ class AVillage;
 
 UENUM(BlueprintType)
 enum class EdificationType : uint8 {
-	house  UMETA(DisplayName = "House"), 
-	field  UMETA(DisplayName = "Field"),
+	house	UMETA(DisplayName = "House"), 
+	field	UMETA(DisplayName = "Field"),
+	ore		UMETA(DisplayName = "Ore"),
+	tree	UMETA(Displayname = "Tree")
 };
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
