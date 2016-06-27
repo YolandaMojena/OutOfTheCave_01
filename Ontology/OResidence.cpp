@@ -231,7 +231,7 @@ Graph* UOResidence::GenerateIdleFromJob() {
 			//n->SetNodeType(NodeType::goTo); n->SetPosition(troll->GetOwner()->GetActorLocation() * FVector(1,1,0) + RandomDisplacementVector(400));  n->SetDaytime(13);
 			idleGraph->AddNode(n);
 			n = new Node();
-			n->SetNodeType(NodeType::cultivate); /*n->SetEdification(peasantField);*/  n->SetDaytime(13);
+			n->SetNodeType(NodeType::cultivate); n->SetEdification(peasantField);  n->SetDaytime(13);
 			idleGraph->AddNode(n);
 		}
 		//MEDIODÍA

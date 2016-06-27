@@ -42,6 +42,13 @@ public:
 		}
 	};
 
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		ADirectionalLight* sun;
+	
+	float GetDaytime();*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float dayTime;
+
 	APlotGenerator();
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;

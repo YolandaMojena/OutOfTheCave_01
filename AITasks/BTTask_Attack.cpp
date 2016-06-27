@@ -13,13 +13,17 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 
 	if (entity) {	
-		if (!entity->IsEntityAttacking()) {
+		blackboard->SetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("FloatKey"), entity->GetAttackCooldown());
+		entity->EndAttack();
+		return EBTNodeResult::Succeeded;
+
+		/*if (!entity->IsEntityAttacking()) {
 			blackboard->SetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("FloatKey"), entity->GetAttackCooldown());
 			return EBTNodeResult::Succeeded;
 		}
 		else {
 			return EBTNodeResult::InProgress;
-		}
+		}*/
 	}
 	
 

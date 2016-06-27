@@ -75,6 +75,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
 		bool _isEntityBuilding;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
+		bool _isEntityCultivating;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
+		bool _isEntityMining;
+
+
 	// It must be considered whether if the entity is the player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 		bool IsPlayer;

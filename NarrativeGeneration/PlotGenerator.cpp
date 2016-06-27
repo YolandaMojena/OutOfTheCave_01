@@ -99,7 +99,7 @@ bool APlotGenerator::SpawnReactivePlot()
 bool APlotGenerator::SpawnAmbitionPlot()
 {
 	Ambition ambition = Ambition(this, UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>());
-	UOEntity* entity = _notoriousEntities.HeapTop();
+	UOEntity* entity = _notoriousEntities.Num() > 0 ? _notoriousEntities.HeapTop() : nullptr;
 
 	if (entity) {
 
@@ -291,7 +291,7 @@ bool APlotGenerator::ValidateDestroyPlot(DestroyPlot * plot)
 	return ownsEdification;
 }
 
-bool APlotGenerator::ValidateBuildPlot(BuildPlot * build)
+bool APlotGenerator::ValidateBuildPlot(BuildPlot* build)
 {
 	return build->GetTargetEdification()->GetIsDestroyed();
 }
@@ -378,3 +378,46 @@ FVector APlotGenerator::RandomDisplacement(int radius){
 }
 
 
+/*float APlotGenerator::GetDaytime() {
+	/*float p = sun->GetActorRotation().Pitch;
+	float y = sun->GetActorRotation().Yaw;
+	float r = sun->GetActorRotation().Roll;
+
+	FRotator rot = sun->GetActorRotation();
+	float angle = rot.Euler().Y;
+
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, "\nRot: " + rot.ToString());
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, "\nAbs: " + FString::SanitizeFloat(abs(p)*12.f / 90.f));
+
+	if (p < 0) {
+		if (r < -100 || r > 100) {
+			return 8.f + abs(p) * 6.f / 90.f;
+		}
+		else {
+			return 8.f + 12.f - abs(p) * 6.f / 90.f;
+		}
+	}
+	else {
+		if (r > -100 && r < 100) {
+			if (abs(p) * 6.f / 90.f < 24 - 8)
+				return 9.f + 12.f + abs(p) * 6.f / 90.f;
+			else
+				return  24.f + abs(p) * 6.f / 90.f;
+		}
+		else {
+			return 24.f - abs(p) * 6.f / 90.f;
+		}
+	}
+
+
+	if (r < -100 || r > 100)
+		if(y < -100 || y > 100)
+			return 3.f + abs(p)*12.f / 90.f;
+		else
+			return abs(p)*12.f / 90.f - 3.f + 12.f;
+	else
+		if(y < -100 || y > 100)
+			return 3.f - 24.f + abs(p)*12.f / 90.f;
+		else
+			return 3.f + 24.f - abs(p)*12.f / 90.f;
+}*/

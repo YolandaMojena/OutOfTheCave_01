@@ -47,7 +47,7 @@ void UOEdification::ReceiveDamage(float damage, UOEntity* damager) {
 
 			if (GetOwner()->FindComponentByClass<UDestructibleComponent>()) {
 				DestroyEdification();
-				//IHaveBeenDestroyedBySomeone(damager);
+				IHaveBeenDestroyedBySomeone(damager);
 			}
 			else if (IsA<UOTree>()) {
 				_isDestroyed = true;
