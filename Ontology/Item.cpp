@@ -90,6 +90,9 @@ float UItem::GetEdgeSharpness() { return _edgeSharpness; }
 float UItem::GetEdgeLength() { return _edgeLength; }
 float UItem::GetSpiky() { return _spiky; }
 float UItem::GetSpikes() { return _spikes; }
+int UItem::GetIntegrity() {
+	return _integrity;
+}
 
 FString UItem::GetName()
 {

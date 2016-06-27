@@ -11,18 +11,19 @@
 
 #include "Ontology/EntityAIController.h"
 #include "Ontology/OEntity.h"
+#include "Ontology/OResidence.h"
 
-#include "BTTask_Cultivate.generated.h"
+#include "BTTask_EnterExit.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class OUTOFTHECAVE_01_API UBTTask_Cultivate : public UBTTask_BlackboardBase
+class OUTOFTHECAVE_01_API UBTTask_EnterExit : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
-
+	
 public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
+	
 };

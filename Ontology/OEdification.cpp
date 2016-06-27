@@ -4,6 +4,7 @@
 #include "OEdification.h"
 #include "Village.h"
 #include "Ontology/OEntity.h"
+#include "Ontology/OTree.h"
 
 UOEdification::UOEdification() : UOOwnable() {
 }
@@ -43,8 +44,15 @@ void UOEdification::ReceiveDamage(float damage, UOEntity* damager) {
 		_attacker = damager;
 
 		if (_integrity <= 0) {
-			DestroyEdification();
-			//IHaveBeenDestroyedBySomeone(damager);
+
+			if (GetOwner()->FindComponentByClass<UDestructibleComponent>()) {
+				DestroyEdification();
+				IHaveBeenDestroyedBySomeone(damager);
+			}
+			else if (IsA<UOTree>()) {
+				_isDestroyed = true;
+				((UOTree*)this)->SpawnLeaflessTree();
+			}
 		}
 	}
 }

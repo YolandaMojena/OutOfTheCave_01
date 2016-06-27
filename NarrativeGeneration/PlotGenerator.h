@@ -42,6 +42,13 @@ public:
 		}
 	};
 
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		ADirectionalLight* sun;
+	
+	float GetDaytime();*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float dayTime;
+
 	APlotGenerator();
 	virtual void BeginPlay() override;
 	virtual void Tick( float DeltaSeconds ) override;
@@ -88,8 +95,10 @@ private:
 	const int _MAX_PLOTS = 3;
 
 	bool ValidateAttackPlot(AttackPlot* plot);
-	//bool ValidateBuildPlot(BuildPlot* build);
+	bool ValidateBuildPlot(BuildPlot* build);
 	bool ValidateDestroyPlot(DestroyPlot* plot);
+
+	FVector _stampedeTargetLocation;
 };
 
 

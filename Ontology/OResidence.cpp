@@ -99,8 +99,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 			if (entityComp) {
 				entityComp->SetName(_village->AssignMaleHumanName());
 				entityComp->SetRace(race);
-			}
-				
+			}	
 		}
 		else {
 			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Female, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
@@ -232,7 +231,7 @@ Graph* UOResidence::GenerateIdleFromJob() {
 			//n->SetNodeType(NodeType::goTo); n->SetPosition(troll->GetOwner()->GetActorLocation() * FVector(1,1,0) + RandomDisplacementVector(400));  n->SetDaytime(13);
 			idleGraph->AddNode(n);
 			n = new Node();
-			n->SetNodeType(NodeType::cultivate); /*n->SetEdification(peasantField);*/  n->SetDaytime(13);
+			n->SetNodeType(NodeType::cultivate); n->SetEdification(peasantField);  n->SetDaytime(13);
 			idleGraph->AddNode(n);
 		}
 		//MEDIODÍA

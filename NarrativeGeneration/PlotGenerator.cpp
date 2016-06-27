@@ -56,12 +56,13 @@ void APlotGenerator::Tick( float DeltaTime )
 					GetPlotFromReportLog();
 				}
 				if (_reactivePlots.size() > 0) {
-					_reactivePlots[0]->PrintSentence();
+					//_reactivePlots[0]->PrintSentence();
 					SpawnReactivePlot();
 					_timeToSpawnPlot = 0;
 				}
 			}
-			if (rand() % 100 <= 100) {
+			if (rand() % 100 <= 25) {
+
 				SpawnAmbitionPlot();
 				_timeToSpawnPlot = 0;
 			}
@@ -98,7 +99,7 @@ bool APlotGenerator::SpawnReactivePlot()
 bool APlotGenerator::SpawnAmbitionPlot()
 {
 	Ambition ambition = Ambition(this, UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>());
-	UOEntity* entity = _notoriousEntities.HeapTop();
+	UOEntity* entity = _notoriousEntities.Num() > 0 ? _notoriousEntities.HeapTop() : nullptr;
 
 	if (entity) {
 
@@ -196,7 +197,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 			}
 			else if (plot == strings.BUILD_PLOT) {
 				newPlot = new BuildPlot(currentReport->GetReportEntity(), (UOEdification*)currentReport->GetTargetOwnable(), currentReport->GetMotivation());
-				plotIsValid = true;
+				plotIsValid = ValidateBuildPlot((BuildPlot*)newPlot);
 
 				if (plotIsValid) {
 					currentReport->GetReportEntity()->ChangeNotoriety(3);
@@ -273,7 +274,7 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 bool APlotGenerator::ValidateAttackPlot(AttackPlot * plot)
 {
-	return true;
+	return(!(plot->GetTargetEntity()->GetIntegrity() <= 0));
 }
 
 bool APlotGenerator::ValidateDestroyPlot(DestroyPlot * plot)
@@ -288,6 +289,11 @@ bool APlotGenerator::ValidateDestroyPlot(DestroyPlot * plot)
 		}
 	}
 	return ownsEdification;
+}
+
+bool APlotGenerator::ValidateBuildPlot(BuildPlot* build)
+{
+	return build->GetTargetEdification()->GetIsDestroyed();
 }
 
 
@@ -370,3 +376,48 @@ FVector APlotGenerator::RandomDisplacement(int radius){
 	
 	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
 }
+
+
+/*float APlotGenerator::GetDaytime() {
+	/*float p = sun->GetActorRotation().Pitch;
+	float y = sun->GetActorRotation().Yaw;
+	float r = sun->GetActorRotation().Roll;
+
+	FRotator rot = sun->GetActorRotation();
+	float angle = rot.Euler().Y;
+
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, "\nRot: " + rot.ToString());
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, "\nAbs: " + FString::SanitizeFloat(abs(p)*12.f / 90.f));
+
+	if (p < 0) {
+		if (r < -100 || r > 100) {
+			return 8.f + abs(p) * 6.f / 90.f;
+		}
+		else {
+			return 8.f + 12.f - abs(p) * 6.f / 90.f;
+		}
+	}
+	else {
+		if (r > -100 && r < 100) {
+			if (abs(p) * 6.f / 90.f < 24 - 8)
+				return 9.f + 12.f + abs(p) * 6.f / 90.f;
+			else
+				return  24.f + abs(p) * 6.f / 90.f;
+		}
+		else {
+			return 24.f - abs(p) * 6.f / 90.f;
+		}
+	}
+
+
+	if (r < -100 || r > 100)
+		if(y < -100 || y > 100)
+			return 3.f + abs(p)*12.f / 90.f;
+		else
+			return abs(p)*12.f / 90.f - 3.f + 12.f;
+	else
+		if(y < -100 || y > 100)
+			return 3.f - 24.f + abs(p)*12.f / 90.f;
+		else
+			return 3.f + 24.f - abs(p)*12.f / 90.f;
+}*/

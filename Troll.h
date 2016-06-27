@@ -108,7 +108,7 @@ private:
 	float _secondaryZ;
 
 	const float _PICK_UP_RADIO = 256.0f;
-	const float _TROLL_DMG = 30.0f;
+	const float _TROLL_DMG = 1000.0f;
 
 	USkeletalMeshComponent* SkelMesh;
 	UAnimMontage* myMontage;

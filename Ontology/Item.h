@@ -137,6 +137,7 @@ public:
 	float GetSpiky();
 	float GetSpikes();
 	FString GetName();
+	int GetIntegrity();
 
 	void SetName(FString name);
 

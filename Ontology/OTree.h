@@ -8,12 +8,17 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class OUTOFTHECAVE_01_API UOTree : public UOEdification
 {
 	GENERATED_BODY()
 
-	
+public:
 
+	UOTree();
+	~UOTree();
 
+	TSubclassOf<class AActor> BP_Tree;
+
+	void SpawnLeaflessTree();
 };

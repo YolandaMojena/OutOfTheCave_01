@@ -761,6 +761,16 @@ void UOEntity::Attack()
 		//_attackCooldown = BASE_ATTACK_COOLDOWN - _agility / 100.f;
 	}
 }
+void UOEntity::DamageEdification(UOEdification * targetEdification)
+{
+	//ERIC'S AFFORDANCES
+	targetEdification->ReceiveDamage(_strength, this);
+
+	if (targetEdification->edificationType == EdificationType::house) {
+		targetEdification->GetOwner()->FindComponentByClass<UDestructibleComponent>()->ApplyRadiusDamage(_strength, targetEdification->GetCenterOfMass(), 32, 0.01, false);
+	}
+}
+
 void UOEntity::EndAttack() {
 	const float BASE_ATTACK_COOLDOWN = 1.2f;
 
