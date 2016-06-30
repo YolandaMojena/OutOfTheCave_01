@@ -178,6 +178,7 @@ public:
 	bool RemoveFromInventory(int i);
 
 	void Attack();
+	bool StealFromInventory(UOOwnable* o, UOEntity* buggler);
 	void DamageEdification(UOEdification* targetEdification);
 	UFUNCTION(BlueprintCallable, Category = "Entity")
 		void EndAttack();

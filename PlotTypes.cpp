@@ -45,10 +45,10 @@ void AttackPlot::BuildSentence() {
 
 		_sentence += ".\n He/She counts with the help of ";
 
-		if (_involvedInPlot.size() > 0) {
-			for (int i = 0; i < _involvedInPlot.size(); i++) {
+		if (_involvedInPlot.Num() > 0) {
+			for (int i = 0; i < _involvedInPlot.Num(); i++) {
 				_sentence += _involvedInPlot[i]->GetName();
-				if (i < _involvedInPlot.size() - 1)
+				if (i < _involvedInPlot.Num() - 1)
 					_sentence += ", ";
 			}
 			_sentence += " and ";
@@ -169,10 +169,10 @@ void DestroyPlot::BuildSentence() {
 
 		_sentence += ".\n He/She counts with the help of ";
 
-		if (_involvedInPlot.size() > 0) {
-			for (int i = 0; i < _involvedInPlot.size(); i++) {
+		if (_involvedInPlot.Num() > 0) {
+			for (int i = 0; i < _involvedInPlot.Num(); i++) {
 				_sentence += _involvedInPlot[i]->GetName();
-				if (i < _involvedInPlot.size() - 1)
+				if (i < _involvedInPlot.Num() - 1)
 					_sentence += ", ";
 			}
 			_sentence += " and ";
@@ -264,10 +264,10 @@ void BuildPlot::BuildSentence() {
 	_sentence += "The unfortunate " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " is rebuilding his/her home, which was destroyed by the merciless " + ((UOEntity*)_motivation)->GetRaceString() + " " + _motivation->GetName();
 	_sentence += ".\nHe/She counts with the help of ";
 
-	if (_involvedInPlot.size() > 0) {
-		for (int i = 0; i < _involvedInPlot.size(); i++) {
+	if (_involvedInPlot.Num() > 0) {
+		for (int i = 0; i < _involvedInPlot.Num(); i++) {
 			_sentence += _involvedInPlot[i]->GetName();
-			if (i < _involvedInPlot.size() - 1)
+			if (i < _involvedInPlot.Num() - 1)
 				_sentence += ", ";
 		}
 		_sentence += " and ";
@@ -350,10 +350,10 @@ void AmbushPlot::BuildSentence() {
 
 		_sentence += ".\nHe/She counts with the help of ";
 
-		if (_involvedInPlot.size() > 0) {
-			for (int i = 0; i < _involvedInPlot.size(); i++) {
+		if (_involvedInPlot.Num() > 0) {
+			for (int i = 0; i < _involvedInPlot.Num(); i++) {
 				_sentence += _involvedInPlot[i]->GetName();
-				if (i < _involvedInPlot.size() - 1)
+				if (i < _involvedInPlot.Num() - 1)
 					_sentence += ", ";
 			}
 			_sentence += " and ";

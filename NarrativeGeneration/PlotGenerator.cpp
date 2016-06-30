@@ -212,7 +212,6 @@ void APlotGenerator::GetPlotFromReportLog() {
 			if (!newPlot->GetIsExclusive()) {
 				for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
 					newPlot->AddInvolvedInPlot(entity);
-					entity->ChangeNotoriety(1);
 				}
 			}
 			newPlot->InitPlot();
@@ -248,7 +247,8 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 		while(i < _pReportLog.Num()){
 			if (_pReportLog[i]->GetTag() == tag) {
 				if (_pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetOwnable() == report->GetTargetOwnable()) {
-					helpers.push_back(_pReportLog[i]->GetReportEntity());
+					if(_pReportLog[i]->GetReportEntity()->GetIntegrity()>0)
+						helpers.push_back(_pReportLog[i]->GetReportEntity());
 					_pReportLog.RemoveAt(i);
 				}
 				else i++;
@@ -261,7 +261,8 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 		while (i < _pReportLog.Num()) {
 			if (_pReportLog[i]->GetTag() == tag) {
 				if (_pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetEntity() == report->GetTargetEntity()) {
-					helpers.push_back(_pReportLog[i]->GetReportEntity());
+					if (_pReportLog[i]->GetReportEntity()->GetIntegrity()>0)
+						helpers.push_back(_pReportLog[i]->GetReportEntity());
 					_pReportLog.RemoveAt(i);
 				}
 				else i++;
@@ -274,7 +275,7 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 bool APlotGenerator::ValidateAttackPlot(AttackPlot * plot)
 {
-	return(!(plot->GetTargetEntity()->GetIntegrity() <= 0));
+	return(plot->GetTargetEntity()->GetIntegrity() > 0);
 }
 
 bool APlotGenerator::ValidateDestroyPlot(DestroyPlot * plot)

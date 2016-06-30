@@ -447,7 +447,7 @@ void UOEntity::Die() {
 
 	if (_currentState == State::plot) {
 		if (_mainPlotEntity == this) {
-			if (_currentPlots.size() > 0 && !_currentPlots[0]->GetIsExclusive() && _currentPlots[0]->GetInvolvedInPlot().size() > 0) {
+			if (_currentPlots.size() > 0 && !_currentPlots[0]->GetIsExclusive() && _currentPlots[0]->GetInvolvedInPlot().Num() > 0) {
 
 				UOEntity* notorious = _currentPlots[0]->GetInvolvedInPlot()[0];
 				for (UOEntity* entity : _currentPlots[0]->GetInvolvedInPlot()) {
@@ -718,21 +718,6 @@ bool UOEntity::RemoveFromInventory(UOOwnable* o) {
 	int i = 0;
 	for (UOOwnable* strd : _inventory) {
 		if (o == strd) {
-
-			/***********************************/
-			//The location of the drop
-			FVector DropLocation = GetOwner()->GetActorLocation() + (GetOwner()->GetActorForwardVector() * 200);
-
-			FTransform Transform; 
-			Transform.SetLocation(DropLocation);
-
-			//Default actor spawn parameters
-			FActorSpawnParameters SpawnParams;
-
-			//Spawning our pickup
-			AActor* ItemToSpawn = GetOwner()->GetWorld()->SpawnActor<AActor>(o->GetOwner()->GetClass(), Transform, SpawnParams);
-
-			/***********************************/
 			RemoveFromInventory(i);
 			return true;
 		}
@@ -741,6 +726,8 @@ bool UOEntity::RemoveFromInventory(UOOwnable* o) {
 	return false;
 		
 }
+
+
 bool UOEntity::RemoveFromInventory(int i) {
 	if (i >= _inventory.size())
 		return false;
@@ -819,6 +806,24 @@ void UOEntity::ReleaseGrabbedItem() {
 	grabbedItemActor->OnActorBeginOverlap.Remove(HitFunc);
 	grabbedItemActor->DetachRootComponentFromParent(true);
 	grabbedItemActor->SetActorEnableCollision(true);
+}
+
+
+bool UOEntity::StealFromInventory(UOOwnable * o, UOEntity * buggler)
+{
+	int i = 0;
+	for (UOOwnable* strd : _inventory) {
+		if (o == strd) {
+			buggler->StoreInInventory(o);
+			o->AddOwner(buggler);
+			RemoveFromInventory(i);
+			o->IHaveBeenStolenBySomeone(this, buggler);
+			return true;
+		}
+		i++;
+	}
+
+	return false;
 }
 
 void UOEntity::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
