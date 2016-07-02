@@ -19,9 +19,6 @@ using namespace std;
 
 class AVillage;
 
-/**
- * 
- */
 
 UENUM(BlueprintType)
 enum class EdificationType : uint8 {

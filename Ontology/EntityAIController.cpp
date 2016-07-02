@@ -14,7 +14,7 @@ AEntityAIController::~AEntityAIController() {}
 void AEntityAIController::SetNode(Node* n) {
 
 	entityBlackboard->SetValue<UBlackboardKeyType_Enum>(nodeTypeID, static_cast<UBlackboardKeyType_Enum::FDataType>(n->GetNodeType()));
-
+	entityBlackboard->SetValue<UBlackboardKeyType_Float>(entityBlackboard->GetKeyID("Daytime"), n->nBlackboard.daytime);
 	switch (n->GetNodeType()) {
 	case NodeType::askForHelp:
 		break;
@@ -50,6 +50,7 @@ void AEntityAIController::SetNode(Node* n) {
 		break;
 	case NodeType::grab:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Ownable"), n->nBlackboard.ownable);
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
 		break;
 	case NodeType::cultivate:
 		break;
@@ -59,14 +60,19 @@ void AEntityAIController::SetNode(Node* n) {
 		break;
 	case NodeType::wait:
 		break;
+	case NodeType::help:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity"), n->nBlackboard.entity);
+		if(n->nBlackboard.entity->IsPlayer)
+			entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
+		break;
 	default:
 		break;
 	}
 }
 
 void AEntityAIController::SetState(UOEntity::State s) {
+	
 	entityBlackboard->SetValue<UBlackboardKeyType_Enum>(entityBlackboard->GetKeyID("EntityState"), static_cast<UBlackboardKeyType_Enum::FDataType>(s));
-
 	if (s == UOEntity::State::numb) entityBlackboard->ClearValue(nodeTypeID);
 }
 

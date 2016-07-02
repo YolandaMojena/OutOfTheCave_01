@@ -11,21 +11,24 @@ ARebuildableEdification::ARebuildableEdification(const FObjectInitializer& Objec
 	PrimaryActorTick.bCanEverTick = true;
 
 	destructible = ObjectInitializer.CreateDefaultSubobject<UDestructibleComponent>(this, TEXT("DM"));
+	//static ConstructorHelpers::FObjectFinder<UDestructibleMesh> DestructibleMesh(TEXT("DestructibleMesh'/Game/MyContent/humbleHouse_DM.humbleHouse_DM'"));
+	//originalMesh = DestructibleMesh.Object;
 
-	static ConstructorHelpers::FObjectFinder<UDestructibleMesh> DestructibleMesh(TEXT("DestructibleMesh'/Game/MyContent/humbleHouse_DM.humbleHouse_DM'"));
-	originalMesh = DestructibleMesh.Object;
-
-	destructible->SetDestructibleMesh(originalMesh);
+	/*destructible->SetDestructibleMesh(originalMesh);
 	destructible->AttachTo(RootComponent);
 
-	//UObject* outer = originalMesh->GetOuter();
-	_copy = DuplicateObject(originalMesh, nullptr);
+	_copy = DuplicateObject(originalMesh, nullptr);*/
 }
 
 // Called when the game starts or when spawned
 void ARebuildableEdification::BeginPlay()
 {
 	Super::BeginPlay();
+
+	destructible->SetDestructibleMesh(originalMesh);
+	//destructible->AttachTo(RootComponent);
+
+	_copy = DuplicateObject(originalMesh, nullptr);
 	
 }
 

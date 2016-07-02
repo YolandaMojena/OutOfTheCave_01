@@ -13,17 +13,21 @@ EBTNodeResult::Type UBTTask_Build::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 	if (entity) {
 
 		UOEdification* home = (UOEdification*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Edification"));
-		entity->RebuildEdification(home);
 
-		if (!home->GetIsDestroyed()) {
-			entity->StopRebuildEdification();
-			blackboard->ClearValue(blackboard->GetKeyID("Edification"));
+		if (home) {
+			if(home->GetIsDestroyed())
+				entity->RebuildEdification(home);
+
+			else {
+				entity->StopRebuildEdification();
+				blackboard->ClearValue(blackboard->GetKeyID("Edification"));
+			}
 		}
 
 		return EBTNodeResult::Succeeded;
 	}
 
-	return EBTNodeResult::Failed;
+	return EBTNodeResult::Succeeded;
 }
 
 

@@ -48,6 +48,16 @@ int UOOwnable::GetRarityAsInt() {
 	return (int)_rarity;
 }
 
+bool UOOwnable::GetIsGrabbed()
+{
+	return _isGrabbed;
+}
+
+void UOOwnable::SetIsGrabbed(bool grabbed)
+{
+	_isGrabbed = grabbed;
+}
+
 void UOOwnable::IHaveBeenStolenBySomeone(UOEntity * potentialOwner, UOEntity * buggler)
 {
 	for (UOEntity* e : _owners) {

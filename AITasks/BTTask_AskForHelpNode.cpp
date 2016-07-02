@@ -18,12 +18,14 @@ EBTNodeResult::Type UBTTask_AskForHelpNode::ExecuteTask(UBehaviorTreeComponent& 
 		for (UOEntity* e : plotEntity->GetCurrentPlot()->GetInvolvedInPlot())
 			if (!helpers.Contains(e) && e!=plotEntity) helpers.Add(e);
 
-		// Add by relationships
-		for (ORelation* r : plotEntity->GetRelationships()) {
-			UOEntity* potentialHelper = r->GetOtherEntity();
-			if (!potentialHelper->IsPlayer && !helpers.Contains(potentialHelper) && potentialHelper->GetRelationWith(plotEntity) &&
-				potentialHelper->GetRelationWith(plotEntity)->GetAppreciation()>50)		
-				helpers.Add(r->GetOtherEntity());
+		if (plotEntity->GetPersonality()->GetSocial() > 50) {
+			// Add by relationships
+			for (ORelation* r : plotEntity->GetRelationships()) {
+				UOEntity* potentialHelper = r->GetOtherEntity();
+				if (!potentialHelper->IsPlayer && !helpers.Contains(potentialHelper) && potentialHelper->GetRelationWith(plotEntity) &&
+					potentialHelper->GetRelationWith(plotEntity)->GetAppreciation()>50)
+					helpers.Add(r->GetOtherEntity());
+			}
 		}
 
 		// Check if the entity is free to be involved
@@ -32,9 +34,7 @@ EBTNodeResult::Type UBTTask_AskForHelpNode::ExecuteTask(UBehaviorTreeComponent& 
 			if (e->GetMainPlotEntity() == nullptr) {
 				e->SetMainPlotEntity(plotEntity);
 				e->ChangeNotoriety(+1);
-				if (e->GetCurrentState() == UOEntity::State::idle) {
-					e->SetState(UOEntity::State::plot);
-				}
+				e->RethinkState();
 			}
 			else {
 				plotEntity->GetCurrentPlot()->DeleteFromInvolved(e);

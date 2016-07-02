@@ -24,7 +24,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Edification)
 		UDestructibleComponent* destructible;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Edification)
 	UDestructibleMesh* originalMesh;
 
 	bool RebuildEdification();

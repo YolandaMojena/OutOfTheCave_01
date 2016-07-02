@@ -159,8 +159,12 @@ public:
 	State GetCurrentState();
 	void SetState(State s, Graph* g = nullptr);
 	void SetIdleGraph(Graph* g);
+	Graph* GetIdleGraph();
+	Graph* GetBrain();
 	UOEntity* GetMainPlotEntity();
 	void SetMainPlotEntity(UOEntity* mpe);
+	void RethinkState();
+	
 	ERace GetRace();
 	FString GetRaceString();
 	void SetRace(ERace race);
@@ -168,8 +172,10 @@ public:
 	void SetJob(EJob);
 
 	void SetAIController(AEntityAIController* eaic);
+	void SetPlotGenerator();
 	void ExecuteGraph();
 	void NodeCompleted(bool completedOk);
+	void ClearState(bool completedOk);
 	void AddInstantNode(Node* n);
 
 	vector<UOOwnable*> GetInventory();
@@ -210,7 +216,7 @@ protected:
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
 
-	State _currentState;
+	State _currentState = State::idle;
 	ERace _race;
 	EJob _job;
 

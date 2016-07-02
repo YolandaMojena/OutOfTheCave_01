@@ -44,6 +44,8 @@ public:
 		Rarity _rarity;
 	Rarity GetRarity();
 	int GetRarityAsInt();
+	bool GetIsGrabbed();
+	void SetIsGrabbed(bool grabbed);
 
 	// REPORTS
 	void IHaveBeenStolenBySomeone(UOEntity* potentialOwner, UOEntity* buggler);
@@ -53,4 +55,5 @@ private:
 
 	// Messages to owner for report generation
 	vector<UOEntity*> _owners;
+	bool _isGrabbed;
 };
