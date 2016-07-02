@@ -13,6 +13,8 @@
 #include "Ontology/OEntity.h"
 #include "Ontology/OResidence.h"
 
+#include "NarrativeGeneration/Utilities.h"
+
 #include "BTTask_EnterExit.generated.h"
 
 /**

@@ -9,6 +9,8 @@ FString Utilities::ReportFile = "ReportReport.txt";
 FString Utilities::goblinPath = "OOTC_goblinNames.txt";
 FString Utilities::femaleHumanPath = "OOTC_femaleNames.txt";
 FString  Utilities::maleHumanPath = "OOTC_maleNames.txt";
+float Utilities::GAMEDAY_LENGTH = 60.f;	//s/d
+float Utilities::DAY_LENGTH = 24.f;		//h/d
 
 Utilities::Utilities()
 {

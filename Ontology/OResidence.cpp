@@ -177,11 +177,11 @@ Graph* UOResidence::GenerateIdleFromJob() {
 		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::mine); n->SetDaytime(13);
 		idleGraph->AddNode(n);
 		if (minerOre) {
+			/*n = new Node();
+			n->SetNodeType(NodeType::goTo); n->SetPosition(minerOre->GetOwner()->GetActorLocation());  n->SetDaytime(13);
+			idleGraph->AddNode(n);*/
 			n = new Node();
-			n->SetNodeType(NodeType::goTo); n->SetPosition(minerOre->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(13);
-			idleGraph->AddNode(n);
-			n = new Node();
-			n->SetNodeType(NodeType::mine); /*n->SetEdification(peasantField);*/  n->SetDaytime(13);
+			n->SetNodeType(NodeType::mine); n->SetActor(minerOre->GetOwner()); n->SetDaytime(13);
 			idleGraph->AddNode(n);
 		}
 		//MEDIODÍA
@@ -196,11 +196,11 @@ Graph* UOResidence::GenerateIdleFromJob() {
 		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::mine); n->SetDaytime(21);
 		idleGraph->AddNode(n);
 		if (minerOre) {
+			/*n = new Node();
+			n->SetNodeType(NodeType::goTo); n->SetPosition(minerOre->GetOwner()->GetActorLocation());  n->SetDaytime(21);
+			idleGraph->AddNode(n);*/
 			n = new Node();
-			n->SetNodeType(NodeType::goTo); n->SetPosition(minerOre->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(21);
-			idleGraph->AddNode(n);
-			n = new Node();
-			n->SetNodeType(NodeType::mine); /*n->SetEdification(peasantField);*/  n->SetDaytime(21);
+			n->SetNodeType(NodeType::mine); n->SetActor(minerOre->GetOwner());  n->SetDaytime(21);
 			idleGraph->AddNode(n);
 		}
 	}

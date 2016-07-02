@@ -435,17 +435,7 @@ void UOEntity::Die() {
 			o->GetOtherEntity()->AddPossession(new OOwnership(other, _deadOwnable, worth));
 		}
 	}
-
-	for (UOEntity* other : _potentialRelationships) {
-
-		ORelation* relationWithThis = other->GetRelationWith(this);
-
-		if (relationWithThis) {
-			int worth = relationWithThis->GetAppreciation();
-			other->DeleteRelation(this);
-			other->AddPossession(new OOwnership(other, _deadOwnable, worth));
-		}
-	}*/
+*/
 	
 	// Handle plot state and main entity
 
