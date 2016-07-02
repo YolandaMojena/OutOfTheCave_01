@@ -7,8 +7,6 @@
 #include "Ontology/EntityAIController.h"
 #include "Ontology/OEntity.h"
 #include "Ontology/ORelation.h"
-#include <algorithm>
-
 
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"

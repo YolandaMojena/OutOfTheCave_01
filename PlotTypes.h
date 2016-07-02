@@ -216,7 +216,7 @@ class OUTOFTHECAVE_01_API GivePlot : public BasePlot
 {
 public:
 	GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what, UItem* motivation);
-	//GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what, TypeOfAmbition ambition);
+	GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what, TypeOfAmbition ambition);
 	~GivePlot();
 
 	void BuildSentence();

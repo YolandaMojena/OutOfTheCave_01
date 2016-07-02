@@ -41,25 +41,25 @@ void AttackPlot::BuildSentence() {
 			+ _targetEntity->GetName() + ", who ";
 		_sentence += _motivation->IsA<UOEntity>() ?
 			"hurt his/her friend " + _motivation->GetName()
-			: "damaged his/her " + _motivation->GetOwner()->GetActorLabel();
+			: "damaged his/her " + _motivation->GetName();
 
-		_sentence += ".\n He/She counts with the help of ";
+		/*_sentence += ".\n He/She counts with the help of ";
 
-		if (_involvedInPlot.size() > 0) {
-			for (int i = 0; i < _involvedInPlot.size(); i++) {
+		if (_involvedInPlot.Num() > 0) {
+			for (int i = 0; i < _involvedInPlot.Num(); i++) {
 				_sentence += _involvedInPlot[i]->GetName();
-				if (i < _involvedInPlot.size() - 1)
+				if (i < _involvedInPlot.Num() - 1)
 					_sentence += ", ";
 			}
 			_sentence += " and ";
-		}
-		_sentence += "some allies.\n\n";
+		}*/
+		_sentence += /*"some allies*/".\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::extermination) {
 
 		_sentence += "The aggressive " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
 			+ " has began an attack against the unfortunate " + _targetEntity->GetRaceString() + " "
-			+ _targetEntity->GetName() + ", in order to exterminate his/her race.\n\n";
+			+ _targetEntity->GetName() + ", in order to exterminate his/her race.\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::notoriety) {
 
@@ -73,12 +73,10 @@ void AttackPlot::BuildGraph() {
 
 	_plotGraph = Graph();
 
-	if (_plotEntity->GetPersonality()->GetSocial() > 50) {
-		//ASK FOR HELP
-		Node* askForHelpNode = new Node();
-		askForHelpNode->SetNodeType(NodeType::askForHelp);
-		_plotGraph.AddNode(askForHelpNode);
-	}
+	//ASK FOR HELP
+	Node* askForHelpNode = new Node();
+	askForHelpNode->SetNodeType(NodeType::askForHelp);
+	_plotGraph.AddNode(askForHelpNode);
 
 	//GET WEAPON
 	Node* getNode = new Node();
@@ -151,7 +149,7 @@ void DestroyPlot::BuildSentence() {
 
 	if (_motivation) {
 		_sentence += "The brave " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " has began to destroy the " + _targetEdification->GetOwner()->GetActorLabel() + " "
+			+ " has began to destroy the " + _targetEdification->GetName() + " "
 			", which belongs to ";
 
 		if (_targetEdification->GetOwners().size() > 0) {
@@ -164,20 +162,28 @@ void DestroyPlot::BuildSentence() {
 		}
 		_sentence += ", since " + _targetEntity->GetName();
 		_sentence += _motivation->IsA<UOEntity>() ?
-			" hurt his/her friend" + _motivation->GetOwner()->FindComponentByClass<UOEntity>()->GetName()
-			: " damaged his/her " + _motivation->GetOwner()->GetActorLabel();
+			" hurt his/her friend" + _motivation->GetName()
+			: " damaged his/her " + _motivation->GetName();
 
-		_sentence += ".\n He/She counts with the help of ";
+		/*_sentence += ".\n He/She counts with the help of ";
 
-		if (_involvedInPlot.size() > 0) {
-			for (int i = 0; i < _involvedInPlot.size(); i++) {
+		if (_involvedInPlot.Num() > 0) {
+			for (int i = 0; i < _involvedInPlot.Num(); i++) {
 				_sentence += _involvedInPlot[i]->GetName();
-				if (i < _involvedInPlot.size() - 1)
+				if (i < _involvedInPlot.Num() - 1)
 					_sentence += ", ";
 			}
 			_sentence += " and ";
-		}
-		_sentence += "some allies.\n\n\n";
+		}*/
+		_sentence += /*"some allies*/".\n\n\n";
+	}
+
+	else if (_ambition == TypeOfAmbition::fear) {
+
+		_sentence += "The coward " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
+			+ " has began to destroy a " + ((UOEntity*)(_targetEdification->GetOwners()[0]))->GetRaceString() + "'s home.";
+
+			_sentence += " He/She hopes this will lead others to fear him.\n\n\n";
 	}
 }
 
@@ -185,12 +191,10 @@ void DestroyPlot::BuildGraph() {
 
 	_plotGraph = Graph();
 
-	if (_plotEntity->GetPersonality()->GetSocial() > 50) {
-		//ASK FOR HELP
-		Node* askForHelpNode = new Node();
-		askForHelpNode->SetNodeType(NodeType::askForHelp);
-		_plotGraph.AddNode(askForHelpNode);
-	}
+	//ASK FOR HELP
+	Node* askForHelpNode = new Node();
+	askForHelpNode->SetNodeType(NodeType::askForHelp);
+	_plotGraph.AddNode(askForHelpNode);
 
 	//GET TOOLS
 	Node* getNode = new Node();
@@ -232,7 +236,7 @@ void DestroyPlot::InitPlot() {
 		}
 	}
 
-	_identifier = "Destroy " + _targetEdification->GetOwner()->GetActorLabel() + ":\n";
+	_identifier = "Destroy " + _targetEdification->GetName() + ":\n";
 	BuildGraph();
 	BuildSentence();
 }
@@ -262,29 +266,27 @@ void BuildPlot::BuildSentence() {
 	_sentence += _identifier + "\n";
 
 	_sentence += "The unfortunate " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " is rebuilding his/her home, which was destroyed by the merciless " + ((UOEntity*)_motivation)->GetRaceString() + " " + _motivation->GetName();
-	_sentence += ".\nHe/She counts with the help of ";
+	/*_sentence += ".\nHe/She counts with the help of ";
 
-	if (_involvedInPlot.size() > 0) {
-		for (int i = 0; i < _involvedInPlot.size(); i++) {
+	if (_involvedInPlot.Num() > 0) {
+		for (int i = 0; i < _involvedInPlot.Num(); i++) {
 			_sentence += _involvedInPlot[i]->GetName();
-			if (i < _involvedInPlot.size() - 1)
+			if (i < _involvedInPlot.Num() - 1)
 				_sentence += ", ";
 		}
 		_sentence += " and ";
-	}
-	_sentence += "some allies.\n\n\n";
+	}*/
+	_sentence += /*"some allies*/".\n\n\n";
 }
 
 void BuildPlot::BuildGraph() {
 
 	_plotGraph = Graph();
 
-	if (_plotEntity->GetPersonality()->GetSocial()>50) {
-		//ASK FOR HELP
-		Node* askForHelpNode = new Node();
-		askForHelpNode->SetNodeType(NodeType::askForHelp);
-		_plotGraph.AddNode(askForHelpNode);
-	}
+	//ASK FOR HELP
+	Node* askForHelpNode = new Node();
+	askForHelpNode->SetNodeType(NodeType::askForHelp);
+	_plotGraph.AddNode(askForHelpNode);
 
 	//GET TOOLS
 	Node* getNode = new Node();
@@ -348,24 +350,24 @@ void AmbushPlot::BuildSentence() {
 			+ " has commited traison and organized an ambush against the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetName()
 			+ ", who planned to attack his/her friend, the " + ((UOEntity*)_motivation)->GetRaceString() + " " + _motivation->GetName();
 
-		_sentence += ".\nHe/She counts with the help of ";
+		/*_sentence += ".\nHe/She counts with the help of ";
 
-		if (_involvedInPlot.size() > 0) {
-			for (int i = 0; i < _involvedInPlot.size(); i++) {
+		if (_involvedInPlot.Num() > 0) {
+			for (int i = 0; i < _involvedInPlot.Num(); i++) {
 				_sentence += _involvedInPlot[i]->GetName();
-				if (i < _involvedInPlot.size() - 1)
+				if (i < _involvedInPlot.Num() - 1)
 					_sentence += ", ";
 			}
 			_sentence += " and ";
-		}
-		_sentence += "some allies.\n\n\n";
+		}*/
+		_sentence += /*"some allies*/".\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::extermination) {
 
 		_sentence += "The astute " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
 			+ " is assaulting " + _targetEntity->GetRaceString() + "s! "
 			+ "This time his/her victim has been the unfortunate" + _targetEntity->GetName() +
-			".\nHe/she will go as far a neccesary to exterminate the race.\n\n\n";
+			". He/she will go as far a neccesary to exterminate the race.\n\n\n";
 	}
 }
 
@@ -540,6 +542,11 @@ void GetPlot::BuildSentence() {
 			+ " is embarking on an adventure to find a precious " + _targetOwnable->GetName() +
 			", since his/her ambition in life is to own lots of valuable possessions.\n\n\n";
 	}
+	else if (_ambition == TypeOfAmbition::appreciation) {
+		_sentence += "The materialistic " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
+			+ " is embarking on an adventure to find a precious " + _targetOwnable->GetName() +
+			". It is for someone he/she wants to be noticed by.\n\n\n";
+	}
 }
 
 void GetPlot::BuildGraph() {
@@ -567,6 +574,7 @@ void GetPlot::BuildGraph() {
 	Node* grabNode = new Node();
 	grabNode->SetNodeType(NodeType::grab);
 	grabNode->SetOwnable(_targetOwnable);
+	grabNode->SetActor(_targetOwnable->GetOwner());
 	_plotGraph.AddNode(grabNode);
 }
 
@@ -610,17 +618,24 @@ void HelpPlot::BuildSentence() {
 	if (_motivation) {
 	}
 
+	else if (_ambition == TypeOfAmbition::appreciation) {
+
+		_sentence += "The kind " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
+			+ " is doing his/her best to help the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetName()
+			+ ", since he/she would like to be more appreciated by him/her.\n\n\n";
+	}
+
 	else if (_ambition == TypeOfAmbition::notoriety) {
 
 		_sentence += "The kind " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
 			+ " is doing his/her best to help the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetName()
-			+ ", since he/she is highly notorious in society.\nMaybe one day he/she'll get to be like him/her.\n\n\n";
+			+ ", since he/she is highly notorious in society. Maybe one day he/she'll get to be like him/her.\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::friendTroll) {
 
 		_sentence += "The curious " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
 			+ "wants to be the troll's friend! He/She's following him around to learn from him and "
-			+ "maybe, someday, do something useful for him\n\n\n.";
+			+ "maybe, someday, do something useful for him.\n\n\n.";
 	}
 }
 
@@ -638,6 +653,8 @@ void HelpPlot::BuildGraph() {
 	Node* helpNode = new Node();
 	helpNode->SetNodeType(NodeType::help);
 	helpNode->SetEntity(_targetEntity);
+	if(_targetEntity->IsPlayer)
+		helpNode->SetActor(_targetEntity->GetOwner());
 	_plotGraph.AddNode(helpNode);
 
 }
@@ -685,7 +702,7 @@ Stampede::~Stampede() {}
 void Stampede::BuildSentence() {
 
 	_sentence += _identifier + "\n";
-	_sentence += "A stampede is approaching!\n\n\n";
+	_sentence += "A stampede of beasts is approaching!\n\n\n";
 }
 
 void Stampede::BuildGraph() {
@@ -708,12 +725,16 @@ void Stampede::BuildGraph() {
 		_plotGraph.AddNode(goToNode);
 	}
 
+	Node* waitNode = new Node();
+	waitNode->SetNodeType(NodeType::wait);
+	_plotGraph.AddNode(waitNode);
+
 
 	//RETURN TO LOCATION
-	/*goToNode = new Node();
+	Node* goToNode = new Node();
 	goToNode->SetNodeType(NodeType::goTo);
-	goToNode->SetPosition(_spawnLocation);
-	_plotGraph.AddNode(goToNode);*/
+	goToNode->SetPosition(_spawnLocation * FVector(1, 1, 0));
+	_plotGraph.AddNode(goToNode);
 }
 
 void Stampede::InitPlot() {
@@ -748,14 +769,32 @@ GivePlot::GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what, UIte
 	_motivation = motivation;
 }
 
+GivePlot::GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what, TypeOfAmbition ambition) : BasePlot(plotEntity) {
+
+	_targetEntity = target;
+	_targetOwnable = what;
+	_isExclusive = true;
+	_ambition = ambition;
+}
+
 GivePlot::~GivePlot() {}
 
 void GivePlot::BuildSentence() {
 
 	_sentence += _identifier + "\n";
 
-	_sentence += "The generours: " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " is giving his precious " + _targetOwnable->GetName() + " to the " +
-		_targetEntity->GetRaceString() + " " + _targetEntity->GetName() + " , in grattitude for the help received with his " + _motivation->GetName() + ".\n\n\n";
+	if (_motivation) {
+
+		_sentence += "The generours: " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " is giving his precious " + _targetOwnable->GetName() + " to the " +
+			_targetEntity->GetRaceString() + " " + _targetEntity->GetName() + ", in grattitude for the help received with his " + _motivation->GetName() + ".\n\n\n";
+	}
+	else if (_ambition == TypeOfAmbition::appreciation) {
+
+		_sentence += "The generours: " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " is giving a precious " + _targetOwnable->GetName() + " to the " +
+			_targetEntity->GetRaceString() + " " + _targetEntity->GetName() + ", since he/she feels he/she would like to be more appreciated by others.\n\n\n";
+	}
+
+
 }
 
 void GivePlot::BuildGraph() {

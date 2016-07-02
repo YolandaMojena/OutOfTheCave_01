@@ -23,18 +23,6 @@ void APlotGenerator::BeginPlay()
 
 	//INSERT WORLD PLOTS FROM THE BEGINNING
 	_worldPlots.push_back(new Stampede(ERace::R_Bear, GetActorLocation(), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), rand() % 10 + 5, this));
-
-	/*int a = 1;
-	int b = 2;
-	int c = 3;
-
-	TArray<int*> heapTest;
-	heapTest.HeapPush(&a, intTest());
-	heapTest.HeapPush(&b, intTest());
-	heapTest.HeapPush(&c, intTest());
-
-	int last = *heapTest[1];
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, "\nLast: " + FString::SanitizeFloat(last));*/
 }
 
 // Called every frame
@@ -50,7 +38,7 @@ void APlotGenerator::Tick( float DeltaTime )
 	else {
 		if (_currentPlotsInAction <= _MAX_PLOTS) {
 
-			if (rand() % 100 <= (25 * _MAX_PLOTS - _currentPlotsInAction) ) {
+			if (rand() % 100 <= 25 + (25 * _MAX_PLOTS - _currentPlotsInAction) ) {
 
 				if (_reactivePlots.empty()) {
 					GetPlotFromReportLog();
@@ -61,14 +49,14 @@ void APlotGenerator::Tick( float DeltaTime )
 					_timeToSpawnPlot = 0;
 				}
 			}
-			if (rand() % 100 <= 25) {
+			else if (rand() % 100 <= (25 /_currentPlotsInAction + 1)) {
 
 				SpawnAmbitionPlot();
 				_timeToSpawnPlot = 0;
 			}
-			if (rand() % 100 <= 5) {
-			//	SpawnWorldPlot();
-			//	_timeToSpawnPlot = 0;
+			else if (rand() % 100 <= 5) {
+				//SpawnWorldPlot();
+				_timeToSpawnPlot = 0;
 			}
 		}
 	}
@@ -88,8 +76,8 @@ bool APlotGenerator::SpawnReactivePlot()
 
 		UOEntity* plotEntity = currentPlot->GetMainEntity();
 		plotEntity->AddCurrentPlot(currentPlot);
-		if (plotEntity->GetCurrentState() == UOEntity::State::idle)
-			plotEntity->SetState(UOEntity::State::plot);
+			//plotEntity->SetState(UOEntity::State::plot);
+		plotEntity->RethinkState();
 
 		return true;
 	}
@@ -99,7 +87,7 @@ bool APlotGenerator::SpawnReactivePlot()
 bool APlotGenerator::SpawnAmbitionPlot()
 {
 	Ambition ambition = Ambition(this, UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>());
-	UOEntity* entity = _notoriousEntities.Num() > 0 ? _notoriousEntities.HeapTop() : nullptr;
+	UOEntity* entity = _notoriousEntities.Num() > 0 ? _notoriousEntities[rand() % _notoriousEntities.Num()] : nullptr;
 
 	if (entity) {
 
@@ -108,8 +96,8 @@ bool APlotGenerator::SpawnAmbitionPlot()
 		if (ambitionPlot) {
 			ambitionPlot->InitPlot();
 			entity->AddCurrentPlot(ambitionPlot);
-			if (entity->GetCurrentState() == UOEntity::State::idle)
-				entity->SetState(UOEntity::State::plot);
+				//entity->SetState(UOEntity::State::plot);
+			entity->RethinkState();
 			return true;
 		}
 		else return false;
@@ -212,7 +200,6 @@ void APlotGenerator::GetPlotFromReportLog() {
 			if (!newPlot->GetIsExclusive()) {
 				for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
 					newPlot->AddInvolvedInPlot(entity);
-					entity->ChangeNotoriety(1);
 				}
 			}
 			newPlot->InitPlot();
@@ -248,7 +235,8 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 		while(i < _pReportLog.Num()){
 			if (_pReportLog[i]->GetTag() == tag) {
 				if (_pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetOwnable() == report->GetTargetOwnable()) {
-					helpers.push_back(_pReportLog[i]->GetReportEntity());
+					if(_pReportLog[i]->GetReportEntity()->GetIntegrity()>0)
+						helpers.push_back(_pReportLog[i]->GetReportEntity());
 					_pReportLog.RemoveAt(i);
 				}
 				else i++;
@@ -261,7 +249,8 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 		while (i < _pReportLog.Num()) {
 			if (_pReportLog[i]->GetTag() == tag) {
 				if (_pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetEntity() == report->GetTargetEntity()) {
-					helpers.push_back(_pReportLog[i]->GetReportEntity());
+					if (_pReportLog[i]->GetReportEntity()->GetIntegrity()>0)
+						helpers.push_back(_pReportLog[i]->GetReportEntity());
 					_pReportLog.RemoveAt(i);
 				}
 				else i++;
@@ -274,7 +263,7 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 bool APlotGenerator::ValidateAttackPlot(AttackPlot * plot)
 {
-	return(!(plot->GetTargetEntity()->GetIntegrity() <= 0));
+	return(plot->GetTargetEntity()->GetIntegrity() > 0);
 }
 
 bool APlotGenerator::ValidateDestroyPlot(DestroyPlot * plot)
@@ -328,8 +317,6 @@ vector<UOOwnable*> APlotGenerator::GetValuables()
 void APlotGenerator::AddValuable(UOOwnable * valuable)
 {
 	_valuables.push_back(valuable);
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Added valuable"));
-
 }
 
 vector<UOEntity*> APlotGenerator::GetNotoriousEntitiesByRace(ERace race)
@@ -338,6 +325,16 @@ vector<UOEntity*> APlotGenerator::GetNotoriousEntitiesByRace(ERace race)
 
 	for (UOEntity* e : _notoriousEntities)
 		if (e->GetRace() == race)
+			entities.push_back(e);
+
+	return entities;
+}
+
+vector<UOEntity*> APlotGenerator::GetNotoriousEntities()
+{
+	vector<UOEntity*> entities;
+
+	for (UOEntity* e : _notoriousEntities)
 			entities.push_back(e);
 
 	return entities;

@@ -3,23 +3,29 @@
 #pragma once
 
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
+
+#include "Ontology/EntityAIController.h"
+#include "Ontology/OEntity.h"
+#include "Ontology/ORelation.h"
+
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
-#include "Ontology/EntityAIController.h"
-#include "Ontology/Item.h"
-#include "Ontology/OEntity.h"
-#include "BTTask_GrabItem.generated.h"
+
+#include "BTTask_Steal.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class OUTOFTHECAVE_01_API UBTTask_GrabItem : public UBTTask_BlackboardBase
+class OUTOFTHECAVE_01_API UBTTask_Steal : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
-public:
 
+public:
+	
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	
+	
 };

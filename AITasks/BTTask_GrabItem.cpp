@@ -3,13 +3,6 @@
 #include "OutOfTheCave_01.h"
 #include "BTTask_GrabItem.h"
 
-UBTTask_GrabItem::UBTTask_GrabItem()
-{
-}
-
-UBTTask_GrabItem::~UBTTask_GrabItem()
-{
-}
 
 EBTNodeResult::Type UBTTask_GrabItem::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
 	
@@ -18,7 +11,10 @@ EBTNodeResult::Type UBTTask_GrabItem::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 	UItem* item = (UItem*) blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"));
 
-	entity->GrabItem(item);
+	if(item) entity->GrabItem(item);
+	else item = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Ownable"));
+
+	if (item) entity->GrabItem(item);
 
 	return EBTNodeResult::Succeeded;
 	

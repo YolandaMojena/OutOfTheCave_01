@@ -43,7 +43,8 @@ public:
 
 	Graph GetGraph();
 	UOEntity* GetMainEntity();
-	vector<UOEntity*> GetInvolvedInPlot();
+	TArray<UOEntity*> GetInvolvedInPlot();
+	void DeleteFromInvolved(UOEntity* entity);
 	UItem* GetPlotMotivation();
 	TypeOfAmbition GetPlotTypeOfAmbition();
 	bool GetIsExclusive();
@@ -56,7 +57,7 @@ protected:
 	FString _identifier;
 	UOEntity* _plotEntity;
 	Graph _plotGraph;
-	vector<UOEntity*> _involvedInPlot;
+	TArray<UOEntity*> _involvedInPlot;
 	UItem* _motivation = nullptr;
 	TypeOfAmbition _ambition;
 	bool _isExclusive = false;

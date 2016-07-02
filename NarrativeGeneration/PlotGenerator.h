@@ -47,7 +47,7 @@ public:
 	
 	float GetDaytime();*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float dayTime;
+		float dayTime = 0;
 
 	APlotGenerator();
 	virtual void BeginPlay() override;
@@ -59,6 +59,7 @@ public:
 	vector<UOOwnable*> GetValuables();
 	void AddValuable(UOOwnable* valuable);
 	vector<UOEntity*> GetNotoriousEntitiesByRace(ERace race);
+	vector<UOEntity*> GetNotoriousEntities();
 	void DeleteNotorious(UOEntity* entity);
 	void AddNotorious(UOEntity* notorious);
 

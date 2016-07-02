@@ -48,4 +48,35 @@ int UOOwnable::GetRarityAsInt() {
 	return (int)_rarity;
 }
 
+bool UOOwnable::GetIsGrabbed()
+{
+	return _isGrabbed;
+}
+
+void UOOwnable::SetIsGrabbed(bool grabbed)
+{
+	_isGrabbed = grabbed;
+}
+
+void UOOwnable::IHaveBeenStolenBySomeone(UOEntity * potentialOwner, UOEntity * buggler)
+{
+	for (UOEntity* e : _owners) {
+		OOwnership* ownership = e->GetOwnershipWith(this);
+
+		if (ownership->GetWorth() > 50) {
+
+			ORelation* relation = e->GetRelationWith(buggler);
+
+			if (relation)
+				relation->SetAppreciation(-ownership->GetWorth());
+
+			if (!relation || relation->GetAppreciation() < 50) {
+
+				Report* newReport = new Report(e->GetOwnershipWith(this), TypeOfPlot::possessive, buggler);
+			}	
+		}
+
+	}
+}
+
 

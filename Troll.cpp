@@ -196,7 +196,7 @@ void ATroll::PickUpMain() {
 		// if hit, assign actor to main weapon and add overlap event
 		if (HitData.bBlockingHit && !_myEntityComp->GetEdificationComponent(HitData.GetActor())) {
 
-			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
+			//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
 
 			_mainWeapon = HitData.GetActor();
 			_mainRotation = _mainWeapon->GetActorRotation();
@@ -271,7 +271,7 @@ void ATroll::PickUpSecondary() {
 
 		// if hit, assign actor to secondary weapon and add overlap event
 		if (HitData.bBlockingHit && !_myEntityComp->GetEdificationComponent(HitData.GetActor())) {
-			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
+			//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
 
 			_secondaryWeapon = HitData.GetActor();
 			_secondaryRotation = _secondaryWeapon->GetActorRotation();
@@ -350,7 +350,7 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 
 	if (edificationComp /*&& _isAttacking*/ && /*!edificationComp->GetIsDestroyed() &&*/ _canDamage && !_victims.Contains(edificationComp->GetOwner())){
 
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("HIt"));
+		//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("HIt"));
 		_victims.Add(edificationComp->GetOwner());
 
 		edificationComp->ReceiveDamage(_TROLL_DMG, FindComponentByClass<UOEntity>());
@@ -359,7 +359,7 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 		if (targetDestructible) {
 
 			//MUST DEPEND ON DAMAGE
-			targetDestructible->ApplyRadiusDamage(40, GetMesh()->GetSocketLocation("MainSocket"), 140, 0.01, false);
+			targetDestructible->ApplyRadiusDamage(20, GetMesh()->GetSocketLocation("MainSocket"), 50, 0.01, false);
 		}
 	}
 

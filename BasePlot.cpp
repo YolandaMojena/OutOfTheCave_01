@@ -22,7 +22,11 @@ void BasePlot::PrintSentence() {
 
 void BasePlot::AddInvolvedInPlot(UOEntity * entity)
 {
-	_involvedInPlot.push_back(entity);
+	_involvedInPlot.Add(entity);
+}
+
+void BasePlot::DeleteFromInvolved(UOEntity* entity) {
+	_involvedInPlot.Remove(entity);
 }
 
 void BasePlot::SavePlotToFile(const FString path, const FString fileName)
@@ -44,7 +48,7 @@ UOEntity* BasePlot::GetMainEntity() {
 	return _plotEntity;
 }
 
-vector<UOEntity*> BasePlot::GetInvolvedInPlot() {
+TArray<UOEntity*> BasePlot::GetInvolvedInPlot() {
 	return _involvedInPlot;
 }
 

@@ -44,13 +44,16 @@ public:
 		Rarity _rarity;
 	Rarity GetRarity();
 	int GetRarityAsInt();
+	bool GetIsGrabbed();
+	void SetIsGrabbed(bool grabbed);
+
+	// REPORTS
+	void IHaveBeenStolenBySomeone(UOEntity* potentialOwner, UOEntity* buggler);
+	void IHaveBeenGivenToSomeone(UOEntity* potentialOwner, UOEntity* newOwner);
 
 private:
 
 	// Messages to owner for report generation
 	vector<UOEntity*> _owners;
-	UOEntity* _buggler;
-
-	void IHaveBeenStolenBySomeone(UOEntity* buggler);
-	void IHaveBeenGivenToSomeone();
+	bool _isGrabbed;
 };
