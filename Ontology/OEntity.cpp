@@ -38,6 +38,9 @@ void UOEntity::BeginPlay() {
 		if(rand()% 100 < 50)
 			_plotGenerator->AddNotorious(this);
 	}
+	else {
+		_integrity = 10000000;
+	}
 
 	_skelMesh = ((ACharacter*)GetOwner())->GetMesh();
 }
@@ -390,7 +393,7 @@ void UOEntity::EntityNotify(UOEntity* pasiva, UOEntity* activa, UItem::_NotifyTa
 
 void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 {
-	if (!_isNumb) {
+	if (!_isNumb && !IsPlayer) {
 
 		_integrity -= damage;
 		_attacker = damager;

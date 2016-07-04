@@ -13,7 +13,7 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 	UOEntity* targetEntity = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 
-	if (entity) {	
+	if (entity && targetEntity) {
 		blackboard->SetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("FloatKey"), entity->GetAttackCooldown());
 		targetEntity->ReceiveDamage(25 + rand() % 50, entity);
 		if (targetEntity->GetIntegrity() <= UOEntity::MIN_INTEGRITY)

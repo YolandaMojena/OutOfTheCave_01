@@ -38,7 +38,7 @@ void APlotGenerator::Tick( float DeltaTime )
 	else {
 		if (_currentPlotsInAction <= _MAX_PLOTS) {
 
-			/*if (rand() % 100 <= 25 + (25 * _MAX_PLOTS - _currentPlotsInAction) ) {
+			if (rand() % 100 <= 25 + (25 * _MAX_PLOTS - _currentPlotsInAction) ) {
 
 				if (_reactivePlots.empty()) {
 					GetPlotFromReportLog();
@@ -49,10 +49,10 @@ void APlotGenerator::Tick( float DeltaTime )
 					_timeToSpawnPlot = 0;
 				}
 			}
-			else */if (rand() % 100 <= 100 /*(25 /_currentPlotsInAction + 1)*/) {
+			else if (rand() % 100 <= (40 /_currentPlotsInAction + 1)) {
 
 				SpawnAmbitionPlot();
-				_timeToSpawnPlot = -99999;
+				_timeToSpawnPlot = 0;
 			}
 			else if (rand() % 100 <= 5) {
 				//SpawnWorldPlot();
@@ -75,10 +75,12 @@ bool APlotGenerator::SpawnReactivePlot()
 		_reactivePlots.erase(_reactivePlots.begin());
 
 		UOEntity* plotEntity = currentPlot->GetMainEntity();
-		plotEntity->AddCurrentPlot(currentPlot);
+		if (plotEntity) {
+			plotEntity->AddCurrentPlot(currentPlot);
 			//plotEntity->SetState(UOEntity::State::plot);
-		plotEntity->RethinkState();
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnReactive!"));
+			plotEntity->RethinkState();
+			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnReactive!"));
+		}
 		return true;
 	}
 	return false;
