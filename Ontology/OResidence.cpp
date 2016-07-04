@@ -79,9 +79,7 @@ void UOResidence::SpawnTenants() {
 				
 				ten->SetJob(job);
 				ten->SetPlotGenerator();
-				//ten->SetState(UOEntity::State::idle);
 				ten->RethinkState();
-				GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Spawn"));
 				
 				tentants.push_back(ten);
 			}

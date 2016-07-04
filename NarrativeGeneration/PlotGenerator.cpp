@@ -38,7 +38,7 @@ void APlotGenerator::Tick( float DeltaTime )
 	else {
 		if (_currentPlotsInAction <= _MAX_PLOTS) {
 
-			if (rand() % 100 <= 25 + (25 * _MAX_PLOTS - _currentPlotsInAction) ) {
+			/*if (rand() % 100 <= 25 + (25 * _MAX_PLOTS - _currentPlotsInAction) ) {
 
 				if (_reactivePlots.empty()) {
 					GetPlotFromReportLog();
@@ -49,14 +49,14 @@ void APlotGenerator::Tick( float DeltaTime )
 					_timeToSpawnPlot = 0;
 				}
 			}
-			else if (rand() % 100 <= (25 /_currentPlotsInAction + 1)) {
+			else */if (rand() % 100 <= 100 /*(25 /_currentPlotsInAction + 1)*/) {
 
 				SpawnAmbitionPlot();
-				_timeToSpawnPlot = 0;
+				_timeToSpawnPlot = -99999;
 			}
 			else if (rand() % 100 <= 5) {
 				//SpawnWorldPlot();
-				_timeToSpawnPlot = 0;
+				//_timeToSpawnPlot = 0;
 			}
 		}
 	}
@@ -96,7 +96,6 @@ bool APlotGenerator::SpawnAmbitionPlot()
 		if (ambitionPlot) {
 			ambitionPlot->InitPlot();
 			entity->AddCurrentPlot(ambitionPlot);
-				//entity->SetState(UOEntity::State::plot);
 			entity->RethinkState();
 			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnAmbition"));
 			return true;
@@ -324,9 +323,10 @@ vector<UOEntity*> APlotGenerator::GetNotoriousEntitiesByRace(ERace race)
 {
 	vector<UOEntity*> entities;
 
-	for (UOEntity* e : _notoriousEntities)
+	for (UOEntity* e : _notoriousEntities) {
 		if (e->GetRace() == race)
 			entities.push_back(e);
+	}
 
 	return entities;
 }
@@ -335,8 +335,10 @@ vector<UOEntity*> APlotGenerator::GetNotoriousEntities()
 {
 	vector<UOEntity*> entities;
 
-	for (UOEntity* e : _notoriousEntities)
-			entities.push_back(e);
+	for (UOEntity* e : _notoriousEntities) {
+		entities.push_back(e);
+	}
+			
 
 	return entities;
 }

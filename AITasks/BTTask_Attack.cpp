@@ -11,9 +11,13 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOEntity* targetEntity = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 
 	if (entity) {	
 		blackboard->SetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("FloatKey"), entity->GetAttackCooldown());
+		targetEntity->ReceiveDamage(25 + rand() % 50, entity);
+		if (targetEntity->GetIntegrity() <= UOEntity::MIN_INTEGRITY)
+			blackboard->ClearValue(blackboard->GetKeyID("Entity"));
 		entity->EndAttack();
 		return EBTNodeResult::Succeeded;
 

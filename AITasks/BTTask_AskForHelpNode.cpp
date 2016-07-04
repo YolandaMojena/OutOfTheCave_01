@@ -31,7 +31,7 @@ EBTNodeResult::Type UBTTask_AskForHelpNode::ExecuteTask(UBehaviorTreeComponent& 
 		// Check if the entity is free to be involved
 		for(UOEntity* e : helpers) {
 
-			if (e->GetMainPlotEntity() == nullptr) {
+			if (e->GetMainPlotEntity() == nullptr && !e->GetIsNumb() && FVector(plotEntity->GetOwner()->GetActorLocation() - e->GetOwner()->GetActorLocation()).Size() < searchRatio) {
 				e->SetMainPlotEntity(plotEntity);
 				e->ChangeNotoriety(+1);
 				e->RethinkState();

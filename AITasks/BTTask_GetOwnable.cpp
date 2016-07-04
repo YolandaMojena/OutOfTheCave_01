@@ -86,8 +86,8 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 		entity->AddInstantNode(n);*/
 		blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"), (UItem*) bestChoice);
 		blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Actor"), bestChoice->GetOwner());
-		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("   score: ") + FString::SanitizeFloat(bestChoiceAffordance));
-		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("Chosen item: ") + bestChoice->GetOwner()->GetActorLabel());
+		//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("   score: ") + FString::SanitizeFloat(bestChoiceAffordance));
+		//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("Chosen item: ") + bestChoice->GetOwner()->GetActorLabel());
 	}
 
 	return EBTNodeResult::Succeeded;

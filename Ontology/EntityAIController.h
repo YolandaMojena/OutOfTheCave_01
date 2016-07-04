@@ -6,6 +6,7 @@
 #include "Node.h"
 #include "Ontology/OEntity.h"
 #include "Ontology/OEdification.h"
+#include "Ontology/OResidence.h"
 
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"

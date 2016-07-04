@@ -34,6 +34,7 @@ void AEntityAIController::SetNode(Node* n) {
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Edification"), n->nBlackboard.edification);
 		break;
 	case NodeType::enter:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Residence"), (UOResidence*) n->nBlackboard.edification);
 		break;
 	case NodeType::get:
 		entityBlackboard->SetValue<UBlackboardKeyType_Enum>(entityBlackboard->GetKeyID("AffordableUse"), static_cast<UBlackboardKeyType_Enum::FDataType>(n->nBlackboard.affordableUse));

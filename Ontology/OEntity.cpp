@@ -11,6 +11,8 @@
 #include "Ontology/Ocivilian.h"
 #include "BasePlot.h"
 
+float UOEntity::MIN_INTEGRITY = 20.f;
+
 UOEntity::UOEntity() {
 	_personality = new OPersonality();
 	_deadOwnable = CreateDefaultSubobject<UOOwnable>(TEXT("DeadOwnable"));
@@ -32,7 +34,9 @@ void UOEntity::BeginPlay() {
 		
 		GenerateTraits();
 		HitFunc.BindUFunction(GetOwner(), "OnOverlapBegin");
-		_plotGenerator->AddNotorious(this);
+
+		if(rand()% 100 < 50)
+			_plotGenerator->AddNotorious(this);
 	}
 
 	_skelMesh = ((ACharacter*)GetOwner())->GetMesh();
@@ -598,7 +602,6 @@ void UOEntity::SetState(State s, Graph* g) {
 
 	if (_currentState != s || !_brain.Peek()) {  //HACK/MOCK/CHAPUZA
 		_currentState = s;
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("SET STATE!"));
 
 		switch (_currentState) {
 		case State::idle:
@@ -612,6 +615,7 @@ void UOEntity::SetState(State s, Graph* g) {
 					}
 					else
 						_brain.NextNode();
+					GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Green, TEXT("NodeSkipped"));
 				}
 			}
 		}
@@ -693,7 +697,6 @@ void UOEntity::ExecuteGraph() {
 
 // If a node can't be completed or is the last one, plot is considered completed
 void UOEntity::NodeCompleted(bool completedOk) {
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Node Completed!"));
 	if (completedOk && !_brain.IsLastNode())
 		_brain.NextNode();
 	else {
@@ -704,8 +707,6 @@ void UOEntity::NodeCompleted(bool completedOk) {
 	_isEntityCultivating = false;
 	_isEntityMining = false;
 	_isEntityBuilding = false;
-
-
 
 	RethinkState();
 }
@@ -720,7 +721,6 @@ void UOEntity::ClearState(bool completedOk)
 				if (e->GetMainPlotEntity() == this) {
 					e->SetMainPlotEntity(nullptr);
 					e->RethinkState();
-					GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("CLEAR STATE!"));
 				}
 			}
 
@@ -746,8 +746,7 @@ void UOEntity::AddInstantHelpNode(Node * n)
 }
 
 void UOEntity::RethinkState() {	
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, TEXT("RETHINK STATE!"));
-	if (_currentState != State::numb) {
+	if (!_isNumb) {
 		// Current action is of high priority
 		if (_brain.Peek() && _brain.Peek()->nBlackboard.isHighPriority) {
 			SetState(_currentState);

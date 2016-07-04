@@ -60,6 +60,8 @@ public:
 	//Graph* GetBrain();
 	//void SetBrain(Graph* b);
 
+	static float MIN_INTEGRITY;
+
 	vector<BasePlot*> GetCurrentPlots();
 	BasePlot* GetCurrentPlot();
 	void AddCurrentPlot(BasePlot* bp);
@@ -235,7 +237,6 @@ protected:
 	vector<OTerritory*> _landlord;
 
 	UOEntity* _attacker;
-	float MIN_INTEGRITY = 20.0f;
 	float _attackCooldown;
 	USkeletalMeshComponent* _skelMesh;
 	
