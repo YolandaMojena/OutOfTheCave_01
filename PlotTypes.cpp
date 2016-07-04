@@ -747,7 +747,8 @@ void Stampede::InitPlot() {
 	for (int i = 0; i < _heard.size(); i++) {
 
 		_heard[i]->SetIdleGraph(&_plotGraph);
-		_heard[i]->SetState(UOEntity::State::idle);
+		//_heard[i]->SetState(UOEntity::State::idle);
+		_heard[i]->RethinkState();
 	}
 
 	BuildSentence();

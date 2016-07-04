@@ -25,5 +25,4 @@ class OUTOFTHECAVE_01_API UBTTask_FleeFromEntity : public UBTTask_BlackboardBase
 public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	
-	
 };

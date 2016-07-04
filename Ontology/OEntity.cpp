@@ -85,6 +85,10 @@ bool UOEntity::GetIsNumb() {
 void UOEntity::SetIsNumb(bool value)
 {
 	_isNumb = value;
+	if (value)
+		SetState(State::numb);
+	else
+		RethinkState();
 }
 
 UOEntity* UOEntity::GetMainPlotEntity() {
@@ -592,8 +596,9 @@ UOEntity::State UOEntity::GetCurrentState() {
 
 void UOEntity::SetState(State s, Graph* g) {
 
-	if (_currentState != s || !(_brain.Peek())) {
+	if (_currentState != s || !_brain.Peek()) {  //HACK/MOCK/CHAPUZA
 		_currentState = s;
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("SET STATE!"));
 
 		switch (_currentState) {
 		case State::idle:
@@ -632,7 +637,6 @@ void UOEntity::SetState(State s, Graph* g) {
 					_brain.AddInstantNode(comeToEntity);
 					_brain.NextNode();
 				}
-				else RethinkState();
 			}
 		}
 			break;
@@ -689,16 +693,19 @@ void UOEntity::ExecuteGraph() {
 
 // If a node can't be completed or is the last one, plot is considered completed
 void UOEntity::NodeCompleted(bool completedOk) {
-
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Node Completed!"));
 	if (completedOk && !_brain.IsLastNode())
 		_brain.NextNode();
-	else
+	else {
 		ClearState(completedOk);
+	}
 
 	_isEntityAttacking = false;
 	_isEntityCultivating = false;
 	_isEntityMining = false;
 	_isEntityBuilding = false;
+
+
 
 	RethinkState();
 }
@@ -713,6 +720,7 @@ void UOEntity::ClearState(bool completedOk)
 				if (e->GetMainPlotEntity() == this) {
 					e->SetMainPlotEntity(nullptr);
 					e->RethinkState();
+					GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("CLEAR STATE!"));
 				}
 			}
 
@@ -725,21 +733,23 @@ void UOEntity::ClearState(bool completedOk)
 		}
 	}
 	else if (_currentState == State::react) {}
+
+	_currentState = State::restart;
 }
 
-void UOEntity::AddInstantNode(Node* n) {
+/*void UOEntity::AddInstantNode(Node* n) {
+	_brain.AddInstantNode(n);
+}*/
+void UOEntity::AddInstantHelpNode(Node * n)
+{
 	_brain.AddInstantNode(n);
 }
 
 void UOEntity::RethinkState() {	
-	
-	// I'VE BECOME SO NUMB, I CAN'T FEEL YOU THERE
-	// BECOME SO TIRED, SO MUCH MORE AWARE
-	// BY BECOMING THIS ALL I WANT TO DO
-	// IS BE MORE LIKE ME AND BE LESS LIKE YOU
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, TEXT("RETHINK STATE!"));
 	if (_currentState != State::numb) {
 		// Current action is of high priority
-		if (_brain.Peek()->nBlackboard.isHighPriority) {
+		if (_brain.Peek() && _brain.Peek()->nBlackboard.isHighPriority) {
 			SetState(_currentState);
 		}
 

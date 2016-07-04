@@ -67,7 +67,7 @@ void Node::SetEdification(UOEdification* edf) {
 	nBlackboard.edification = edf;
 }
 void Node::SetPosition(FVector v) {
-	nBlackboard.position = v;
+	nBlackboard.position = v * FVector(1, 1, 0);
 }
 void Node::SetDaytime(float d) {
 	nBlackboard.daytime = d;

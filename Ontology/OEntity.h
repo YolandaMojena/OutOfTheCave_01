@@ -44,7 +44,8 @@ public:
 		idle UMETA(DisplayName = "idle"),
 		plot UMETA(DisplayName = "plot"),
 		react UMETA(DisplayName = "react"),
-		numb UMETA(DisplayName = "numb")
+		numb UMETA(DisplayName = "numb"),
+		restart UMETA(DisplayName = "restart")
 	};
 
 	struct EntityNotoriety
@@ -157,7 +158,6 @@ public:
 	void SendReport(Report* newReport);
 
 	State GetCurrentState();
-	void SetState(State s, Graph* g = nullptr);
 	void SetIdleGraph(Graph* g);
 	Graph* GetIdleGraph();
 	Graph* GetBrain();
@@ -176,7 +176,8 @@ public:
 	void ExecuteGraph();
 	void NodeCompleted(bool completedOk);
 	void ClearState(bool completedOk);
-	void AddInstantNode(Node* n);
+	//void AddInstantNode(Node* n);
+	void AddInstantHelpNode(Node* n);
 
 	vector<UOOwnable*> GetInventory();
 	void StoreInInventory(UOOwnable* o);
@@ -208,6 +209,7 @@ public:
 	float _currentTime = 10;
 	
 protected:
+	void SetState(State s, Graph* g = nullptr);
 	void SetStrength(float st);
 	void SetSpeed(float sd);
 	void SetAgility(float ag);
@@ -221,7 +223,7 @@ protected:
 	EJob _job;
 
 	vector<BasePlot*> _currentPlots;
-	UOEntity* _mainPlotEntity;
+	UOEntity* _mainPlotEntity = nullptr;
 	Graph _brain;
 	Graph* _idleGraph;
 	AEntityAIController* _entityAIController;
