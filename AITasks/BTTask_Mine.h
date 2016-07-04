@@ -12,6 +12,8 @@
 #include "Ontology/EntityAIController.h"
 #include "Ontology/OEntity.h"
 
+#include "NarrativeGeneration/Utilities.h"
+
 #include "BTTask_Mine.generated.h"
 
 /**

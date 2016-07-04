@@ -29,5 +29,8 @@ public:
 	static FString femaleHumanPath;
 	static FString maleHumanPath;
 
+	static float GAMEDAY_LENGTH;
+	static float DAY_LENGTH;
+
 
 };

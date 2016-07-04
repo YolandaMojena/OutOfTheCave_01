@@ -79,8 +79,9 @@ void UOResidence::SpawnTenants() {
 				
 				ten->SetJob(job);
 				ten->SetPlotGenerator();
-				ten->SetState(UOEntity::State::idle);
-				//ten->RethinkState();
+				//ten->SetState(UOEntity::State::idle);
+				ten->RethinkState();
+				GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Spawn"));
 				
 				tentants.push_back(ten);
 			}
@@ -177,11 +178,11 @@ Graph* UOResidence::GenerateIdleFromJob() {
 		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::mine); n->SetDaytime(13);
 		idleGraph->AddNode(n);
 		if (minerOre) {
+			/*n = new Node();
+			n->SetNodeType(NodeType::goTo); n->SetPosition(minerOre->GetOwner()->GetActorLocation());  n->SetDaytime(13);
+			idleGraph->AddNode(n);*/
 			n = new Node();
-			n->SetNodeType(NodeType::goTo); n->SetPosition(minerOre->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(13);
-			idleGraph->AddNode(n);
-			n = new Node();
-			n->SetNodeType(NodeType::mine); /*n->SetEdification(peasantField);*/  n->SetDaytime(13);
+			n->SetNodeType(NodeType::mine); n->SetActor(minerOre->GetOwner()); n->SetDaytime(13);
 			idleGraph->AddNode(n);
 		}
 		//MEDIODÍA
@@ -196,13 +197,20 @@ Graph* UOResidence::GenerateIdleFromJob() {
 		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::mine); n->SetDaytime(21);
 		idleGraph->AddNode(n);
 		if (minerOre) {
+			/*n = new Node();
+			n->SetNodeType(NodeType::goTo); n->SetPosition(minerOre->GetOwner()->GetActorLocation());  n->SetDaytime(21);
+			idleGraph->AddNode(n);*/
 			n = new Node();
-			n->SetNodeType(NodeType::goTo); n->SetPosition(minerOre->GetOwner()->GetActorLocation() + RandomDisplacementVector(400));  n->SetDaytime(21);
-			idleGraph->AddNode(n);
-			n = new Node();
-			n->SetNodeType(NodeType::mine); /*n->SetEdification(peasantField);*/  n->SetDaytime(21);
+			n->SetNodeType(NodeType::mine); n->SetActor(minerOre->GetOwner());  n->SetDaytime(21);
 			idleGraph->AddNode(n);
 		}
+		//NOCHE
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation());  n->SetDaytime(24);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(24);
+		idleGraph->AddNode(n);
 	}
 		break;
 	case EJob::J_Peasant:
@@ -252,7 +260,8 @@ Graph* UOResidence::GenerateIdleFromJob() {
 			idleGraph->AddNode(n);
 		}
 		//NOCHE
-		/*n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation());  n->SetDaytime(24);
+		/*n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation());  n->SetDaytime(24);
 		idleGraph->AddNode(n);
 		n = new Node();
 		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(24);

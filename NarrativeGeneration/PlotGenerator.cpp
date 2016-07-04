@@ -78,7 +78,7 @@ bool APlotGenerator::SpawnReactivePlot()
 		plotEntity->AddCurrentPlot(currentPlot);
 			//plotEntity->SetState(UOEntity::State::plot);
 		plotEntity->RethinkState();
-
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnReactive!"));
 		return true;
 	}
 	return false;
@@ -98,6 +98,7 @@ bool APlotGenerator::SpawnAmbitionPlot()
 			entity->AddCurrentPlot(ambitionPlot);
 				//entity->SetState(UOEntity::State::plot);
 			entity->RethinkState();
+			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnAmbition"));
 			return true;
 		}
 		else return false;

@@ -46,7 +46,7 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 	}
 
 	for (UOOwnable* ownable : candidates) {
-		if (ownable->GetMass() <= entity->GetStrength() / STRENGTH_TO_WEIGHT) {
+		if (ownable->GetMass() <= entity->GetStrength() / STRENGTH_TO_WEIGHT && !ownable->GetIsGrabbed()) {
 			bool someoneWhoCares = true; // to not try to possess the object if you already own it or if you are taking it because of HighPriority
 			// Consider or not who owns the object if you don't own it depending on if the node is HighPriority
 			if (!entity->DoesOwn(ownable) && !blackboard->GetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("HighPriority"))) {

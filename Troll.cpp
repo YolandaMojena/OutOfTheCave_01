@@ -211,7 +211,6 @@ void ATroll::PickUpMain() {
 					ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
 					// BONE WILL PROBABLY DEPEND ON MESH
 					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(1), true);
-					hitEntity->SetState(UOEntity::State::numb);
 					hitEntity->SetIsNumb(true);
 				}
 				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
@@ -234,7 +233,6 @@ void ATroll::PickUpMain() {
 			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
 
 			weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
-			hitEntity->SetState(UOEntity::State::idle);
 			hitEntity->SetIsNumb(false);
 		}
 
@@ -285,7 +283,6 @@ void ATroll::PickUpSecondary() {
 
 					ACharacter* weaponChar = dynamic_cast<ACharacter*>(_secondaryWeapon);
 					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(1), true);
-					hitEntity->SetState(UOEntity::State::numb);
 					hitEntity->SetIsNumb(true);
 				}
 				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
@@ -308,7 +305,6 @@ void ATroll::PickUpSecondary() {
 			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_secondaryWeapon);
 
 			weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
-			hitEntity->SetState(UOEntity::State::idle);
 			hitEntity->SetIsNumb(false);
 		}
 

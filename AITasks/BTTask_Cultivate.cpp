@@ -5,8 +5,6 @@
 
 
 EBTNodeResult::Type UBTTask_Cultivate::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
-	const float GAMEDAY_LENGTH = 60.f;	//s/d
-	const float DAY_LENGTH = 24.f;		//h/d
 
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
@@ -16,7 +14,7 @@ EBTNodeResult::Type UBTTask_Cultivate::ExecuteTask(UBehaviorTreeComponent& Owner
 	if (entity) {
 		if (!entity->_isEntityCultivating) {
 			float timeToWait = blackboard->GetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("Daytime")) - ((UItem*)entity)->GetPlotGenerator()->dayTime;
-			timeToWait *= GAMEDAY_LENGTH / DAY_LENGTH;
+			timeToWait *= Utilities::GAMEDAY_LENGTH / Utilities::DAY_LENGTH;
 			blackboard->SetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("FloatKey"), timeToWait);
 
 			entity->_isEntityCultivating = true;

@@ -16,11 +16,9 @@ EBTNodeResult::Type UBTTask_Help::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 
 			UOEntity* targetEntity = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 
-			if (!targetEntity->GetIsNumb()) {
-				Graph* originalIdle = entity->GetIdleGraph();
-				entity->SetIdleGraph(targetEntity->GetBrain());
-				entity->SetState(UOEntity::State::idle);
-				entity->SetIdleGraph(originalIdle);
+			if (targetEntity && !targetEntity->GetIsNumb() && targetEntity->GetBrain()) {
+
+				entity->AddInstantHelpNode(targetEntity->GetBrain()->Peek());
 
 				return::EBTNodeResult::Succeeded;
 			}
