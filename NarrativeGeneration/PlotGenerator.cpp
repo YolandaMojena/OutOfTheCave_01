@@ -22,7 +22,6 @@ void APlotGenerator::BeginPlay()
 	Super::BeginPlay();
 
 	//INSERT WORLD PLOTS FROM THE BEGINNING
-	_worldPlots.push_back(new Stampede(ERace::R_Bear, GetActorLocation(), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), rand() % 10 + 5, this));
 }
 
 // Called every frame
@@ -214,7 +213,8 @@ PlotDictionary::PlotDictionary() {
 
 	_plotDictionary = { {TypeOfPlot::aggressive, {strings.ATTACK_PLOT, strings.DESTROY_PLOT}},
 	{ TypeOfPlot::resources, { strings.BUILD_PLOT } },
-	{ TypeOfPlot::possessive , { strings.ROBBERY_PLOT } } };
+	{ TypeOfPlot::possessive , { strings.ROBBERY_PLOT } },
+	{TypeOfPlot::thankful, {strings.GIVE_PLOT, strings.HELP_PLOT} };
 }
 
 vector<string> PlotDictionary::GetPlotsOfType(TypeOfPlot type)

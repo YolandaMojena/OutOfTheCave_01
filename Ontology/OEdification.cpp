@@ -108,7 +108,7 @@ void UOEdification::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 		}
 
 		relation->ChangeAppreciation(-ownership->GetWorth());
-		if (relation->GetAppreciation() <= relation->LOW_APPRECIATION)
+		if (relation->GetAppreciation() <= ORelation::LOW_APPRECIATION)
 			o->SendReport(new Report(relation, TypeOfPlot::aggressive, this));
 
 		// NOTIFY ABSENSE OF HOME

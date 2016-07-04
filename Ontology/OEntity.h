@@ -217,6 +217,7 @@ protected:
 
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
+	void IHaveBeenHelpedBySomeone(UOEntity* helper, UItem* motivation);
 
 	State _currentState = State::idle;
 	ERace _race;

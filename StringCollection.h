@@ -25,6 +25,7 @@ public:
 	string DESTROY_PLOT = "destroyPlot";
 	string BUILD_PLOT = "buildPlot";
 	string GIVE_PLOT = "givePlot";
+	string HELP_PLOT = "helpPlot";
 
 	// NODE TYPES
 	string ATTACK_NODE = "attackNode";

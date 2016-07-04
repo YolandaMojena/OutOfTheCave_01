@@ -511,8 +511,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 		ORelation* relationFromOther = o->GetOtherEntity()->GetRelationWith(this);
 
 		if (relationFromOther){
-			// CHANGE FOR HIGH APPRECIATION
-			if (relationFromOther->GetAppreciation() >= relationFromOther->LOW_APPRECIATION) {
+			if (relationFromOther->GetAppreciation() > 50) {
 				ORelation* relationWithKiller = relationFromOther->GetEntity()->GetRelationWith(killer);
 
 				if (!relationWithKiller) {
@@ -521,11 +520,31 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 				}
 
 				relationWithKiller->ChangeAppreciation(-relationFromOther->GetAppreciation());
-				if (relationWithKiller->GetAppreciation() < relationWithKiller->LOW_APPRECIATION)
+				if (relationWithKiller->GetAppreciation() < ORelation::LOW_APPRECIATION)
 				relationFromOther->GetEntity()->SendReport(new Report(relationWithKiller, TypeOfPlot::aggressive, this));
 			}
 			o->GetOtherEntity()->DeleteRelation(this);
 		}
+	}
+}
+
+void UOEntity::IHaveBeenHelpedBySomeone(UOEntity * helper, UItem* motivation)
+{
+	ORelation* relationWithOther = GetRelationWith(helper);
+
+	if (!relationWithOther){
+		AddRelationship(new ORelation(this, helper));
+		relationWithOther = GetRelationWith(helper);
+	}
+
+	int currentAppreciation = relationWithOther->GetAppreciation();
+
+	// ERIC ADJUST HOW MUCH AS YOU PLEASE
+	relationWithOther->ChangeAppreciation(+10);
+
+	if (currentAppreciation < ORelation::HIGH_APPRECIATION && relationWithOther->GetAppreciation() > ORelation::HIGH_APPRECIATION) {
+
+		Report* newReport = new Report(relationWithOther, TypeOfPlot::thankful, motivation);
 	}
 }
 

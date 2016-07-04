@@ -31,9 +31,9 @@ public:
 
 	bool CheckConsistency();
 
-	const int LOW_APPRECIATION = 25;
-	const int HIGH_APPRECIATION = 75;
-
+	static int LOW_APPRECIATION;
+	static int REGULAR_APPRECIATION;
+	static int HIGH_APPRECIATION;
 
 private:
 	UOEntity* _entity;
