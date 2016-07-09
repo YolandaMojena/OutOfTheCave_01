@@ -22,6 +22,9 @@ void APlotGenerator::BeginPlay()
 	Super::BeginPlay();
 
 	//INSERT WORLD PLOTS FROM THE BEGINNING
+	//INITIAL POSITION HARDCODED -> FIX 
+	_worldPlots.push_back(new Stampede(ERace::R_Bear, FVector(16000, 5000, 0), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), rand() % 10 + 5, this));
+	//_worldPlots.push_back(new Stampede(ERace::R_Bear, FVector(16000, 5000, 0), FVector(1100, 13700, 0), rand() % 10 + 5, this));
 }
 
 // Called every frame
@@ -48,13 +51,13 @@ void APlotGenerator::Tick( float DeltaTime )
 					_timeToSpawnPlot = 0;
 				}
 			}
-			else if (rand() % 100 <= (25 /_currentPlotsInAction + 1)) {
+			if (rand() % 100 <= (25 /(_currentPlotsInAction + 1))) {
 
 				SpawnAmbitionPlot();
 				_timeToSpawnPlot = 0;
 			}
-			else if (rand() % 100 <= 5) {
-				//SpawnWorldPlot();
+			else if (rand() % 100 <= 2) {
+				SpawnWorldPlot();
 				_timeToSpawnPlot = 0;
 			}
 		}
@@ -64,6 +67,8 @@ void APlotGenerator::Tick( float DeltaTime )
 void APlotGenerator::ChangeCurrentPlotsInAction(int dif)
 {
 	_currentPlotsInAction += dif;
+
+	if (_currentPlotsInAction < 0) _currentPlotsInAction = 0;
 }
 
 bool APlotGenerator::SpawnReactivePlot()
@@ -74,10 +79,12 @@ bool APlotGenerator::SpawnReactivePlot()
 		_reactivePlots.erase(_reactivePlots.begin());
 
 		UOEntity* plotEntity = currentPlot->GetMainEntity();
-		plotEntity->AddCurrentPlot(currentPlot);
+		if (plotEntity) {
+			plotEntity->AddCurrentPlot(currentPlot);
 			//plotEntity->SetState(UOEntity::State::plot);
-		plotEntity->RethinkState();
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnReactive!"));
+			plotEntity->RethinkState();
+			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnReactive!"));
+		}
 		return true;
 	}
 	return false;
@@ -95,9 +102,8 @@ bool APlotGenerator::SpawnAmbitionPlot()
 		if (ambitionPlot) {
 			ambitionPlot->InitPlot();
 			entity->AddCurrentPlot(ambitionPlot);
-				//entity->SetState(UOEntity::State::plot);
 			entity->RethinkState();
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnAmbition"));
+			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnAmbition"));
 			return true;
 		}
 		else return false;
@@ -324,9 +330,10 @@ vector<UOEntity*> APlotGenerator::GetNotoriousEntitiesByRace(ERace race)
 {
 	vector<UOEntity*> entities;
 
-	for (UOEntity* e : _notoriousEntities)
+	for (UOEntity* e : _notoriousEntities) {
 		if (e->GetRace() == race)
 			entities.push_back(e);
+	}
 
 	return entities;
 }
@@ -335,8 +342,10 @@ vector<UOEntity*> APlotGenerator::GetNotoriousEntities()
 {
 	vector<UOEntity*> entities;
 
-	for (UOEntity* e : _notoriousEntities)
-			entities.push_back(e);
+	for (UOEntity* e : _notoriousEntities) {
+		entities.push_back(e);
+	}
+			
 
 	return entities;
 }

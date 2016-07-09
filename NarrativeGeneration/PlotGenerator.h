@@ -42,10 +42,10 @@ public:
 		}
 	};
 
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		ADirectionalLight* sun;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlotGenerator)
+		FString currentPlot;
 	
-	float GetDaytime();*/
+	float GetDaytime();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float dayTime = 0;
 
@@ -91,7 +91,7 @@ private:
 	TArray<UOEntity*> _notoriousEntities;
 
 
-	const float _TIME_TO_SPAWN = 10.0f;
+	const float _TIME_TO_SPAWN = 20.0f;
 	const int _MAX_NOTORIOUS = 15;
 	const int _MAX_PLOTS = 3;
 

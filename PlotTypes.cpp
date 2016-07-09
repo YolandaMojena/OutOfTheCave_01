@@ -37,7 +37,7 @@ void AttackPlot::BuildSentence() {
 	if(_motivation){
 
 		_sentence += "The brave " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() 
-			+ " has began an attack against the despicable " + _targetEntity->GetRaceString()
+			+ " has begun an attack against the despicable " + _targetEntity->GetRaceString()
 			+ _targetEntity->GetName() + ", who ";
 		_sentence += _motivation->IsA<UOEntity>() ?
 			"hurt his/her friend " + _motivation->GetName()
@@ -58,14 +58,14 @@ void AttackPlot::BuildSentence() {
 	else if (_ambition == TypeOfAmbition::extermination) {
 
 		_sentence += "The aggressive " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " has began an attack against the unfortunate " + _targetEntity->GetRaceString() + " "
+			+ " has begun an attack against the unfortunate " + _targetEntity->GetRaceString() + " "
 			+ _targetEntity->GetName() + ", in order to exterminate his/her race.\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::notoriety) {
 
 		_sentence += "The aggressive " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " has began an attack against the highly notorious " + _targetEntity->GetRaceString() + " "
-			+ _targetEntity->GetName() + ", in order to obtain his/her position.\n\n\n";
+			+ " has begun an attack against the highly notorious " + _targetEntity->GetRaceString() + " "
+			+ _targetEntity->GetName() + ", in order to obtain his/her position in society.\n\n\n";
 	}
 }
 
@@ -149,20 +149,20 @@ void DestroyPlot::BuildSentence() {
 
 	if (_motivation) {
 		_sentence += "The brave " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " has began to destroy the " + _targetEdification->GetName() + " "
+			+ " has begun to destroy the " + _targetEdification->GetName() +
 			", which belongs to ";
 
 		if (_targetEdification->GetOwners().size() > 0) {
 			for (int i = 0; i < _targetEdification->GetOwners().size(); i++) {
 				_sentence += _targetEdification->GetOwners()[i]->GetName();
-				if (i < _targetEdification->GetOwners().size() - 1)
+				if (i < _targetEdification->GetOwners().size() - 2)
 					_sentence += ", ";
 				else _sentence += " and ";
 			}
 		}
 		_sentence += ", since " + _targetEntity->GetName();
 		_sentence += _motivation->IsA<UOEntity>() ?
-			" hurt his/her friend" + _motivation->GetName()
+			" hurt his/her friend " + _motivation->GetName()
 			: " damaged his/her " + _motivation->GetName();
 
 		/*_sentence += ".\n He/She counts with the help of ";
@@ -181,7 +181,7 @@ void DestroyPlot::BuildSentence() {
 	else if (_ambition == TypeOfAmbition::fear) {
 
 		_sentence += "The coward " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " has began to destroy a " + ((UOEntity*)(_targetEdification->GetOwners()[0]))->GetRaceString() + "'s home.";
+			+ " has begun to destroy a " + ((UOEntity*)(_targetEdification->GetOwners()[0]))->GetRaceString() + "'s home.";
 
 			_sentence += " He/She hopes this will lead others to fear him.\n\n\n";
 	}
@@ -229,16 +229,17 @@ void DestroyPlot::BuildGraph() {
 void DestroyPlot::InitPlot() {
 
 	for (OOwnership* o : _targetEntity->GetPossessions()) {
-
 		if (dynamic_cast<UOEdification*>(o->GetOwnable())) {
 			_targetEdification = (UOEdification*) o->GetOwnable();
 			break;
 		}
 	}
 
-	_identifier = "Destroy " + _targetEdification->GetName() + ":\n";
-	BuildGraph();
-	BuildSentence();
+	if (_targetEdification) {
+		_identifier = "Destroy " + _targetEdification->GetName() + ":\n";
+		BuildGraph();
+		BuildSentence();
+	}
 }
 
 void DestroyPlot::ConsiderReactions() {
@@ -686,6 +687,7 @@ Stampede::Stampede(ERace race, FVector spawnLocation, FVector targetLocation, fl
 	_targetLocation = targetLocation;
 	_plotGenerator = plotGenerator;
 	_num = num;
+	_targetActor = nullptr;
 }
 
 Stampede::Stampede(ERace race, FVector spawnLocation, UOEntity* targetActor, float num, APlotGenerator* plotGenerator) {
@@ -725,16 +727,12 @@ void Stampede::BuildGraph() {
 		_plotGraph.AddNode(goToNode);
 	}
 
-	Node* waitNode = new Node();
-	waitNode->SetNodeType(NodeType::wait);
-	_plotGraph.AddNode(waitNode);
 
-
-	//RETURN TO LOCATION
+	/*//RETURN TO LOCATION
 	Node* goToNode = new Node();
 	goToNode->SetNodeType(NodeType::goTo);
 	goToNode->SetPosition(_spawnLocation * FVector(1, 1, 0));
-	_plotGraph.AddNode(goToNode);
+	_plotGraph.AddNode(goToNode);*/
 }
 
 void Stampede::InitPlot() {
@@ -747,7 +745,6 @@ void Stampede::InitPlot() {
 	for (int i = 0; i < _heard.size(); i++) {
 
 		_heard[i]->SetIdleGraph(&_plotGraph);
-		//_heard[i]->SetState(UOEntity::State::idle);
 		_heard[i]->RethinkState();
 	}
 

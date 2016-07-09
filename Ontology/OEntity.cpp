@@ -11,6 +11,8 @@
 #include "Ontology/Ocivilian.h"
 #include "BasePlot.h"
 
+float UOEntity::MIN_INTEGRITY = 20.f;
+
 UOEntity::UOEntity() {
 	_personality = new OPersonality();
 	_deadOwnable = CreateDefaultSubobject<UOOwnable>(TEXT("DeadOwnable"));
@@ -32,7 +34,12 @@ void UOEntity::BeginPlay() {
 		
 		GenerateTraits();
 		HitFunc.BindUFunction(GetOwner(), "OnOverlapBegin");
-		_plotGenerator->AddNotorious(this);
+
+		if(rand()% 100 < 50)
+			_plotGenerator->AddNotorious(this);
+	}
+	else {
+		_integrity = 10000000;
 	}
 
 	_skelMesh = ((ACharacter*)GetOwner())->GetMesh();
@@ -386,7 +393,7 @@ void UOEntity::EntityNotify(UOEntity* pasiva, UOEntity* activa, UItem::_NotifyTa
 
 void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 {
-	if (!_isNumb) {
+	if (!_isNumb && !IsPlayer) {
 
 		_integrity -= damage;
 		_attacker = damager;
@@ -556,7 +563,9 @@ vector<BasePlot*> UOEntity::GetCurrentPlots() {
 	return _currentPlots;
 }
 BasePlot* UOEntity::GetCurrentPlot(){
-	return _currentPlots[0];
+	if(_currentPlots.size()>0)
+		return _currentPlots[0];
+	else return nullptr;
 }
 void UOEntity::AddCurrentPlot(BasePlot* bp) {
 	_currentPlots.push_back(bp);
@@ -617,7 +626,6 @@ void UOEntity::SetState(State s, Graph* g) {
 
 	if (_currentState != s || !_brain.Peek()) {  //HACK/MOCK/CHAPUZA
 		_currentState = s;
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("SET STATE!"));
 
 		switch (_currentState) {
 		case State::idle:
@@ -712,7 +720,6 @@ void UOEntity::ExecuteGraph() {
 
 // If a node can't be completed or is the last one, plot is considered completed
 void UOEntity::NodeCompleted(bool completedOk) {
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("Node Completed!"));
 	if (completedOk && !_brain.IsLastNode())
 		_brain.NextNode();
 	else {
@@ -724,8 +731,6 @@ void UOEntity::NodeCompleted(bool completedOk) {
 	_isEntityMining = false;
 	_isEntityBuilding = false;
 
-
-
 	RethinkState();
 }
 
@@ -733,19 +738,20 @@ void UOEntity::ClearState(bool completedOk)
 {
  	if (_currentState == State::plot) {
 		if (_mainPlotEntity == this) {
-			if (!completedOk)
-				_currentPlots[0]->AbortPlot(Utilities::SavePath, Utilities::PlotFile);
-			for (UOEntity* e : _currentPlots[0]->GetInvolvedInPlot()) {
-				if (e->GetMainPlotEntity() == this) {
-					e->SetMainPlotEntity(nullptr);
-					e->RethinkState();
-					GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("CLEAR STATE!"));
-				}
-			}
+			//if (!completedOk)
+			if (GetCurrentPlot()) {
 
-			_mainPlotEntity = nullptr;
-			_currentPlots.erase(_currentPlots.begin());
-			_plotGenerator->ChangeCurrentPlotsInAction(-1);
+				for (UOEntity* e : _currentPlots[0]->GetInvolvedInPlot()) {
+					if (e->GetMainPlotEntity() == this) {
+						e->SetMainPlotEntity(nullptr);
+						e->RethinkState();
+					}
+				}
+
+				_mainPlotEntity = nullptr;
+				_currentPlots.erase(_currentPlots.begin());
+				_plotGenerator->ChangeCurrentPlotsInAction(-1);
+			}
 		}
 		else {
 			SetMainPlotEntity(nullptr);
@@ -765,8 +771,7 @@ void UOEntity::AddInstantHelpNode(Node * n)
 }
 
 void UOEntity::RethinkState() {	
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, TEXT("RETHINK STATE!"));
-	if (_currentState != State::numb) {
+	if (!_isNumb) {
 		// Current action is of high priority
 		if (_brain.Peek() && _brain.Peek()->nBlackboard.isHighPriority) {
 			SetState(_currentState);

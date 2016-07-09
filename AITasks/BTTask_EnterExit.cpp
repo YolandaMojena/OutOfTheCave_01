@@ -21,7 +21,6 @@ EBTNodeResult::Type UBTTask_EnterExit::ExecuteTask(UBehaviorTreeComponent& Owner
 
 		return::EBTNodeResult::Succeeded;
 	}
-
 	return EBTNodeResult::Failed;
 }
 
