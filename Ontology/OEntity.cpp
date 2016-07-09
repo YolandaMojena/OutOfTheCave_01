@@ -544,7 +544,9 @@ vector<BasePlot*> UOEntity::GetCurrentPlots() {
 	return _currentPlots;
 }
 BasePlot* UOEntity::GetCurrentPlot(){
-	return _currentPlots[0];
+	if(_currentPlots.size()>0)
+		return _currentPlots[0];
+	else return nullptr;
 }
 void UOEntity::AddCurrentPlot(BasePlot* bp) {
 	_currentPlots.push_back(bp);
@@ -618,7 +620,6 @@ void UOEntity::SetState(State s, Graph* g) {
 					}
 					else
 						_brain.NextNode();
-					GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Green, TEXT("NodeSkipped"));
 				}
 			}
 		}
@@ -718,18 +719,20 @@ void UOEntity::ClearState(bool completedOk)
 {
  	if (_currentState == State::plot) {
 		if (_mainPlotEntity == this) {
-			if (!completedOk)
-				_currentPlots[0]->AbortPlot(Utilities::SavePath, Utilities::PlotFile);
-			for (UOEntity* e : _currentPlots[0]->GetInvolvedInPlot()) {
-				if (e->GetMainPlotEntity() == this) {
-					e->SetMainPlotEntity(nullptr);
-					e->RethinkState();
-				}
-			}
+			//if (!completedOk)
+			if (GetCurrentPlot()) {
 
-			_mainPlotEntity = nullptr;
-			_currentPlots.erase(_currentPlots.begin());
-			_plotGenerator->ChangeCurrentPlotsInAction(-1);
+				for (UOEntity* e : _currentPlots[0]->GetInvolvedInPlot()) {
+					if (e->GetMainPlotEntity() == this) {
+						e->SetMainPlotEntity(nullptr);
+						e->RethinkState();
+					}
+				}
+
+				_mainPlotEntity = nullptr;
+				_currentPlots.erase(_currentPlots.begin());
+				_plotGenerator->ChangeCurrentPlotsInAction(-1);
+			}
 		}
 		else {
 			SetMainPlotEntity(nullptr);

@@ -31,7 +31,7 @@ BasePlot * Ambition::GenerateAmbitionForEntity(UOEntity * entity)
 		vector<BasePlot*> candidates;
 
 		//POSSESSIONS
-		if (entPersonality->GetMaterialist() > 50 && entPersonality->GetCurious() > 50)
+		if (entPersonality->GetMaterialist() > 50 /*&& entPersonality->GetCurious() > 50*/)
 			candidates.push_back(GetPosessionsAmbition(entity));
 
 		//EXTERMINATE
@@ -51,7 +51,7 @@ BasePlot * Ambition::GenerateAmbitionForEntity(UOEntity * entity)
 			candidates.push_back(BecomeFearedAmbition(entity));
 
 		//FRIEND TROLL
-		if (entPersonality->GetSocial() < 50 && entPersonality->GetCurious() > 50)
+		if (entPersonality->GetSocial() < 50 /*&& entPersonality->GetCurious() > 25*/)
 			candidates.push_back(FriendTrollAmbition(entity));
 
 		if (candidates.size() > 0) {

@@ -22,7 +22,11 @@ void APlotGenerator::BeginPlay()
 	Super::BeginPlay();
 
 	//INSERT WORLD PLOTS FROM THE BEGINNING
-	_worldPlots.push_back(new Stampede(ERace::R_Bear, GetActorLocation(), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), rand() % 10 + 5, this));
+	//INITIAL POSITION HARDCODED -> FIX 
+	_worldPlots.push_back(new Stampede(ERace::R_Bear, FVector(16000, 5000, 0), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), rand() % 10 + 5, this));
+	//_worldPlots.push_back(new Stampede(ERace::R_Bear, FVector(16000, 5000, 0), FVector(1100, 13700, 0), rand() % 10 + 5, this));
+
+	
 }
 
 // Called every frame
@@ -49,14 +53,14 @@ void APlotGenerator::Tick( float DeltaTime )
 					_timeToSpawnPlot = 0;
 				}
 			}
-			else if (rand() % 100 <= (40 /_currentPlotsInAction + 1)) {
+			if (rand() % 100 <= (25 /(_currentPlotsInAction + 1))) {
 
 				SpawnAmbitionPlot();
 				_timeToSpawnPlot = 0;
 			}
-			else if (rand() % 100 <= 5) {
-				//SpawnWorldPlot();
-				//_timeToSpawnPlot = 0;
+			else if (rand() % 100 <= 2) {
+				SpawnWorldPlot();
+				_timeToSpawnPlot = 0;
 			}
 		}
 	}
@@ -65,6 +69,8 @@ void APlotGenerator::Tick( float DeltaTime )
 void APlotGenerator::ChangeCurrentPlotsInAction(int dif)
 {
 	_currentPlotsInAction += dif;
+
+	if (_currentPlotsInAction < 0) _currentPlotsInAction = 0;
 }
 
 bool APlotGenerator::SpawnReactivePlot()
@@ -79,7 +85,7 @@ bool APlotGenerator::SpawnReactivePlot()
 			plotEntity->AddCurrentPlot(currentPlot);
 			//plotEntity->SetState(UOEntity::State::plot);
 			plotEntity->RethinkState();
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnReactive!"));
+			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnReactive!"));
 		}
 		return true;
 	}
@@ -99,7 +105,7 @@ bool APlotGenerator::SpawnAmbitionPlot()
 			ambitionPlot->InitPlot();
 			entity->AddCurrentPlot(ambitionPlot);
 			entity->RethinkState();
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnAmbition"));
+			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnAmbition"));
 			return true;
 		}
 		else return false;
