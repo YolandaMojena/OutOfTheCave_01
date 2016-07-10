@@ -362,6 +362,15 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 	else if (hitEntity /*&& _isAttacking*/ && _canDamage && !_victims.Contains(hitEntity->GetOwner())) {
 
 		hitEntity->ReceiveDamage(_TROLL_DMG, FindComponentByClass<UOEntity>());
+		//OtherActor->FindComponentByClass<CharacterMovement>()
+		AActor* thisActor = GetOwner();
+		if (thisActor) {
+			FVector impulse = OtherActor->GetActorLocation();
+			impulse -= thisActor->GetActorLocation();
+			impulse = impulse.GetSafeNormal();
+			impulse *= 300.f;
+			OtherActor->FindComponentByClass<UCharacterMovementComponent>()->AddImpulse(impulse, true);
+		}
 		_victims.Add(hitEntity->GetOwner());
 	}
 }
