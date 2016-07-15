@@ -97,7 +97,7 @@ void AttackPlot::BuildGraph() {
 
 	//GO TO KILLER
 	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToItem);
+	goToNode->SetNodeType(NodeType::goToActor);
 	goToNode->SetActor(_targetEntity->GetOwner());
 	_plotGraph.AddNode(goToNode);
 
@@ -215,7 +215,7 @@ void DestroyPlot::BuildGraph() {
 
 	//GO TO TARGET
 	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToItem);
+	goToNode->SetNodeType(NodeType::goToActor);
 	goToNode->SetActor(_targetEdification->GetOwner());
 	_plotGraph.AddNode(goToNode);
 
@@ -297,7 +297,7 @@ void BuildPlot::BuildGraph() {
 
 	//GO TO TARGET
 	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToItem);
+	goToNode->SetNodeType(NodeType::goToActor);
 	goToNode->SetActor(_targetEdification->GetOwner());
 	_plotGraph.AddNode(goToNode);
 
@@ -560,14 +560,14 @@ void GetPlot::BuildGraph() {
 
 		//ASK TROLL FOR HELP
 		Node* askTrollForHelpNode = new Node();
-		askTrollForHelpNode->SetNodeType(NodeType::goToItem);
+		askTrollForHelpNode->SetNodeType(NodeType::goToActor);
 		askTrollForHelpNode->SetActor(troll->GetOwner());
 		_plotGraph.AddNode(askTrollForHelpNode);
 	}
 
 	//GO TO OBJECT
 	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToItem);
+	goToNode->SetNodeType(NodeType::goToActor);
 	goToNode->SetActor(_targetOwnable->GetOwner());
 	_plotGraph.AddNode(goToNode);
 
@@ -646,7 +646,7 @@ void HelpPlot::BuildGraph() {
 
 	//GO TO TARGET
 	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToItem);
+	goToNode->SetNodeType(NodeType::goToActor);
 	goToNode->SetActor(_targetEntity->GetOwner());
 	_plotGraph.AddNode(goToNode);
 
@@ -714,7 +714,7 @@ void Stampede::BuildGraph() {
 	if (_targetActor) {
 		//GO TO ACTOR
 		Node* goToNode = new Node();
-		goToNode->SetNodeType(NodeType::goToItem);
+		goToNode->SetNodeType(NodeType::goToActor);
 		goToNode->SetActor(_targetActor->GetOwner());
 		_plotGraph.AddNode(goToNode);
 

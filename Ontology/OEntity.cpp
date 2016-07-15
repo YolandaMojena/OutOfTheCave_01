@@ -57,6 +57,8 @@ void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		for (TArray<const FAnimNotifyEvent*>::TIterator it = _skelMesh->AnimScriptInstance->AnimNotifies.CreateIterator(); it; ++it) {
 			if ((*it)->NotifyName.ToString() == "EndAttack") EndAttack();
 		}
+
+		CleanKnownNotifyIDs(DeltaTime);
 	}
 }
 
@@ -398,6 +400,8 @@ void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 		_integrity -= damage;
 		_attacker = damager;
 
+		CastNotify((UItem*) this, damager, ENotify::N_Damaged);
+
 		if (_integrity < MIN_INTEGRITY) {
 			IHaveBeenKilledBySomeone(damager);
 			Die();
@@ -603,7 +607,7 @@ UOEntity::State UOEntity::GetCurrentState() {
 	return _currentState;
 }
 
-void UOEntity::SetState(State s, Graph* g) {
+void UOEntity::SetState(State s) {
 
 	if (_currentState != s || !_brain.Peek()) {  //HACK/MOCK/CHAPUZA
 		_currentState = s;
@@ -640,7 +644,7 @@ void UOEntity::SetState(State s, Graph* g) {
 					_brain = _mainPlotEntity->GetCurrentPlot()->GetGraph();
 
 					Node* comeToEntity = new Node();
-					comeToEntity->SetNodeType(NodeType::goToItem);
+					comeToEntity->SetNodeType(NodeType::goToActor);
 					comeToEntity->SetActor(_mainPlotEntity->GetOwner());
 					_brain.AddInstantNode(comeToEntity);
 					_brain.NextNode();
@@ -651,7 +655,7 @@ void UOEntity::SetState(State s, Graph* g) {
 
 		case State::react:
 		{
-			_brain = *g;
+			_brain = *_currentReacts[0]; //*g
 		}
 			break;
 
@@ -678,8 +682,68 @@ void UOEntity::SetState(State s, Graph* g) {
 	if(_currentState != State::numb) ExecuteGraph();
 }
 
+//   N O T I F Y
 
+void UOEntity::ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notifyType, FString notifyID) {
+	if (IsPlayer)
+		return;
 
+	for (FString id : _knownNotifyIDs) {
+		if (id == notifyID)
+			return;
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" received a Notify! ") + notifyID);
+
+	_knownNotifyIDs.push_back(notifyID);
+	
+	//Check relation with predicate
+	bool doICare = false;
+	ORelation* relation = GetRelationWith((UOEntity*) predicate);
+	OOwnership* ownership = GetOwnershipWith((UOOwnable*) predicate);
+	if (relation && (relation->GetAppreciation() > 50 || relation->GetRespect() > 75)) {
+		doICare = true;
+	}
+	else if (ownership && ownership->GetWorth() > 50) {
+		doICare = true;
+	}
+
+	//Check relation with subject
+	if (doICare) {
+		Graph* reactGraph = new Graph();
+		Node* n;
+		ORelation* relationWithSubject = GetRelationWith(subject);
+		if (!relationWithSubject || (relationWithSubject->GetAppreciation() < 50 && relationWithSubject->GetRespect() < 75)) {
+			//Se va a liar parda
+			n = new Node();
+			n->SetNodeType(NodeType::goToActor);  n->SetActor(subject->GetOwner());
+			reactGraph->AddNode(n);
+			n = new Node();
+			n->SetNodeType(NodeType::attack);  n->SetEntity(subject); n->SetActor(subject->GetOwner());
+			reactGraph->AddNode(n);
+
+			_currentReacts.push_back(reactGraph);
+
+			RethinkState();
+		}
+		else if(relation) { //(make peace only when we are dealing between two entities fighting. Otherwise we're not doing anything.
+			// Peace and love
+			//RethinkState();
+		}
+	}
+}
+
+void UOEntity::CleanKnownNotifyIDs(float deltaTime) {
+	const int NOTIFY_LIFESPAN = 3;
+	if (!_knownNotifyIDs.empty()) {
+		if (_notifyDeadline >= NOTIFY_LIFESPAN) {
+			_notifyDeadline = 0.f;
+			_knownNotifyIDs.erase(_knownNotifyIDs.begin());
+		}
+		else
+			_notifyDeadline += deltaTime;
+	}
+}
 //   E X E C U T I O N
 
 void UOEntity::SetAIController(AEntityAIController* eaic) {
@@ -701,8 +765,15 @@ void UOEntity::ExecuteGraph() {
 
 // If a node can't be completed or is the last one, plot is considered completed
 void UOEntity::NodeCompleted(bool completedOk) {
-	if (completedOk && !_brain.IsLastNode())
+	if (completedOk && !_brain.IsLastNode()) {
 		_brain.NextNode();
+		if (_currentState == State::plot){
+			//_currentPlots[0]->GetGraphPointer()->NextNode();
+		}
+			
+		else if (_currentState == State::react)
+			_currentReacts[0]->NextNode();
+	}
 	else {
 		ClearState(completedOk);
 	}
@@ -738,7 +809,9 @@ void UOEntity::ClearState(bool completedOk)
 			SetMainPlotEntity(nullptr);
 		}
 	}
-	else if (_currentState == State::react) {}
+	else if (_currentState == State::react) {
+		_currentReacts.erase(_currentReacts.begin());
+	}
 
 	_currentState = State::restart;
 }
@@ -759,15 +832,15 @@ void UOEntity::RethinkState() {
 		}
 
 		// Hay un react en high priority
-		/*else if (_currentReacts[0]->Peek()->highPriority)
+		/*else if _currentReacts[0] && _currentReacts[0]->Peek()->nBlackboard.isHighPriority)
 			SetState(State::react);*/
 
-			// Hay un react
-		/*else if (_currentReacts[0])
-			SetState(State::react);*/
+		// Hay un react
+		else if (!_currentReacts.empty())
+			SetState(State::react);
 
 			// Pending plot to execute
-		else if (_currentPlots.size() > 0 || _mainPlotEntity)
+		else if (!_currentPlots.empty() || _mainPlotEntity)
 			SetState(State::plot);
 
 		// Nothing important to do, continue to idle
@@ -798,8 +871,7 @@ bool UOEntity::RemoveFromInventory(UOOwnable* o) {
 		}
 		i++;
 	}
-	return false;
-		
+	return false;	
 }
 
 

@@ -11,7 +11,7 @@ EBTNodeResult::Type UBTTask_Pardon::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	/*UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 	FVector entityPosition = entity->GetOwner()->GetActorLocation();
 	UOEntity* enemy = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 	FVector enemyPosition = enemy->GetOwner()->GetActorLocation();
@@ -19,7 +19,8 @@ EBTNodeResult::Type UBTTask_Pardon::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	FVector targetPosition = entityPosition + (entityPosition - enemyPosition).GetSafeNormal() * DISTANCE;
 	targetPosition *= FVector(1, 1, 0);
 
-	blackboard->SetValue<UBlackboardKeyType_Vector>(blackboard->GetKeyID("Position"), targetPosition);
+	blackboard->SetValue<UBlackboardKeyType_Vector>(blackboard->GetKeyID("Position"), targetPosition);*/
+	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
 	blackboard->ClearValue(blackboard->GetKeyID("Entity"));
 
 	return EBTNodeResult::Succeeded;

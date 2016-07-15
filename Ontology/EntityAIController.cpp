@@ -46,7 +46,7 @@ void AEntityAIController::SetNode(Node* n) {
 	case NodeType::goTo:
 		entityBlackboard->SetValue<UBlackboardKeyType_Vector>(positionID, n->nBlackboard.position  * FVector(1, 1, 0));
 		break;
-	case NodeType::goToItem:
+	case NodeType::goToActor:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
 		break;
 	case NodeType::grab:

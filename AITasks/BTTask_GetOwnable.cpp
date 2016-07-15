@@ -95,7 +95,7 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 
 vector<UOOwnable*> UBTTask_GetOwnable::FindNearbyOwnables(AActor* actor) {
 	float const _SEARCH_RADIUS = 2000.0f;
-	FVector start = actor->GetActorLocation();
+	FVector start = actor->GetActorLocation() + FVector(0, 0, -_SEARCH_RADIUS);
 	FVector end = start + FVector(0, 0, _SEARCH_RADIUS * 2);
 	TArray<FHitResult> hitData;
 

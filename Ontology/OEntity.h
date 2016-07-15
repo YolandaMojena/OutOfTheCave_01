@@ -181,6 +181,8 @@ public:
 	//void AddInstantNode(Node* n);
 	void AddInstantHelpNode(Node* n);
 
+	void ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notifyType, FString notifyID);
+
 	vector<UOOwnable*> GetInventory();
 	void StoreInInventory(UOOwnable* o);
 	bool RemoveFromInventory(UOOwnable* o);
@@ -211,7 +213,7 @@ public:
 	float _currentTime = 10;
 	
 protected:
-	void SetState(State s, Graph* g = nullptr);
+	void SetState(State s); //, Graph* g = nullptr
 	void SetStrength(float st);
 	void SetSpeed(float sd);
 	void SetAgility(float ag);
@@ -228,6 +230,7 @@ protected:
 	UOEntity* _mainPlotEntity = nullptr;
 	Graph _brain;
 	Graph* _idleGraph;
+	vector<Graph*> _currentReacts;
 	AEntityAIController* _entityAIController;
 
 	vector<ORelation*> _relationships;
@@ -244,7 +247,7 @@ protected:
 	OPersonality* _personality;
 
 	int _notoriety = 0;
-	int _notifyID;
+	vector<FString> _knownNotifyIDs;
 
 	vector<UOOwnable*> _inventory;
 	UItem* _grabbedItem;
@@ -252,7 +255,8 @@ protected:
 private:
 
 	class UOOwnable* _deadOwnable;
-
+	float _notifyDeadline = 0.f;
+	void CleanKnownNotifyIDs(float deltaTime);
 		
 };
 
