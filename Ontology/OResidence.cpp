@@ -98,7 +98,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Male, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
 			UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
 			if (entityComp) {
-				entityComp->SetName(_village->AssignMaleHumanName());
+				entityComp->SetItemName(_village->AssignMaleHumanName());
 				entityComp->SetRace(race);
 			}	
 		}
@@ -106,7 +106,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Female, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
 			UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
 			if (entityComp) {
-				entityComp->SetName(_village->AssignFemaleHumanName());
+				entityComp->SetItemName(_village->AssignFemaleHumanName());
 				entityComp->SetRace(race);
 			}		
 		}
@@ -117,7 +117,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
 		UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
 		if (entityComp) {
-			entityComp->SetName(_village->AssignGoblinName());
+			entityComp->SetItemName(_village->AssignGoblinName());
 			entityComp->SetRace(race);
 		}
 	}
@@ -300,6 +300,3 @@ void UOResidence::IWantToGetOut(UOEntity* e) {
 	_inside.erase(_inside.begin() + i);
 }
 
-FVector UOResidence::RandomDisplacementVector(int radius){
-	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
-}

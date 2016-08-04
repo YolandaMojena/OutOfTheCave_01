@@ -59,7 +59,7 @@ void APlotGenerator::Tick( float DeltaTime )
 				_timeToSpawnPlot = 0;
 			}
 			else if (rand() % 100 <= 2) {
-				SpawnWorldPlot();
+				//SpawnWorldPlot();
 				_timeToSpawnPlot = 0;
 			}
 		}

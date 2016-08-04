@@ -22,7 +22,7 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 
 	vector<UOOwnable*> candidates = entity->GetInventory();
-	vector<UOOwnable*> nearbyOwnables = FindNearbyOwnables(entity->GetOwner());
+	vector<UOOwnable*> nearbyOwnables = FindNearbyOwnables(entity);
 	candidates.insert(candidates.end(), nearbyOwnables.begin(), nearbyOwnables.end());
 	
 		
@@ -34,7 +34,8 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 	OntologicFunctions ontF;
 
 	UOOwnable* bestChoice = ontF.GetHands();
-	int bestChoiceAffordance = ontF.GetAffordance(affordableUse, bestChoice);
+	int bestChoiceAffordance;
+	bestChoiceAffordance = ontF.GetAffordance(affordableUse, bestChoice);
 	bool bestChoiceSomeoneWhoCares = true;
 
 	if (entity->HasGrabbedItem()){
@@ -85,16 +86,20 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 		n->SetOwnable(bestChoice);
 		entity->AddInstantNode(n);*/
 		blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"), (UItem*) bestChoice);
-		blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Actor"), bestChoice->GetOwner());
+		if(bestChoice->GetOwner())
+			blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Actor"), bestChoice->GetOwner());
 		//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("   score: ") + FString::SanitizeFloat(bestChoiceAffordance));
 		//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("Chosen item: ") + bestChoice->GetOwner()->GetActorLabel());
+
+		bestChoice->AddGrabber(entity);
 	}
 
 	return EBTNodeResult::Succeeded;
 }
 
-vector<UOOwnable*> UBTTask_GetOwnable::FindNearbyOwnables(AActor* actor) {
-	float const _SEARCH_RADIUS = 2000.0f;
+vector<UOOwnable*> UBTTask_GetOwnable::FindNearbyOwnables(UOEntity* entity) {
+	AActor* actor = entity->GetOwner();
+	float const _SEARCH_RADIUS = 3000.0f;
 	FVector start = actor->GetActorLocation() + FVector(0, 0, -_SEARCH_RADIUS);
 	FVector end = start + FVector(0, 0, _SEARCH_RADIUS * 2);
 	TArray<FHitResult> hitData;
@@ -118,8 +123,25 @@ vector<UOOwnable*> UBTTask_GetOwnable::FindNearbyOwnables(AActor* actor) {
 	for (auto hr : hitData) {
 		UOOwnable* o = hr.GetActor()->FindComponentByClass<UOOwnable>();
 		UOEdification* e = hr.GetActor()->FindComponentByClass<UOEdification>();
-		if (!e && o)
-			results.push_back(o);
+		if (!e && o) {
+			bool admit = true;
+			vector<UOEntity*> grabbers = o->GetGrabbers();
+			vector<ORelation*> relatives = entity->GetRelationships();
+			for (ORelation* r : relatives) {
+				UOEntity* e = r->GetOtherEntity();
+				for (UOEntity* g : grabbers) {
+					if (e == g && (r->GetAppreciation() > 50 || r->GetRespect() > 75 || r->GetFear() > 50)) {
+						admit = false;
+						break;
+					}
+				}
+				if (!admit)
+					break;
+			}
+			
+			if(admit)
+				results.push_back(o);
+		}
 	}
 	return results;
 }

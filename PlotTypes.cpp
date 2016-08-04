@@ -81,7 +81,7 @@ void AttackPlot::BuildGraph() {
 	//GET WEAPON
 	Node* getNode = new Node();
 	getNode->SetNodeType(NodeType::get);
-	getNode->SetAffordableUse(OntologicFunctions::AffordableUse::weapon);
+	getNode->SetAffordableUse(OntologicFunctions::AffordableUse::build);
 	_plotGraph.AddNode(getNode);
 
 	UOEntity* troll = UGameplayStatics::GetPlayerCharacter(_plotEntity->GetWorld(), 0)->FindComponentByClass<UOEntity>();

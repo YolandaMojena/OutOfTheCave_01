@@ -98,12 +98,12 @@ int UItem::GetIntegrity() {
 	return _integrity;
 }
 
-FString UItem::GetName()
+FString UItem::GetItemName()
 {
 	return _name;
 }
 
-void UItem::SetName(FString name)
+void UItem::SetItemName(FString name)
 {
 	_name = name;
 	GetOwner()->SetActorLabel(name);
@@ -111,7 +111,7 @@ void UItem::SetName(FString name)
 
 
 void UItem::CastNotify(UItem* predicate, UOEntity* subject, ENotify notifyType) {
-	float const _NOTIFY_RADIUS = 500.0f;
+	float const _NOTIFY_RADIUS = 1000.0f;
 	FVector start = GetOwner()->GetActorLocation() + FVector(0, 0, -_NOTIFY_RADIUS);
 	FVector end = start + FVector(0, 0, _NOTIFY_RADIUS * 2);
 	TArray<FHitResult> hitData;

@@ -5,6 +5,7 @@
 #include "Ontology/Item.h"
 #include "Ontology/OTerritory.h"
 #include "Ontology/OPersonality.h"
+#include "OwnableSpawner.h"
 #include <vector>
 #include "BasePlot.h"
 #include <algorithm>
@@ -61,6 +62,37 @@ public:
 	//void SetBrain(Graph* b);
 
 	static float MIN_INTEGRITY;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		FString _hands_name = FString(TEXT("hands"));
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		FVector _hands_centerOfMass = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_edgeLength = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_edgeSharpness = 10;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		FVector _hands_funcDir = FVector(0, 0, 1);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		FVector _hands_funcPos = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		FVector _hands_grabDir = FVector(0, 0, 1);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		FVector _hands_grabPos = FVector(0, 0, 0);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_mass = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_maxLength = 10;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_spikes = 5;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_spiky = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_toughness = 30;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_volume = 450;
+
 
 	vector<BasePlot*> GetCurrentPlots();
 	BasePlot* GetCurrentPlot();
@@ -128,6 +160,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "EntityRelations")
 		float GetRespectTo(UOEntity* ent);
 
+	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn = true))
+		UBehaviorTree* BehaviorTree;
+	AEntityAIController* GetEntityAIController();
 
 
 	void AddRelationship(ORelation* newRelation);
@@ -140,10 +175,6 @@ public:
 	void AddDesire(UOOwnable* newOwnable);
 	bool DoesOwn(UOOwnable* ownable);
 	bool DoesOwn(UItem* item);
-
-	bool IsInSight(AActor* actor);
-	void OwnableNotify(UOOwnable* ownable, UOEntity* entity, UItem::_NotifyTag tag, bool grito, string notifyID);
-	void EntityNotify(UOEntity* pasiva, UOEntity* activa, UItem::_NotifyTag tag, bool grito, string notifyID);
 	
 	ORelation* GetRelationWith(UOEntity* other);
 	OOwnership* GetOwnershipWith(UOOwnable* other);
@@ -185,8 +216,11 @@ public:
 
 	vector<UOOwnable*> GetInventory();
 	void StoreInInventory(UOOwnable* o);
+	void GrabFromInventory(UOOwnable* o);
 	bool RemoveFromInventory(UOOwnable* o);
 	bool RemoveFromInventory(int i);
+	void SpawnFromInventory(UOOwnable* o);
+	void SpawnFromInventory(int i);
 
 	void Attack();
 	bool StealFromInventory(UOOwnable* o, UOEntity* buggler);
@@ -258,6 +292,7 @@ private:
 	float _notifyDeadline = 0.f;
 	void CleanKnownNotifyIDs(float deltaTime);
 		
+	UItem* _hands;
 };
 
 #undef LOCTEXT_NAMESPACE 

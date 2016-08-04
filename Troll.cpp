@@ -65,7 +65,7 @@ void ATroll::BeginPlay()
 	Super::BeginPlay();
 
 	_myEntityComp = FindComponentByClass<UOEntity>();
-	_myEntityComp->SetName("Troll");
+	_myEntityComp->SetItemName("Troll");
 	_myEntityComp->SetRace(ERace::R_Troll);
 	_trollActor = (AActor*) this;
 }
@@ -365,16 +365,19 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 
 		hitEntity->ReceiveDamage(_TROLL_DMG, FindComponentByClass<UOEntity>());
 
+		ACharacter* character = (ACharacter*)OtherActor;
+		UCharacterMovementComponent* ucmc = character->FindComponentByClass<UCharacterMovementComponent>();
+
 		//OtherActor->FindComponentByClass<CharacterMovement>()
 		if (_trollActor) {
 			FVector impulse = OtherActor->GetActorLocation(); 
-			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, impulse.ToString());
+			//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, impulse.ToString());
 			impulse -= _trollActor->GetActorLocation();
-			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Cyan, impulse.ToString());
+			//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Cyan, impulse.ToString());
 			impulse = impulse.GetSafeNormal();
-			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Green, impulse.ToString());
+			//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Green, impulse.ToString());
 			impulse *= IMPULSE_MULTIPLIER * this->FindComponentByClass<UOEntity>()->GetStrength();
-			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, impulse.ToString());
+			//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, impulse.ToString());
 			//OtherActor->FindComponentByClass<UCharacterMovementComponent>()->AddImpulse(impulse);
 			//OtherActor->FindComponentByClass<UCharacterMovementComponent>()->AddForce(impulse);
 			OtherActor->FindComponentByClass<UCharacterMovementComponent>()->Velocity = OtherActor->GetVelocity() + impulse;

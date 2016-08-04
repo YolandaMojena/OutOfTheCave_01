@@ -46,14 +46,35 @@ public:
 	int GetRarityAsInt();
 	bool GetIsGrabbed();
 	void SetIsGrabbed(bool grabbed);
+	vector<UOEntity*> GetGrabbers();
+	void AddGrabber(UOEntity* g);
+	void RemoveGrabber(UOEntity* g);
+	//bool IsBeingGrabbed();
 
 	// REPORTS
 	void IHaveBeenStolenBySomeone(UOEntity* potentialOwner, UOEntity* buggler);
 	void IHaveBeenGivenToSomeone(UOEntity* potentialOwner, UOEntity* newOwner);
+
+
+	//static void SpawnOwnable(UOOwnable* o, UItem* spawner);
+
+	
+protected:
+	static FVector RandomDisplacementVector(int radius);
 
 private:
 
 	// Messages to owner for report generation
 	vector<UOEntity*> _owners;
 	bool _isGrabbed;
+	// _isBeingGrabbed;
+	vector<UOEntity*> _grabbers;
+
+
+	/*static TSubclassOf<class AActor> BP_Hammer;
+	static TSubclassOf<class AActor> BP_Hoe;
+	static TSubclassOf<class AActor> BP_Pickaxe;
+	static TSubclassOf<class AActor> BP_Rake;
+	static TSubclassOf<class AActor> BP_Sword;
+	static TSubclassOf<class AActor> BP_LeaflessTree;*/
 };

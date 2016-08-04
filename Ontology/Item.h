@@ -142,10 +142,10 @@ public:
 	float GetEdgeLength();
 	float GetSpiky();
 	float GetSpikes();
-	FString GetName();
+	FString GetItemName();
 	int GetIntegrity();
 
-	void SetName(FString name);
+	void SetItemName(FString name);
 
 	void CastNotify(UItem* predicate, UOEntity* subject, ENotify notifyType);
 

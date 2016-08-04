@@ -23,13 +23,16 @@ class OUTOFTHECAVE_01_API AEntityAIController : public AAIController
 {
 	GENERATED_BODY()
 
+
+public:
+
 	UPROPERTY(transient)
 	class UBlackboardComponent* entityBlackboard;
 
 	UPROPERTY(transient)
 	class UBehaviorTreeComponent* behaviorTree;
 
-public:
+
 	AEntityAIController();
 	~AEntityAIController();
 

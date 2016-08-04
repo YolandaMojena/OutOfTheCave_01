@@ -6,7 +6,7 @@
 
 EBTNodeResult::Type UBTTask_Pardon::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
 
-	const int DISTANCE = 600;
+	const int DISTANCE = 2000;
 
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
@@ -20,7 +20,7 @@ EBTNodeResult::Type UBTTask_Pardon::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	targetPosition *= FVector(1, 1, 0);
 
 	blackboard->SetValue<UBlackboardKeyType_Vector>(blackboard->GetKeyID("Position"), targetPosition);*/
-	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
+	//blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
 	blackboard->ClearValue(blackboard->GetKeyID("Entity"));
 
 	return EBTNodeResult::Succeeded;

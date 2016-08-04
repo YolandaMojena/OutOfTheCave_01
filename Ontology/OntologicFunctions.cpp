@@ -112,7 +112,18 @@ int OntologicFunctions::UseForMining(UItem* i) {
 	return result;
 }
 int OntologicFunctions::UseForBuilding(UItem* i) {
-	return i->GetToughness() * i->GetAngularMomentumTransmission() / i->GetMaxLength() / i->GetMass();
+	int nfactors = 4;
+
+	int term1 = ThresholdValue(ExponentialGrowth(i->GetToughness(), 90));
+	int term2 = ThresholdValue(LinearGrowth(i->GetAngularMomentumTransmission()));
+	int term3 = ThresholdValue(LinearEqualization(i->GetMaxLength(), 55));
+	int term4 = ThresholdValue(ExponentialDecay(i->GetMass(), 1));
+	
+	int result = term1 * term2 * term3 * term4 / (pow(100, nfactors - 1));
+
+	return result;
+
+	//return i->GetToughness() * i->GetAngularMomentumTransmission() / i->GetMaxLength() / i->GetMass();
 }
 
 

@@ -62,6 +62,9 @@ public:
 	vector<UOEntity*> GetNotoriousEntities();
 	void DeleteNotorious(UOEntity* entity);
 	void AddNotorious(UOEntity* notorious);
+	
+
+
 
 private:
 

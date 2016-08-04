@@ -38,8 +38,8 @@ enum class NodeType : uint8 {
 	mine UMETA(DisplayName = "mine"),
 	gather UMETA(DisplayName = "gather"),
 	help UMETA(DisplayName = "help"),
-	numb UMETA(DisplayName = "numb")
-
+	numb UMETA(DisplayName = "numb"),
+	stopFight UMETA(Displayname = "stopFight")
 };
 
 class OUTOFTHECAVE_01_API Node

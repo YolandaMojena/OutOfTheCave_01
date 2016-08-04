@@ -9,12 +9,36 @@ EBTNodeResult::Type UBTTask_GrabItem::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass <UOEntity>();
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
-	UItem* item = (UItem*) blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"));
+	
+	/*UItem* item = (UItem*) blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"));
+	if(item)
+		entity->GrabItem(item);
+	else {
+		item = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Ownable"));
+		if (item)
+			entity->GrabItem(item);
+	}*/
 
-	if(item) entity->GrabItem(item);
-	else item = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Ownable"));
+	UItem* item = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"));
+	if(!item)
+		item = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Ownable"));
 
-	if (item) entity->GrabItem(item);
+	bool inInventory = false;
+	if (item) {
+		for (UOOwnable* o : entity->GetInventory()) {
+			if ((UOOwnable*)item == o) {
+				inInventory = true;
+				break;
+			}
+		}
+
+		if (inInventory) {
+			entity->GrabFromInventory((UOOwnable*)item);
+		}
+		else {
+			entity->GrabItem(item);
+		}
+	}
 
 	return EBTNodeResult::Succeeded;
 	
