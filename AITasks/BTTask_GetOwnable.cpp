@@ -23,6 +23,7 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 
 	vector<UOOwnable*> candidates = entity->GetInventory();
 	vector<UOOwnable*> nearbyOwnables = FindNearbyOwnables(entity);
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("NearbyOwnables: ") + FString::SanitizeFloat(nearbyOwnables.size()));
 	candidates.insert(candidates.end(), nearbyOwnables.begin(), nearbyOwnables.end());
 	
 		
@@ -67,10 +68,14 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 				}
 			}
 			int newAffordance = ontF.GetAffordance(affordableUse, ownable);
+			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("BCA: ") + FString::SanitizeFloat(bestChoiceAffordance));
+			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("NA: ") + FString::SanitizeFloat(newAffordance));
 			if (newAffordance > bestChoiceAffordance) {
 				bestChoice = ownable;
 				bestChoiceAffordance = newAffordance;
 				bestChoiceSomeoneWhoCares = someoneWhoCares;
+				GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("Better one!"));
+				GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("BCA: ") + FString::SanitizeFloat(bestChoiceAffordance));
 			}
 		}
 	}
@@ -122,15 +127,15 @@ vector<UOOwnable*> UBTTask_GetOwnable::FindNearbyOwnables(UOEntity* entity) {
 	vector<UOOwnable*> results;
 	for (auto hr : hitData) {
 		UOOwnable* o = hr.GetActor()->FindComponentByClass<UOOwnable>();
-		UOEdification* e = hr.GetActor()->FindComponentByClass<UOEdification>();
-		if (!e && o) {
+		UOEdification* edf = hr.GetActor()->FindComponentByClass<UOEdification>();
+		if (!edf && o) {
 			bool admit = true;
 			vector<UOEntity*> grabbers = o->GetGrabbers();
 			vector<ORelation*> relatives = entity->GetRelationships();
 			for (ORelation* r : relatives) {
 				UOEntity* e = r->GetOtherEntity();
 				for (UOEntity* g : grabbers) {
-					if (e == g && (r->GetAppreciation() > 50 || r->GetRespect() > 75 || r->GetFear() > 50)) {
+					if (e == g && (r->GetAppreciation() > 25 || r->GetRespect() > 37 || r->GetFear() > 25)) {
 						admit = false;
 						break;
 					}
@@ -139,8 +144,16 @@ vector<UOOwnable*> UBTTask_GetOwnable::FindNearbyOwnables(UOEntity* entity) {
 					break;
 			}
 			
-			if(admit)
-				results.push_back(o);
+			if (admit) {
+				for (UOOwnable* own : results) {
+					if (o == own) {
+						admit = false;
+						break;
+					}
+				}
+				if(admit)
+					results.push_back(o);
+			}
 		}
 	}
 	return results;

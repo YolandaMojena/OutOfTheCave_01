@@ -47,6 +47,8 @@ void UOEntity::BeginPlay() {
 		//((ACharacter*)GetOwner())->GetMesh()->SetAllBodiesBelowSimulatePhysics(((ACharacter*)GetOwner())->GetMesh()->GetBoneName(1), true);
 		//for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
 			//_plotGenerator = *Itr;
+		for (TActorIterator<AOwnableSpawner> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
+			_ownableSpawner = *Itr;
 		
 		GenerateTraits();
 		HitFunc.BindUFunction(GetOwner(), "OnOverlapBegin");
@@ -111,7 +113,7 @@ void UOEntity::SetIsNumb(bool value)
 {
 	_isNumb = value;
 	if (value)
-		SetState(State::numb);
+		SetState(AIState::numb);
 	else
 		RethinkState();
 }
@@ -126,7 +128,9 @@ UItem* UOEntity::GetGrabbedItem() {
 	return _hands;
 }
 bool UOEntity::HasGrabbedItem() {
-	return _grabbedItem != nullptr;
+	if (_grabbedItem)
+		return true;
+	return false;
 }
 /*Graph* UOEntity::GetBrain() {
 	return &_brain;
@@ -439,6 +443,8 @@ void UOEntity::Die() {
 		((UOCivilian*)this)->currentIconPath = "";
 		FText TestHUDText = NSLOCTEXT("FText Namespace", "Key", "");
 		GetOwner()->FindComponentByClass<UTextRenderComponent>()->Text = TestHUDText;
+		ReleaseGrabbedItem();
+		ReleaseInventory();
 	}
 	/*
 	// Add ownable
@@ -460,7 +466,7 @@ void UOEntity::Die() {
 	
 	// Handle plot state and main entity
 
-	if (_currentState == State::plot) {
+	if (_currentState == AIState::plot) {
 		if (_mainPlotEntity == this) {
 			if (_currentPlots.size() > 0 && !_currentPlots[0]->GetIsExclusive() && _currentPlots[0]->GetInvolvedInPlot().Num() > 0) {
 
@@ -478,7 +484,7 @@ void UOEntity::Die() {
 	}
 
 	_plotGenerator->DeleteNotorious(this);
-	SetState(State::numb);
+	SetState(AIState::numb);
 	//GetOwner()->RemoveOwnedComponent(this);
 	//this->DestroyComponent();
 }
@@ -609,17 +615,17 @@ Graph * UOEntity::GetBrain()
 	return &_brain;
 }
 
-UOEntity::State UOEntity::GetCurrentState() {
+UOEntity::AIState UOEntity::GetCurrentState() {
 	return _currentState;
 }
 
-void UOEntity::SetState(State s) {
+void UOEntity::SetState(AIState s) {
 
 	if (_currentState != s || !_brain.Peek()) {  //HACK/MOCK/CHAPUZA
 		_currentState = s;
 
 		switch (_currentState) {
-		case State::idle:
+		case AIState::idle:
 		{
 			_brain = *_idleGraph;
 			if (_brain.Peek()->nBlackboard.daytime >= 0) {
@@ -635,7 +641,7 @@ void UOEntity::SetState(State s) {
 		}
 		break;
 
-		case State::plot:
+		case AIState::plot:
 		{
 			if (_currentPlots.size() > 0 && !_mainPlotEntity) {
 				_brain = _currentPlots[0]->GetGraph();
@@ -659,13 +665,13 @@ void UOEntity::SetState(State s) {
 		}
 			break;
 
-		case State::react:
+		case AIState::react:
 		{
 			_brain = *_currentReacts[0]; //*g
 		}
 			break;
 
-		case State::numb:
+		case AIState::numb:
 		{
 			_isNumb = true;
 			_brain = NULL;
@@ -685,7 +691,7 @@ void UOEntity::SetState(State s) {
 		_entityAIController->SetState(_currentState);
 	}
 	
-	if(_currentState != State::numb) ExecuteGraph();
+	if(_currentState != AIState::numb) ExecuteGraph();
 }
 
 //   N O T I F Y
@@ -801,11 +807,11 @@ void UOEntity::ExecuteGraph() {
 void UOEntity::NodeCompleted(bool completedOk) {
 	if (completedOk && !_brain.IsLastNode()) {
 		_brain.NextNode();
-		if (_currentState == State::plot){
+		if (_currentState == AIState::plot){
 			//_currentPlots[0]->GetGraphPointer()->NextNode();
 		}
 			
-		else if (_currentState == State::react)
+		else if (_currentState == AIState::react)
 			_currentReacts[0]->NextNode();
 	}
 	else {
@@ -822,7 +828,7 @@ void UOEntity::NodeCompleted(bool completedOk) {
 
 void UOEntity::ClearState(bool completedOk)
 {
- 	if (_currentState == State::plot) {
+ 	if (_currentState == AIState::plot) {
 		if (_mainPlotEntity == this) {
 			//if (!completedOk)
 			if (GetCurrentPlot()) {
@@ -843,11 +849,11 @@ void UOEntity::ClearState(bool completedOk)
 			SetMainPlotEntity(nullptr);
 		}
 	}
-	else if (_currentState == State::react) {
+	else if (_currentState == AIState::react) {
 		_currentReacts.erase(_currentReacts.begin());
 	}
 
-	_currentState = State::restart;
+	_currentState = AIState::restart;
 }
 
 /*void UOEntity::AddInstantNode(Node* n) {
@@ -872,16 +878,16 @@ void UOEntity::RethinkState() {
 		// Hay un react
 		else if (!_currentReacts.empty()) {
 			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" wants to react!"));
-			SetState(State::react);
+			SetState(AIState::react);
 		}
 
 			// Pending plot to execute
 		else if (!_currentPlots.empty() || _mainPlotEntity)
-			SetState(State::plot);
+			SetState(AIState::plot);
 
 		// Nothing important to do, continue to idle
 		else
-			SetState(State::idle);
+			SetState(AIState::idle);
 	}
 }
 
@@ -934,8 +940,7 @@ void UOEntity::SpawnFromInventory(UOOwnable* o) {
 	int i = 0;
 	for (UOOwnable* strd : _inventory) {
 		if (o == strd) {
-			AOwnableSpawner os;
-			os.SpawnOwnable(o, (UItem*)this);
+			_ownableSpawner->SpawnOwnable(o, (UItem*)this);
 			RemoveFromInventory(i);
 			return;
 		}
@@ -945,6 +950,12 @@ void UOEntity::SpawnFromInventory(UOOwnable* o) {
 void UOEntity::SpawnFromInventory(int i) {
 	if (i < _inventory.size()) {
 		//AActor* itemToSpawn = GetWorld()->SpawnActor<AActor>(BP_Bear, GetOwner()->GetActorLocation() + RandomDisplacement(1000), GetActorRotation(), SpawnParams);
+	}
+}
+
+void UOEntity::ReleaseInventory() {
+	for (UOOwnable* o : _inventory) {
+		SpawnFromInventory(o);
 	}
 }
 
@@ -1021,9 +1032,13 @@ void UOEntity::ReleaseGrabbedItem() {
 		grabbedItemActor->DetachRootComponentFromParent(true);
 		grabbedItemActor->SetActorEnableCollision(true);
 		((UOOwnable*)_grabbedItem)->SetIsGrabbed(false);
+		//grabbedItemActor->SetActorRotation();
+		grabbedItemActor->SetActorLocation(FVector(grabbedItemActor->GetActorLocation().X, grabbedItemActor->GetActorLocation().Y, 0));
 		_grabbedItem = nullptr;
 	}
 }
+
+
 
 
 bool UOEntity::StealFromInventory(UOOwnable * o, UOEntity * buggler)

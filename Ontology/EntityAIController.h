@@ -39,7 +39,7 @@ public:
 	virtual void Possess(APawn* pawn) override;
 
 	void SetNode(Node* n);
-	void SetState(UOEntity::State s);
+	void SetState(UOEntity::AIState s);
 	void ExecuteNode();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = EntityAIController)

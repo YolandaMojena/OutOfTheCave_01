@@ -41,7 +41,7 @@ class OUTOFTHECAVE_01_API UOEntity : public UItem
 public:
 
 	UENUM(BlueprintType)
-	enum class State : uint8 {
+	enum class AIState : uint8 {
 		idle UMETA(DisplayName = "idle"),
 		plot UMETA(DisplayName = "plot"),
 		react UMETA(DisplayName = "react"),
@@ -190,7 +190,7 @@ public:
 	bool CheckValidPersonality(TypeOfPlot type);
 	void SendReport(Report* newReport);
 
-	State GetCurrentState();
+	AIState GetCurrentState();
 	void SetIdleGraph(Graph* g);
 	Graph* GetIdleGraph();
 	Graph* GetBrain();
@@ -221,6 +221,7 @@ public:
 	bool RemoveFromInventory(int i);
 	void SpawnFromInventory(UOOwnable* o);
 	void SpawnFromInventory(int i);
+	void ReleaseInventory();
 
 	void Attack();
 	bool StealFromInventory(UOOwnable* o, UOEntity* buggler);
@@ -247,7 +248,7 @@ public:
 	float _currentTime = 10;
 	
 protected:
-	void SetState(State s); //, Graph* g = nullptr
+	void SetState(AIState s); //, Graph* g = nullptr
 	void SetStrength(float st);
 	void SetSpeed(float sd);
 	void SetAgility(float ag);
@@ -256,7 +257,7 @@ protected:
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
 
-	State _currentState = State::idle;
+	AIState _currentState = AIState::idle;
 	ERace _race;
 	EJob _job;
 
@@ -293,6 +294,8 @@ private:
 	void CleanKnownNotifyIDs(float deltaTime);
 		
 	UItem* _hands;
+
+	AOwnableSpawner* _ownableSpawner;
 };
 
 #undef LOCTEXT_NAMESPACE 

@@ -56,23 +56,31 @@ AActor* AOwnableSpawner::SpawnOwnable(UOOwnable* o, UItem* spawner) {
 	AActor* spawned;
 	FActorSpawnParameters SpawnParams;
 	if (o->GetItemName() == "hammer") {
-		spawned = spawner->GetWorld()->SpawnActor<AActor>(BP_Hammer, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
+		spawned = GetWorld()->SpawnActor<AActor>(BP_Hammer, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
 	}
 	else if (o->GetItemName() == "hoe") {
-		spawned = spawner->GetWorld()->SpawnActor<AActor>(BP_Hoe, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
+		spawned = GetWorld()->SpawnActor<AActor>(BP_Hoe, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
 	}
 	else if (o->GetItemName() == "pickaxe") {
-		spawned = spawner->GetWorld()->SpawnActor<AActor>(BP_Pickaxe, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
+		spawned = GetWorld()->SpawnActor<AActor>(BP_Pickaxe, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
 	}
 	else if (o->GetItemName() == "rake") {
-		spawned = spawner->GetWorld()->SpawnActor<AActor>(BP_Rake, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
+		spawned = GetWorld()->SpawnActor<AActor>(BP_Rake, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
 	}
 	else if (o->GetItemName() == "sword") {
-		spawned = spawner->GetWorld()->SpawnActor<AActor>(BP_Sword, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
+		spawned = GetWorld()->SpawnActor<AActor>(BP_Sword, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
 	}
 	else { //else if (o->GetItemName() == "leaflesstree") {
-		spawned = spawner->GetWorld()->SpawnActor<AActor>(BP_LeaflessTree, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
+		spawned = GetWorld()->SpawnActor<AActor>(BP_LeaflessTree, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
 	}
+
+
+	UOOwnable* spawnedOwnable = spawned->FindComponentByClass<UOOwnable>();
+	spawnedOwnable->UnregisterComponent();
+	//spawnedOwnable->DestroyComponent(spawnedOwnable);
+	((USceneComponent*)o)->AttachTo(spawned->GetRootComponent());
+	o->RegisterComponent();
+
 	return spawned;
 }
 

@@ -74,10 +74,10 @@ void AEntityAIController::SetNode(Node* n) {
 	}
 }
 
-void AEntityAIController::SetState(UOEntity::State s) {
+void AEntityAIController::SetState(UOEntity::AIState s) {
 	
 	entityBlackboard->SetValue<UBlackboardKeyType_Enum>(entityBlackboard->GetKeyID("EntityState"), static_cast<UBlackboardKeyType_Enum::FDataType>(s));
-	if (s == UOEntity::State::numb) entityBlackboard->ClearValue(nodeTypeID);
+	if (s == UOEntity::AIState::numb) entityBlackboard->ClearValue(nodeTypeID);
 }
 
 void AEntityAIController::Possess(APawn* pawn) {

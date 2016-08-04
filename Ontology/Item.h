@@ -72,7 +72,7 @@ public:
 
 		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		FString _name;
+		FString _name = "";
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _density;
 
