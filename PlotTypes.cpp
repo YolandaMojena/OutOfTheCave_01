@@ -19,6 +19,7 @@ AttackPlot::AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* moti
 	_targetEntity = targetEntity;
 	_isExclusive = false;
 	_motivation = motivation;
+	_ambition = TypeOfAmbition::noAmbition;
 }
 
 AttackPlot::AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition) : BasePlot(plotEntity) {
@@ -26,45 +27,36 @@ AttackPlot::AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbit
 	_targetEntity = targetEntity;
 	_isExclusive = true;
 	_ambition = ambition;
+	_motivation = nullptr;
 }
 
 AttackPlot::~AttackPlot() {}
 
 void AttackPlot::BuildSentence() {
 
-	_sentence += _identifier + "\n";
+	_sentence += _identifier;
 
 	if(_motivation){
 
 		_sentence += "The brave " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() 
-			+ " has begun an attack against the despicable " + _targetEntity->GetRaceString()
-			+ _targetEntity->GetName() + ", who ";
+			+ " began an attack against the despicable " + _targetEntity->GetRaceString()
+			+ _targetEntity->GetName() + ", who had ";
 		_sentence += _motivation->IsA<UOEntity>() ?
-			"hurt his/her friend " + _motivation->GetName()
-			: "damaged his/her " + _motivation->GetName();
+			" hurt his/her friend " + _motivation->GetName()
+			: " damaged his/her " + _motivation->GetName();
 
-		/*_sentence += ".\n He/She counts with the help of ";
-
-		if (_involvedInPlot.Num() > 0) {
-			for (int i = 0; i < _involvedInPlot.Num(); i++) {
-				_sentence += _involvedInPlot[i]->GetName();
-				if (i < _involvedInPlot.Num() - 1)
-					_sentence += ", ";
-			}
-			_sentence += " and ";
-		}*/
-		_sentence += /*"some allies*/".\n\n\n";
+		_sentence += ".\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::extermination) {
 
 		_sentence += "The aggressive " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " has begun an attack against the unfortunate " + _targetEntity->GetRaceString() + " "
+			+ " began an attack against the unfortunate " + _targetEntity->GetRaceString() + " "
 			+ _targetEntity->GetName() + ", in order to exterminate his/her race.\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::notoriety) {
 
 		_sentence += "The aggressive " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " has begun an attack against the highly notorious " + _targetEntity->GetRaceString() + " "
+			+ " began an attack against the highly notorious " + _targetEntity->GetRaceString() + " "
 			+ _targetEntity->GetName() + ", in order to obtain his/her position in society.\n\n\n";
 	}
 }
@@ -116,7 +108,34 @@ void AttackPlot::InitPlot() {
 	BuildSentence();
 }
 
-void AttackPlot::ConsiderReactions() {
+BasePlot* AttackPlot::ConsiderReactions() {
+
+	BasePlot* reaction = nullptr;
+	UOEntity* reactionEntity = nullptr;
+
+	for (UOEntity* e : _involvedInPlot) {
+		
+		ORelation* relationWithMain = e->GetRelationWith(_plotEntity);
+		ORelation* relationWithOther = e->GetRelationWith(_targetEntity);
+
+		// SHOULD I VALUE RESPECT AND FEAR? 
+		if (relationWithMain && relationWithOther && relationWithOther->GetAppreciation() > relationWithMain->GetAppreciation()) {
+			
+			DeleteFromInvolved(e);
+
+			if (!reactionEntity) {
+				reactionEntity = e;
+
+				if (e->GetPersonality()->GetAggressiveness() > 50)
+					reaction = new AmbushPlot(e, _plotEntity, _targetEntity, _targetEntity);
+				else
+					reaction = new DefendPlot(e, _plotEntity, _targetEntity, _targetEntity);
+			}
+			else if (reaction)
+				reaction->AddInvolvedInPlot(e);
+		}
+	}
+	return reaction;
 }
 
 UOEntity* AttackPlot::GetTargetEntity() {
@@ -132,6 +151,7 @@ DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* mo
 	_targetEntity = targetEntity;
 	_isExclusive = false;
 	_motivation = motivation;
+	_ambition = TypeOfAmbition::noAmbition;
 }
 
 DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition) : BasePlot(plotEntity) {
@@ -139,17 +159,18 @@ DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmb
 	_targetEntity = targetEntity;
 	_isExclusive = true;
 	_ambition = ambition;
+	_motivation = nullptr;
 }
 
 DestroyPlot::~DestroyPlot() {}
 
 void DestroyPlot::BuildSentence() {
 
-	_sentence += _identifier + "\n";
+	_sentence += _identifier;
 
 	if (_motivation) {
 		_sentence += "The brave " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " has begun to destroy the " + _targetEdification->GetName() +
+			+ " began to destroy the " + _targetEdification->GetName() +
 			", which belongs to ";
 
 		if (_targetEdification->GetOwners().size() > 0) {
@@ -162,28 +183,18 @@ void DestroyPlot::BuildSentence() {
 		}
 		_sentence += ", since " + _targetEntity->GetName();
 		_sentence += _motivation->IsA<UOEntity>() ?
-			" hurt his/her friend " + _motivation->GetName()
-			: " damaged his/her " + _motivation->GetName();
+			" had hurt his/her friend " + _motivation->GetName()
+			: " had damaged his/her " + _motivation->GetName();
 
-		/*_sentence += ".\n He/She counts with the help of ";
-
-		if (_involvedInPlot.Num() > 0) {
-			for (int i = 0; i < _involvedInPlot.Num(); i++) {
-				_sentence += _involvedInPlot[i]->GetName();
-				if (i < _involvedInPlot.Num() - 1)
-					_sentence += ", ";
-			}
-			_sentence += " and ";
-		}*/
-		_sentence += /*"some allies*/".\n\n\n";
+		_sentence += ".\n\n\n";
 	}
 
 	else if (_ambition == TypeOfAmbition::fear) {
 
 		_sentence += "The coward " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " has begun to destroy a " + ((UOEntity*)(_targetEdification->GetOwners()[0]))->GetRaceString() + "'s home.";
+			+ " began to destroy a " + ((UOEntity*)(_targetEdification->GetOwners()[0]))->GetRaceString() + "'s home.";
 
-			_sentence += " He/She hopes this will lead others to fear him.\n\n\n";
+			_sentence += " His/Her hope was that this would lead others to fear him.\n\n\n";
 	}
 }
 
@@ -242,7 +253,34 @@ void DestroyPlot::InitPlot() {
 	}
 }
 
-void DestroyPlot::ConsiderReactions() {
+BasePlot* DestroyPlot::ConsiderReactions() {
+
+	BasePlot* reaction = nullptr;
+	UOEntity* reactionEntity = nullptr;
+
+	for (UOEntity* e : _involvedInPlot) {
+
+		ORelation* relationWithMain = e->GetRelationWith(_plotEntity);
+		ORelation* relationWithOther = e->GetRelationWith(_targetEntity);
+
+		// SHOULD I VALUE RESPECT AND FEAR? 
+		if (relationWithMain && relationWithOther && relationWithOther->GetAppreciation() > relationWithMain->GetAppreciation()) {
+
+			DeleteFromInvolved(e);
+
+			if (!reactionEntity) {
+				reactionEntity = e;
+
+				if (e->GetPersonality()->GetAggressiveness() > 50)
+					reaction = new AmbushPlot(e, _plotEntity, _targetEdification, _targetEntity);
+				else
+					reaction = new DefendPlot(e, _plotEntity, _targetEdification, _targetEntity);
+			}
+			else if (reaction)
+				reaction->AddInvolvedInPlot(e);
+		}
+	}
+	return reaction;
 }
 
 UOEntity* DestroyPlot::GetTargetEntity() {
@@ -258,26 +296,24 @@ BuildPlot::BuildPlot(UOEntity* plotEntity, UOEdification* target, UItem* motivat
 	_targetEdification = target;
 	_isExclusive = false;
 	_motivation = motivation;
+	_ambition = TypeOfAmbition::noAmbition;
+}
+
+BuildPlot::BuildPlot(UOEntity* plotEntity, UOEdification* target, TypeOfAmbition ambition) : BasePlot(plotEntity) {
+
+	_targetEdification = target;
+	_isExclusive = false;
+	_motivation = nullptr;
+	_ambition = ambition;
 }
 
 BuildPlot::~BuildPlot() {}
 
 void BuildPlot::BuildSentence() {
 
-	_sentence += _identifier + "\n";
-
-	_sentence += "The unfortunate " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " is rebuilding his/her home, which was destroyed by the merciless " + ((UOEntity*)_motivation)->GetRaceString() + " " + _motivation->GetName();
-	/*_sentence += ".\nHe/She counts with the help of ";
-
-	if (_involvedInPlot.Num() > 0) {
-		for (int i = 0; i < _involvedInPlot.Num(); i++) {
-			_sentence += _involvedInPlot[i]->GetName();
-			if (i < _involvedInPlot.Num() - 1)
-				_sentence += ", ";
-		}
-		_sentence += " and ";
-	}*/
-	_sentence += /*"some allies*/".\n\n\n";
+	_sentence += _identifier;
+	_sentence += "The unfortunate " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " had to rebuild his/her home, which had been destroyed by the merciless " + ((UOEntity*)_motivation)->GetRaceString() + " " + _motivation->GetName();
+	_sentence += ".\n\n\n";
 }
 
 void BuildPlot::BuildGraph() {
@@ -310,13 +346,16 @@ void BuildPlot::BuildGraph() {
 
 void BuildPlot::InitPlot() {
 
-	_identifier = "Rebuild " + _plotEntity->GetName() + "'s home:\n";
+	_identifier = FString("Rebuild ") + _plotEntity->GetName() + FString("'s home:\n");
+		
 	BuildGraph();
 	BuildSentence();
 
 }
 
-void BuildPlot::ConsiderReactions() {}
+BasePlot* BuildPlot::ConsiderReactions() {
+	return nullptr;
+}
 
 UOEdification* BuildPlot::GetTargetEdification() {
 	return _targetEdification;
@@ -325,49 +364,43 @@ UOEdification* BuildPlot::GetTargetEdification() {
 
 // AMBUSH
 // ********************************************************************
-AmbushPlot::AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation) : BasePlot(plotEntity) {
+AmbushPlot::AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* target, UItem* motivation) : BasePlot(plotEntity) {
 
 	_targetEntity = targetEntity;
+	_target = target;
 	_isExclusive = true;
 	_motivation = motivation;
+	_ambition = TypeOfAmbition::noAmbition;
 }
 
-AmbushPlot::AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition) : BasePlot(plotEntity) {
+AmbushPlot::AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* target, TypeOfAmbition ambition) : BasePlot(plotEntity) {
 
 	_targetEntity = targetEntity;
+	_target = target;
 	_isExclusive = true;
 	_ambition = ambition;
+	_motivation = nullptr;
 }
 
 AmbushPlot::~AmbushPlot() {}
 
 void AmbushPlot::BuildSentence() {
 
-	_sentence += _identifier + ":\n";
+	_sentence += _identifier;
 
 	if (_motivation) {
 
-		_sentence += "The unfaithful " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " has commited traison and organized an ambush against the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetName()
-			+ ", who planned to attack his/her friend, the " + ((UOEntity*)_motivation)->GetRaceString() + " " + _motivation->GetName();
-
-		/*_sentence += ".\nHe/She counts with the help of ";
-
-		if (_involvedInPlot.Num() > 0) {
-			for (int i = 0; i < _involvedInPlot.Num(); i++) {
-				_sentence += _involvedInPlot[i]->GetName();
-				if (i < _involvedInPlot.Num() - 1)
-					_sentence += ", ";
-			}
-			_sentence += " and ";
-		}*/
-		_sentence += /*"some allies*/".\n\n\n";
+		_sentence += "The " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
+			+ " committed an act of treason and organized an ambush against the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetName()
+			+ ", who had planned to ";
+		_sentence += _target->IsA<UOEntity>() ? " attack his/her friend " + _target->GetName() : " destroy his/her friend's " + _target->GetName();
+		_sentence += ".\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::extermination) {
 
 		_sentence += "The astute " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " is assaulting " + _targetEntity->GetRaceString() + "s! "
-			+ "This time his/her victim has been the unfortunate" + _targetEntity->GetName() +
+			+ " assaulted the " + _targetEntity->GetRaceString() + "s! "
+			+ "This time his/her victim was the unfortunate" + _targetEntity->GetName() +
 			". He/she will go as far a neccesary to exterminate the race.\n\n\n";
 	}
 }
@@ -382,6 +415,12 @@ void AmbushPlot::BuildGraph() {
 	getNode->SetAffordableUse(OntologicFunctions::weapon);
 	_plotGraph.AddNode(getNode);
 
+	// ASK FOR HELP
+	Node* askForHelpNode = new Node();
+	askForHelpNode->SetHighPriority(true);
+	askForHelpNode->SetNodeType(NodeType::askForHelp);
+	_plotGraph.AddNode(askForHelpNode);
+
 	UOEntity* troll = UGameplayStatics::GetPlayerCharacter(_plotEntity->GetWorld(), 0)->FindComponentByClass<UOEntity>();
 	ORelation* relation = _plotEntity->GetRelationWith(troll);
 	if (relation && relation->GetAppreciation() > 50) {
@@ -393,16 +432,11 @@ void AmbushPlot::BuildGraph() {
 		_plotGraph.AddNode(askTrollForHelpNode);
 	}
 
-	//GO TO STRATEGIC LOCATION NEAR TO VICTIM
+	//GO TO ENEMY'S TARGET LOCATION
 	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goTo);
-	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation() - FVector(600, 600, 0));
+	goToNode->SetNodeType(NodeType::ambush);
+	goToNode->SetActor(_targetEntity->GetCurrentTarget());
 	_plotGraph.AddNode(goToNode);
-
-	Node* waitNode = new Node();
-	waitNode->SetNodeType(NodeType::wait);
-	waitNode->SetEntity(_targetEntity);
-	_plotGraph.AddNode(waitNode );
 
 	//ATTACK
 	Node* attackNode = new Node();
@@ -419,11 +453,16 @@ void AmbushPlot::InitPlot() {
 	BuildSentence();
 }
 
-void AmbushPlot::ConsiderReactions() {
+BasePlot* AmbushPlot::ConsiderReactions() {
+	return nullptr;
 }
 
 UOEntity* AmbushPlot::GetTargetEntity() {
 	return _targetEntity;
+}
+
+UItem* AmbushPlot::GetTarget() {
+	return _target;
 }
 
 
@@ -436,6 +475,7 @@ StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* ta
 	_targetEntity = targetEntity;
 	_motivation = motivation;
 	_isExclusive = true;
+	_ambition = TypeOfAmbition::noAmbition;
 }
 
 StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* target, TypeOfAmbition ambition) : BasePlot(plotEntity) {
@@ -444,22 +484,23 @@ StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* ta
 	_targetEntity = targetEntity;
 	_ambition = ambition;
 	_isExclusive = true;
+	_motivation = nullptr;
 }
 
 StealPlot::~StealPlot() {}
 
 void StealPlot::BuildSentence() {
 
-	_sentence += _identifier + "\n";
+	_sentence += _identifier;
 
 	if (_motivation) {
 		_sentence += "The vengeful " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " is stealing a " + _targetOwnable->GetName() + " from the " + _targetEntity->GetRaceString() +
-			" " + _targetEntity->GetName() + ", since it was also stolen from him/her.\n\n";
+			+ " stole a " + _targetOwnable->GetName() + " from the " + _targetEntity->GetRaceString() +
+			" " + _targetEntity->GetName() + ", since it was also stolen from him/her.\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::possessions) {
 		_sentence += "The materialistic " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " is stealing a precious " + _targetOwnable->GetName() + " from the " + _targetEntity->GetRaceString() +
+			+ " stole a precious " + _targetOwnable->GetName() + " from the " + _targetEntity->GetRaceString() +
 			" " + _targetEntity->GetName() + ", since his/her ambition in life is to own lots of valuable possessions.\n\n\n";
 	}
 }
@@ -492,12 +533,13 @@ void StealPlot::BuildGraph() {
 
 void StealPlot::InitPlot() {
 
-	_identifier = "Steal " + _targetEntity->GetName() + "'s " + _targetOwnable->GetName() + ":\n";
+	_identifier = "Steal " + _targetEntity->GetName() + "'s " + _targetOwnable->GetName() + "\n";
 	BuildGraph();
 	BuildSentence();
 }
 
-void StealPlot::ConsiderReactions() {
+BasePlot* StealPlot::ConsiderReactions() {
+	return nullptr;
 }
 
 UOEntity* StealPlot::GetTargetEntity() {
@@ -518,6 +560,7 @@ GetPlot::GetPlot(UOEntity* plotEntity, UOOwnable* target, UItem* motivation) : B
 	_targetOwnable = target;
 	_motivation = motivation;
 	_isExclusive = true;
+	_ambition = TypeOfAmbition::noAmbition;
 }
 
 GetPlot::GetPlot(UOEntity* plotEntity, UOOwnable* target, TypeOfAmbition ambition) : BasePlot(plotEntity) {
@@ -525,27 +568,28 @@ GetPlot::GetPlot(UOEntity* plotEntity, UOOwnable* target, TypeOfAmbition ambitio
 	_targetOwnable = target;
 	_ambition = ambition;
 	_isExclusive = true;
+	_motivation = nullptr;
 }
 
 GetPlot::~GetPlot() {}
 
 void GetPlot::BuildSentence() {
 
-	_sentence += _identifier + "\n";
+	_sentence += _identifier;
 
 	if (_motivation) {
 		_sentence += "The " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " is in need of a " + _targetOwnable->GetName()
-			+ ". He/she is trasversing the land to get it.\n\n";
+			+ " was in need of a " + _targetOwnable->GetName()
+			+ ". He/she trasversed the land to get it.\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::possessions) {
 		_sentence += "The materialistic " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " is embarking on an adventure to find a precious " + _targetOwnable->GetName() +
+			+ " embarked on an adventure to find a precious " + _targetOwnable->GetName() +
 			", since his/her ambition in life is to own lots of valuable possessions.\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::appreciation) {
 		_sentence += "The materialistic " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " is embarking on an adventure to find a precious " + _targetOwnable->GetName() +
+			+ " embarked on an adventure to find a precious " + _targetOwnable->GetName() +
 			". It is for someone he/she wants to be noticed by.\n\n\n";
 	}
 }
@@ -586,7 +630,8 @@ void GetPlot::InitPlot() {
 	BuildSentence();
 }
 
-void GetPlot::ConsiderReactions() {
+BasePlot* GetPlot::ConsiderReactions() {
+	return nullptr;
 }
 
 UOOwnable* GetPlot::GetTargetOwnable() {
@@ -601,6 +646,7 @@ HelpPlot::HelpPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivati
 	_targetEntity = targetEntity;
 	_isExclusive = true;
 	_motivation = motivation;
+	_ambition = TypeOfAmbition::noAmbition;
 }
 
 HelpPlot::HelpPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition) : BasePlot(plotEntity) {
@@ -608,6 +654,7 @@ HelpPlot::HelpPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition 
 	_targetEntity = targetEntity;
 	_isExclusive = true;
 	_ambition = ambition;
+	_motivation = nullptr;
 }
 
 HelpPlot::~HelpPlot() {}
@@ -617,25 +664,29 @@ void HelpPlot::BuildSentence() {
 	_sentence += _identifier + "\n";
 
 	if (_motivation) {
+		
+		_sentence += "The kind " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
+			+ " did his/her best to help the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetName()
+			+ ", since he/she was really helpful to him/her in the past.\n\n\n";
 	}
 
 	else if (_ambition == TypeOfAmbition::appreciation) {
 
 		_sentence += "The kind " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " is doing his/her best to help the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetName()
+			+ " did his/her best to help the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetName()
 			+ ", since he/she would like to be more appreciated by him/her.\n\n\n";
 	}
 
 	else if (_ambition == TypeOfAmbition::notoriety) {
 
 		_sentence += "The kind " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ " is doing his/her best to help the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetName()
+			+ " did his/her best to help the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetName()
 			+ ", since he/she is highly notorious in society. Maybe one day he/she'll get to be like him/her.\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::friendTroll) {
 
 		_sentence += "The curious " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName()
-			+ "wants to be the troll's friend! He/She's following him around to learn from him and "
+			+ "wants to be the troll's friend! He/She's started following him around to learn from him and "
 			+ "maybe, someday, do something useful for him.\n\n\n.";
 	}
 }
@@ -662,98 +713,19 @@ void HelpPlot::BuildGraph() {
 
 void HelpPlot::InitPlot() {
 
-	_identifier = "The " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() +
-		"wants to help!:\n";
+	_identifier = "The " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " wants to help!:\n";
 
 	BuildGraph();
 	BuildSentence();
 }
 
-void HelpPlot::ConsiderReactions() {
+BasePlot* HelpPlot::ConsiderReactions() {
+	return nullptr;
 }
 
 UOEntity* HelpPlot::GetTargetEntity() {
 	return _targetEntity;
 }
-
-
-//STAMPEDE
-//*************************************************************************************
-
-Stampede::Stampede(ERace race, FVector spawnLocation, FVector targetLocation, float num, APlotGenerator* plotGenerator) {
-
-	_race = race;
-	_spawnLocation = spawnLocation;
-	_targetLocation = targetLocation;
-	_plotGenerator = plotGenerator;
-	_num = num;
-	_targetActor = nullptr;
-}
-
-Stampede::Stampede(ERace race, FVector spawnLocation, UOEntity* targetActor, float num, APlotGenerator* plotGenerator) {
-
-	_race = race;
-	_spawnLocation = spawnLocation;
-	_targetActor = targetActor;
-	_plotGenerator = plotGenerator;
-	_num = num;
-}
-
-Stampede::~Stampede() {}
-
-void Stampede::BuildSentence() {
-
-	_sentence += _identifier + "\n";
-	_sentence += "A stampede of beasts is approaching!\n\n\n";
-}
-
-void Stampede::BuildGraph() {
-
-	_plotGraph = Graph();
-
-	if (_targetActor) {
-		//GO TO ACTOR
-		Node* goToNode = new Node();
-		goToNode->SetNodeType(NodeType::goToItem);
-		goToNode->SetActor(_targetActor->GetOwner());
-		_plotGraph.AddNode(goToNode);
-
-	}
-	else {
-		//GO TO LOCATION
-		Node* goToNode = new Node();
-		goToNode->SetNodeType(NodeType::goTo);
-		goToNode->SetPosition(_targetLocation * FVector(1, 1, 0));
-		_plotGraph.AddNode(goToNode);
-	}
-
-
-	/*//RETURN TO LOCATION
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goTo);
-	goToNode->SetPosition(_spawnLocation * FVector(1, 1, 0));
-	_plotGraph.AddNode(goToNode);*/
-}
-
-void Stampede::InitPlot() {
-
-	_identifier = "Stampede:\n";
-	BuildGraph();
-
-	_heard = _plotGenerator->SpawnEntities(_num, _race);
-
-	for (int i = 0; i < _heard.size(); i++) {
-
-		_heard[i]->SetIdleGraph(&_plotGraph);
-		_heard[i]->RethinkState();
-	}
-
-	BuildSentence();
-}
-
-void Stampede::ConsiderReactions() {}
-
-
 
 
 //GIVE PLOT
@@ -765,6 +737,7 @@ GivePlot::GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what, UIte
 	_targetOwnable = what;
 	_isExclusive = true;
 	_motivation = motivation;
+	_ambition = TypeOfAmbition::noAmbition;
 }
 
 GivePlot::GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what, TypeOfAmbition ambition) : BasePlot(plotEntity) {
@@ -773,13 +746,14 @@ GivePlot::GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what, Type
 	_targetOwnable = what;
 	_isExclusive = true;
 	_ambition = ambition;
+	_motivation = nullptr;
 }
 
 GivePlot::~GivePlot() {}
 
 void GivePlot::BuildSentence() {
 
-	_sentence += _identifier + "\n";
+	_sentence += _identifier;
 
 	if (_motivation) {
 
@@ -791,13 +765,13 @@ void GivePlot::BuildSentence() {
 		_sentence += "The generours: " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " is giving a precious " + _targetOwnable->GetName() + " to the " +
 			_targetEntity->GetRaceString() + " " + _targetEntity->GetName() + ", since he/she feels he/she would like to be more appreciated by others.\n\n\n";
 	}
-
-
 }
 
 void GivePlot::BuildGraph() {
 
 	_plotGraph = Graph();
+
+	//INSERT GET IF NOT IN INVENTORY OR GRABBED//
 
 	//GO TO TARGET
 	Node* goToNode = new Node();
@@ -820,34 +794,239 @@ void GivePlot::InitPlot() {
 	BuildSentence();
 }
 
-void GivePlot::ConsiderReactions() {
+BasePlot* GivePlot::ConsiderReactions() {
+	return nullptr;
+}
+
+UOEntity* GivePlot::GetTargetEntity() {
+	return _targetEntity;
+}
+
+UOOwnable* GivePlot::GetTargetOwnable() {
+	return _targetOwnable;
 }
 
 
-//GATHER PLOT
+//DEFEND PLOT
 //**************************************************************************************
-/*
-GatherPlot::GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource) : BasePlot(plotEntity) {
 
-	_targetResource = targetResource;
-	_isExclusive = false;
+DefendPlot::DefendPlot(UOEntity* plotEntity, UOEntity* against, UItem* target, UItem* motivation) : BasePlot(plotEntity) {
+
+	_target = target;
+	_against = against;
+	_motivation = motivation;
+	_ambition = TypeOfAmbition::noAmbition;
+	_isExclusive = true;
+}
+
+DefendPlot::~DefendPlot() {}
+
+void DefendPlot::BuildSentence() {
+
+	_sentence += _identifier;
+
+	if (_motivation) {
+
+		_sentence += "And when everything seemed to be lost for the " + ((UOEntity*)_motivation)->GetRaceString() + " " + ((UOEntity*)_motivation)->GetName() +
+			", his/her astute and preventive friend " + _plotEntity->GetRaceString() + " " + _plotEntity->GetName() + " came up with a defensive strategy to protect " ;
+		_sentence += _target->IsA<UOEntity>() ? + "him/her " + _target->GetName() : + "his/her "  +_target->GetName() + " from the "
+			+ _against->GetRaceString() + " " + _against->GetName();
+			
+		_sentence += ".\n\n\n";
+			
+	}
+}
+
+void DefendPlot::BuildGraph() {
+
+	_plotGraph = Graph();
+
+	// ASK FOR HELP
+	Node* askForHelpNode = new Node();
+	askForHelpNode->SetHighPriority(true);
+	askForHelpNode->SetNodeType(NodeType::askForHelp);
+	_plotGraph.AddNode(askForHelpNode);
+
+	//GO TO TARGET
+	Node* goToNode = new Node();
+	goToNode->SetNodeType(NodeType::goToItem);
+	goToNode->SetActor(_target->GetOwner());
+	_plotGraph.AddNode(goToNode);
+
+	//GIVE
+	Node* defendNode = new Node();
+	defendNode->SetNodeType(NodeType::defend);
+	defendNode->SetFloatKey(5);
+	defendNode->SetActor(_against->GetOwner());
+	_plotGraph.AddNode(defendNode);
+}
+
+void DefendPlot::InitPlot() {
+
+	_identifier = "Defend for " + ((UOEntity*)_motivation)->GetRaceString() + " " + ((UOEntity*)_motivation)->GetName() + ":\n";
 
 	BuildGraph();
+	BuildSentence();
 }
 
-GatherPlot::~GatherPlot() {}
-
-void GatherPlot::BuildSentence() {
-	_sentence = TCHAR_TO_UTF8(*("Entity " + _plotEntity->GetOwner()->GetActorLabel() + " is gathering " + _targetResource->GetOwner()->GetActorLabel()));
+BasePlot* DefendPlot::ConsiderReactions() {
+	return nullptr;
 }
 
-void GatherPlot::BuildGraph() {
 
+
+//STAMPEDE
+//*************************************************************************************
+
+Stampede::Stampede(ERace race, FVector spawnLocation, FVector targetLocation, float num, APlotGenerator* plotGenerator) {
+
+	_race = race;
+	_spawnLocation = spawnLocation;
+	_targetLocation = targetLocation;
+	_plotGenerator = plotGenerator;
+	_num = num;
+	_targetActor = nullptr;
+
+	_motivation = nullptr;
+	_ambition = TypeOfAmbition::noAmbition;
 }
 
-void GatherPlot::ConsiderReactions() {
+Stampede::Stampede(ERace race, FVector spawnLocation, UOEntity* targetActor, float num, APlotGenerator* plotGenerator) {
+
+	_race = race;
+	_spawnLocation = spawnLocation;
+	_targetActor = targetActor;
+	_plotGenerator = plotGenerator;
+	_num = num;
+
+	_motivation = nullptr;
+	_ambition = TypeOfAmbition::noAmbition;
 }
-*/
+
+Stampede::~Stampede() {}
+
+void Stampede::BuildSentence() {
+
+	_sentence += _identifier;
+	_sentence += "And suddenly, a stampede of beasts could be seen in the distance!\n\n\n";
+}
+
+void Stampede::BuildGraph() {
+
+	_plotGraph = Graph();
+
+	if (_targetActor) {
+		//GO TO ACTOR
+		Node* goToNode = new Node();
+		goToNode->SetNodeType(NodeType::goToItem);
+		goToNode->SetActor(_targetActor->GetOwner());
+		_plotGraph.AddNode(goToNode);
+
+	}
+	else {
+		//GO TO LOCATION
+		Node* goToNode = new Node();
+		goToNode->SetNodeType(NodeType::goTo);
+		goToNode->SetPosition(_targetLocation * FVector(1, 1, 0));
+		_plotGraph.AddNode(goToNode);
+	}
+
+	// DESTROY WHEN FINISHED
+	Node* destroySelfNode = new Node();
+	destroySelfNode->SetNodeType(NodeType::destroySelf);
+	_plotGraph.AddNode(destroySelfNode);
+}
+
+void Stampede::InitPlot() {
+
+	_identifier = "Stampede:\n";
+	BuildGraph();
+
+	_heard = _plotGenerator->SpawnEntities(_num, _race);
+
+	for (int i = 0; i < _heard.size(); i++) {
+
+		_heard[i]->SetIdleGraph(&_plotGraph);
+		_heard[i]->RethinkState();
+	}
+
+	BuildSentence();
+}
+
+BasePlot* Stampede::ConsiderReactions() {
+	return nullptr;
+}
+
+
+// WAR
+//*************************************************************************************
+
+WarPlot::WarPlot(UOEntity* plotEntity) : BasePlot(plotEntity) {
+
+	_plotEntity = plotEntity;
+	_motivation = nullptr;
+	_ambition = TypeOfAmbition::noAmbition;
+
+	_targetEntity = _plotEntity->GetMostHated();
+}
+
+WarPlot::~WarPlot() {}
+
+void WarPlot::BuildSentence() {
+
+	_sentence += _identifier;
+	_sentence += "Goblins and humans had been in conflict for over a hundred years, but things had gone too far.\nIt was time for war.\n\n\n";
+}
+
+void WarPlot::BuildGraph() {
+
+	_plotGraph = Graph();
+
+	Node* askForHelpNode = new Node();
+	askForHelpNode->SetHighPriority(true);
+	askForHelpNode->SetNodeType(NodeType::askForHelp);
+	_plotGraph.AddNode(askForHelpNode);
+
+	//GET WEAPON
+	Node* getNode = new Node();
+	getNode->SetHighPriority(true);
+	getNode->SetNodeType(NodeType::get);
+	getNode->SetAffordableUse(OntologicFunctions::weapon);
+	_plotGraph.AddNode(getNode);
+
+	//GO TO MOST HATED
+	Node* goToNode = new Node();
+	goToNode->SetHighPriority(true);
+	goToNode->SetNodeType(NodeType::goToItem);
+	goToNode->SetActor(_targetEntity->GetOwner());
+	_plotGraph.AddNode(goToNode);
+
+	//ATTACK
+	Node* attackNode = new Node();
+	attackNode->SetHighPriority(true);
+	attackNode->SetNodeType(NodeType::attack);
+	attackNode->SetHighPriority(true);
+	attackNode->SetEntity(_targetEntity);
+	_plotGraph.AddNode(attackNode);
+}
+
+void WarPlot::InitPlot() {
+
+	_identifier = "War:\n";
+	BuildGraph();
+	BuildSentence();
+}
+
+BasePlot*  WarPlot::ConsiderReactions() {
+	return nullptr;
+}
+
+UOEntity* WarPlot::GetTargetEntity() {
+	return _targetEntity;
+}
+
+
+
 
 
 

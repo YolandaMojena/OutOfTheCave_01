@@ -11,7 +11,6 @@
 #include <string>
 #include <cstdlib>
 
-
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -65,6 +64,7 @@ public:
 	vector<BasePlot*> GetCurrentPlots();
 	BasePlot* GetCurrentPlot();
 	void AddCurrentPlot(BasePlot* bp);
+	void AddCurrentPlotWithPriority(BasePlot* bp);
 
 	UOEntity();
 	UOEntity(OPersonality* personality);
@@ -172,6 +172,11 @@ public:
 	void SetRace(ERace race);
 	EJob GetJob();
 	void SetJob(EJob);
+	AActor* GetCurrentTarget();
+	void SetCurrentTarget(AActor* item);
+	float GetAppreciationToOtherRace();
+	UOEntity* GetMostHated();
+	
 
 	void SetAIController(AEntityAIController* eaic);
 	void SetPlotGenerator();
@@ -206,8 +211,6 @@ public:
 	UFUNCTION()
 		void OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	
-
 	float _currentTime = 10;
 	
 protected:
@@ -230,6 +233,8 @@ protected:
 	Graph _brain;
 	Graph* _idleGraph;
 	AEntityAIController* _entityAIController;
+	AActor* _currentTarget;
+	UOEntity* _mostHatedEntity;
 
 	vector<ORelation*> _relationships;
 	vector<UOEntity*> _potentialRelationships;

@@ -31,7 +31,7 @@ BasePlot * Ambition::GenerateAmbitionForEntity(UOEntity * entity)
 		vector<BasePlot*> candidates;
 
 		//POSSESSIONS
-		if (entPersonality->GetMaterialist() > 50 /*&& entPersonality->GetCurious() > 50*/)
+		if (entPersonality->GetMaterialist() > 50 && entPersonality->GetCurious() > 50)
 			candidates.push_back(GetPosessionsAmbition(entity));
 
 		//EXTERMINATE
@@ -51,7 +51,7 @@ BasePlot * Ambition::GenerateAmbitionForEntity(UOEntity * entity)
 			candidates.push_back(BecomeFearedAmbition(entity));
 
 		//FRIEND TROLL
-		if (entPersonality->GetSocial() < 50 /*&& entPersonality->GetCurious() > 25*/)
+		if (entPersonality->GetSocial() < 50 && entPersonality->GetCurious() > 25)
 			candidates.push_back(FriendTrollAmbition(entity));
 
 		if (candidates.size() > 0) {
@@ -143,10 +143,7 @@ BasePlot * Ambition::ExterminateAmbition(UOEntity * entity)
 
 	vector<UOEntity*> targetEntities = _plotGenerator->GetNotoriousEntitiesByRace(targetRace);
 
-	if (targetEntities.size() > 0) {
-		//if (entity->GetPersonality()->GetAstute() > 50)
-		//return new AmbushPlot(entity, targetEntities[targetEntities.size() - 1], TypeOfAmbition::extermination);
-		//else
+	if (targetEntities.size() > 0) {	
 		return new AttackPlot(entity, targetEntities[targetEntities.size() - 1], TypeOfAmbition::extermination);
 	}
 	return nullptr;	
@@ -198,8 +195,8 @@ BasePlot * Ambition::BecomeAppreciatedAmbition(UOEntity * entity)
 				}
 				if (ownableToGive)
 					return new GetPlot(entity, ownableToGive, TypeOfAmbition::appreciation);
-				else
-					return new HelpPlot(entity, targetEntities[0], TypeOfAmbition::appreciation);
+				//else
+					//return new HelpPlot(entity, targetEntities[0], TypeOfAmbition::appreciation);
 			}
 		}
 		else

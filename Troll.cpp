@@ -44,7 +44,7 @@ ATroll::ATroll(const FObjectInitializer& ObjectInitializer)
 	secondaryHandCollider->SetStaticMesh(AssetSM_JoyControl);
 	secondaryHandCollider->AttachParent = GetMesh();
 	secondaryHandCollider->AttachSocketName = "secondarySocket";
-	secondaryHandCollider->bGenerateOverlapEvents = true;
+	//secondaryHandCollider->bGenerateOverlapEvents = true;
 
 	HitFunc.BindUFunction(this, "OnOverlapBegin");
 	mainHandCollider->OnComponentBeginOverlap.Add(HitFunc);
@@ -175,7 +175,7 @@ void ATroll::PickUpMain() {
 	if (!_equipedMain) {
 
 		FVector Start = GetActorLocation() /*- FVector(0, 0, GetActorLocation().Z + _PICK_UP_RADIO) + GetActorRotation().Vector() * _PICK_UP_RADIO*/;
-		FVector End = Start + /*FVector(0, 0, _PICK_UP_RADIO * 2)*/ GetActorRotation().Vector() * _PICK_UP_RADIO *2;
+		FVector End = Start - /*FVector(0, 0, _PICK_UP_RADIO * 2)*/ GetActorRotation().Vector() * _PICK_UP_RADIO *2;
 		FHitResult HitData(ForceInit);
 
 		FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
@@ -194,7 +194,7 @@ void ATroll::PickUpMain() {
 			);
 
 		// if hit, assign actor to main weapon and add overlap event
-		if (HitData.bBlockingHit && !_myEntityComp->GetEdificationComponent(HitData.GetActor())) {
+		if (HitData.bBlockingHit && !HitData.GetActor()->FindComponentByClass<UOEdification>()) {
 
 			//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
 
@@ -202,9 +202,9 @@ void ATroll::PickUpMain() {
 			_mainRotation = _mainWeapon->GetActorRotation();
 			_mainZ = _mainWeapon->GetActorLocation().Z;
 
-			if (_myEntityComp->GetEntityComponent(HitData.GetActor())) {
+			if (_mainWeapon->FindComponentByClass<UOEntity>()) {
 
-				UOEntity* hitEntity = _myEntityComp->GetEntityComponent(_mainWeapon);
+				UOEntity* hitEntity = _mainWeapon->FindComponentByClass<UOEntity>();
 
 				if (!hitEntity->GetIsNumb()) {
 
@@ -218,7 +218,9 @@ void ATroll::PickUpMain() {
 
 			_mainWeapon->SetActorEnableCollision(false);
 			AttachToSocket(_mainWeapon, "mainSocket");
+			_mainWeapon->UpdateOverlaps(true);
 			_mainWeapon->OnActorBeginOverlap.Add(HitFunc);
+
 			_equipedMain = true;
 		}
 	}
@@ -227,9 +229,9 @@ void ATroll::PickUpMain() {
 		_mainWeapon->OnActorBeginOverlap.Remove(HitFunc);
 		_mainWeapon->DetachRootComponentFromParent(true);
 
-		if (_myEntityComp->GetEntityComponent(_mainWeapon)) {
+		if (_mainWeapon->FindComponentByClass<UOEntity>()) {
 
-			UOEntity* hitEntity = _myEntityComp->GetEntityComponent(_mainWeapon);
+			UOEntity* hitEntity = _mainWeapon->FindComponentByClass<UOEntity>();
 			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
 
 			weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
@@ -249,7 +251,7 @@ void ATroll::PickUpSecondary() {
 	if (!_equipedSecondary) {
 
 		FVector Start = GetActorLocation() /*- FVector(0, 0, GetActorLocation().Z + _PICK_UP_RADIO) + GetActorRotation().Vector() * _PICK_UP_RADIO*/;
-		FVector End = Start + /*FVector(0, 0, _PICK_UP_RADIO * 2)*/ GetActorRotation().Vector() * _PICK_UP_RADIO * 2;
+		FVector End = Start - /*FVector(0, 0, _PICK_UP_RADIO * 2)*/ GetActorRotation().Vector() * _PICK_UP_RADIO * 2;
 		FHitResult HitData(ForceInit);
 
 		FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
@@ -268,16 +270,16 @@ void ATroll::PickUpSecondary() {
 			);
 
 		// if hit, assign actor to secondary weapon and add overlap event
-		if (HitData.bBlockingHit && !_myEntityComp->GetEdificationComponent(HitData.GetActor())) {
+		if (HitData.bBlockingHit && !HitData.GetActor()->FindComponentByClass<UOEdification>()) {
 			//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
 
 			_secondaryWeapon = HitData.GetActor();
 			_secondaryRotation = _secondaryWeapon->GetActorRotation();
 			_secondaryZ = _secondaryWeapon->GetActorLocation().Z;
 
-			if (_myEntityComp->GetEntityComponent(HitData.GetActor())) {
+			if (_secondaryWeapon->FindComponentByClass<UOEntity>()) {
 
-				UOEntity* hitEntity = _myEntityComp->GetEntityComponent(_secondaryWeapon);
+				UOEntity* hitEntity = _secondaryWeapon->FindComponentByClass<UOEntity>();
 
 				if (!hitEntity->GetIsNumb()) {
 
@@ -299,9 +301,9 @@ void ATroll::PickUpSecondary() {
 		_secondaryWeapon->OnActorBeginOverlap.Remove(HitFunc);
 		_secondaryWeapon->DetachRootComponentFromParent(true);
 
-		if (_myEntityComp->GetEntityComponent(_secondaryWeapon)) {
+		if (_secondaryWeapon->FindComponentByClass<UOEntity>()) {
 
-			UOEntity* hitEntity = _myEntityComp->GetEntityComponent(_secondaryWeapon);
+			UOEntity* hitEntity = _secondaryWeapon->FindComponentByClass<UOEntity>();
 			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_secondaryWeapon);
 
 			weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
@@ -342,18 +344,17 @@ void ATroll::AttachToSocket(AActor* target, string socket) {
 void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
 
 	UOEdification* edificationComp = OtherActor->FindComponentByClass<UOEdification>();
-	UOEntity* hitEntity = _myEntityComp->GetEntityComponent(OtherActor);
+	UOEntity* hitEntity = OtherActor->FindComponentByClass<UOEntity>();
 
 	if (edificationComp /*&& _isAttacking*/ && /*!edificationComp->GetIsDestroyed() &&*/ _canDamage && !_victims.Contains(edificationComp->GetOwner())){
 
-		//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("HIt"));
+		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("HIt"));
 		_victims.Add(edificationComp->GetOwner());
 
 		edificationComp->ReceiveDamage(_TROLL_DMG, FindComponentByClass<UOEntity>());
 		UDestructibleComponent* targetDestructible = OtherActor->FindComponentByClass<UDestructibleComponent>();
 
 		if (targetDestructible) {
-
 			//MUST DEPEND ON DAMAGE
 			targetDestructible->ApplyRadiusDamage(20, GetMesh()->GetSocketLocation("MainSocket"), 50, 0.01, false);
 		}
@@ -373,21 +374,6 @@ void ATroll::RebuildEdification() {
 		ARebuildableEdification* edification = *ActorItr;
 		if(edification) edification->RebuildEdification();
 	}
-}
-
-void ATroll::TestReadWriteFile(){
-
-	//FString SaveDirectory = FString("C:\\Users\\Yolanda\\Desktop\\SavedFiles");
-	FString FileName = FString("TestFile.txt");
-	FString TextToSave = FString("Lorem ipsum");
-	FString SaveDirectory = FPaths::GameDir() + "Content/";
-
-	//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, FPaths::GameDir());
-
-	//Utilities::VerifyOrCreateDirectory(SaveDirectory);
-	//Utilities::SaveStringToFile(TextToSave + "\n", SaveDirectory, FileName, true);
-
-	//TArray<FString> test = Utilities::ReadFileToVector(SaveDirectory, "OOTC_femaleNames.txt");
 }
 
 

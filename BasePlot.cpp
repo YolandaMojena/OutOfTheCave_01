@@ -2,6 +2,7 @@
 
 #include "OutOfTheCave_01.h"
 #include "Ontology/OEntity.h"
+#include "NarrativeGeneration/PlotGenerator.h"
 #include "BasePlot.h"
 
 BasePlot::BasePlot(UOEntity* plotEntity) {
@@ -14,10 +15,21 @@ BasePlot::BasePlot() {}
 BasePlot::~BasePlot() {}
 
 
-void BasePlot::PrintSentence() {
+void BasePlot::PrintSentence(APlotGenerator* plotGenerator, UItem* motivation, TypeOfAmbition ambition) {
 
 	// Print on screen
 	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, _sentence);
+	plotGenerator->SetCurrentPlotString(FString(*(_sentence)));
+
+	if(motivation == nullptr && ambition == TypeOfAmbition::noAmbition)
+		plotGenerator->SetCurrentPlotTypeColor(FLinearColor::Red);
+
+	else if (motivation && ambition == TypeOfAmbition::noAmbition) {
+		plotGenerator->SetCurrentPlotTypeColor(FLinearColor::Black);
+	}
+	else if(ambition!=TypeOfAmbition::noAmbition)
+		plotGenerator->SetCurrentPlotTypeColor(FLinearColor::White);
+
 }
 
 void BasePlot::AddInvolvedInPlot(UOEntity * entity)
@@ -26,6 +38,7 @@ void BasePlot::AddInvolvedInPlot(UOEntity * entity)
 }
 
 void BasePlot::DeleteFromInvolved(UOEntity* entity) {
+
 	_involvedInPlot.Remove(entity);
 }
 
@@ -61,5 +74,18 @@ UItem* BasePlot::GetPlotMotivation() {
 }
 
 TypeOfAmbition BasePlot::GetPlotTypeOfAmbition() {
+	return _ambition;
+}
+
+FString BasePlot::GetSentence() {
+	return FString(*(_sentence));
+}
+
+UItem* BasePlot::GetMotivation() {
+	return _motivation;
+}
+
+
+TypeOfAmbition BasePlot::GetAmbition() {
 	return _ambition;
 }

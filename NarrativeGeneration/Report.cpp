@@ -26,10 +26,11 @@ Report::Report(OOwnership* newOwnership, TypeOfPlot type, UItem* motivation)
 	_tag = ReportTag::ownership;
 }
 
-//Temporal constructor for world events
-Report::Report(UOEntity * reportEntity)
+//Constructor for world events
+Report::Report(UOEntity* entity, TypeOfPlot type, UItem* motivation)
 {
-	_reportEntity = reportEntity;
+	_reportEntity = entity;
+	_type = type;
 	_tag = ReportTag::world;
 }
 
@@ -40,6 +41,32 @@ Report::~Report()
 void Report::SaveReportToFile(const FString SaveDirectory, const FString FileName)
 {
 	FString report;
+
+	switch (_type) {
+	case TypeOfPlot::aggressive:
+		report += "Report type: aggressive\n";
+		break;
+
+	case TypeOfPlot::possessive:
+		report += "Report type: possessive\n";
+		break;
+
+	case TypeOfPlot::resources:
+		report += "Report type: resources\n";
+		break;
+
+	case TypeOfPlot::thankful:
+		report += "Report type: thankful\n";
+		break;
+
+	case TypeOfPlot::preventive:
+		report += "Report type: preventive\n";
+		break;
+
+	case TypeOfPlot::world:
+		report += "Report type: world\n";
+		break;
+	}
 
 	if (GetTag() == Report::ReportTag::relation) {
 
@@ -59,30 +86,9 @@ void Report::SaveReportToFile(const FString SaveDirectory, const FString FileNam
 		report += "Motivation: " + GetMotivation()->GetOwner()->GetActorLabel() + "\n";
 		//report += "Report type: " + FindObject<UEnum>(ANY_PACKAGE, TEXT("TypeOfPlot"), true)->GetEnumName((int32)_type);
 	}
+	else report += "Massive change in world state report\n";
 
-	switch (_type) {
-	case TypeOfPlot::aggressive:
-		report += "Report type: aggressive";
-		break;
-
-	case TypeOfPlot::possessive:
-		report += "Report type: possessive";
-		break;
-
-	case TypeOfPlot::resources:
-		report += "Report type: resources";
-		break;
-
-	case TypeOfPlot::thankful:
-		report += "Report type: thankful";
-		break;
-
-	case TypeOfPlot::preventive:
-		report += "Report type: preventive";
-		break;
-	}
-
-	report += "\n\n\n";
+	report += ".\n\n\n";
 	Utilities::SaveStringToFile(report, SaveDirectory, FileName);
 }
 

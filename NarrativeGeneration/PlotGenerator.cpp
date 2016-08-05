@@ -14,6 +14,13 @@ APlotGenerator::APlotGenerator()
 	if (BearBlueprint.Object) {
 		BP_Bear = (UClass*)BearBlueprint.Object->GeneratedClass;
 	}
+
+	// Associates types of plots with identifiers
+	_plotDictionary = { { TypeOfPlot::aggressive,{ _ATTACK_PLOT, _DESTROY_PLOT } },
+	{ TypeOfPlot::resources,{ _BUILD_PLOT } },
+	{ TypeOfPlot::possessive ,{ _ROBBERY_PLOT } },
+	{ TypeOfPlot::thankful,{ _GIVE_PLOT, _HELP_PLOT } },
+	{ TypeOfPlot::world,{ _WAR_PLOT } } };
 }
 
 // Called when the game starts or when spawned
@@ -21,10 +28,14 @@ void APlotGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// HARD CODED
+	// FOREST
+	_stampedeSpawnArea = FVector(4000, 10000, 0);
+
 	//INSERT WORLD PLOTS FROM THE BEGINNING
-	//INITIAL POSITION HARDCODED -> FIX 
-	_worldPlots.push_back(new Stampede(ERace::R_Bear, FVector(16000, 5000, 0), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), rand() % 10 + 5, this));
-	//_worldPlots.push_back(new Stampede(ERace::R_Bear, FVector(16000, 5000, 0), FVector(1100, 13700, 0), rand() % 10 + 5, this));
+	//_worldPlots.push_back(new Stampede(ERace::R_Bear, _stampedeSpawnArea + RandomDisplacement(2500), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), rand() % 8 + 5, this));
+
+	_worldPlots.push_back(new Stampede(ERace::R_Bear, _stampedeSpawnArea + RandomDisplacement(2500), _stampedeSpawnArea + FVector(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation() - _stampedeSpawnArea).GetSafeNormal() * 12000, rand() % 8 + 5, this));
 }
 
 // Called every frame
@@ -40,34 +51,33 @@ void APlotGenerator::Tick( float DeltaTime )
 	else {
 		if (_currentPlotsInAction <= _MAX_PLOTS) {
 
-			if (rand() % 100 <= 25 + (25 * _MAX_PLOTS - _currentPlotsInAction) ) {
+			if (rand() % 100 < 25 + (25 * _MAX_PLOTS - _currentPlotsInAction)) {
 
 				if (_reactivePlots.empty()) {
 					GetPlotFromReportLog();
 				}
 				if (_reactivePlots.size() > 0) {
-					//_reactivePlots[0]->PrintSentence();
 					SpawnReactivePlot();
-					_timeToSpawnPlot = 0;
 				}
 			}
-			if (rand() % 100 <= (25 /(_currentPlotsInAction + 1))) {
+			else if (rand() % 100 < (20 / (_currentPlotsInAction + 1)) && _currentPlotsInAction <= _MAX_PLOTS) {
 
 				SpawnAmbitionPlot();
-				_timeToSpawnPlot = 0;
 			}
-			else if (rand() % 100 <= 2) {
+
+			else if (rand() % 100 < 5 && _currentPlotsInAction <= _MAX_PLOTS) {
 				SpawnWorldPlot();
 				_timeToSpawnPlot = 0;
 			}
+
 		}
+		else _timeToSpawnPlot = 0;
 	}
 }
 
 void APlotGenerator::ChangeCurrentPlotsInAction(int dif)
 {
 	_currentPlotsInAction += dif;
-
 	if (_currentPlotsInAction < 0) _currentPlotsInAction = 0;
 }
 
@@ -77,13 +87,12 @@ bool APlotGenerator::SpawnReactivePlot()
 
 		BasePlot* currentPlot = _reactivePlots.at(0);
 		_reactivePlots.erase(_reactivePlots.begin());
+		_currentPlotsInAction++;
 
 		UOEntity* plotEntity = currentPlot->GetMainEntity();
 		if (plotEntity) {
 			plotEntity->AddCurrentPlot(currentPlot);
-			//plotEntity->SetState(UOEntity::State::plot);
 			plotEntity->RethinkState();
-			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnReactive!"));
 		}
 		return true;
 	}
@@ -100,10 +109,10 @@ bool APlotGenerator::SpawnAmbitionPlot()
 		BasePlot* ambitionPlot = ambition.GenerateAmbitionForEntity(entity);
 
 		if (ambitionPlot) {
+			_currentPlotsInAction++;
 			ambitionPlot->InitPlot();
 			entity->AddCurrentPlot(ambitionPlot);
 			entity->RethinkState();
-			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Green, TEXT("SpawnAmbition"));
 			return true;
 		}
 		else return false;
@@ -116,7 +125,7 @@ bool APlotGenerator::SpawnWorldPlot()
 	int randPlot = rand()% _worldPlots.size();
 	_worldPlots[randPlot]->InitPlot();
 	_worldPlots[randPlot]->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
-	_worldPlots[randPlot]->PrintSentence();
+	_worldPlots[randPlot]->PrintSentence(this, nullptr, TypeOfAmbition::noAmbition);
 
 	return true;
 }
@@ -158,7 +167,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 
 		Report* currentReport;
 		_pReportLog.HeapPop(currentReport, Report::ReportNotoriety());
-		vector<string> plotCandidates = plotDictionary.GetPlotsOfType(currentReport->GetType());
+		vector<string> plotCandidates = GetPlotsOfType(currentReport->GetType());
 
 		bool plotIsValid = false;
 		BasePlot* newPlot = nullptr;
@@ -168,7 +177,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 			int randType = rand() % plotCandidates.size();
 			string plot = plotCandidates[randType];
 
-			if (plot == strings.ATTACK_PLOT) {
+			if (plot == _ATTACK_PLOT) {
 				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
 				plotIsValid = ValidateAttackPlot((AttackPlot*) newPlot);
 
@@ -179,7 +188,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 				else plotCandidates.erase(plotCandidates.begin() + randType);
 			}
 
-			else if (plot == strings.DESTROY_PLOT) {
+			else if (plot == _DESTROY_PLOT) {
 				newPlot = new DestroyPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
 				plotIsValid = ValidateDestroyPlot((DestroyPlot*)newPlot);	
 
@@ -189,11 +198,20 @@ void APlotGenerator::GetPlotFromReportLog() {
 				}
 				else plotCandidates.erase(plotCandidates.begin() + randType);
 			}
-			else if (plot == strings.BUILD_PLOT) {
+			else if (plot == _BUILD_PLOT) {
 				newPlot = new BuildPlot(currentReport->GetReportEntity(), (UOEdification*)currentReport->GetTargetOwnable(), currentReport->GetMotivation());
 				plotIsValid = ValidateBuildPlot((BuildPlot*)newPlot);
 
 				if (plotIsValid) {
+					currentReport->GetReportEntity()->ChangeNotoriety(3);
+				}
+				else plotCandidates.erase(plotCandidates.begin() + randType);
+			}
+			else if (plot == _WAR_PLOT) {
+				newPlot = new WarPlot(currentReport->GetReportEntity());
+				plotIsValid = ValidateWarPlot((WarPlot*) newPlot);
+
+				if (plotIsValid)  {
 					currentReport->GetReportEntity()->ChangeNotoriety(3);
 				}
 				else plotCandidates.erase(plotCandidates.begin() + randType);
@@ -214,16 +232,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 	}
 }
 
-// Associates types of plots with plot identificators
-PlotDictionary::PlotDictionary() {
-
-	_plotDictionary = { {TypeOfPlot::aggressive, {strings.ATTACK_PLOT, strings.DESTROY_PLOT}},
-	{ TypeOfPlot::resources, { strings.BUILD_PLOT } },
-	{ TypeOfPlot::possessive , { strings.ROBBERY_PLOT } },
-	{TypeOfPlot::thankful, {strings.GIVE_PLOT, strings.HELP_PLOT} };
-}
-
-vector<string> PlotDictionary::GetPlotsOfType(TypeOfPlot type)
+vector<string> APlotGenerator::GetPlotsOfType(TypeOfPlot type)
 {
 	return _plotDictionary.at(type);
 }
@@ -265,14 +274,26 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 			else i++;
 		}
 	}
+	else if (tag == Report::ReportTag::world) {
+		if (_pReportLog[i]->GetTag() == tag) {
+			if (_pReportLog[i]->GetType() == report->GetType()) {
+				if (_pReportLog[i]->GetReportEntity()->GetIntegrity()>0)
+					helpers.push_back(_pReportLog[i]->GetReportEntity());
+				_pReportLog.RemoveAt(i);
+			}
+			else i++;
+		}
+		else i++;
+	}
 	return helpers;
 }
 
+
+// PLOT VALIDATION
 bool APlotGenerator::ValidateAttackPlot(AttackPlot * plot)
 {
-	return(plot->GetTargetEntity()->GetIntegrity() > 0);
+	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEntity()->GetIntegrity() > 0;
 }
-
 bool APlotGenerator::ValidateDestroyPlot(DestroyPlot * plot)
 {
 	bool ownsEdification = false;
@@ -284,48 +305,48 @@ bool APlotGenerator::ValidateDestroyPlot(DestroyPlot * plot)
 			break;
 		}
 	}
-	return ownsEdification;
+	return plot->GetMainEntity()->GetIntegrity() > 0 && ownsEdification;
 }
-
-bool APlotGenerator::ValidateBuildPlot(BuildPlot* build)
+bool APlotGenerator::ValidateBuildPlot(BuildPlot* plot)
 {
-	return build->GetTargetEdification()->GetIsDestroyed();
+	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEdification()->GetIsDestroyed();
+}
+bool APlotGenerator::ValidateHelpPlot(HelpPlot* plot) {
+	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEntity()->GetIntegrity() > 0 ;
+}
+bool APlotGenerator::ValidateGiftPlot(GivePlot* plot) {
+	return true;
+}
+bool APlotGenerator::ValidateStealPlot(StealPlot* plot) {
+	return true;
+}
+bool APlotGenerator::ValidateGetPlot(GetPlot* plot) {
+	return true;
+}
+bool APlotGenerator::ValidateAmbushPlot(AmbushPlot* plot) {
+	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEntity()->GetIntegrity() > 0;
+}
+bool APlotGenerator::ValidateWarPlot(WarPlot* plot) {
+	return plot->GetMainEntity()->GetIntegrity() > 0;
+}
+bool APlotGenerator::ValidateDefendPlot(DefendPlot* plot) {
+	return plot->GetMainEntity()->GetIntegrity() > 0;
 }
 
 
-vector<UOEntity*> APlotGenerator::SpawnEntities(int num, ERace race) {
 
-	FActorSpawnParameters SpawnParams;
-	vector<UOEntity*> spawnedHeard;
-
-	switch (race) {
-		case ERace::R_Bear: {
-
-			for (int i = 0; i < num; i++) {
-				ACharacter* creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Bear, GetActorLocation() + RandomDisplacement(1000), GetActorRotation(), SpawnParams);
-				
-				if (creatureToSpawn) {
-					float scale = rand() % 10 + 6;
-					creatureToSpawn->SetActorScale3D(FVector(scale / 10, scale / 10, scale / 10));
-					spawnedHeard.push_back(creatureToSpawn->FindComponentByClass<UOEntity>());
-				}
-			}
-		}
-	}
-
-	return spawnedHeard;
-}
 
 vector<UOOwnable*> APlotGenerator::GetValuables()
 {
 	return _valuables;
 }
-
 void APlotGenerator::AddValuable(UOOwnable * valuable)
 {
 	_valuables.push_back(valuable);
 }
 
+
+// NOTORIETY METHODS
 vector<UOEntity*> APlotGenerator::GetNotoriousEntitiesByRace(ERace race)
 {
 	vector<UOEntity*> entities;
@@ -337,7 +358,6 @@ vector<UOEntity*> APlotGenerator::GetNotoriousEntitiesByRace(ERace race)
 
 	return entities;
 }
-
 vector<UOEntity*> APlotGenerator::GetNotoriousEntities()
 {
 	vector<UOEntity*> entities;
@@ -349,7 +369,6 @@ vector<UOEntity*> APlotGenerator::GetNotoriousEntities()
 
 	return entities;
 }
-
 void APlotGenerator::AddNotorious(UOEntity * notorious)
 {
 	if (_notoriousEntities.Num() < _MAX_NOTORIOUS) {
@@ -379,52 +398,63 @@ void APlotGenerator::DeleteNotorious(UOEntity * entity)
 	_notoriousEntities.Remove(entity);
 }
 
-FVector APlotGenerator::RandomDisplacement(int radius){
-	
-	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
+
+// PLOT GUI
+void APlotGenerator::SetCurrentPlotString(FString sentence)
+{
+	_currentPlotString = sentence;
+}
+void APlotGenerator::SetCurrentPlotTypeColor(FLinearColor color)
+{
+	_currentPlotTypeColor = color;
 }
 
 
-/*float APlotGenerator::GetDaytime() {
-	/*float p = sun->GetActorRotation().Pitch;
-	float y = sun->GetActorRotation().Yaw;
-	float r = sun->GetActorRotation().Roll;
+// WORLD EVENTS
+float APlotGenerator::GetOverallHateAgainstRace(ERace race)
+{
+	vector<UOEntity*> poblationSample;
 
-	FRotator rot = sun->GetActorRotation();
-	float angle = rot.Euler().Y;
+	float sum = 0;
 
-	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, "\nRot: " + rot.ToString());
-	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, "\nAbs: " + FString::SanitizeFloat(abs(p)*12.f / 90.f));
+	if (poblationSample.size() > 0) {
+		if (race == ERace::R_Human)
+			poblationSample = GetNotoriousEntitiesByRace(ERace::R_Goblin);
+		else poblationSample = GetNotoriousEntitiesByRace(ERace::R_Human);
 
-	if (p < 0) {
-		if (r < -100 || r > 100) {
-			return 8.f + abs(p) * 6.f / 90.f;
+		for (UOEntity* e : poblationSample) {
+			sum += e->GetAppreciationToOtherRace();
 		}
-		else {
-			return 8.f + 12.f - abs(p) * 6.f / 90.f;
-		}
-	}
-	else {
-		if (r > -100 && r < 100) {
-			if (abs(p) * 6.f / 90.f < 24 - 8)
-				return 9.f + 12.f + abs(p) * 6.f / 90.f;
-			else
-				return  24.f + abs(p) * 6.f / 90.f;
-		}
-		else {
-			return 24.f - abs(p) * 6.f / 90.f;
-		}
+		return sum / poblationSample.size();
 	}
 
+	return sum;
+}
 
-	if (r < -100 || r > 100)
-		if(y < -100 || y > 100)
-			return 3.f + abs(p)*12.f / 90.f;
-		else
-			return abs(p)*12.f / 90.f - 3.f + 12.f;
-	else
-		if(y < -100 || y > 100)
-			return 3.f - 24.f + abs(p)*12.f / 90.f;
-		else
-			return 3.f + 24.f - abs(p)*12.f / 90.f;
-}*/
+
+// UTILITIES
+FVector APlotGenerator::RandomDisplacement(int radius) {
+
+	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
+}
+vector<UOEntity*> APlotGenerator::SpawnEntities(int num, ERace race) {
+
+	FActorSpawnParameters SpawnParams;
+
+	switch (race) {
+	case ERace::R_Bear: {
+
+		for (int i = 0; i < num; i++) {
+			ACharacter* creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Bear, GetActorLocation() + RandomDisplacement(1000), GetActorRotation(), SpawnParams);
+
+			if (creatureToSpawn) {
+				float scale = rand() % 10 + 6;
+				creatureToSpawn->SetActorScale3D(FVector(scale / 10, scale / 10, scale / 10));
+				spawnedHeard.push_back(creatureToSpawn->FindComponentByClass<UOEntity>());
+			}
+		}
+	}
+	}
+
+	return spawnedHeard;
+}

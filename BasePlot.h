@@ -14,6 +14,7 @@
 using namespace std;
 
 class UOEntity;
+class APlotGenerator;
 
 enum class TypeOfPlot : uint8 {
 	aggressive,
@@ -32,14 +33,14 @@ public:
 	BasePlot(UOEntity* plotEntity);
 	~BasePlot();
 
-	void PrintSentence();
+	void PrintSentence(APlotGenerator* plotGenerator, UItem* motivation, TypeOfAmbition ambition);
 	void AddInvolvedInPlot(UOEntity* entity);
 	void SavePlotToFile(const FString path, const FString fileName);
 	void AbortPlot(const FString path, const FString fileName);
 
 	virtual void BuildSentence() = 0;
-	//virtual bool ValidatePlot() = 0;
 	virtual void InitPlot() = 0;
+	virtual BasePlot* ConsiderReactions() = 0;
 
 	Graph GetGraph();
 	UOEntity* GetMainEntity();
@@ -48,7 +49,9 @@ public:
 	UItem* GetPlotMotivation();
 	TypeOfAmbition GetPlotTypeOfAmbition();
 	bool GetIsExclusive();
-	//bool GetPlotIsValid();
+	FString GetSentence();
+	UItem* GetMotivation();
+	TypeOfAmbition GetAmbition();
 
 
 protected:
@@ -59,10 +62,9 @@ protected:
 	Graph _plotGraph;
 	TArray<UOEntity*> _involvedInPlot;
 	UItem* _motivation = nullptr;
-	TypeOfAmbition _ambition;
+	TypeOfAmbition _ambition = TypeOfAmbition::noAmbition;
 	bool _isExclusive = false;
 	bool _isPlotValid;
 
 	virtual void BuildGraph() = 0;
-	virtual void ConsiderReactions() = 0;
 };

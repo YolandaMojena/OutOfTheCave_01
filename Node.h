@@ -38,7 +38,10 @@ enum class NodeType : uint8 {
 	mine UMETA(DisplayName = "mine"),
 	gather UMETA(DisplayName = "gather"),
 	help UMETA(DisplayName = "help"),
-	numb UMETA(DisplayName = "numb")
+	numb UMETA(DisplayName = "numb"),
+	defend UMETA(DisplayName = "defend"),
+	destroySelf UMETA(DisplayName = "destroySelf"),
+	ambush UMETA(DisplayName = "ambush")
 
 };
 

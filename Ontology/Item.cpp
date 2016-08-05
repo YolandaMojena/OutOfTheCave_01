@@ -47,23 +47,6 @@ string UItem::GenerateNotifyID(UOEntity* pasiva, UOEntity* activa, _NotifyTag ta
 	return "" + pasiva->GetUniqueID() + activa->GetUniqueID();
 }
 
-UOEntity* UItem::GetEntityComponent(AActor* actor) {
-
-	UOEntity* foundComponent = actor->FindComponentByClass<UOEntity>();
-	return foundComponent;
-}
-UOOwnable* UItem::GetOwnableComponent(AActor* actor) {
-
-	UOOwnable* foundComponent = actor->FindComponentByClass<UOOwnable>();
-	return foundComponent;
-}
-
-UOEdification * UItem::GetEdificationComponent(AActor * actor)
-{
-	UOEdification* foundComponent = actor->FindComponentByClass<UOEdification>();
-	return foundComponent;
-}
-
 APlotGenerator* UItem::GetPlotGenerator() {
 	return _plotGenerator;
 }

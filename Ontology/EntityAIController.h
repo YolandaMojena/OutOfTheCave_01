@@ -46,7 +46,5 @@ public:
 
 private:
 	Node* _currentNode;
-
-	
 	
 };
