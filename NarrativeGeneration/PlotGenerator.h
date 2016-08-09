@@ -54,6 +54,9 @@ public:
 	vector<UOEntity*> GetNotoriousEntities();
 	void DeleteNotorious(UOEntity* entity);
 	void AddNotorious(UOEntity* notorious);
+	
+
+
 
 	void SetCurrentPlotString(FString sentence);
 	void SetCurrentPlotTypeColor(FLinearColor color);

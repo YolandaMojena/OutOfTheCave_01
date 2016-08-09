@@ -11,7 +11,32 @@
 
 
 
-UOOwnable::UOOwnable() {}
+UOOwnable::UOOwnable() {
+	/*ConstructorHelpers::FObjectFinder<UBlueprint> HammerBlueprint(TEXT("Blueprint'/Game/Blueprints/Ownables/Hammer.Hammer'"));
+	if (HammerBlueprint.Object) {
+		BP_Hammer = (UClass*)HammerBlueprint.Object->GeneratedClass;
+	}
+	ConstructorHelpers::FObjectFinder<UBlueprint> HoeBlueprint(TEXT("Blueprint'/Game/Blueprints/Ownables/Hoe.Hoe'"));
+	if (HoeBlueprint.Object) {
+		BP_Hoe = (UClass*)HoeBlueprint.Object->GeneratedClass;
+	}
+	ConstructorHelpers::FObjectFinder<UBlueprint> PickaxeBlueprint(TEXT("Blueprint'/Game/Blueprints/Ownables/Pickaxe.Pickaxe'"));
+	if (PickaxeBlueprint.Object) {
+		BP_Pickaxe = (UClass*)PickaxeBlueprint.Object->GeneratedClass;
+	}
+	ConstructorHelpers::FObjectFinder<UBlueprint> RakeBlueprint(TEXT("Blueprint'/Game/Blueprints/Ownables/Rake.Rake'"));
+	if (RakeBlueprint.Object) {
+		BP_Rake = (UClass*)RakeBlueprint.Object->GeneratedClass;
+	}
+	ConstructorHelpers::FObjectFinder<UBlueprint> SwordBlueprint(TEXT("Blueprint'/Game/Blueprints/Ownables/Sword2.Sword2'"));
+	if (SwordBlueprint.Object) {
+		BP_Sword = (UClass*)SwordBlueprint.Object->GeneratedClass;
+	}
+	ConstructorHelpers::FObjectFinder<UBlueprint> LeaflessTreeBlueprint(TEXT("Blueprint'/Game/Blueprints/LeaflessTree.LeaflessTree'"));
+	if (LeaflessTreeBlueprint.Object) {
+		BP_LeaflessTree = (UClass*)LeaflessTreeBlueprint.Object->GeneratedClass;
+	}*/
+}
 UOOwnable::~UOOwnable(){}
 
 void UOOwnable::BeginPlay() {
@@ -58,6 +83,23 @@ void UOOwnable::SetIsGrabbed(bool grabbed)
 	_isGrabbed = grabbed;
 }
 
+vector<UOEntity*> UOOwnable::GetGrabbers() {
+	return _grabbers;
+}
+
+void UOOwnable::AddGrabber(UOEntity* g) {
+	_grabbers.push_back(g);
+}
+
+void UOOwnable::RemoveGrabber(UOEntity* rg) {
+	int i = 0;
+	for (UOEntity* g : _grabbers) {
+		if (g == rg)
+			_grabbers.erase(_grabbers.begin() + i);
+		i++;
+	}
+}
+
 void UOOwnable::IHaveBeenStolenBySomeone(UOEntity * potentialOwner, UOEntity * buggler)
 {
 	for (UOEntity* e : _owners) {
@@ -80,3 +122,28 @@ void UOOwnable::IHaveBeenStolenBySomeone(UOEntity * potentialOwner, UOEntity * b
 }
 
 
+/*void UOOwnable::SpawnOwnable(UOOwnable* o, UItem* spawner) {
+	FActorSpawnParameters SpawnParams;
+	if (o->GetItemName() == "hammer") {
+		//spawner->GetWorld()->SpawnActor<AActor>(APlotGenerator::GetHammer(), spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
+	}
+	else if (o->GetItemName() == "hoe") {
+		//spawner->GetWorld()->SpawnActor<AActor>(APlotGenerator::BP_Hoe, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
+	}
+	else if (o->GetItemName() == "pickaxe") {
+		//spawner->GetWorld()->SpawnActor<AActor>(APlotGenerator::BP_Pickaxe, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
+	}
+	else if (o->GetItemName() == "rake") {
+		//spawner->GetWorld()->SpawnActor<AActor>(APlotGenerator::BP_Rake, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
+	}
+	else if (o->GetItemName() == "sword") {
+		//spawner->GetWorld()->SpawnActor<AActor>(APlotGenerator::BP_Sword, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
+	}
+	else if (o->GetItemName() == "leaflesstree") {
+		//spawner->GetWorld()->SpawnActor<AActor>(APlotGenerator::BP_LeaflessTree, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
+	}
+}*/
+
+FVector UOOwnable::RandomDisplacementVector(int radius) {
+	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
+}

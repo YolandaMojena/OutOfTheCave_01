@@ -23,20 +23,23 @@ class OUTOFTHECAVE_01_API AEntityAIController : public AAIController
 {
 	GENERATED_BODY()
 
+
+public:
+
 	UPROPERTY(transient)
 	class UBlackboardComponent* entityBlackboard;
 
 	UPROPERTY(transient)
 	class UBehaviorTreeComponent* behaviorTree;
 
-public:
+
 	AEntityAIController();
 	~AEntityAIController();
 
 	virtual void Possess(APawn* pawn) override;
 
 	void SetNode(Node* n);
-	void SetState(UOEntity::State s);
+	void SetState(UOEntity::AIState s);
 	void ExecuteNode();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = EntityAIController)

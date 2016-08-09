@@ -5,6 +5,7 @@
 #include "Ontology/Item.h"
 #include "Ontology/OTerritory.h"
 #include "Ontology/OPersonality.h"
+#include "OwnableSpawner.h"
 #include <vector>
 #include "BasePlot.h"
 #include <algorithm>
@@ -39,7 +40,7 @@ class OUTOFTHECAVE_01_API UOEntity : public UItem
 public:
 
 	UENUM(BlueprintType)
-	enum class State : uint8 {
+	enum class AIState : uint8 {
 		idle UMETA(DisplayName = "idle"),
 		plot UMETA(DisplayName = "plot"),
 		react UMETA(DisplayName = "react"),
@@ -60,6 +61,37 @@ public:
 	//void SetBrain(Graph* b);
 
 	static float MIN_INTEGRITY;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		FString _hands_name = FString(TEXT("hands"));
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		FVector _hands_centerOfMass = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_edgeLength = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_edgeSharpness = 10;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		FVector _hands_funcDir = FVector(0, 0, 1);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		FVector _hands_funcPos = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		FVector _hands_grabDir = FVector(0, 0, 1);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		FVector _hands_grabPos = FVector(0, 0, 0);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_mass = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_maxLength = 10;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_spikes = 5;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_spiky = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_toughness = 30;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		float _hands_volume = 450;
+
 
 	vector<BasePlot*> GetCurrentPlots();
 	BasePlot* GetCurrentPlot();
@@ -128,6 +160,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "EntityRelations")
 		float GetRespectTo(UOEntity* ent);
 
+	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn = true))
+		UBehaviorTree* BehaviorTree;
+	AEntityAIController* GetEntityAIController();
 
 
 	void AddRelationship(ORelation* newRelation);
@@ -140,10 +175,6 @@ public:
 	void AddDesire(UOOwnable* newOwnable);
 	bool DoesOwn(UOOwnable* ownable);
 	bool DoesOwn(UItem* item);
-
-	bool IsInSight(AActor* actor);
-	void OwnableNotify(UOOwnable* ownable, UOEntity* entity, UItem::_NotifyTag tag, bool grito, string notifyID);
-	void EntityNotify(UOEntity* pasiva, UOEntity* activa, UItem::_NotifyTag tag, bool grito, string notifyID);
 	
 	ORelation* GetRelationWith(UOEntity* other);
 	OOwnership* GetOwnershipWith(UOOwnable* other);
@@ -159,7 +190,7 @@ public:
 	bool CheckValidPersonality(TypeOfPlot type);
 	void SendReport(Report* newReport);
 
-	State GetCurrentState();
+	AIState GetCurrentState();
 	void SetIdleGraph(Graph* g);
 	Graph* GetIdleGraph();
 	Graph* GetBrain();
@@ -186,10 +217,16 @@ public:
 	//void AddInstantNode(Node* n);
 	void AddInstantHelpNode(Node* n);
 
+	void ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notifyType, FString notifyID);
+
 	vector<UOOwnable*> GetInventory();
 	void StoreInInventory(UOOwnable* o);
+	void GrabFromInventory(UOOwnable* o);
 	bool RemoveFromInventory(UOOwnable* o);
 	bool RemoveFromInventory(int i);
+	void SpawnFromInventory(UOOwnable* o);
+	void SpawnFromInventory(int i);
+	void ReleaseInventory();
 
 	void Attack();
 	bool StealFromInventory(UOOwnable* o, UOEntity* buggler);
@@ -214,7 +251,7 @@ public:
 	float _currentTime = 10;
 	
 protected:
-	void SetState(State s, Graph* g = nullptr);
+	void SetState(AIState s); //, Graph* g = nullptr
 	void SetStrength(float st);
 	void SetSpeed(float sd);
 	void SetAgility(float ag);
@@ -224,7 +261,7 @@ protected:
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
 	void IHaveBeenHelpedBySomeone(UOEntity* helper, UItem* motivation);
 
-	State _currentState = State::idle;
+	AIState _currentState = AIState::idle;
 	ERace _race;
 	EJob _job;
 
@@ -232,6 +269,7 @@ protected:
 	UOEntity* _mainPlotEntity = nullptr;
 	Graph _brain;
 	Graph* _idleGraph;
+	vector<Graph*> _currentReacts;
 	AEntityAIController* _entityAIController;
 	AActor* _currentTarget;
 	UOEntity* _mostHatedEntity;
@@ -250,7 +288,7 @@ protected:
 	OPersonality* _personality;
 
 	int _notoriety = 0;
-	int _notifyID;
+	vector<FString> _knownNotifyIDs;
 
 	vector<UOOwnable*> _inventory;
 	UItem* _grabbedItem;
@@ -258,8 +296,12 @@ protected:
 private:
 
 	class UOOwnable* _deadOwnable;
-
+	float _notifyDeadline = 0.f;
+	void CleanKnownNotifyIDs(float deltaTime);
 		
+	UItem* _hands;
+
+	AOwnableSpawner* _ownableSpawner;
 };
 
 #undef LOCTEXT_NAMESPACE 

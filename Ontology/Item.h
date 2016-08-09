@@ -47,6 +47,12 @@ enum class EJob : uint8 {
 	J_Predator		UMETA(DisplayName = "Predator")
 };
 
+UENUM(BlueprintType)
+enum class ENotify : uint8 {
+	N_Grabbed	UMETA(DisplayName = "Grabbed"),
+	N_Damaged	UMETA(DisplayName = "Damaged")
+};
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OUTOFTHECAVE_01_API UItem : public UActorComponent
@@ -66,7 +72,7 @@ public:
 
 		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		FString _name;
+		FString _name = "";
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _density;
 
@@ -133,11 +139,12 @@ public:
 	float GetEdgeLength();
 	float GetSpiky();
 	float GetSpikes();
-	FString GetName();
+	FString GetItemName();
 	int GetIntegrity();
 
-	void SetName(FString name);
+	void SetItemName(FString name);
 
+	void CastNotify(UItem* predicate, UOEntity* subject, ENotify notifyType);
 
 protected:
 	const float _NOTIFICATION_RADIUS = 1000.0f;
@@ -149,8 +156,9 @@ protected:
 	// All entities will send reports to the plotGenerator situated in the game world
 	APlotGenerator* _plotGenerator;
 
-	string GenerateNotifyID(UOOwnable* ownable, UOEntity* entity, _NotifyTag tag);
-	string GenerateNotifyID(UOEntity* pasiva, UOEntity* activa, _NotifyTag tag);
+	//string GenerateNotifyID(UOOwnable* ownable, UOEntity* entity, _NotifyTag tag);
+	//string GenerateNotifyID(UOEntity* pasiva, UOEntity* activa, _NotifyTag tag);
+	FString GenerateNotifyID(UItem* predicate, UOEntity* subject, ENotify notifyType);
 
 	float _integrity = 100;
 };

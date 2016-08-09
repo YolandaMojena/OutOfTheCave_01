@@ -15,7 +15,16 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 
 	if (entity && targetEntity) {
 		blackboard->SetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("FloatKey"), entity->GetAttackCooldown());
-		targetEntity->ReceiveDamage(25 + rand() % 50, entity);
+		
+		// APPLY DAMAGE
+		if ((targetEntity->GetOwner()->GetActorLocation() - entity->GetOwner()->GetActorLocation()).Size() < entity->GetGrabbedItem()->GetFuncPos().Size() + 200.f) {
+			//targetEntity->ReceiveDamage(25 + rand() % 50, entity);
+			OntologicFunctions of = OntologicFunctions();
+			float damage = entity->GetStrength() * of.UseAsWeapon(entity->GetGrabbedItem()) / targetEntity->GetToughness();
+			targetEntity->ReceiveDamage(damage, entity);
+		}
+
+		// DEATH / WINCON
 		if (targetEntity->GetIntegrity() <= UOEntity::MIN_INTEGRITY)
 			blackboard->ClearValue(blackboard->GetKeyID("Entity"));
 		entity->EndAttack();

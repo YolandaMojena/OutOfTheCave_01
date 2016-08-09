@@ -43,6 +43,7 @@ public:
 	virtual BasePlot* ConsiderReactions() = 0;
 
 	Graph GetGraph();
+	Graph* GetGraphPointer();
 	UOEntity* GetMainEntity();
 	TArray<UOEntity*> GetInvolvedInPlot();
 	void DeleteFromInvolved(UOEntity* entity);

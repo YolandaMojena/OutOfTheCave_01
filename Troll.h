@@ -100,6 +100,7 @@ private:
 	bool _equipedMain;
 	bool _equipedSecondary;
 
+	AActor* _trollActor;
 	AActor* _mainWeapon;
 	AActor* _secondaryWeapon;
 	FRotator _mainRotation;

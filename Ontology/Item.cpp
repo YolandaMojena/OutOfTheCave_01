@@ -39,12 +39,16 @@ void UItem::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponent
 }
 
 
-string UItem::GenerateNotifyID(UOOwnable* ownable, UOEntity* entity, _NotifyTag tag) {
+/*string UItem::GenerateNotifyID(UOOwnable* ownable, UOEntity* entity, _NotifyTag tag) {
 	return "" + ownable->GetUniqueID() + entity->GetUniqueID() + tag;
 }
 string UItem::GenerateNotifyID(UOEntity* pasiva, UOEntity* activa, _NotifyTag tag) {
 
 	return "" + pasiva->GetUniqueID() + activa->GetUniqueID();
+}*/
+FString UItem::GenerateNotifyID(UItem* predicate, UOEntity* subject, ENotify notifyType) {
+
+	return "" + FString::SanitizeFloat(predicate->GetUniqueID()) + FString::SanitizeFloat(subject->GetUniqueID()) + FString::SanitizeFloat((int)notifyType);
 }
 
 APlotGenerator* UItem::GetPlotGenerator() {
@@ -77,13 +81,45 @@ int UItem::GetIntegrity() {
 	return _integrity;
 }
 
-FString UItem::GetName()
+FString UItem::GetItemName()
 {
 	return _name;
 }
 
-void UItem::SetName(FString name)
+void UItem::SetItemName(FString name)
 {
 	_name = name;
 	GetOwner()->SetActorLabel(name);
+}
+
+
+void UItem::CastNotify(UItem* predicate, UOEntity* subject, ENotify notifyType) {
+	float const _NOTIFY_RADIUS = 1000.0f;
+	FVector start = GetOwner()->GetActorLocation() + FVector(0, 0, -_NOTIFY_RADIUS);
+	FVector end = start + FVector(0, 0, _NOTIFY_RADIUS * 2);
+	TArray<FHitResult> hitData;
+
+	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, GetOwner());
+	RV_TraceParams.bTraceComplex = true;
+	RV_TraceParams.bTraceAsyncScene = true;
+	RV_TraceParams.bReturnPhysicalMaterial = false;
+
+	GetOwner()->GetWorld()->SweepMultiByChannel(
+		hitData,
+		start,
+		end,
+		FQuat(),
+		ECollisionChannel::ECC_Visibility,
+		FCollisionShape::MakeSphere(_NOTIFY_RADIUS),
+		RV_TraceParams
+		);
+
+	FString notifyID = GenerateNotifyID(predicate, subject, notifyType);
+
+	for (auto hr : hitData) {
+		UOEntity* entity = hr.GetActor()->FindComponentByClass<UOEntity>();
+		if (entity) {
+			entity->ReceiveNotify(predicate, subject, notifyType, notifyID);
+		}
+	}
 }

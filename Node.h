@@ -19,7 +19,7 @@ UENUM(BlueprintType)
 enum class NodeType : uint8 {
 	branch UMETA(DisplayName = "branch"),
 	goTo UMETA(DisplayName = "goTo"),
-	goToItem UMETA(DisplayName = "goToItem"),
+	goToActor UMETA(DisplayName = "goToActor"),
 	wait UMETA(DisplayName = "wait"),
 	interact UMETA(DisplayName = "interact"),
 	enter UMETA(DisplayName = "enter"),
@@ -41,7 +41,8 @@ enum class NodeType : uint8 {
 	numb UMETA(DisplayName = "numb"),
 	defend UMETA(DisplayName = "defend"),
 	destroySelf UMETA(DisplayName = "destroySelf"),
-	ambush UMETA(DisplayName = "ambush")
+	ambush UMETA(DisplayName = "ambush"),
+	stopFight UMETA(Displayname = "stopFight")
 
 };
 

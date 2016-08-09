@@ -46,7 +46,7 @@ void AEntityAIController::SetNode(Node* n) {
 	case NodeType::goTo:
 		entityBlackboard->SetValue<UBlackboardKeyType_Vector>(positionID, n->nBlackboard.position  * FVector(1, 1, 0));
 		break;
-	case NodeType::goToItem:
+	case NodeType::goToActor:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
 		break;
 	case NodeType::ambush:
@@ -83,10 +83,10 @@ void AEntityAIController::SetNode(Node* n) {
 	}
 }
 
-void AEntityAIController::SetState(UOEntity::State s) {
+void AEntityAIController::SetState(UOEntity::AIState s) {
 	
 	entityBlackboard->SetValue<UBlackboardKeyType_Enum>(entityBlackboard->GetKeyID("EntityState"), static_cast<UBlackboardKeyType_Enum::FDataType>(s));
-	if (s == UOEntity::State::numb) entityBlackboard->ClearValue(nodeTypeID);
+	if (s == UOEntity::AIState::numb) entityBlackboard->ClearValue(nodeTypeID);
 }
 
 void AEntityAIController::Possess(APawn* pawn) {

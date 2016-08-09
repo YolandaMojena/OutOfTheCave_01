@@ -56,6 +56,9 @@ void BasePlot::AbortPlot(const FString path, const FString fileName) {
 Graph BasePlot::GetGraph() {
 	return _plotGraph;
 }
+Graph* BasePlot::GetGraphPointer() {
+	return &_plotGraph;
+}
 
 UOEntity* BasePlot::GetMainEntity() {
 	return _plotEntity;

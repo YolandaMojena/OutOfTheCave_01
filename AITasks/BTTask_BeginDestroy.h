@@ -3,29 +3,26 @@
 #pragma once
 
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
+
+#include "Ontology/EntityAIController.h"
+#include "Ontology/OEntity.h"
+
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
-#include "Ontology/EntityAIController.h"
-#include "Ontology/OOwnable.h"
-#include "Ontology/OEdification.h"
-#include "Ontology/OntologicFunctions.h"
-#include "Node.h"
-#include <vector.h>
-#include "BTTask_GetOwnable.generated.h"
+
+#include "BTTask_BeginDestroy.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class OUTOFTHECAVE_01_API UBTTask_GetOwnable : public UBTTask_BlackboardBase
+class OUTOFTHECAVE_01_API UBTTask_BeginDestroy : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
 	
 public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	
-private:
-	vector<UOOwnable*> FindNearbyOwnables(UOEntity* entity);
 };

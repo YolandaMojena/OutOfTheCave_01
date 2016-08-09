@@ -58,20 +58,19 @@ void APlotGenerator::Tick( float DeltaTime )
 				}
 				if (_reactivePlots.size() > 0) {
 					SpawnReactivePlot();
+					_timeToSpawnPlot = 0;
 				}
 			}
 			else if (rand() % 100 < (20 / (_currentPlotsInAction + 1)) && _currentPlotsInAction <= _MAX_PLOTS) {
 
 				SpawnAmbitionPlot();
+				_timeToSpawnPlot = 0;
 			}
-
-			else if (rand() % 100 < 5 && _currentPlotsInAction <= _MAX_PLOTS) {
+			else if (rand() % 100 < 2 && _currentPlotsInAction <= _MAX_PLOTS) {
 				SpawnWorldPlot();
 				_timeToSpawnPlot = 0;
 			}
-
 		}
-		else _timeToSpawnPlot = 0;
 	}
 }
 

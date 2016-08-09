@@ -22,7 +22,8 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 
 	vector<UOOwnable*> candidates = entity->GetInventory();
-	vector<UOOwnable*> nearbyOwnables = FindNearbyOwnables(entity->GetOwner());
+	vector<UOOwnable*> nearbyOwnables = FindNearbyOwnables(entity);
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("NearbyOwnables: ") + FString::SanitizeFloat(nearbyOwnables.size()));
 	candidates.insert(candidates.end(), nearbyOwnables.begin(), nearbyOwnables.end());
 	
 		
@@ -34,7 +35,8 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 	OntologicFunctions ontF;
 
 	UOOwnable* bestChoice = ontF.GetHands();
-	int bestChoiceAffordance = ontF.GetAffordance(affordableUse, bestChoice);
+	int bestChoiceAffordance;
+	bestChoiceAffordance = ontF.GetAffordance(affordableUse, bestChoice);
 	bool bestChoiceSomeoneWhoCares = true;
 
 	if (entity->HasGrabbedItem()){
@@ -66,10 +68,14 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 				}
 			}
 			int newAffordance = ontF.GetAffordance(affordableUse, ownable);
+			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("BCA: ") + FString::SanitizeFloat(bestChoiceAffordance));
+			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("NA: ") + FString::SanitizeFloat(newAffordance));
 			if (newAffordance > bestChoiceAffordance) {
 				bestChoice = ownable;
 				bestChoiceAffordance = newAffordance;
 				bestChoiceSomeoneWhoCares = someoneWhoCares;
+				GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("Better one!"));
+				GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("BCA: ") + FString::SanitizeFloat(bestChoiceAffordance));
 			}
 		}
 	}
@@ -85,17 +91,21 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 		n->SetOwnable(bestChoice);
 		entity->AddInstantNode(n);*/
 		blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"), (UItem*) bestChoice);
-		blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Actor"), bestChoice->GetOwner());
+		if(bestChoice->GetOwner())
+			blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Actor"), bestChoice->GetOwner());
 		//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("   score: ") + FString::SanitizeFloat(bestChoiceAffordance));
 		//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("Chosen item: ") + bestChoice->GetOwner()->GetActorLabel());
+
+		bestChoice->AddGrabber(entity);
 	}
 
 	return EBTNodeResult::Succeeded;
 }
 
-vector<UOOwnable*> UBTTask_GetOwnable::FindNearbyOwnables(AActor* actor) {
-	float const _SEARCH_RADIUS = 2000.0f;
-	FVector start = actor->GetActorLocation();
+vector<UOOwnable*> UBTTask_GetOwnable::FindNearbyOwnables(UOEntity* entity) {
+	AActor* actor = entity->GetOwner();
+	float const _SEARCH_RADIUS = 3000.0f;
+	FVector start = actor->GetActorLocation() + FVector(0, 0, -_SEARCH_RADIUS);
 	FVector end = start + FVector(0, 0, _SEARCH_RADIUS * 2);
 	TArray<FHitResult> hitData;
 
@@ -117,9 +127,34 @@ vector<UOOwnable*> UBTTask_GetOwnable::FindNearbyOwnables(AActor* actor) {
 	vector<UOOwnable*> results;
 	for (auto hr : hitData) {
 		UOOwnable* o = hr.GetActor()->FindComponentByClass<UOOwnable>();
-		UOEdification* e = hr.GetActor()->FindComponentByClass<UOEdification>();
-		if (!e && o)
-			results.push_back(o);
+		UOEdification* edf = hr.GetActor()->FindComponentByClass<UOEdification>();
+		if (!edf && o) {
+			bool admit = true;
+			vector<UOEntity*> grabbers = o->GetGrabbers();
+			vector<ORelation*> relatives = entity->GetRelationships();
+			for (ORelation* r : relatives) {
+				UOEntity* e = r->GetOtherEntity();
+				for (UOEntity* g : grabbers) {
+					if (e == g && (r->GetAppreciation() > 25 || r->GetRespect() > 37 || r->GetFear() > 25)) {
+						admit = false;
+						break;
+					}
+				}
+				if (!admit)
+					break;
+			}
+			
+			if (admit) {
+				for (UOOwnable* own : results) {
+					if (o == own) {
+						admit = false;
+						break;
+					}
+				}
+				if(admit)
+					results.push_back(o);
+			}
+		}
 	}
 	return results;
 }
