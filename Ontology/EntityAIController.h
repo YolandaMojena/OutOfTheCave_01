@@ -6,7 +6,9 @@
 #include "Node.h"
 #include "Ontology/OEntity.h"
 #include "Ontology/OEdification.h"
+#include "Ontology/OOwnable.h"
 #include "Ontology/OResidence.h"
+#include "Ontology/OntologicFunctions.h"
 
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
@@ -40,7 +42,7 @@ public:
 
 	void SetNode(Node* n);
 	void SetState(UOEntity::AIState s);
-	void ExecuteNode();
+	//void ExecuteNode();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = EntityAIController)
 	uint8 nodeTypeID;
@@ -49,7 +51,9 @@ public:
 
 private:
 	Node* _currentNode;
+	
+	void TryLeaveGrabbedObject(UOEntity* entity);
 
-	
-	
+	UOOwnable* GetOwnable(UOEntity* entity, OntologicFunctions::AffordableUse affordableUse, bool isHighPriority);
+	vector<UOOwnable*> FindNearbyOwnables(UOEntity* entity);
 };

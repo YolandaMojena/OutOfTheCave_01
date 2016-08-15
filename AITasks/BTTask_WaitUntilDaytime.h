@@ -6,28 +6,23 @@
 
 #include "Ontology/EntityAIController.h"
 #include "Ontology/OEntity.h"
-#include "Ontology/ORelation.h"
-
 
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
-#include "BTTask_NodeCompleted.generated.h"
+
+#include "BTTask_WaitUntilDaytime.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class OUTOFTHECAVE_01_API UBTTask_NodeCompleted : public UBTTask_BlackboardBase
+class OUTOFTHECAVE_01_API UBTTask_WaitUntilDaytime : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
-
+	
 public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
-private:
-	void ClearBlackboard(UBlackboardComponent* b);
-	void DidIHelpSomeone(UOEntity* me, UBlackboardComponent* b);
 	
 };

@@ -33,6 +33,8 @@ class OUTOFTHECAVE_01_API APlotGenerator : public AActor
 	
 public:	
 
+	TArray<UOEntity*> allEntities;
+
 	struct intTest
 	{
 		bool operator()(int& A, int& B) const

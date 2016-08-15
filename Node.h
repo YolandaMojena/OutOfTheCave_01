@@ -21,6 +21,7 @@ enum class NodeType : uint8 {
 	goTo UMETA(DisplayName = "goTo"),
 	goToActor UMETA(DisplayName = "goToActor"),
 	wait UMETA(DisplayName = "wait"),
+	waitUntilDaytime UMETA(DisplayName = "waitUntilDaytime"),
 	interact UMETA(DisplayName = "interact"),
 	enter UMETA(DisplayName = "enter"),
 	attack UMETA(DisplayName = "attack"),
@@ -39,7 +40,8 @@ enum class NodeType : uint8 {
 	gather UMETA(DisplayName = "gather"),
 	help UMETA(DisplayName = "help"),
 	numb UMETA(DisplayName = "numb"),
-	stopFight UMETA(Displayname = "stopFight")
+	stopFight UMETA(Displayname = "stopFight"),
+	preyUpon UMETA(DisplayName = "preyUpon")
 };
 
 class OUTOFTHECAVE_01_API Node

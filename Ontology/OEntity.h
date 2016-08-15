@@ -24,11 +24,12 @@ using namespace std;
 
 class ORelation;
 class OOwnership;
-class OEdification;
+class UOEdification;
 class UOOwnable;
 class APlotGenerator;
 class Report;
 class AEntityAIController;
+class FNearbyEntitiesFinder;
 
 /**
  * 
@@ -62,6 +63,8 @@ public:
 	//void SetBrain(Graph* b);
 
 	static float MIN_INTEGRITY;
+	static const int HELP_APPRECIATION_INCREASE = 10;
+	static const int HELP_FEAR_DECREASE = -5;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
@@ -145,6 +148,9 @@ public:
 		float GetSpeed();
 	UFUNCTION(BlueprintCallable, Category = "Entity")
 		float GetAgility();
+	
+	UFUNCTION(BlueprintCallable, Category = "Entity")
+		TArray<UOEntity*> GetNearbyEntities();
 
 	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
 		float GetKindness();
@@ -166,7 +172,7 @@ public:
 
 
 	void AddRelationship(ORelation* newRelation);
-	void AddRelationship(UOEntity* newEntity);
+	ORelation* AddRelationship(UOEntity* newEntity);
 	void AddPotentialRelationship(UOEntity* newEntity);
 	void AddPossession(OOwnership* newOwnership);
 	void AddPossession(UOOwnable* newOwnable);
@@ -197,6 +203,8 @@ public:
 	UOEntity* GetMainPlotEntity();
 	void SetMainPlotEntity(UOEntity* mpe);
 	void RethinkState();
+	void SetLastNode(Node* node);
+	Node* GetLastNode();
 	
 	ERace GetRace();
 	FString GetRaceString();
@@ -243,9 +251,15 @@ public:
 	UFUNCTION()
 		void OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UOEntity* FindPrey();
 	
+	UOEdification* GetHome();
+	void SetHome(UOEdification* home);
 
 	float _currentTime = 10;
+
+
+	void FinishedFindingNearbyEntities();
 	
 protected:
 	void SetState(AIState s); //, Graph* g = nullptr
@@ -264,6 +278,7 @@ protected:
 	vector<BasePlot*> _currentPlots;
 	UOEntity* _mainPlotEntity = nullptr;
 	Graph _brain;
+	Node* _lastNode;
 	Graph* _idleGraph;
 	vector<Graph*> _currentReacts;
 	AEntityAIController* _entityAIController;
@@ -286,14 +301,24 @@ protected:
 
 	vector<UOOwnable*> _inventory;
 	UItem* _grabbedItem;
+	TArray<UOEntity*> _nearbyEntities;
+
+	
 
 private:
+
+	const float ENTITIES_FINDER_DELAY = 5.f;
+	float entitiesFinderDelay = 0.f;
+	bool _searchingNearbyEntities = false;
+
+	
 
 	class UOOwnable* _deadOwnable;
 	float _notifyDeadline = 0.f;
 	void CleanKnownNotifyIDs(float deltaTime);
 		
 	UItem* _hands;
+	UOEdification* _entityHome;
 
 	AOwnableSpawner* _ownableSpawner;
 };
