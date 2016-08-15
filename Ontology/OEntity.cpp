@@ -184,11 +184,23 @@ float UOEntity::GetAgility() {
 float UOEntity::GetKindness() {
 	return _personality->GetKindness();
 }
+float UOEntity::GetBraveness() {
+	return _personality->GetBraveness();
+}
 float UOEntity::GetAggressiveness() {
 	return _personality->GetAggressiveness();
 }
-float UOEntity::GetBraveness() {
-	return _personality->GetBraveness();
+float UOEntity::GetSocial() {
+	return _personality->GetSocial();
+}
+float UOEntity::GetMaterialist () {
+	return _personality->GetMaterialist();
+}
+float UOEntity::GetCurious() {
+	return _personality->GetCurious();
+}
+float UOEntity::GetAstute() {
+	return _personality->GetAstute();
 }
 float UOEntity::GetAppreciationTo(UOEntity* ent) {
 	return GetRelationWith(ent)->GetAppreciation();
@@ -336,7 +348,11 @@ void UOEntity::AddRelationship(ORelation* newRelation) {
 }
 ORelation* UOEntity::AddRelationship(UOEntity* newEntity) {
 	if (newEntity != this) {
-		ORelation* newRelation = new ORelation(this, newEntity, _personality->GetSocial(), newEntity->GetNotoriety(), _personality->GetMaxValue() - _personality->GetBraveness());
+		//ORelation* newRelation = new ORelation(this, newEntity, _personality->GetSocial(), newEntity->GetNotoriety(), _personality->GetMaxValue() - _personality->GetBraveness());
+		ORelation* newRelation = new ORelation(this, newEntity,
+			GetSocial() + GetHome()->villageID == newEntity->GetHome()->villageID ? 20 : 0,					// Appreciation
+			newEntity->GetNotoriety(),																		// Respect
+			newEntity->GetStrength() - GetStrength() + newEntity->GetAggressiveness() - GetBraveness());	// Fear
 		_relationships.push_back(newRelation);
 		DeletePotentitalRelationship(newEntity);
 		return newRelation;
@@ -1092,7 +1108,7 @@ void UOEntity::RethinkState() {
 
 //	 I N V E N T O R Y
 
-vector<UOOwnable*> UOEntity::GetInventory() {
+/*vector<UOOwnable*> UOEntity::GetInventory() {
 	return _inventory;
 }
 void UOEntity::StoreInInventory(UOOwnable* o) {
@@ -1156,7 +1172,7 @@ void UOEntity::ReleaseInventory() {
 	for (UOOwnable* o : _inventory) {
 		SpawnFromInventory(o);
 	}
-}
+}*/
 
 // M E C H A N I C S
 
@@ -1245,7 +1261,7 @@ void UOEntity::ReleaseGrabbedItem() {
 
 bool UOEntity::StealFromInventory(UOOwnable * o, UOEntity * buggler)
 {
-	int i = 0;
+	/*int i = 0;
 	for (UOOwnable* strd : _inventory) {
 		if (o == strd) {
 			buggler->StoreInInventory(o);
@@ -1255,7 +1271,7 @@ bool UOEntity::StealFromInventory(UOOwnable * o, UOEntity * buggler)
 			return true;
 		}
 		i++;
-	}
+	}*/
 	return false;
 }
 

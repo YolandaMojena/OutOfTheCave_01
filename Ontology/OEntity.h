@@ -158,6 +158,14 @@ public:
 		float GetAggressiveness();
 	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
 		float GetBraveness();
+	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
+		float GetSocial();
+	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
+		float GetMaterialist();
+	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
+		float GetCurious();
+	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
+		float GetAstute();
 
 	UFUNCTION(BlueprintCallable, Category = "EntityRelations")
 		float GetAppreciationTo(UOEntity* ent);
@@ -229,14 +237,14 @@ public:
 
 	void ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notifyType, FString notifyID);
 
-	vector<UOOwnable*> GetInventory();
+	/*vector<UOOwnable*> GetInventory();
 	void StoreInInventory(UOOwnable* o);
 	void GrabFromInventory(UOOwnable* o);
 	bool RemoveFromInventory(UOOwnable* o);
 	bool RemoveFromInventory(int i);
 	void SpawnFromInventory(UOOwnable* o);
 	void SpawnFromInventory(int i);
-	void ReleaseInventory();
+	void ReleaseInventory();*/
 
 	void Attack();
 	bool StealFromInventory(UOOwnable* o, UOEntity* buggler);

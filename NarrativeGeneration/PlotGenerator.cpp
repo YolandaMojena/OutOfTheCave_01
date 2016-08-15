@@ -64,7 +64,7 @@ void APlotGenerator::Tick( float DeltaTime )
 
 			if (rand() % 100 <= (25 /(_currentPlotsInAction + 1))) {
 
-			else if (rand() % 100 < (20 / (_currentPlotsInAction + 1)) && _currentPlotsInAction <= _MAX_PLOTS) {
+			//else if (rand() % 100 < (20 / (_currentPlotsInAction + 1)) && _currentPlotsInAction <= _MAX_PLOTS) {
 
 
 				SpawnAmbitionPlot();
