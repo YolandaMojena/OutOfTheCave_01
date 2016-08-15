@@ -24,6 +24,16 @@ FString AVillage::AssignFemaleHumanName() {
 	if (_femaleHumanNames.Num() > 0) {
 		name = _femaleHumanNames[rand() % _femaleHumanNames.Num()];
 		_femaleHumanNames.Remove(name);
+
+		FString cleanName;
+
+		for (TCHAR c : name) {
+			//CARRIAGE RETURN
+			if ((int)c != 13)
+				cleanName += c;
+		}
+
+		name = cleanName;
 	}
 	return name;
 }
@@ -33,6 +43,16 @@ FString AVillage::AssignMaleHumanName() {
 	if (_maleHumanNames.Num() > 0) {
 		name = _maleHumanNames[rand() % _maleHumanNames.Num()];
 		_maleHumanNames.Remove(name);
+
+		FString cleanName;
+
+		for (TCHAR c : name) {
+			//CARRIAGE RETURN
+			if ((int)c != 13)
+				cleanName += c;
+		}
+
+		name = cleanName;
 	}
 	return name;
 
@@ -43,7 +63,16 @@ FString AVillage::AssignGoblinName() {
 	if (_goblinNames.Num() > 0) {
 		name = _goblinNames[rand() % _goblinNames.Num()];
 		_goblinNames.Remove(name);
+
+		FString cleanName;
+
+		for (TCHAR c : name) {
+			//CARRIAGE RETURN
+			if ((int)c != 13)
+				cleanName += c;
+		}
+
+		name = cleanName;
 	}
 	return name;
-
 }

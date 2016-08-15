@@ -5,26 +5,14 @@
 #include "GameFramework/Actor.h"
 #include <vector>
 #include "BasePlot.h"
-#include "PlotTypes.h"
 #include "Utilities.h"
+#include "PlotTypes.h"
 #include <unordered_map>
 #include "Report.h"
-#include "StringCollection.h"
 #include "NarrativeGeneration/Ambition.h"
 #include "PlotGenerator.generated.h"
 
 using namespace std;
-
-class PlotDictionary {
-
-public:
-	PlotDictionary();
-	vector<string> GetPlotsOfType(TypeOfPlot type);
-
-private:
-	unordered_map<TypeOfPlot, vector<string>> _plotDictionary;
-	StringCollection strings;
-};
 
 UCLASS()
 class OUTOFTHECAVE_01_API APlotGenerator : public AActor
@@ -45,7 +33,11 @@ public:
 	};
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlotGenerator)
-		FString currentPlot;
+		FString _currentPlotString;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlotGenerator)
+		FLinearColor _currentPlotTypeColor;
 	
 	float GetDaytime();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -68,6 +60,11 @@ public:
 
 
 
+	void SetCurrentPlotString(FString sentence);
+	void SetCurrentPlotTypeColor(FLinearColor color);
+
+	float GetOverallHateAgainstRace(ERace race);
+
 private:
 
 	bool ContainsReport(Report* newReport);
@@ -79,17 +76,28 @@ private:
 	bool SpawnAmbitionPlot();
 	bool SpawnWorldPlot();
 
-	PlotDictionary plotDictionary;
-	StringCollection strings;
+	vector<string> GetPlotsOfType(TypeOfPlot type);
+	unordered_map<TypeOfPlot, vector<string>> _plotDictionary;
 
 	vector<BasePlot*> _reactivePlots;
 	vector<BasePlot*> _ambitionPlots;
 	vector<BasePlot*> _worldPlots;
 
+	// PLOT TYPES
+	string _ATTACK_PLOT = "attackPlot";
+	string _GATHER_PLOT = "gatherPlot";
+	string _ROBBERY_PLOT = "robberyPlot";
+	string _DESTROY_PLOT = "destroyPlot";
+	string _BUILD_PLOT = "buildPlot";
+	string _GIVE_PLOT = "givePlot";
+	string _HELP_PLOT = "helpPlot";
+	string _WAR_PLOT = "warPlot";
+
 	TArray<Report*> _pReportLog;
 	bool _lastPlotCompleted = true;
 	float _timeToSpawnPlot;
 	int _currentPlotsInAction;
+	vector<UOEntity*> spawnedHeard;
 
 	TSubclassOf<class ACharacter> BP_Bear;
 	vector<UOOwnable*> _valuables;
@@ -103,8 +111,16 @@ private:
 	bool ValidateAttackPlot(AttackPlot* plot);
 	bool ValidateBuildPlot(BuildPlot* build);
 	bool ValidateDestroyPlot(DestroyPlot* plot);
+	bool ValidateHelpPlot(HelpPlot* plot);
+	bool ValidateGiftPlot(GivePlot* build);
+	bool ValidateStealPlot(StealPlot* plot);
+	bool ValidateGetPlot(GetPlot* plot);
+	bool ValidateAmbushPlot(AmbushPlot* plot);
+	bool ValidateWarPlot(WarPlot* plot);
+	bool ValidateDefendPlot(DefendPlot* plot);
 
 	FVector _stampedeTargetLocation;
+	FVector _stampedeSpawnArea;
 };
 
 

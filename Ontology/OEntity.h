@@ -12,7 +12,6 @@
 #include <string>
 #include <cstdlib>
 
-
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -100,6 +99,7 @@ public:
 	vector<BasePlot*> GetCurrentPlots();
 	BasePlot* GetCurrentPlot();
 	void AddCurrentPlot(BasePlot* bp);
+	void AddCurrentPlotWithPriority(BasePlot* bp);
 
 	UOEntity();
 	UOEntity(OPersonality* personality);
@@ -211,6 +211,11 @@ public:
 	void SetRace(ERace race);
 	EJob GetJob();
 	void SetJob(EJob);
+	AActor* GetCurrentTarget();
+	void SetCurrentTarget(AActor* item);
+	float GetAppreciationToOtherRace();
+	UOEntity* GetMostHated();
+	
 
 	void SetAIController(AEntityAIController* eaic);
 	void SetPlotGenerator();
@@ -219,6 +224,8 @@ public:
 	void ClearState(bool completedOk);
 	//void AddInstantNode(Node* n);
 	void AddInstantHelpNode(Node* n);
+	void AddInstantReact(Graph* g);
+	vector<Graph*> GetReacts();
 
 	void ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notifyType, FString notifyID);
 
@@ -270,6 +277,7 @@ protected:
 
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
+	void IHaveBeenHelpedBySomeone(UOEntity* helper, UItem* motivation);
 
 	AIState _currentState = AIState::idle;
 	ERace _race;
@@ -282,6 +290,8 @@ protected:
 	Graph* _idleGraph;
 	vector<Graph*> _currentReacts;
 	AEntityAIController* _entityAIController;
+	AActor* _currentTarget;
+	UOEntity* _mostHatedEntity;
 
 	vector<ORelation*> _relationships;
 	vector<UOEntity*> _potentialRelationships;

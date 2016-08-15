@@ -46,11 +46,14 @@ void UOEntity::BeginPlay() {
 	Super::BeginPlay();
 
 	if (!IsPlayer) {
+		//HEAD
 		//((ACharacter*)GetOwner())->GetMesh()->SetAllBodiesBelowSimulatePhysics(((ACharacter*)GetOwner())->GetMesh()->GetBoneName(1), true);
 		//for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
 			//_plotGenerator = *Itr;
 		//for (TActorIterator<AOwnableSpawner> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
 		//	_ownableSpawner = *Itr;
+
+		//refs/remotes/origin/Landa
 		
 		GenerateTraits();
 		HitFunc.BindUFunction(GetOwner(), "OnOverlapBegin");
@@ -198,6 +201,34 @@ float UOEntity::GetFearTo(UOEntity* ent) {
 }
 EJob UOEntity::GetJob() {
 	return _job;
+}
+AActor * UOEntity::GetCurrentTarget(){
+	return _currentTarget;
+}
+void UOEntity::SetCurrentTarget(AActor * actor){
+	_currentTarget = actor;
+}
+
+float UOEntity::GetAppreciationToOtherRace()
+{
+	int raceCounter = 0;
+	int appreciationSum = 0;
+	int lowestAppreciation = 100;
+
+	for (ORelation* o : _relationships){
+		if (o->GetOtherEntity()->GetRace() != _race) {
+			raceCounter++;
+			appreciationSum += o->GetAppreciation();
+
+			if (o->GetAppreciation() < lowestAppreciation)
+				_mostHatedEntity = o->GetOtherEntity();
+		}
+	}
+
+	return appreciationSum / raceCounter;
+}
+UOEntity* UOEntity::GetMostHated() {
+	return _mostHatedEntity;
 }
 
 AEntityAIController* UOEntity::GetEntityAIController() {
@@ -513,7 +544,7 @@ void UOEntity::Die() {
 					entity->SetMainPlotEntity(notorious);
 				}
 			}
-			_plotGenerator->ChangeCurrentPlotsInAction(-1);
+			else _plotGenerator->ChangeCurrentPlotsInAction(-1);
 		}
 	}
 
@@ -568,8 +599,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 		ORelation* relationFromOther = o->GetOtherEntity()->GetRelationWith(this);
 
 		if (relationFromOther){
-			// CHANGE FOR HIGH APPRECIATION
-			if (relationFromOther->GetAppreciation() >= relationFromOther->LOW_APPRECIATION) {
+			if (relationFromOther->GetAppreciation() > 50) {
 				ORelation* relationWithKiller = relationFromOther->GetEntity()->GetRelationWith(killer);
 
 				if (!relationWithKiller) {
@@ -578,11 +608,39 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 				}
 
 				relationWithKiller->ChangeAppreciation(-relationFromOther->GetAppreciation());
-				if (relationWithKiller->GetAppreciation() < relationWithKiller->LOW_APPRECIATION)
-				relationFromOther->GetEntity()->SendReport(new Report(relationWithKiller, TypeOfPlot::aggressive, this));
+
+				if (relationWithKiller->GetAppreciation() < ORelation::LOW_APPRECIATION)
+					SendReport(new Report(relationWithKiller, TypeOfPlot::aggressive, this));
+
+				//Since something bad has happened, let's check the overall hate against the enemy race
+				if (killer->GetRace() != ERace::R_Troll && killer->GetRace()!=_race) 
+					if (_plotGenerator->GetOverallHateAgainstRace(_race == ERace::R_Human ? ERace::R_Goblin : ERace::R_Human) < ORelation::LOW_APPRECIATION / 2) {
+						for(UOEntity* e : _plotGenerator->GetNotoriousEntitiesByRace(_race))
+							SendReport(new Report(e, TypeOfPlot::world, this));
+					}		
 			}
 			o->GetOtherEntity()->DeleteRelation(this);
 		}
+	}
+}
+
+void UOEntity::IHaveBeenHelpedBySomeone(UOEntity * helper, UItem* motivation)
+{
+	ORelation* relationWithOther = GetRelationWith(helper);
+
+	if (!relationWithOther){
+		AddRelationship(new ORelation(this, helper));
+		relationWithOther = GetRelationWith(helper);
+	}
+
+	int currentAppreciation = relationWithOther->GetAppreciation();
+
+	// ERIC ADJUST HOW MUCH AS YOU PLEASE
+	relationWithOther->ChangeAppreciation(+10);
+
+	if (currentAppreciation < ORelation::HIGH_APPRECIATION && relationWithOther->GetAppreciation() > ORelation::HIGH_APPRECIATION) {
+
+		Report* newReport = new Report(relationWithOther, TypeOfPlot::thankful, motivation);
 	}
 }
 
@@ -602,32 +660,37 @@ void UOEntity::AddCurrentPlot(BasePlot* bp) {
 	_currentPlots.push_back(bp);
 }
 
+void UOEntity::AddCurrentPlotWithPriority(BasePlot * bp)
+{
+	_currentPlots.insert(_currentPlots.begin(), bp);
+}
+
 
 bool UOEntity::CheckValidPersonality(TypeOfPlot type) {
 
 	switch (type) {
 
 	case TypeOfPlot::aggressive:
-	//	if (_personality->GetAggressiveness() < 50 || _personality->GetBraveness() < 50) return false;
-		return true;
+		return (_personality->GetAggressiveness() > 50 && _personality->GetBraveness() > 50);
 
 	case TypeOfPlot::possessive:
-	//	if (_personality->GetMaterialist() < 50 || _personality->GetBraveness() < 50) return false;
-		return true;
-
-	// Every entity worries about it's home and basic needs 
-	case TypeOfPlot::resources: 
-		return true;
+		return (_personality->GetMaterialist() > 50 && _personality->GetBraveness() > 25);
 
 	case TypeOfPlot::thankful:
-		if (_personality->GetKindness() < 50 || _personality->GetSocial() < 50) return false;
-		return true;
+		return (_personality->GetKindness() > 50 && _personality->GetSocial() > 50);
 
 	case TypeOfPlot::preventive:
 		return true;
-	}
 
-	return true;
+	case TypeOfPlot::world:
+		return true;
+
+	case TypeOfPlot::resources:
+		return true;
+
+	default:
+		return true;
+	}
 }
 
 
@@ -687,9 +750,14 @@ void UOEntity::SetState(AIState s) {
 			if (_currentPlots.size() > 0 && !_mainPlotEntity) {
 				_brain = _currentPlots[0]->GetGraph();
 				_mainPlotEntity = this;
-				_plotGenerator->ChangeCurrentPlotsInAction(+1);
 				_currentPlots[0]->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
-				_currentPlots[0]->PrintSentence();
+				_currentPlots[0]->PrintSentence(_plotGenerator, _currentPlots[0]->GetMotivation(), _currentPlots[0]->GetAmbition());
+
+				BasePlot* plotToReact = _currentPlots[0]->ConsiderReactions();
+				if (plotToReact) {
+					plotToReact->GetMainEntity()->AddCurrentPlotWithPriority(plotToReact);
+					plotToReact->GetMainEntity()->RethinkState();
+				}
 			}
 			else {
 				if (_mainPlotEntity && _mainPlotEntity->GetCurrentPlot()) {
@@ -983,6 +1051,16 @@ void UOEntity::ClearState(bool completedOk)
 void UOEntity::AddInstantHelpNode(Node * n)
 {
 	_brain.AddInstantNode(n);
+}
+
+void UOEntity::AddInstantReact(Graph * g)
+{
+	_currentReacts.push_back(g);
+}
+
+vector<Graph*> UOEntity::GetReacts()
+{
+	return _currentReacts;
 }
 
 void UOEntity::RethinkState() {	

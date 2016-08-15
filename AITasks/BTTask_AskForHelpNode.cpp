@@ -18,12 +18,12 @@ EBTNodeResult::Type UBTTask_AskForHelpNode::ExecuteTask(UBehaviorTreeComponent& 
 		for (UOEntity* e : plotEntity->GetCurrentPlot()->GetInvolvedInPlot())
 			if (!helpers.Contains(e) && e!=plotEntity) helpers.Add(e);
 
-		if (plotEntity->GetPersonality()->GetSocial() > 50) {
+		if (plotEntity->GetPersonality()->GetSocial() > 25) {
 			// Add by relationships
 			for (ORelation* r : plotEntity->GetRelationships()) {
 				UOEntity* potentialHelper = r->GetOtherEntity();
 				if (!potentialHelper->IsPlayer && !helpers.Contains(potentialHelper) && potentialHelper->GetRelationWith(plotEntity) &&
-					potentialHelper->GetRelationWith(plotEntity)->GetAppreciation()>50)
+					potentialHelper->GetRelationWith(plotEntity)->GetAppreciation()>ORelation::HIGH_APPRECIATION)
 					helpers.Add(r->GetOtherEntity());
 			}
 		}
@@ -31,8 +31,7 @@ EBTNodeResult::Type UBTTask_AskForHelpNode::ExecuteTask(UBehaviorTreeComponent& 
 		// Check if the entity is free to be involved
 		for(UOEntity* e : helpers) {
 
-			if (e->GetMainPlotEntity() == nullptr && !e->GetIsNumb() && FVector(plotEntity->GetOwner()->GetActorLocation() - e->GetOwner()->GetActorLocation()).Size() < searchRatio) {
-				e->SetMainPlotEntity(plotEntity);
+			if (e->GetMainPlotEntity() == nullptr && !e->GetIsNumb() && FVector(plotEntity->GetOwner()->GetActorLocation() - e->GetOwner()->GetActorLocation()).Size() <= searchRatio) {
 				e->ChangeNotoriety(+1);
 				e->RethinkState();
 			}

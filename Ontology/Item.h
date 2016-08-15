@@ -120,9 +120,6 @@ public:
 		}
 	}*/
 
-	UOEntity* GetEntityComponent(AActor* actor);
-	UOOwnable* GetOwnableComponent(AActor* actor);
-	UOEdification* GetEdificationComponent(AActor* actor);
 	APlotGenerator* GetPlotGenerator();
 
 	float GetDensity();

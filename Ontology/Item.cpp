@@ -51,23 +51,6 @@ FString UItem::GenerateNotifyID(UItem* predicate, UOEntity* subject, ENotify not
 	return "" + FString::SanitizeFloat(predicate->GetUniqueID()) + FString::SanitizeFloat(subject->GetUniqueID()) + FString::SanitizeFloat((int)notifyType);
 }
 
-UOEntity* UItem::GetEntityComponent(AActor* actor) {
-
-	UOEntity* foundComponent = actor->FindComponentByClass<UOEntity>();
-	return foundComponent;
-}
-UOOwnable* UItem::GetOwnableComponent(AActor* actor) {
-
-	UOOwnable* foundComponent = actor->FindComponentByClass<UOOwnable>();
-	return foundComponent;
-}
-
-UOEdification * UItem::GetEdificationComponent(AActor * actor)
-{
-	UOEdification* foundComponent = actor->FindComponentByClass<UOEdification>();
-	return foundComponent;
-}
-
 APlotGenerator* UItem::GetPlotGenerator() {
 	return _plotGenerator;
 }

@@ -28,12 +28,11 @@ public:
 	void BuildSentence();
 	UOEntity* GetTargetEntity();
 	void InitPlot();
+	BasePlot* ConsiderReactions();
 
 private:
 
 	void BuildGraph();
-	void ConsiderReactions();
-
 	UOEntity* _targetEntity;
 };
 
@@ -44,18 +43,19 @@ private:
 class OUTOFTHECAVE_01_API DestroyPlot : public BasePlot
 {
 public:
-	DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation);
-	DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition);
+	DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOEdification* targetEdification, UItem* motivation);
+	DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOEdification* targetEdification, TypeOfAmbition ambition);
 	~DestroyPlot();
 
 	void BuildSentence();
 	UOEntity* GetTargetEntity();
+	UOEdification* GetTargetEdification();
 	void InitPlot();
+	BasePlot* ConsiderReactions();
 
 private:
 
 	void BuildGraph();
-	void ConsiderReactions();
 
 	UOEdification* _targetEdification;
 	UOEntity* _targetEntity;
@@ -69,20 +69,19 @@ class OUTOFTHECAVE_01_API BuildPlot : public BasePlot
 {
 public:
 	BuildPlot(UOEntity* plotEntity, UOEdification* target, UItem* motivation);
-	//BuildPlot(UOEntity* plotEntity, UOEdification* target, TypeOfAmbition ambition);
+	BuildPlot(UOEntity* plotEntity, UOEdification* target, TypeOfAmbition ambition);
 	~BuildPlot();
 
 	void BuildSentence();
 	UOEdification* GetTargetEdification();
 	void InitPlot();
+	BasePlot* ConsiderReactions();
 
 private:
 
 	void BuildGraph();
-	void ConsiderReactions();
 
 	UOEdification* _targetEdification;
-	UItem* _motivation;
 };
 
 
@@ -100,11 +99,11 @@ public:
 	void InitPlot();
 	UOEntity* GetTargetEntity();
 	UOOwnable* GetTargetOwnable();
+	BasePlot* ConsiderReactions();
 
 private:
 
 	void BuildGraph();
-	void ConsiderReactions();
 
 	UOEntity* _targetEntity;
 	UOOwnable* _targetOwnable;
@@ -123,11 +122,11 @@ public:
 	void BuildSentence();
 	void InitPlot();
 	UOOwnable* GetTargetOwnable();
+	BasePlot* ConsiderReactions();
 
 private:
 
 	void BuildGraph();
-	void ConsiderReactions();
 
 	UOOwnable* _targetOwnable;
 	vector<UOEntity*> _owners;
@@ -135,30 +134,32 @@ private:
 
 
 
-//AMBUSH OR ASSAULT
+//AMBUSH
 //**************************************************************************************
 
 class OUTOFTHECAVE_01_API AmbushPlot : public BasePlot
 {
 public:
-	AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation);
-	AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition);
+	AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* target, UItem* motivation);
+	AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* target, TypeOfAmbition ambition);
 	~AmbushPlot();
 
 	void BuildSentence();
 	UOEntity* GetTargetEntity();
+	UItem* GetTarget();
 	void InitPlot();
+	BasePlot* ConsiderReactions();
 
 private:
 
 	void BuildGraph();
-	void ConsiderReactions();
 
 	UOEntity* _targetEntity;
+	UItem* _target;
 };
 
 
-//HELP PLOT = IMITATE
+//HELP PLOT
 //**************************************************************************************
 
 class OUTOFTHECAVE_01_API HelpPlot : public BasePlot
@@ -171,42 +172,13 @@ public:
 	void BuildSentence();
 	void InitPlot();
 	UOEntity* GetTargetEntity();
+	BasePlot* ConsiderReactions();
 
 private:
 
 	void BuildGraph();
-	void ConsiderReactions();
 
 	UOEntity* _targetEntity;
-};
-
-
-
-//STAMPEDE
-//**************************************************************************************
-
-class OUTOFTHECAVE_01_API Stampede : public BasePlot
-{
-public:
-	Stampede(ERace race, FVector spawnLocation, FVector targetLocation, float num, APlotGenerator* plotGenerator);
-	Stampede(ERace race, FVector spawnLocation, UOEntity* targetActor, float num, APlotGenerator* plotGenerator);
-	~Stampede();
-
-	void BuildSentence();
-	void InitPlot();
-
-private:
-
-	void BuildGraph();
-	void ConsiderReactions();
-	ERace _race;
-	FString _raceString;
-	FVector _spawnLocation;
-	FVector _targetLocation;
-	UOEntity* _targetActor;
-	APlotGenerator* _plotGenerator;
-	float _num;
-	vector<UOEntity*> _heard;
 };
 
 //GIVE PLOT
@@ -223,35 +195,91 @@ public:
 	void InitPlot();
 	UOEntity* GetTargetEntity();
 	UOOwnable* GetTargetOwnable();
+	BasePlot* ConsiderReactions();
 
 private:
 
 	void BuildGraph();
-	void ConsiderReactions();
 
 	UOEntity* _targetEntity;
 	UOOwnable* _targetOwnable;
 };
 
-
-//GATHER PLOT
+//DEFEND PLOT
 //**************************************************************************************
-/*
-class OUTOFTHECAVE_01_API GatherPlot : public BasePlot
+
+class OUTOFTHECAVE_01_API DefendPlot : public BasePlot
 {
 public:
-GatherPlot(UOEntity* plotEntity, UOOwnable* targetResource);
-~GatherPlot();
+	DefendPlot(UOEntity* plotEntity, UOEntity* against, UItem* target, UItem* motivation);
+	//DefendPlot(UOEntity* plotEntity, UOEntity* target, TypeOfAmbition ambition);
+	~DefendPlot();
 
-void BuildSentence();
+	void BuildSentence();
+	void InitPlot();
+	UOEntity* GetTargetEntity();
+	UOEntity* GetTargetToDefend();
+	BasePlot* ConsiderReactions();
 
 private:
 
-void BuildGraph();
-void ConsiderReactions();
+	void BuildGraph();
 
-UOOwnable* _targetResource;
-};*/
+	UItem* _target;
+	UOEntity* _against;
+};
+
+
+//WAR
+//**************************************************************************************
+
+class OUTOFTHECAVE_01_API WarPlot : public BasePlot
+{
+public:
+	WarPlot(UOEntity* plotEntity);
+	~WarPlot();
+
+	void BuildSentence();
+	void InitPlot();
+	UOEntity* GetTargetEntity();
+	BasePlot* ConsiderReactions();
+
+private:
+
+	void BuildGraph();
+	UOEntity* _targetEntity;
+};
+
+
+
+
+//STAMPEDE
+//**************************************************************************************
+
+class OUTOFTHECAVE_01_API Stampede : public BasePlot
+{
+public:
+	Stampede(ERace race, FVector spawnLocation, FVector targetLocation, float num, APlotGenerator* plotGenerator);
+	Stampede(ERace race, FVector spawnLocation, UOEntity* targetActor, float num, APlotGenerator* plotGenerator);
+	~Stampede();
+
+	void BuildSentence();
+	void InitPlot();
+	BasePlot* ConsiderReactions();
+
+private:
+
+	void BuildGraph();
+	ERace _race;
+	FString _raceString;
+	FVector _spawnLocation;
+	FVector _targetLocation;
+	UOEntity* _targetActor;
+	APlotGenerator* _plotGenerator;
+	float _num;
+	vector<UOEntity*> _heard;
+};
+
 
 
 

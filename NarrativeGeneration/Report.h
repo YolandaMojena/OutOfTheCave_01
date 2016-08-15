@@ -25,7 +25,7 @@ public:
 
 	Report(ORelation* newRelation, TypeOfPlot type, UItem* motivation);
 	Report(OOwnership* newOwnership, TypeOfPlot type, UItem* motivation);
-	Report(UOEntity* reportEntity);
+	Report(UOEntity* entity, TypeOfPlot type, UItem* motivation);
 
 	~Report();
 

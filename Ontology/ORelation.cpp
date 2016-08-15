@@ -3,6 +3,10 @@
 #include "OutOfTheCave_01.h"
 #include "Ontology/ORelation.h"
 
+int ORelation::LOW_APPRECIATION = 25;
+int ORelation::REGULAR_APPRECIATION = 50;
+int ORelation::HIGH_APPRECIATION = 75;
+
 ORelation::ORelation()
 {
 }

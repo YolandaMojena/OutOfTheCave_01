@@ -70,6 +70,9 @@ void AEntityAIController::SetNode(Node* n) {
 	case NodeType::goToActor:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
 		break;
+	case NodeType::ambush:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
+		break;
 	case NodeType::grab:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Ownable"), n->nBlackboard.ownable);
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
@@ -91,6 +94,10 @@ void AEntityAIController::SetNode(Node* n) {
 		break;
 	case NodeType::waitUntilDaytime:
 		break;
+	case NodeType::defend:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
+		entityBlackboard->SetValue<UBlackboardKeyType_Float>(entityBlackboard->GetKeyID("FloatKey"), n->nBlackboard.floatKey);
+		break;
 	case NodeType::help:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity"), n->nBlackboard.entity);
 		if(n->nBlackboard.entity->IsPlayer)
@@ -108,7 +115,9 @@ void AEntityAIController::SetNode(Node* n) {
 			entityBlackboard->SetValue<UBlackboardKeyType_Vector>(positionID, GetOwner()->GetActorLocation() + Utilities::RandomDisplacementVector(1000));
 		}*/
 	}
-	break;
+		break;
+	case NodeType::destroySelf:
+		break;
 	default:
 		break;
 	}
