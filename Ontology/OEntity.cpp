@@ -44,11 +44,6 @@ void UOEntity::BeginPlay() {
 	Super::BeginPlay();
 
 	if (!IsPlayer) {
-		//((ACharacter*)GetOwner())->GetMesh()->SetAllBodiesBelowSimulatePhysics(((ACharacter*)GetOwner())->GetMesh()->GetBoneName(1), true);
-		//for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
-			//_plotGenerator = *Itr;
-		for (TActorIterator<AOwnableSpawner> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
-			_ownableSpawner = *Itr;
 		
 		GenerateTraits();
 		HitFunc.BindUFunction(GetOwner(), "OnOverlapBegin");
@@ -634,16 +629,13 @@ bool UOEntity::CheckValidPersonality(TypeOfPlot type) {
 	switch (type) {
 
 	case TypeOfPlot::aggressive:
-		if (_personality->GetAggressiveness() < 50 && _personality->GetBraveness() < 50) return false;
-		return true;
+		return (_personality->GetAggressiveness() > 50 && _personality->GetBraveness() > 50);
 
 	case TypeOfPlot::possessive:
-		if (_personality->GetMaterialist() < 50 && _personality->GetBraveness() < 50) return false;
-		return true;
+		return (_personality->GetMaterialist() > 50 && _personality->GetBraveness() > 25);
 
 	case TypeOfPlot::thankful:
-		if (_personality->GetKindness() < 50 && _personality->GetSocial() < 50) return false;
-		return true;
+		return (_personality->GetKindness() > 50 && _personality->GetSocial() > 50);
 
 	case TypeOfPlot::preventive:
 		return true;
@@ -653,9 +645,10 @@ bool UOEntity::CheckValidPersonality(TypeOfPlot type) {
 
 	case TypeOfPlot::resources:
 		return true;
-	}
 
-	return true;
+	default:
+		return true;
+	}
 }
 
 
@@ -929,6 +922,16 @@ void UOEntity::ClearState(bool completedOk)
 void UOEntity::AddInstantHelpNode(Node * n)
 {
 	_brain.AddInstantNode(n);
+}
+
+void UOEntity::AddInstantReact(Graph * g)
+{
+	_currentReacts.push_back(g);
+}
+
+vector<Graph*> UOEntity::GetReacts()
+{
+	return _currentReacts;
 }
 
 void UOEntity::RethinkState() {	

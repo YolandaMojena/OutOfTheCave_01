@@ -35,11 +35,13 @@ void BasePlot::PrintSentence(APlotGenerator* plotGenerator, UItem* motivation, T
 void BasePlot::AddInvolvedInPlot(UOEntity * entity)
 {
 	_involvedInPlot.Add(entity);
+	entity->SetMainPlotEntity(_plotEntity);
 }
 
 void BasePlot::DeleteFromInvolved(UOEntity* entity) {
 
 	_involvedInPlot.Remove(entity);
+	entity->SetMainPlotEntity(nullptr);
 }
 
 void BasePlot::SavePlotToFile(const FString path, const FString fileName)

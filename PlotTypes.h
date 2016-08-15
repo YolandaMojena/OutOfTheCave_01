@@ -43,12 +43,13 @@ private:
 class OUTOFTHECAVE_01_API DestroyPlot : public BasePlot
 {
 public:
-	DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation);
-	DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition);
+	DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOEdification* targetEdification, UItem* motivation);
+	DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOEdification* targetEdification, TypeOfAmbition ambition);
 	~DestroyPlot();
 
 	void BuildSentence();
 	UOEntity* GetTargetEntity();
+	UOEdification* GetTargetEdification();
 	void InitPlot();
 	BasePlot* ConsiderReactions();
 
@@ -158,7 +159,7 @@ private:
 };
 
 
-//HELP PLOT = IMITATE
+//HELP PLOT
 //**************************************************************************************
 
 class OUTOFTHECAVE_01_API HelpPlot : public BasePlot

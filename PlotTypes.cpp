@@ -84,7 +84,7 @@ void AttackPlot::BuildGraph() {
 
 	UOEntity* troll = UGameplayStatics::GetPlayerCharacter(_plotEntity->GetWorld(), 0)->FindComponentByClass<UOEntity>();
 	ORelation* relation = _plotEntity->GetRelationWith(troll);
-	if ( relation && relation->GetAppreciation() > 50) {
+	if (relation && relation->GetAppreciation() > 50) {
 
 		//ASK TROLL FOR HELP
 		Node* askTrollForHelpNode = new Node();
@@ -152,18 +152,20 @@ UOEntity* AttackPlot::GetTargetEntity() {
 //DESTROY PLOT
 //**************************************************************************************
 
-DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation) : BasePlot(plotEntity) {
+DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOEdification* targetEdification, UItem* motivation) : BasePlot(plotEntity) {
 
 	_targetEntity = targetEntity;
 	_isExclusive = false;
+	_targetEdification = targetEdification;
 	_motivation = motivation;
 	_ambition = TypeOfAmbition::noAmbition;
 }
 
-DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition) : BasePlot(plotEntity) {
+DestroyPlot::DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOEdification* targetEdification, TypeOfAmbition ambition) : BasePlot(plotEntity) {
 
 	_targetEntity = targetEntity;
 	_isExclusive = true;
+	_targetEdification = targetEdification;
 	_ambition = ambition;
 	_motivation = nullptr;
 }
@@ -245,18 +247,9 @@ void DestroyPlot::BuildGraph() {
 
 void DestroyPlot::InitPlot() {
 
-	for (OOwnership* o : _targetEntity->GetPossessions()) {
-		if (dynamic_cast<UOEdification*>(o->GetOwnable())) {
-			_targetEdification = (UOEdification*) o->GetOwnable();
-			break;
-		}
-	}
-
-	if (_targetEdification) {
-		_identifier = "Destroy " + _targetEdification->GetItemName() + ":\n";
-		BuildGraph();
-		BuildSentence();
-	}
+	_identifier = "Destroy " + _targetEdification->GetItemName() + ":\n";
+	BuildGraph();
+	BuildSentence();
 }
 
 BasePlot* DestroyPlot::ConsiderReactions() {
@@ -291,6 +284,11 @@ BasePlot* DestroyPlot::ConsiderReactions() {
 
 UOEntity* DestroyPlot::GetTargetEntity() {
 	return _targetEntity;
+}
+
+UOEdification * DestroyPlot::GetTargetEdification()
+{
+	return _targetEdification;
 }
 
 
@@ -854,7 +852,7 @@ void DefendPlot::BuildGraph() {
 
 	//GO TO TARGET
 	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToItem);
+	goToNode->SetNodeType(NodeType::goToActor);
 	goToNode->SetActor(_target->GetOwner());
 	_plotGraph.AddNode(goToNode);
 
@@ -1002,7 +1000,7 @@ void WarPlot::BuildGraph() {
 	//GO TO MOST HATED
 	Node* goToNode = new Node();
 	goToNode->SetHighPriority(true);
-	goToNode->SetNodeType(NodeType::goToItem);
+	goToNode->SetNodeType(NodeType::goToActor);
 	goToNode->SetActor(_targetEntity->GetOwner());
 	_plotGraph.AddNode(goToNode);
 

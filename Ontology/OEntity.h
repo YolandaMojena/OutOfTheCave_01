@@ -216,6 +216,8 @@ public:
 	void ClearState(bool completedOk);
 	//void AddInstantNode(Node* n);
 	void AddInstantHelpNode(Node* n);
+	void AddInstantReact(Graph* g);
+	vector<Graph*> GetReacts();
 
 	void ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notifyType, FString notifyID);
 

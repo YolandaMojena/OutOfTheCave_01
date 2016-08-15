@@ -12,12 +12,12 @@ EBTNodeResult::Type UBTTask_Defend::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 
 	if (entity) {
 
-		if ((((AActor*)blackboard->GetValueAsObject(blackboard->GetKeyID("Actor")))->GetActorLocation() - entity->GetOwner()->GetActorLocation()).Size() <= tolerance) {
+		if ((((AActor*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Actor")))->GetActorLocation() - entity->GetOwner()->GetActorLocation()).Size() <= tolerance) {
 			blackboard->SetValue<UBlackboardKeyType_Bool>("BoolKey", true);
 			blackboard->SetValue<UBlackboardKeyType_Float>("FloatKey", 0);
 		}
 		else
-			blackboard->SetValue<UBlackboardKeyType_Float>("FloatKey", blackboard->GetValueAsFloat(blackboard->GetKeyID("FloatKey"))-1);
+			blackboard->SetValue<UBlackboardKeyType_Float>("FloatKey", blackboard->GetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("FloatKey"))-1);
 	}
 
 	return::EBTNodeResult::Succeeded;

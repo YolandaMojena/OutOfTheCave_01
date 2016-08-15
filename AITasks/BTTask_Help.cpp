@@ -12,17 +12,24 @@ EBTNodeResult::Type UBTTask_Help::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 
 	if (entity) {
 
-		if (!entity->IsPlayer) {
+		UOEntity* entityToHelp = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>("Entity");
 
-			UOEntity* targetEntity = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
+		if (entityToHelp) {
 
-			if (targetEntity && !targetEntity->GetIsNumb() && targetEntity->GetBrain()) {
-
-				entity->AddInstantHelpNode(targetEntity->GetBrain()->Peek());
-
-				return::EBTNodeResult::Succeeded;
+			if (entityToHelp->GetCurrentState() == UOEntity::AIState::plot) {
+				entityToHelp->GetCurrentPlot()->AddInvolvedInPlot(entity);	
 			}
-			else blackboard->SetValue<UBlackboardKeyType_Bool>("NodeCompleted", false);
+			else if (entityToHelp->GetCurrentState() == UOEntity::AIState::react) {
+				entity->AddInstantReact(entityToHelp->GetReacts()[0]);
+			}
+			else if((entityToHelp->GetCurrentState() == UOEntity::AIState::idle)){
+				Graph g;
+				g.AddNode(entityToHelp->GetIdleGraph()->firstNode);
+				entity->AddInstantReact(&g);
+			}
+
+			entity->RethinkState();
+			blackboard->SetValue<UBlackboardKeyType_Bool>("NodeCompleted", false);
 		}
 	}
 	else blackboard->SetValue<UBlackboardKeyType_Bool>("NodeCompleted", false);

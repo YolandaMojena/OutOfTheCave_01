@@ -188,18 +188,41 @@ void APlotGenerator::GetPlotFromReportLog() {
 			}
 
 			else if (plot == _DESTROY_PLOT) {
-				newPlot = new DestroyPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
-				plotIsValid = ValidateDestroyPlot((DestroyPlot*)newPlot);	
 
-				if (plotIsValid) {
-					currentReport->GetReportEntity()->ChangeNotoriety(3);
-					currentReport->GetTargetEntity()->ChangeNotoriety(2);
+				UOEdification* targetEdification = nullptr;
+				for (OOwnership* o : currentReport->GetReportEntity()->GetPossessions()) {
+					if (o->GetOwnable()->IsA<UOEdification>()) {
+						if (!((UOEdification*)o->GetOwnable())->GetIsDestroyed()){
+							targetEdification = (UOEdification*)o->GetOwnable();
+							break;
+						}	
+					}
+				}
+				
+				if (targetEdification) {
+					newPlot = new DestroyPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), targetEdification, currentReport->GetMotivation());
+					plotIsValid = ValidateDestroyPlot((DestroyPlot*)newPlot);
+
+					if (plotIsValid) {
+						currentReport->GetReportEntity()->ChangeNotoriety(3);
+						currentReport->GetTargetEntity()->ChangeNotoriety(2);
+					}
+					else plotCandidates.erase(plotCandidates.begin() + randType);
 				}
 				else plotCandidates.erase(plotCandidates.begin() + randType);
 			}
 			else if (plot == _BUILD_PLOT) {
 				newPlot = new BuildPlot(currentReport->GetReportEntity(), (UOEdification*)currentReport->GetTargetOwnable(), currentReport->GetMotivation());
 				plotIsValid = ValidateBuildPlot((BuildPlot*)newPlot);
+
+				if (plotIsValid) {
+					currentReport->GetReportEntity()->ChangeNotoriety(3);
+				}
+				else plotCandidates.erase(plotCandidates.begin() + randType);
+			}
+			else if (plot == _HELP_PLOT) {
+				newPlot = new HelpPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
+				plotIsValid = ValidateHelpPlot((HelpPlot*)newPlot);
 
 				if (plotIsValid) {
 					currentReport->GetReportEntity()->ChangeNotoriety(3);
@@ -295,16 +318,7 @@ bool APlotGenerator::ValidateAttackPlot(AttackPlot * plot)
 }
 bool APlotGenerator::ValidateDestroyPlot(DestroyPlot * plot)
 {
-	bool ownsEdification = false;
-
-	for (OOwnership* o : plot->GetTargetEntity()->GetPossessions()) {
-
-		if (o->GetOwnable()->IsA<UOEdification>()) {
-			ownsEdification = true;
-			break;
-		}
-	}
-	return plot->GetMainEntity()->GetIntegrity() > 0 && ownsEdification;
+	return plot->GetMainEntity()->GetIntegrity() > 0 && !plot->GetTargetEdification()->GetIsDestroyed();
 }
 bool APlotGenerator::ValidateBuildPlot(BuildPlot* plot)
 {
@@ -314,13 +328,15 @@ bool APlotGenerator::ValidateHelpPlot(HelpPlot* plot) {
 	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEntity()->GetIntegrity() > 0 ;
 }
 bool APlotGenerator::ValidateGiftPlot(GivePlot* plot) {
-	return true;
+	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEntity()->GetIntegrity() > 0
+		&& !plot->GetTargetOwnable()->GetIsGrabbed();
 }
 bool APlotGenerator::ValidateStealPlot(StealPlot* plot) {
-	return true;
+	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEntity()->GetIntegrity() > 0
+		&& !plot->GetTargetOwnable()->GetIsGrabbed();
 }
 bool APlotGenerator::ValidateGetPlot(GetPlot* plot) {
-	return true;
+	return plot->GetMainEntity()->GetIntegrity() > 0 && !plot->GetTargetOwnable()->GetIsGrabbed();
 }
 bool APlotGenerator::ValidateAmbushPlot(AmbushPlot* plot) {
 	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEntity()->GetIntegrity() > 0;
