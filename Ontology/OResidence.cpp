@@ -5,7 +5,6 @@
 #include "Village.h"
 #include "Ontology/OEntity.h"
 #include "Ontology/OCivilian.h"
-#include "NarrativeGeneration/PlotGenerator.h"
 
 UOResidence::UOResidence() {
 
@@ -26,6 +25,24 @@ UOResidence::UOResidence() {
 	if (FemaleBlueprint.Object) {
 		BP_Civilian_Human_Female = (UClass*)FemaleBlueprint.Object->GeneratedClass;
 	}
+
+	// Herbivore
+	static ConstructorHelpers::FObjectFinder<UBlueprint> HerbivoreBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_Herbivore.BP_Herbivore'"));
+	if (HerbivoreBlueprint.Object) {
+		BP_Herbivore = (UClass*)HerbivoreBlueprint.Object->GeneratedClass;
+	}
+
+	// Bear
+	static ConstructorHelpers::FObjectFinder<UBlueprint> BearBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_Bear.BP_Bear'"));
+	if (BearBlueprint.Object) {
+		BP_Bear = (UClass*)BearBlueprint.Object->GeneratedClass;
+	}
+
+	// Wolf
+	static ConstructorHelpers::FObjectFinder<UBlueprint> WolfBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_Wolf.BP_Wolf'"));
+	if (WolfBlueprint.Object) {
+		BP_Wolf = (UClass*)WolfBlueprint.Object->GeneratedClass;
+	}
 }
 
 UOResidence::~UOResidence() {
@@ -40,9 +57,20 @@ void UOResidence::BeginPlay()
 
 	srand(time(NULL));
 
-	SpawnTenants();
-	initialized = true;
+	//SpawnTenants();
+	//initialized = true;
 	
+}
+
+void UOResidence::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction){
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!_plotGenerator) {
+		for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
+			_plotGenerator = *Itr;
+		SpawnTenants();
+		initialized = true;
+	}
 }
 
 
@@ -78,10 +106,13 @@ void UOResidence::SpawnTenants() {
 				ten->SetIdleGraph(GenerateIdleFromJob());
 				
 				ten->SetJob(job);
+				ten->SetHome(this);
 				ten->SetPlotGenerator();
 				ten->RethinkState();
 				
 				tentants.push_back(ten);
+
+				_plotGenerator->allEntities.Add(ten);
 			}
 		}
 	}
@@ -126,7 +157,10 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
 		break;
 	case ERace::R_Bear:
-		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Bear, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+		break;
+	case ERace::R_Wolf:
+		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Wolf, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
 		break;
 	case ERace::R_Beast:
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
@@ -139,6 +173,9 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 		break;
 	case ERace::R_Goat:
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+		break;
+	case ERace::R_Herbivore:
+		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Herbivore, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
 		break;
 	default:
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
@@ -270,23 +307,95 @@ Graph* UOResidence::GenerateIdleFromJob() {
 		break;
 	case EJob::J_Soldier:
 	{
-		UOEntity* troll = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>();
+		//MADRUGADA
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation());  n->SetDaytime(8);
+		idleGraph->AddNode(n);
 		n = new Node();
-		n->SetNodeType(NodeType::attack); n->SetEntity(troll); n->SetActor(troll->GetOwner());  n->SetFloatKey(0.f); n->SetDaytime(23);
+		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(8);
+		idleGraph->AddNode(n);
+
+		//JORNADA LABORAL 1
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(13);
+		idleGraph->AddNode(n);
+
+		//MEDIODÍA
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation());  n->SetDaytime(15);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(15);
+		idleGraph->AddNode(n);
+
+		//JORNADA LABORAL 2
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(23);
 		idleGraph->AddNode(n);
 	}
 		break;
 
 	case EJob::J_Herbibore:
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation());  n->SetDaytime(8);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::wait); n->SetDaytime(8);
+		idleGraph->AddNode(n);
+
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(13);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::wait); n->SetDaytime(13);
+		idleGraph->AddNode(n);
+
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(18);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::wait); n->SetDaytime(18);
+		idleGraph->AddNode(n);
+
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(21);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::wait); n->SetDaytime(21);
+		idleGraph->AddNode(n);
+
 		break;
 	case EJob::J_Predator:
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation());  n->SetDaytime(8);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::wait); n->SetDaytime(8);
+		idleGraph->AddNode(n);
+
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(12);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::preyUpon); n->SetDaytime(12);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::wait); n->SetDaytime(13);
+		idleGraph->AddNode(n);
+
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(18);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::preyUpon); n->SetDaytime(18);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::wait); n->SetDaytime(19);
+		idleGraph->AddNode(n);
 		break;
 	}
 
 	return idleGraph;
 }
 
-void UOResidence::IWantToGetInside(UOEntity* e) {
+/*void UOResidence::IWantToGetInside(UOEntity* e) {
 	_inside.push_back(e);
 }
 
@@ -298,5 +407,5 @@ void UOResidence::IWantToGetOut(UOEntity* e) {
 		i++;
 	}
 	_inside.erase(_inside.begin() + i);
-}
+}*/
 

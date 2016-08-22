@@ -21,10 +21,12 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 
-	vector<UOOwnable*> candidates = entity->GetInventory();
+	/*vector<UOOwnable*> candidates = entity->GetInventory();
 	vector<UOOwnable*> nearbyOwnables = FindNearbyOwnables(entity);
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("NearbyOwnables: ") + FString::SanitizeFloat(nearbyOwnables.size()));
-	candidates.insert(candidates.end(), nearbyOwnables.begin(), nearbyOwnables.end());
+	candidates.insert(candidates.end(), nearbyOwnables.begin(), nearbyOwnables.end());*/
+	vector<UOOwnable*> candidates = FindNearbyOwnables(entity);
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("NearbyOwnables: ") + FString::SanitizeFloat(candidates.size()));
 	
 		
 	/*FindNearbyOwnables(entity->GetOwner());

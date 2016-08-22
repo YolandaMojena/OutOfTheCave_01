@@ -76,3 +76,6 @@ bool Utilities::VerifyOrCreateDirectory(const FString & TestDir)
 }
 
 
+FVector Utilities::RandomDisplacementVector(int radius) {
+	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
+}

@@ -31,7 +31,8 @@ enum class ERace : uint8 {
 	R_Wolf		UMETA(DisplayName = "Wolf"),
 	R_Golem		UMETA(DisplayName = "Golem"),
 	R_Beast		UMETA(DisplayName = "Beast"),
-	R_Troll		UMETA(DisplayName = "Troll")
+	R_Troll		UMETA(DisplayName = "Troll"),
+	R_Herbivore	UMETA(DisplayName = "Herbivore")
 };
 
 UENUM(BlueprintType)
@@ -50,7 +51,8 @@ enum class EJob : uint8 {
 UENUM(BlueprintType)
 enum class ENotify : uint8 {
 	N_Grabbed	UMETA(DisplayName = "Grabbed"),
-	N_Damaged	UMETA(DisplayName = "Damaged")
+	N_Damaged	UMETA(DisplayName = "Damaged"),
+	N_Released	UMETA(DisplayName = "Released")
 };
 
 
@@ -149,9 +151,9 @@ public:
 protected:
 	const float _NOTIFICATION_RADIUS = 1000.0f;
 
-	enum _NotifyTag {
+	/*enum _NotifyTag {
 		damaged, destroyed, grabbed
-	};
+	};*/
 
 	// All entities will send reports to the plotGenerator situated in the game world
 	APlotGenerator* _plotGenerator;

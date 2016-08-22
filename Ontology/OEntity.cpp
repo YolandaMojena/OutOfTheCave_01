@@ -4,11 +4,13 @@
 #include "Ontology/OOwnership.h"
 #include "Ontology/OEdification.h"
 #include "Ontology/OOwnable.h"
+#include "Ontology/OntologicFunctions.h"
 #include "NarrativeGeneration/PlotGenerator.h"
 #include "EntityAIController.h"
 #include "NarrativeGeneration/Ambition.h"
 #include "Ontology/OEntity.h"
 #include "Ontology/Ocivilian.h"
+#include "FNearbyEntitiesFinder.h"
 #include "BasePlot.h"
 
 float UOEntity::MIN_INTEGRITY = 20.f;
@@ -44,6 +46,14 @@ void UOEntity::BeginPlay() {
 	Super::BeginPlay();
 
 	if (!IsPlayer) {
+		//HEAD
+		//((ACharacter*)GetOwner())->GetMesh()->SetAllBodiesBelowSimulatePhysics(((ACharacter*)GetOwner())->GetMesh()->GetBoneName(1), true);
+		//for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
+			//_plotGenerator = *Itr;
+		//for (TActorIterator<AOwnableSpawner> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
+		//	_ownableSpawner = *Itr;
+
+		//refs/remotes/origin/Landa
 		
 		GenerateTraits();
 		HitFunc.BindUFunction(GetOwner(), "OnOverlapBegin");
@@ -66,12 +76,29 @@ void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		_attackCooldown -= DeltaTime;
 	}
 
+	//if (!_plotGenerator)
+	//	SetPlotGenerator();
+
 	if (!IsPlayer) {
 		for (TArray<const FAnimNotifyEvent*>::TIterator it = _skelMesh->AnimScriptInstance->AnimNotifies.CreateIterator(); it; ++it) {
 			if ((*it)->NotifyName.ToString() == "EndAttack") EndAttack();
 		}
 
 		CleanKnownNotifyIDs(DeltaTime);
+
+		if (!_searchingNearbyEntities) {
+			if (entitiesFinderDelay < ENTITIES_FINDER_DELAY) {
+				entitiesFinderDelay += DeltaTime;
+			}
+			else {
+				_searchingNearbyEntities = true;
+				entitiesFinderDelay = 0.f;
+				_nearbyEntities = TArray<UOEntity*>();
+				FNearbyEntitiesFinder::JoyInit(this, _plotGenerator->allEntities, _nearbyEntities);
+				GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::FromHex("#FF8811"), GetItemName() + TEXT(" STARTED searching for nearby entities."));
+			}
+		}
+			
 	}
 }
 
@@ -157,11 +184,23 @@ float UOEntity::GetAgility() {
 float UOEntity::GetKindness() {
 	return _personality->GetKindness();
 }
+float UOEntity::GetBraveness() {
+	return _personality->GetBraveness();
+}
 float UOEntity::GetAggressiveness() {
 	return _personality->GetAggressiveness();
 }
-float UOEntity::GetBraveness() {
-	return _personality->GetBraveness();
+float UOEntity::GetSocial() {
+	return _personality->GetSocial();
+}
+float UOEntity::GetMaterialist () {
+	return _personality->GetMaterialist();
+}
+float UOEntity::GetCurious() {
+	return _personality->GetCurious();
+}
+float UOEntity::GetAstute() {
+	return _personality->GetAstute();
 }
 float UOEntity::GetAppreciationTo(UOEntity* ent) {
 	return GetRelationWith(ent)->GetAppreciation();
@@ -206,6 +245,14 @@ UOEntity* UOEntity::GetMostHated() {
 
 AEntityAIController* UOEntity::GetEntityAIController() {
 	return _entityAIController;
+}
+
+TArray<UOEntity*> UOEntity::GetNearbyEntities() {
+	return _nearbyEntities;
+}
+
+UOEdification* UOEntity::GetHome() {
+	return _entityHome;
 }
 
 
@@ -287,6 +334,10 @@ void UOEntity::GenerateTraits() {
 	((ACharacter*)GetOwner())->GetCharacterMovement()->JumpZVelocity = BASE_JUMP_FORCE + JUMP_FORCE_GROWTH * (GetStrength() + GetAgility());
 }
 
+void UOEntity::SetHome(UOEdification* newHome) {
+	_entityHome = newHome;
+}
+
 // R E L A T I O N S
 
 void UOEntity::AddRelationship(ORelation* newRelation) {
@@ -295,11 +346,18 @@ void UOEntity::AddRelationship(ORelation* newRelation) {
 		DeletePotentitalRelationship(newRelation->GetOtherEntity());
 	}
 }
-void UOEntity::AddRelationship(UOEntity* newEntity) {
+ORelation* UOEntity::AddRelationship(UOEntity* newEntity) {
 	if (newEntity != this) {
-		_relationships.push_back(new ORelation(this, newEntity, _personality->GetSocial(), newEntity->GetNotoriety(), _personality->GetMaxValue() - _personality->GetBraveness()));
+		//ORelation* newRelation = new ORelation(this, newEntity, _personality->GetSocial(), newEntity->GetNotoriety(), _personality->GetMaxValue() - _personality->GetBraveness());
+		ORelation* newRelation = new ORelation(this, newEntity,
+			GetSocial() + GetHome()->villageID == newEntity->GetHome()->villageID ? 20 : 0,					// Appreciation
+			newEntity->GetNotoriety(),																		// Respect
+			newEntity->GetStrength() - GetStrength() + newEntity->GetAggressiveness() - GetBraveness());	// Fear
+		_relationships.push_back(newRelation);
 		DeletePotentitalRelationship(newEntity);
+		return newRelation;
 	}
+	return NULL;
 }
 void UOEntity::AddPotentialRelationship(UOEntity * newEntity)
 {
@@ -467,7 +525,7 @@ void UOEntity::Die() {
 		FText TestHUDText = NSLOCTEXT("FText Namespace", "Key", "");
 		GetOwner()->FindComponentByClass<UTextRenderComponent>()->Text = TestHUDText;
 		ReleaseGrabbedItem();
-		ReleaseInventory();
+		//ReleaseInventory();
 	}
 	/*
 	// Add ownable
@@ -670,6 +728,13 @@ Graph * UOEntity::GetBrain()
 	return &_brain;
 }
 
+void UOEntity::SetLastNode(Node* n) {
+	_lastNode = n;
+}
+Node* UOEntity::GetLastNode() {
+	return _lastNode;
+}
+
 UOEntity::AIState UOEntity::GetCurrentState() {
 	return _currentState;
 }
@@ -723,13 +788,13 @@ void UOEntity::SetState(AIState s) {
 				}
 			}
 		}
-			break;
+		break;
 
 		case AIState::react:
 		{
 			_brain = *_currentReacts[0]; //*g
 		}
-			break;
+		break;
 
 		case AIState::numb:
 		{
@@ -739,9 +804,9 @@ void UOEntity::SetState(AIState s) {
 				((UOCivilian*)this)->currentIconPath = "";
 				FText TestHUDText = NSLOCTEXT("FText Namespace", "Key", "");
 				GetOwner()->FindComponentByClass<UTextRenderComponent>()->Text = TestHUDText;
-			}	
+			}
 		}
-			break;
+		break;
 
 		default:
 			_brain = *_idleGraph;
@@ -750,8 +815,8 @@ void UOEntity::SetState(AIState s) {
 
 		_entityAIController->SetState(_currentState);
 	}
-	
-	if(_currentState != AIState::numb) ExecuteGraph();
+
+	if (_currentState != AIState::numb) ExecuteGraph();
 }
 
 //   N O T I F Y
@@ -768,68 +833,148 @@ void UOEntity::ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notify
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" received a Notify! ") + notifyID);
 
 	_knownNotifyIDs.push_back(notifyID);
-	
-	//Check relation with predicate
-	bool doICare = false;
-	ORelation* relation = GetRelationWith((UOEntity*) predicate);
-	OOwnership* ownership = GetOwnershipWith((UOOwnable*) predicate);
-	if (relation && (relation->GetAppreciation() > 50 || relation->GetRespect() > 75)) {
-		doICare = true;
-	}
-	else if (ownership && ownership->GetWorth() > 50) {
-		doICare = true;
-	}
 
-	//Check relation with subject
-	if (doICare) {
-		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" thinks this compels him!"));
-		Graph* reactGraph = new Graph();
-		Node* n;
-		ORelation* relationWithSubject = GetRelationWith(subject);
-		if (!relationWithSubject || (relationWithSubject->GetAppreciation() < 50 && relationWithSubject->GetRespect() < 75)) {
-			//Se va a liar parda
-			n = new Node();
-			n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::weapon);
-			reactGraph->AddNode(n);
-			n = new Node();
-			n->SetNodeType(NodeType::goToActor);  n->SetActor(subject->GetOwner());
-			reactGraph->AddNode(n);
-			n = new Node();
-			n->SetNodeType(NodeType::attack);  n->SetEntity(subject); n->SetActor(subject->GetOwner());
-			reactGraph->AddNode(n);
+	if (notifyType == ENotify::N_Released) {
+		if (
+			//Distance B - A
+			(GetOwner()->GetActorLocation() - subject->GetOwner()->GetActorLocation()).Size() < 500.f
+			&&
+			//Distance B - O
+			(GetOwner()->GetActorLocation() - predicate->GetOwner()->GetActorLocation()).Size() < 500.f
+			&&
+			//InSight B - A
+			FMath::Acos(FVector::DotProduct(GetOwner()->GetActorForwardVector().GetSafeNormal(), (subject->GetOwner()->GetActorLocation() - GetOwner()->GetActorLocation()).GetSafeNormal())) < PI / 4.f
+			&&
+			//InSight B - O
+			FMath::Acos(FVector::DotProduct(GetOwner()->GetActorForwardVector().GetSafeNormal(), (predicate->GetOwner()->GetActorLocation() - GetOwner()->GetActorLocation()).GetSafeNormal())) < PI / 4.f
+			&&
+			//InSight A - B
+			FMath::Acos(FVector::DotProduct(subject->GetOwner()->GetActorForwardVector().GetSafeNormal(), (GetOwner()->GetActorLocation() - subject->GetOwner()->GetActorLocation()).GetSafeNormal())) < PI / 4.f
+			)
+		{
+			// It's A Present!!
+			// Para miiii?
+			// Para túúú!!
 
-			_currentReacts.push_back(reactGraph);
+			// DO STUFF
+			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetItemName() + TEXT(" received a ") + predicate->GetItemName() + TEXT(" as a present from ") + subject->GetItemName());
+			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetItemName() + TEXT(" is happy"));
+			ORelation* r = GetRelationWith(subject);
+			if (!r) //THIS SHOULDN'T HAPPEN
+				r = AddRelationship(subject);
+			int presentValue = 0;
+			presentValue += 10 * (int)((UOOwnable*)predicate)->GetRarity();
+			OntologicFunctions* ontf = new OntologicFunctions();
+			for (int i = OntologicFunctions::AffordableUse::weapon; i < OntologicFunctions::AffordableUse::build; i++) {
+				presentValue += ontf->GetAffordance((OntologicFunctions::AffordableUse)i, predicate) * 5.f / 100.f;
+			}
 
-			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" wants to smash ") + subject->GetOwner()->GetName() + TEXT("!"));
+			r->ChangeAppreciation(presentValue);
+			r->ChangeFear(-presentValue / 2.f);
 
-			RethinkState();
-		}
-		else if(relation) { //(make peace only when we are dealing between two entities fighting. Otherwise we're not doing anything.
-			// Peace and love
-			//RethinkState();
 
-			n = new Node();
-			n->SetNodeType(NodeType::goToActor);  n->SetActor(subject->GetOwner());
-			reactGraph->AddNode(n);
-			n = new Node();
-			n->SetNodeType(NodeType::stopFight); n->SetActor(subject->GetOwner());
-			reactGraph->AddNode(n);
+			// TROLL HELPS SOMEONE GETTING SOMETHING
+			if (subject->IsPlayer) {
+				Node* currentNode = _brain.Peek();
 
-			n = new Node();
-			n->SetNodeType(NodeType::goToActor);  n->SetActor(predicate->GetOwner());
-			reactGraph->AddNode(n);
-			n = new Node();
-			n->SetNodeType(NodeType::stopFight); n->SetActor(predicate->GetOwner());
-			reactGraph->AddNode(n);
-
-			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" wants to stop the fight!"));
-		}
-		else {
-			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" can't act!"));
-		}
+				if (currentNode
+					&& (currentNode->GetNodeType() == NodeType::get || currentNode->GetNodeType() == NodeType::grab || currentNode->GetNodeType() == NodeType::steal)
+					&& predicate == currentNode->nBlackboard.ownable
+					|| _lastNode
+					&& (_lastNode->GetNodeType() == NodeType::get || _lastNode->GetNodeType() == NodeType::grab || _lastNode->GetNodeType() == NodeType::steal)
+					&& predicate == _lastNode->nBlackboard.ownable
+					) {
+					//YOU HELPED ME GET THE ITEM!
+					r->ChangeAppreciation(HELP_APPRECIATION_INCREASE);
+					r->ChangeFear(HELP_FEAR_DECREASE);
+				}
+			}
+		}	
 	}
 	else {
-		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" doesn't give a fuck"));
+		//Check relation with predicate
+		bool doICare = false;
+		ORelation* relation = GetRelationWith((UOEntity*)predicate);
+		OOwnership* ownership = GetOwnershipWith((UOOwnable*)predicate);
+		if (relation && (relation->GetAppreciation() > 50 || relation->GetRespect() > 75)) {
+			doICare = true;
+		}
+		else if (ownership && ownership->GetWorth() > 50) {
+			doICare = true;
+		}
+
+		//Check relation with subject
+		if (doICare) {
+			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" thinks this compels him!"));
+			Graph* reactGraph = new Graph();
+			Node* n;
+			ORelation* relationWithSubject = GetRelationWith(subject);
+			if (!relationWithSubject || (relationWithSubject->GetAppreciation() < 50 && relationWithSubject->GetRespect() < 75)) {
+				//Se va a liar parda
+				n = new Node();
+				n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::weapon);
+				reactGraph->AddNode(n);
+				n = new Node();
+				n->SetNodeType(NodeType::goToActor);  n->SetActor(subject->GetOwner());
+				reactGraph->AddNode(n);
+				n = new Node();
+				n->SetNodeType(NodeType::attack);  n->SetEntity(subject); n->SetActor(subject->GetOwner());
+				reactGraph->AddNode(n);
+
+				_currentReacts.push_back(reactGraph);
+
+				GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" wants to smash ") + subject->GetOwner()->GetName() + TEXT("!"));
+
+				RethinkState();
+			}
+			else if (relation) { //(make peace only when we are dealing between two entities fighting. Otherwise we're not doing anything.
+				// Peace and love
+				//RethinkState();
+
+				n = new Node();
+				n->SetNodeType(NodeType::goToActor);  n->SetActor(subject->GetOwner());
+				reactGraph->AddNode(n);
+				n = new Node();
+				n->SetNodeType(NodeType::stopFight); n->SetActor(subject->GetOwner());
+				reactGraph->AddNode(n);
+
+				n = new Node();
+				n->SetNodeType(NodeType::goToActor);  n->SetActor(predicate->GetOwner());
+				reactGraph->AddNode(n);
+				n = new Node();
+				n->SetNodeType(NodeType::stopFight); n->SetActor(predicate->GetOwner());
+				reactGraph->AddNode(n);
+
+				GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" wants to stop the fight!"));
+			}
+			else {
+				GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" can't act!"));
+			}
+		}
+		else {
+			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" doesn't give a fuck"));
+		}
+	
+		// TROLL HELPS KILLING SOMEONE / DESTROYING SMTHG
+		if (subject->IsPlayer) {
+			Node* currentNode = _brain.Peek();
+			if (currentNode
+				&& (currentNode->GetNodeType() == NodeType::attack || currentNode->GetNodeType() == NodeType::destroy)
+				&& (predicate == currentNode->nBlackboard.entity || predicate == currentNode->nBlackboard.edification)
+				|| _lastNode
+				&& (_lastNode->GetNodeType() == NodeType::attack || _lastNode->GetNodeType() == NodeType::destroy)
+				&& (predicate == _lastNode->nBlackboard.entity || predicate == _lastNode->nBlackboard.edification)
+				) {
+				//YOU HELPED ME KILL/DESTROY HIM/IT!
+				ORelation* r = GetRelationWith(subject);
+				if (!r)
+					r = AddRelationship(subject);
+				
+				r->ChangeAppreciation(HELP_APPRECIATION_INCREASE);
+				r->ChangeFear(HELP_FEAR_DECREASE);
+			}
+		}
+	
 	}
 }
 
@@ -963,7 +1108,7 @@ void UOEntity::RethinkState() {
 
 //	 I N V E N T O R Y
 
-vector<UOOwnable*> UOEntity::GetInventory() {
+/*vector<UOOwnable*> UOEntity::GetInventory() {
 	return _inventory;
 }
 void UOEntity::StoreInInventory(UOOwnable* o) {
@@ -971,9 +1116,9 @@ void UOEntity::StoreInInventory(UOOwnable* o) {
 
 	o->UnregisterComponent();
 
-	/*********************/
+	//*********************
 	o->GetOwner()->Destroy();
-	/********************/
+	//********************
 
 	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, TEXT("Item Stored!"));
 	for (UOOwnable* stored : _inventory) {
@@ -1027,7 +1172,7 @@ void UOEntity::ReleaseInventory() {
 	for (UOOwnable* o : _inventory) {
 		SpawnFromInventory(o);
 	}
-}
+}*/
 
 // M E C H A N I C S
 
@@ -1078,12 +1223,14 @@ void UOEntity::StopRebuildEdification()
 
 void UOEntity::GrabItem(UItem* item) {
 	if (GetStrength() / 2.0f >= item->GetMass()) { // should this block be managed on UOEntity::GrabItem()?
-		if (HasGrabbedItem()) {
+		/*if (HasGrabbedItem()) {
 			if (_grabbedItem && _grabbedItem->IsA<UOOwnable>())
 				StoreInInventory((UOOwnable*)_grabbedItem);
 			else
 				ReleaseGrabbedItem();
-		}
+		}*/
+		if (HasGrabbedItem())
+			ReleaseGrabbedItem();
 
 		_grabbedItem = item;
 		AActor* grabbedItemActor = _grabbedItem->GetOwner();
@@ -1103,6 +1250,7 @@ void UOEntity::ReleaseGrabbedItem() {
 		grabbedItemActor->SetActorEnableCollision(true);
 		((UOOwnable*)_grabbedItem)->SetIsGrabbed(false);
 		//grabbedItemActor->SetActorRotation();
+		CastNotify(_grabbedItem, this, ENotify::N_Released);
 		grabbedItemActor->SetActorLocation(FVector(grabbedItemActor->GetActorLocation().X, grabbedItemActor->GetActorLocation().Y, 0));
 		_grabbedItem = nullptr;
 	}
@@ -1113,7 +1261,7 @@ void UOEntity::ReleaseGrabbedItem() {
 
 bool UOEntity::StealFromInventory(UOOwnable * o, UOEntity * buggler)
 {
-	int i = 0;
+	/*int i = 0;
 	for (UOOwnable* strd : _inventory) {
 		if (o == strd) {
 			buggler->StoreInInventory(o);
@@ -1123,7 +1271,7 @@ bool UOEntity::StealFromInventory(UOOwnable * o, UOEntity * buggler)
 			return true;
 		}
 		i++;
-	}
+	}*/
 	return false;
 }
 
@@ -1135,4 +1283,49 @@ void UOEntity::AttachToSocket(AActor* target, string socket) {
 	if (((ACharacter*)GetOwner())->GetMesh()->DoesSocketExist(socket.c_str()))
 		target->AttachRootComponentTo(((ACharacter*)GetOwner())->GetMesh(), socket.c_str(), EAttachLocation::SnapToTarget, true);
 	else GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Trying to Attach to non-existing socket"));
+}
+
+
+
+void UOEntity::FinishedFindingNearbyEntities() {
+	_searchingNearbyEntities = false;
+	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::FromHex("#88FF11"), GetItemName() + TEXT(" FINISHED finding nearby entities."));
+	for (UOEntity* e : _nearbyEntities) {
+		ORelation* r = GetRelationWith(e);
+		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::FromHex("#FF8811"), TEXT("Hi ") + e->GetItemName() + TEXT(", I greet you!"));
+		if (!r) {
+			r = AddRelationship(e);
+		}
+
+		if (r->GetAppreciation() > 75) {
+			//say hey!
+		}
+		else if (r->GetAppreciation() < 25) {
+			//fight?
+		}
+		else if (r->GetFear() > 75) {
+			//Run, run, run away
+			//lost, lost, lost my mind...
+		}
+		else if (r->GetRespect() > 75) {
+			//Reverence
+		}
+	}
+	//_nearbyEntities.Empty();
+}
+
+
+UOEntity* UOEntity::FindPrey() {
+	for (UOEntity* e : _nearbyEntities) {
+		//if (!IsCivilian || !e->IsCivilian) {}		// in case we want Civilians to be able to hunt
+		ORelation* r = GetRelationWith(e);
+		if (!r)
+			r = AddRelationship(e);
+		if (r->GetAppreciation() < 50					// Is not your Friend
+			&& (e->GetStrength() <= _strength / 2.f	// bastly inferior
+			|| e->GetIntegrity() <= 50				// weakened
+			|| e->_nearbyEntities.Num() <= 2))		// isolated
+			return e;
+	}
+	return NULL;
 }

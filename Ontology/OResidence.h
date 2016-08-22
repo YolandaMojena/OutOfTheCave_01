@@ -4,6 +4,7 @@
 
 #include "Ontology/OEdification.h"
 #include "Ontology/OntologicFunctions.h"
+#include "NarrativeGeneration/PlotGenerator.h"
 #include <vector>
 #include <cstdlib>
 #include <time.h> 
@@ -28,6 +29,9 @@ public:
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ResidenceSettings)
 		ERace race;
@@ -61,6 +65,11 @@ private:
 	TSubclassOf<class ACharacter> BP_Civilian_Goblin;
 	TSubclassOf<class ACharacter> BP_Civilian_Human_Male;
 	TSubclassOf<class ACharacter> BP_Civilian_Human_Female;
+	TSubclassOf<class ACharacter> BP_Herbivore;
+	TSubclassOf<class ACharacter> BP_Bear;
+	TSubclassOf<class ACharacter> BP_Wolf;
 
 	vector<UOEntity*> _inside;
+
+	APlotGenerator* _plotGenerator;
 };

@@ -23,7 +23,7 @@ EBTNodeResult::Type UBTTask_GrabItem::ExecuteTask(UBehaviorTreeComponent& OwnerC
 	if(!item)
 		item = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Ownable"));
 
-	bool inInventory = false;
+	/*bool inInventory = false;
 	if (item) {
 		for (UOOwnable* o : entity->GetInventory()) {
 			if ((UOOwnable*)item == o) {
@@ -38,7 +38,8 @@ EBTNodeResult::Type UBTTask_GrabItem::ExecuteTask(UBehaviorTreeComponent& OwnerC
 		else {
 			entity->GrabItem(item);
 		}
-	}
+	}*/
+	entity->GrabItem(item);
 
 	return EBTNodeResult::Succeeded;
 	

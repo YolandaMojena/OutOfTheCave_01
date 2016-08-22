@@ -32,5 +32,5 @@ public:
 	static float GAMEDAY_LENGTH;
 	static float DAY_LENGTH;
 
-
+	static FVector RandomDisplacementVector(int radius);
 };
