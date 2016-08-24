@@ -30,12 +30,13 @@ void APlotGenerator::BeginPlay()
 
 	// HARD CODED
 	// FOREST
-	_stampedeSpawnArea = FVector(4000, 10000, 0);
+	_stampedeSpawnArea = FVector(1700, 10300, 0);
 
 	//INSERT WORLD PLOTS FROM THE BEGINNING
 	//_worldPlots.push_back(new Stampede(ERace::R_Bear, _stampedeSpawnArea + RandomDisplacement(2500), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), rand() % 8 + 5, this));
 
-	_worldPlots.push_back(new Stampede(ERace::R_Bear, _stampedeSpawnArea + RandomDisplacement(2500), _stampedeSpawnArea + FVector(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation() - _stampedeSpawnArea).GetSafeNormal() * 12000, rand() % 8 + 5, this));
+	_worldPlots.push_back(new Stampede(ERace::R_Bear, _stampedeSpawnArea + RandomDisplacement(500), rand() % 8 + 5, this));
+
 }
 
 // Called every frame
@@ -51,7 +52,7 @@ void APlotGenerator::Tick( float DeltaTime )
 	else {
 		if (_currentPlotsInAction <= _MAX_PLOTS) {
 
-			if (rand() % 100 < 25 + (25 * _MAX_PLOTS - _currentPlotsInAction)) {
+			/*if (rand() % 100 < 25 + (25 * _MAX_PLOTS - _currentPlotsInAction)) {
 
 				if (_reactivePlots.empty()) {
 					GetPlotFromReportLog();
@@ -70,7 +71,7 @@ void APlotGenerator::Tick( float DeltaTime )
 				SpawnAmbitionPlot();
 				_timeToSpawnPlot = 0;
 			}
-			else if (rand() % 100 < 2 && _currentPlotsInAction <= _MAX_PLOTS) {
+			else */if (rand() % 100 < 50 && _currentPlotsInAction <= _MAX_PLOTS) {
 				SpawnWorldPlot();
 				_timeToSpawnPlot = 0;
 			}

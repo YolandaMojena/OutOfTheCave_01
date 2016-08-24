@@ -53,12 +53,6 @@ void AttackPlot::BuildSentence() {
 			+ " began an attack against the unfortunate " + _targetEntity->GetRaceString() + " "
 			+ _targetEntity->GetName() + ", in order to exterminate his/her race.\n\n\n";
 	}
-	else if (_ambition == TypeOfAmbition::extermination) {
-
-		_sentence += "The aggressive " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
-			+ " has begun an attack against the unfortunate " + _targetEntity->GetRaceString() + " "
-			+ _targetEntity->GetItemName() + ", in order to exterminate his/her race.\n\n\n";
-	}
 	else if (_ambition == TypeOfAmbition::notoriety) {
 
 		_sentence += "The aggressive " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
@@ -881,11 +875,12 @@ BasePlot* DefendPlot::ConsiderReactions() {
 //STAMPEDE
 //*************************************************************************************
 
-Stampede::Stampede(ERace race, FVector spawnLocation, FVector targetLocation, float num, APlotGenerator* plotGenerator) {
+Stampede::Stampede(ERace race, FVector spawnLocation, float num, APlotGenerator* plotGenerator) {
 
 	_race = race;
 	_spawnLocation = spawnLocation;
-	_targetLocation = targetLocation;
+	_targetLocation = _spawnLocation + FVector(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation() - _stampedeSpawnArea).GetSafeNormal() * FVector(5000, 5000, 0);
+
 	_plotGenerator = plotGenerator;
 	_num = num;
 	_targetActor = nullptr;
@@ -930,7 +925,7 @@ void Stampede::BuildGraph() {
 		//GO TO LOCATION
 		Node* goToNode = new Node();
 		goToNode->SetNodeType(NodeType::goTo);
-		goToNode->SetPosition(_targetLocation * FVector(1, 1, 0));
+		goToNode->SetPosition(_targetLocation);
 		_plotGraph.AddNode(goToNode);
 	}
 
