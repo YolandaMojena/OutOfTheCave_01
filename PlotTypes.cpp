@@ -879,7 +879,7 @@ Stampede::Stampede(ERace race, FVector spawnLocation, float num, APlotGenerator*
 
 	_race = race;
 	_spawnLocation = spawnLocation;
-	_targetLocation = _spawnLocation + FVector(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation() - _stampedeSpawnArea).GetSafeNormal() * FVector(5000, 5000, 0);
+	_targetLocation = _spawnLocation + FVector(UGameplayStatics::GetPlayerCharacter(plotGenerator->GetWorld(), 0)->GetActorLocation() - _spawnLocation).GetSafeNormal() * FVector(5000, 5000, 0);
 
 	_plotGenerator = plotGenerator;
 	_num = num;
