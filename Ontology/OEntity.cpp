@@ -54,12 +54,14 @@ void UOEntity::BeginPlay() {
 		//	_ownableSpawner = *Itr;
 
 		//refs/remotes/origin/Landa
-		
+
 		GenerateTraits();
 		HitFunc.BindUFunction(GetOwner(), "OnOverlapBegin");
 
 		if(rand()% 100 < 50)
 			_plotGenerator->AddNotorious(this);
+
+
 	}
 	else {
 		_integrity = 10000000;

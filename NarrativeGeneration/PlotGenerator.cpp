@@ -57,7 +57,7 @@ void APlotGenerator::Tick( float DeltaTime )
 					GetPlotFromReportLog();
 				}
 				if (_reactivePlots.size() > 0) {
-					SpawnReactivePlot();
+					//SpawnReactivePlot();
 					_timeToSpawnPlot = 0;
 				}
 			}
@@ -67,11 +67,11 @@ void APlotGenerator::Tick( float DeltaTime )
 			//else if (rand() % 100 < (20 / (_currentPlotsInAction + 1)) && _currentPlotsInAction <= _MAX_PLOTS) {
 
 
-				SpawnAmbitionPlot();
+				//SpawnAmbitionPlot();
 				_timeToSpawnPlot = 0;
 			}
 			else if (rand() % 100 < 2 && _currentPlotsInAction <= _MAX_PLOTS) {
-				SpawnWorldPlot();
+				//SpawnWorldPlot();
 				_timeToSpawnPlot = 0;
 			}
 		}

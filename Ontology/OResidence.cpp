@@ -127,6 +127,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 	case ERace::R_Human: {
 		if ((rand() % 10) < 5) {
 			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Male, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
+			if (tentantCharacter) GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "GUY");
 			UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
 			if (entityComp) {
 				entityComp->SetItemName(_village->AssignMaleHumanName());
@@ -135,6 +136,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 		}
 		else {
 			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Female, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
+			if(tentantCharacter) GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "GUL");
 			UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
 			if (entityComp) {
 				entityComp->SetItemName(_village->AssignFemaleHumanName());
