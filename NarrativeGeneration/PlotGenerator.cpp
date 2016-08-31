@@ -52,27 +52,25 @@ void APlotGenerator::Tick( float DeltaTime )
 	else {
 		if (_currentPlotsInAction <= _MAX_PLOTS) {
 
-			/*if (rand() % 100 < 25 + (25 * _MAX_PLOTS - _currentPlotsInAction)) {
+			if (rand() % 100 < 25 + (25 * _MAX_PLOTS - _currentPlotsInAction)) {
 
 				if (_reactivePlots.empty()) {
 					GetPlotFromReportLog();
 				}
 				if (_reactivePlots.size() > 0) {
-					SpawnReactivePlot();
+					//SpawnReactivePlot();
 					_timeToSpawnPlot = 0;
 				}
 			}
 
-			if (rand() % 100 <= (25 /(_currentPlotsInAction + 1))) {
-
-			//else if (rand() % 100 < (20 / (_currentPlotsInAction + 1)) && _currentPlotsInAction <= _MAX_PLOTS) {
-
-
-				SpawnAmbitionPlot();
+			else if (rand() % 100 < (20 / (_currentPlotsInAction + 1)) && _currentPlotsInAction <= _MAX_PLOTS) {
+				
+				//SpawnAmbitionPlot();
 				_timeToSpawnPlot = 0;
 			}
-			else */if (rand() % 100 < 50 && _currentPlotsInAction <= _MAX_PLOTS) {
-				SpawnWorldPlot();
+
+			else if (rand() % 100 < 2 && _currentPlotsInAction <= _MAX_PLOTS) {
+				//SpawnWorldPlot();
 				_timeToSpawnPlot = 0;
 			}
 		}

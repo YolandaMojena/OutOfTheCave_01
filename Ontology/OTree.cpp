@@ -20,6 +20,7 @@ void UOTree::SpawnLeaflessTree()
 	AActor* tree = GetOwner()->GetWorld()->SpawnActor<AActor>(BP_Tree, GetOwner()->GetActorLocation() , GetOwner()->GetActorRotation(), SpawnParams);
 	tree->SetActorScale3D(GetOwner()->GetActorScale3D());
 	tree->SetActorLocation(GetOwner()->GetActorLocation() + FVector(0, 0, 253) * tree->GetActorScale3D().Z);
+	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Tree becoming leafless"));
 	GetOwner()->Destroy();
 
 }

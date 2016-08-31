@@ -10,13 +10,16 @@ OPersonality::OPersonality()
 	_aggressive = rand() % (_MAX_VALUE + 1);
 	_social = rand() % (_MAX_VALUE + 1);
 	_materialist = rand() % (_MAX_VALUE + 1);
+	_curious = rand() % (_MAX_VALUE + 1);
+	_astute = rand() % (_MAX_VALUE + 1);
+	_pride = rand() % (_MAX_VALUE + 1);
 }
 
 OPersonality::~OPersonality()
 {
 }
 
-OPersonality::OPersonality(int kind, int brave, int aggressive, int social, int materialist, int curious, int astute)
+OPersonality::OPersonality(int kind, int brave, int aggressive, int social, int materialist, int curious, int astute, int pride)
 {
 	_kind = ThresholdValue(kind);
 	_brave = ThresholdValue(brave);
@@ -25,6 +28,7 @@ OPersonality::OPersonality(int kind, int brave, int aggressive, int social, int 
 	_materialist = ThresholdValue(materialist);
 	_curious = ThresholdValue(curious);
 	_astute = ThresholdValue(astute);
+	_pride = ThresholdValue(pride);
 }
 
 int OPersonality::GetKindness() {
@@ -47,6 +51,9 @@ int OPersonality::GetCurious() {
 }
 int OPersonality::GetAstute() {
 	return _astute;
+}
+int OPersonality::GetPride() {
+	return _pride;
 }
 
 int OPersonality::GetMinValue() {

@@ -45,6 +45,7 @@ enum class NodeType : uint8 {
 	defend UMETA(DisplayName = "defend"),
 	destroySelf UMETA(DisplayName = "destroySelf"),
 	ambush UMETA(DisplayName = "ambush"),
+	flee UMETA(DisplayName = "flee"),
 };
 
 class OUTOFTHECAVE_01_API Node

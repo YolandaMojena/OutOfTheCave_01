@@ -39,7 +39,8 @@ EBTNodeResult::Type UBTTask_GrabItem::ExecuteTask(UBehaviorTreeComponent& OwnerC
 			entity->GrabItem(item);
 		}
 	}*/
-	entity->GrabItem(item);
+	if(item->IsA<UOOwnable>() && !((UOOwnable*)item)->GetIsGrabbed())
+		entity->GrabItem(item);
 
 	return EBTNodeResult::Succeeded;
 	

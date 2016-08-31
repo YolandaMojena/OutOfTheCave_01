@@ -36,6 +36,7 @@ void AEntityAIController::SetNode(Node* n) {
 		break;
 	case NodeType::enter:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Residence"), (UOResidence*) n->nBlackboard.edification);
+		entityBlackboard->SetValue<UBlackboardKeyType_Vector>(positionID, n->nBlackboard.edification->GetOwner()->GetActorLocation() * FVector(1, 1, 0));
 		break;
 	case NodeType::get:
 		//entityBlackboard->SetValue<UBlackboardKeyType_Enum>(entityBlackboard->GetKeyID("AffordableUse"), static_cast<UBlackboardKeyType_Enum::FDataType>(n->nBlackboard.affordableUse));
@@ -78,6 +79,7 @@ void AEntityAIController::SetNode(Node* n) {
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
 		break;
 	case NodeType::cultivate:
+		entityBlackboard->SetValue<UBlackboardKeyType_Vector>(positionID, (n->nBlackboard.edification->GetOwner()->GetActorLocation() + RandomDisplacementVector(400)) * FVector(1, 1, 0));
 		break;
 	case NodeType::mine:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
@@ -117,6 +119,9 @@ void AEntityAIController::SetNode(Node* n) {
 	}
 		break;
 	case NodeType::destroySelf:
+		break;
+	case NodeType::flee:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
 		break;
 	default:
 		break;
@@ -167,6 +172,10 @@ void AEntityAIController::TryLeaveGrabbedObject(UOEntity* entity) {
 	
 }
 
+FVector AEntityAIController::RandomDisplacementVector(int radius) {
+	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
+}
+
 
 
 
@@ -186,15 +195,10 @@ UOOwnable* AEntityAIController::GetOwnable(UOEntity* entity, OntologicFunctions:
 	//AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	//UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 
-
-	vector<UOOwnable*> candidates = FindNearbyOwnables(entity);
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("NearbyOwnables: ") + FString::SanitizeFloat(candidates.size()));
-
 	OntologicFunctions ontF;
 
 	UOOwnable* bestChoice = ontF.GetHands();
-	int bestChoiceAffordance;
-	bestChoiceAffordance = ontF.GetAffordance(affordableUse, bestChoice);
+	int bestChoiceAffordance = ontF.GetAffordance(affordableUse, bestChoice);
 	bool bestChoiceSomeoneWhoCares = true;
 
 	if (entity->HasGrabbedItem()) {
@@ -202,8 +206,11 @@ UOOwnable* AEntityAIController::GetOwnable(UOEntity* entity, OntologicFunctions:
 		int grabbedItemAffordance = ontF.GetAffordance(affordableUse, grabbedItem);
 		if (grabbedItemAffordance > bestChoiceAffordance) {
 			bestChoice = grabbedItem;
+			bestChoiceAffordance = grabbedItemAffordance;
 		}
 	}
+
+	vector<UOOwnable*> candidates = FindNearbyOwnables(entity);
 
 	for (UOOwnable* ownable : candidates) {
 		if (ownable->GetMass() <= entity->GetStrength() / STRENGTH_TO_WEIGHT && !ownable->GetIsGrabbed()) {
@@ -217,8 +224,10 @@ UOOwnable* AEntityAIController::GetOwnable(UOEntity* entity, OntologicFunctions:
 					ORelation* relation = owner->GetRelationWith(entity);
 					if (relation) {
 						someoneWhoCares = true;
-						if (relation->GetAppreciation() >= APPRECIATION_TO_BORROW || relation->GetFear() >= FEAR_TO_BORROW || relation->GetRespect() >= RESPECT_TO_BORROW)
+						if (relation->GetAppreciation() >= APPRECIATION_TO_BORROW || relation->GetFear() >= FEAR_TO_BORROW || relation->GetRespect() >= RESPECT_TO_BORROW) {
 							borrow = true;
+							break;
+						}
 					}
 				}
 				if (someoneWhoCares && !borrow) {
@@ -226,14 +235,10 @@ UOOwnable* AEntityAIController::GetOwnable(UOEntity* entity, OntologicFunctions:
 				}
 			}
 			int newAffordance = ontF.GetAffordance(affordableUse, ownable);
-			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("BCA: ") + FString::SanitizeFloat(bestChoiceAffordance));
-			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("NA: ") + FString::SanitizeFloat(newAffordance));
 			if (newAffordance > bestChoiceAffordance) {
 				bestChoice = ownable;
 				bestChoiceAffordance = newAffordance;
 				bestChoiceSomeoneWhoCares = someoneWhoCares;
-				GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("Better one!"));
-				GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("BCA: ") + FString::SanitizeFloat(bestChoiceAffordance));
 			}
 		}
 	}
@@ -282,33 +287,27 @@ vector<UOOwnable*> AEntityAIController::FindNearbyOwnables(UOEntity* entity) {
 	vector<UOOwnable*> results;
 	for (auto hr : hitData) {
 		UOOwnable* o = hr.GetActor()->FindComponentByClass<UOOwnable>();
-		UOEdification* edf = hr.GetActor()->FindComponentByClass<UOEdification>();
-		if (!edf && o) {
-			bool admit = true;
+		bool admit = true;
+		
+		for (UOOwnable* own : results) {
+			if (o == own) {
+				admit = false;
+			}
+		}
+
+		if (admit && !o->IsA<UOEdification>() && !o->GetIsGrabbed()) {
+			
 			vector<UOEntity*> grabbers = o->GetGrabbers();
-			vector<ORelation*> relatives = entity->GetRelationships();
-			for (ORelation* r : relatives) {
-				UOEntity* e = r->GetOtherEntity();
-				for (UOEntity* g : grabbers) {
-					if (e == g && (r->GetAppreciation() > 25 || r->GetRespect() > 37 || r->GetFear() > 25)) {
-						admit = false;
-						break;
-					}
-				}
-				if (!admit)
+			for (UOEntity* g : grabbers) {
+				ORelation* r = entity->GetRelationWith(g);
+				if (r && (r->GetAppreciation() > 25 || r->GetRespect() > 37 || r->GetFear() > 25)) {
+					admit = false;
 					break;
+				}
 			}
 
-			if (admit) {
-				for (UOOwnable* own : results) {
-					if (o == own) {
-						admit = false;
-						break;
-					}
-				}
-				if (admit)
-					results.push_back(o);
-			}
+			if (admit)
+				results.push_back(o);
 		}
 	}
 	return results;

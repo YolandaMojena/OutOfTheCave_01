@@ -30,7 +30,9 @@ public:
 	void SetNodeCompleted(bool completedOK);
 	bool GetNodeCompleted();
 	void NextNode();
+	int GetGraphSize();
 
 private:
 	Node* _lastNode;
+	int _size = 0;
 };

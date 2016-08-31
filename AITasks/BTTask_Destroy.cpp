@@ -18,16 +18,38 @@ EBTNodeResult::Type UBTTask_Destroy::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 		// APPLY DAMAGE
 		OntologicFunctions of = OntologicFunctions();
 		float damage = entity->GetStrength() * of.UseAsWeapon(entity->GetGrabbedItem()) / targetEdification->GetToughness();
-		targetEdification->ReceiveDamage(damage, entity);
+		targetEdification->ReceiveDamage(damage, entity, GetDestroyPoint(entity->GetOwner()));
 
 		// DESTROYED / WINCON
-		if (targetEdification->GetIntegrity() <= UOEntity::MIN_INTEGRITY)
+		if (targetEdification->GetIsDestroyed()) //targetEdification->GetIntegrity() <= UOEntity::MIN_INTEGRITY)
 			blackboard->ClearValue(blackboard->GetKeyID("Edification"));
 		entity->EndAttack();
 		return EBTNodeResult::Succeeded;
 	}
+	
 
-
-	return EBTNodeResult::Failed;
+	return EBTNodeResult::Succeeded;
 }
 
+FVector UBTTask_Destroy::GetDestroyPoint(AActor* actor) {
+	const int WIDTH = 300;
+	const int HEIGHT = 200;
+
+	FHitResult HitData(ForceInit);
+	FVector castPoint = actor->GetActorLocation() + actor->GetActorRightVector() * (rand() % WIDTH - WIDTH / 2) + actor->GetActorUpVector() * (rand() % HEIGHT - HEIGHT / 2);
+
+	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, actor);
+	RV_TraceParams.bTraceComplex = true;
+	RV_TraceParams.bTraceAsyncScene = true;
+	RV_TraceParams.bReturnPhysicalMaterial = false;
+
+	actor->GetWorld()->LineTraceSingleByChannel(
+		HitData,
+		castPoint,
+		castPoint + actor->GetActorForwardVector()*200,
+		ECollisionChannel::ECC_Visibility,
+		RV_TraceParams
+		);
+
+	return HitData.ImpactPoint;
+}

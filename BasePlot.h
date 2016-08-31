@@ -8,7 +8,6 @@
 #include "Graph.h"
 #include "Ontology/Item.h"
 #include "Ontology/OOwnable.h"
-#include "StringCollection.h"
 #include "NarrativeGeneration/Ambition.h"
 
 using namespace std;
