@@ -53,7 +53,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EdificationSettings)
 		float timeToRebuild = 2000.0f;
 
-	void ReceiveDamage(float damage, UOEntity* damager);
+	void ReceiveDamage(float damage, UOEntity* damager, FVector collisionPos);
 	bool GetIsDestroyed();
 
 	void RebuildEdification(float addedValue);
@@ -73,7 +73,7 @@ private:
 
 	UOEntity* _attacker;
 	bool _isDestroyed;
-	void DestroyEdification();
+	void DestroyEdification(UOEntity* damager);
 
 	float _accumulatedTime;
 

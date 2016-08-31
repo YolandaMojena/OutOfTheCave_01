@@ -56,4 +56,6 @@ private:
 
 	UOOwnable* GetOwnable(UOEntity* entity, OntologicFunctions::AffordableUse affordableUse, bool isHighPriority);
 	vector<UOOwnable*> FindNearbyOwnables(UOEntity* entity);
+
+	FVector RandomDisplacementVector(int radius);
 };

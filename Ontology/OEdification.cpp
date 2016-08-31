@@ -36,24 +36,23 @@ void UOEdification::FindVillage() {
 	}
 }
 
-void UOEdification::ReceiveDamage(float damage, UOEntity* damager) {
+void UOEdification::ReceiveDamage(float damage, UOEntity* damager, FVector collisionPos) {
 
 	if (!_isDestroyed) {
 
+		CastNotify(this, damager, ENotify::N_Damaged);
+
 		_integrity -= damage;
+		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "damage: " + FString::SanitizeFloat(damage));
 		_attacker = damager;
 
-		if (_integrity <= 0) {
+		UDestructibleComponent* targetDestructible = GetOwner()->FindComponentByClass<UDestructibleComponent>();
 
-			if (GetOwner()->FindComponentByClass<UDestructibleComponent>()) {
-				DestroyEdification();
-				IHaveBeenDestroyedBySomeone(damager);
-			}
-			else if (IsA<UOTree>()) {
-				_isDestroyed = true;
-				((UOTree*)this)->SpawnLeaflessTree();
-			}
-		}
+		if (targetDestructible)
+			targetDestructible->ApplyRadiusDamage(damage, collisionPos, 50, 0.01, false);
+
+		if (_integrity <= 0)
+			DestroyEdification(damager);
 	}
 }
 
@@ -117,12 +116,20 @@ void UOEdification::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 	}
 }
 
-void UOEdification::DestroyEdification() {
+void UOEdification::DestroyEdification(UOEntity* damager) {
 
 	_isDestroyed = true;
-	UParticleSystemComponent* part = GetOwner()->FindComponentByClass<UParticleSystemComponent>();
-	if (part) {
-		part->ActivateSystem();
+
+	if (GetOwner()->FindComponentByClass<UDestructibleComponent>()) {
+
+		UParticleSystemComponent* part = GetOwner()->FindComponentByClass<UParticleSystemComponent>();
+		if (part)
+			part->ActivateSystem();
+
+		IHaveBeenDestroyedBySomeone(damager);
+	}
+	else if (IsA<UOTree>()) {
+		((UOTree*)this)->SpawnLeaflessTree();
 	}
 }
 

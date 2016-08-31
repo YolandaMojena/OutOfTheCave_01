@@ -37,20 +37,12 @@ ATroll::ATroll(const FObjectInitializer& ObjectInitializer)
 	mainHandCollider = ObjectInitializer.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("FistCollider"));
 	mainHandCollider->SetStaticMesh(AssetSM_JoyControl);
 	mainHandCollider->AttachParent = GetMesh();
-	mainHandCollider->AttachSocketName = "mainSocket";
+	mainHandCollider->AttachSocketName = "RightHandSocket";
 	mainHandCollider->bGenerateOverlapEvents = true;
-
-	secondaryHandCollider = ObjectInitializer.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("SecondFistCollider"));
-	secondaryHandCollider->SetStaticMesh(AssetSM_JoyControl);
-	secondaryHandCollider->AttachParent = GetMesh();
-	secondaryHandCollider->AttachSocketName = "secondarySocket";
-	//secondaryHandCollider->bGenerateOverlapEvents = true;
 
 	HitFunc.BindUFunction(this, "OnOverlapBegin");
 	mainHandCollider->OnComponentBeginOverlap.Add(HitFunc);
 	mainHandCollider->SetVisibility(false, true);
-	//secondaryHandCollider->OnComponentBeginOverlap.Add(HitFunc);
-	secondaryHandCollider->SetVisibility(false, true);
 
 	SkelMesh = FindComponentByClass<USkeletalMeshComponent>();
 	ConstructorHelpers::FObjectFinder<UAnimMontage> anim_attack_montage(TEXT("AnimMontage'/Game/Animations/Troll/RunAttack.RunAttack'"));
@@ -64,9 +56,6 @@ void ATroll::BeginPlay()
 {
 	Super::BeginPlay();
 
-	_myEntityComp = FindComponentByClass<UOEntity>();
-	_myEntityComp->SetItemName("Troll");
-	_myEntityComp->SetRace(ERace::R_Troll);
 	_trollActor = (AActor*) this;
 }
 
@@ -75,6 +64,11 @@ void ATroll::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
+	if (!_myEntityComp) {
+		_myEntityComp = FindComponentByClass<UOEntity>();
+		_myEntityComp->SetItemName("Troll");
+		_myEntityComp->SetRace(ERace::R_Troll);
+	}
 
 	if(_isAttacking){
 		if (!SkelMesh->AnimScriptInstance->Montage_IsPlaying(myMontage)) {
@@ -106,9 +100,7 @@ void ATroll::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 	InputComponent->BindAction("Sprint", IE_Pressed, this, &ATroll::StartSprint);
 	InputComponent->BindAction("Sprint", IE_Released, this, &ATroll::StopSprint);
 	InputComponent->BindAction("PickUpMain", IE_Pressed, this, &ATroll::PickUpMain);
-	InputComponent->BindAction("PickUpSecondary", IE_Pressed, this, &ATroll::PickUpSecondary);
 	InputComponent->BindAction("AttackMain", IE_Pressed, this, &ATroll::AttackMain);
-	InputComponent->BindAction("AttackSecondary", IE_Pressed, this, &ATroll::AttackSecondary);
 	InputComponent->BindAction("Rebuild", IE_Pressed, this, &ATroll::RebuildEdification);
 	
 
@@ -173,10 +165,10 @@ void ATroll::MoveRight(float value) {
 
 void ATroll::PickUpMain() {
 
-	if (!_equipedMain) {
+	if (!_myEntityComp->HasGrabbedItem()) {
 
-		FVector Start = GetActorLocation() /*- FVector(0, 0, GetActorLocation().Z + _PICK_UP_RADIO) + GetActorRotation().Vector() * _PICK_UP_RADIO*/;
-		FVector End = Start - /*FVector(0, 0, _PICK_UP_RADIO * 2)*/ GetActorRotation().Vector() * _PICK_UP_RADIO *2;
+		FVector Start = GetActorLocation();
+		FVector End = Start + GetActorRotation().Vector() * _PICK_UP_RADIO *2;
 		FHitResult HitData(ForceInit);
 
 		FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
@@ -197,137 +189,41 @@ void ATroll::PickUpMain() {
 		// if hit, assign actor to main weapon and add overlap event
 		if (HitData.bBlockingHit && !HitData.GetActor()->FindComponentByClass<UOEdification>()) {
 
-			//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
+			AActor* grabbedItemActor = HitData.GetActor();
+			_grabbedRotation = grabbedItemActor->GetActorRotation();
+			_grabbedZ = grabbedItemActor->GetActorLocation().Z;
 
-			_mainWeapon = HitData.GetActor();
-			_mainRotation = _mainWeapon->GetActorRotation();
-			_mainZ = _mainWeapon->GetActorLocation().Z;
+			UOEntity* hitEntity = grabbedItemActor->FindComponentByClass<UOEntity>();
 
-			if (_mainWeapon->FindComponentByClass<UOEntity>()) {
-
-				UOEntity* hitEntity = _mainWeapon->FindComponentByClass<UOEntity>();
-
-				if (!hitEntity->GetIsNumb()) {
-
-					ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
-					// BONE WILL PROBABLY DEPEND ON MESH
-					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(1), true);
-					hitEntity->SetIsNumb(true);
-				}
-				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
+			if (hitEntity && !hitEntity->GetIsNumb()) {
+				((ACharacter*)hitEntity->GetOwner())->GetMesh()->SetAllBodiesBelowSimulatePhysics(((ACharacter*)hitEntity->GetOwner())->GetMesh()->GetBoneName(1), true);
+				hitEntity->SetIsNumb(true);
 			}
 
-			_mainWeapon->SetActorEnableCollision(false);
-			AttachToSocket(_mainWeapon, "mainSocket");
-			_mainWeapon->UpdateOverlaps(true);
-			_mainWeapon->OnActorBeginOverlap.Add(HitFunc);
-
-			_equipedMain = true;
+			_myEntityComp->GrabItem(grabbedItemActor->FindComponentByClass<UItem>());
 		}
 	}
 	else {
-		_equipedMain = false;
-		_mainWeapon->OnActorBeginOverlap.Remove(HitFunc);
-		_mainWeapon->DetachRootComponentFromParent(true);
-
-		if (_mainWeapon->FindComponentByClass<UOEntity>()) {
-
-			UOEntity* hitEntity = _mainWeapon->FindComponentByClass<UOEntity>();
-			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_mainWeapon);
-
-			weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
+		UOEntity* hitEntity = _myEntityComp->GetGrabbedItem()->GetOwner()->FindComponentByClass<UOEntity>();
+		if (hitEntity) {
+			((ACharacter*)hitEntity->GetOwner())->GetMesh()->SetAllBodiesSimulatePhysics(false);
 			hitEntity->SetIsNumb(false);
 		}
 
 		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
-		_mainWeapon->SetActorEnableCollision(true);
-		_mainWeapon->SetActorRotation(_mainRotation);
-		_mainWeapon->SetActorLocation(FVector(_mainWeapon->GetActorLocation().X, _mainWeapon->GetActorLocation().Y, _mainZ));
-		_mainWeapon = nullptr;
+		AActor* grabbedActor = _myEntityComp->GetGrabbedItem()->GetOwner();
+		grabbedActor->SetActorRotation(_grabbedRotation);
+		grabbedActor->SetActorLocation(FVector(grabbedActor->GetActorLocation().X, grabbedActor->GetActorLocation().Y, _grabbedZ));
+		_myEntityComp->ReleaseGrabbedItem();
 	}
 }
 
-void ATroll::PickUpSecondary() {
-
-	if (!_equipedSecondary) {
-
-		FVector Start = GetActorLocation() /*- FVector(0, 0, GetActorLocation().Z + _PICK_UP_RADIO) + GetActorRotation().Vector() * _PICK_UP_RADIO*/;
-		FVector End = Start - /*FVector(0, 0, _PICK_UP_RADIO * 2)*/ GetActorRotation().Vector() * _PICK_UP_RADIO * 2;
-		FHitResult HitData(ForceInit);
-
-		FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
-		RV_TraceParams.bTraceComplex = true;
-		RV_TraceParams.bTraceAsyncScene = true;
-		RV_TraceParams.bReturnPhysicalMaterial = false;
-
-		GetWorld()->SweepSingleByChannel(
-			HitData,
-			Start,
-			End,
-			FQuat(),
-			ECollisionChannel::ECC_Visibility,
-			FCollisionShape::MakeSphere(_PICK_UP_RADIO),
-			RV_TraceParams
-			);
-
-		// if hit, assign actor to secondary weapon and add overlap event
-		if (HitData.bBlockingHit && !HitData.GetActor()->FindComponentByClass<UOEdification>()) {
-			//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, HitData.GetActor()->GetActorLabel());
-
-			_secondaryWeapon = HitData.GetActor();
-			_secondaryRotation = _secondaryWeapon->GetActorRotation();
-			_secondaryZ = _secondaryWeapon->GetActorLocation().Z;
-
-			if (_secondaryWeapon->FindComponentByClass<UOEntity>()) {
-
-				UOEntity* hitEntity = _secondaryWeapon->FindComponentByClass<UOEntity>();
-
-				if (!hitEntity->GetIsNumb()) {
-
-					ACharacter* weaponChar = dynamic_cast<ACharacter*>(_secondaryWeapon);
-					weaponChar->GetMesh()->SetAllBodiesBelowSimulatePhysics(weaponChar->GetMesh()->GetBoneName(1), true);
-					hitEntity->SetIsNumb(true);
-				}
-				// SOLVE PICKING UP DEAD ENTITIES (WITH SIMULATE PHYSICS ACTIVATED)
-
-				_secondaryWeapon->SetActorEnableCollision(false);
-				AttachToSocket(_secondaryWeapon, "secondarySocket");
-				_secondaryWeapon->OnActorBeginOverlap.Add(HitFunc);
-				_equipedSecondary = true;
-			}
-		}
-	}
-	else {
-		_equipedSecondary = false;
-		_secondaryWeapon->OnActorBeginOverlap.Remove(HitFunc);
-		_secondaryWeapon->DetachRootComponentFromParent(true);
-
-		if (_secondaryWeapon->FindComponentByClass<UOEntity>()) {
-
-			UOEntity* hitEntity = _secondaryWeapon->FindComponentByClass<UOEntity>();
-			ACharacter* weaponChar = dynamic_cast<ACharacter*>(_secondaryWeapon);
-
-			weaponChar->GetMesh()->SetAllBodiesSimulatePhysics(false);
-			hitEntity->SetIsNumb(false);
-		}
-
-		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
-		_secondaryWeapon->SetActorEnableCollision(true);
-		_secondaryWeapon->SetActorRotation(_secondaryRotation);
-		_secondaryWeapon->SetActorLocation(FVector(_secondaryWeapon->GetActorLocation().X, _secondaryWeapon->GetActorLocation().Y, _secondaryZ));
-		_secondaryWeapon = nullptr;
-	}
-}
 
 void ATroll::AttackMain() {
 
 	if (!_isAttacking) {
 		_isAttacking = true;
 	}
-}
-
-void ATroll::AttackSecondary() {
-
 }
 
 void ATroll::ReceiveDamage(float attackDmg, AActor* punisher) {
@@ -352,19 +248,17 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("HIt"));
 		_victims.Add(edificationComp->GetOwner());
 
-		edificationComp->ReceiveDamage(_TROLL_DMG, FindComponentByClass<UOEntity>());
-		UDestructibleComponent* targetDestructible = OtherActor->FindComponentByClass<UDestructibleComponent>();
-
-		if (targetDestructible) {
-			//MUST DEPEND ON DAMAGE
-			targetDestructible->ApplyRadiusDamage(20, GetMesh()->GetSocketLocation("MainSocket"), 50, 0.01, false);
-		}
+		OntologicFunctions of;
+		float damage = _myEntityComp->GetStrength() * of.UseAsWeapon(_myEntityComp->GetGrabbedItem()) / edificationComp->GetToughness();
+		edificationComp->ReceiveDamage(damage, _myEntityComp, GetMesh()->GetSocketLocation("RightHandSocket"));
 	}
 
 	else if (hitEntity /*&& _isAttacking*/ && _canDamage && !_victims.Contains(hitEntity->GetOwner())) {
 		const float IMPULSE_MULTIPLIER = 300.f;
 
-		hitEntity->ReceiveDamage(_TROLL_DMG, FindComponentByClass<UOEntity>());
+		OntologicFunctions of;
+		float damage = _myEntityComp->GetStrength() * of.UseAsWeapon(_myEntityComp->GetGrabbedItem()) / hitEntity->GetToughness();
+		hitEntity->ReceiveDamage(damage, _myEntityComp);
 
 		ACharacter* character = (ACharacter*)OtherActor;
 		UCharacterMovementComponent* ucmc = character->FindComponentByClass<UCharacterMovementComponent>();

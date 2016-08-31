@@ -47,10 +47,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Colliders)
 		UStaticMeshComponent*  mainHandCollider;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Colliders)
-		UStaticMeshComponent*  secondaryHandCollider;
-
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Troll)
 		bool _isAttacking;
 
@@ -66,13 +62,7 @@ protected:
 		void PickUpMain();
 
 	UFUNCTION()
-		void PickUpSecondary();
-
-	UFUNCTION()
 		void AttackMain();
-
-	UFUNCTION()
-		void AttackSecondary();
 
 	UFUNCTION()	
 		void ChargeJump();
@@ -97,16 +87,10 @@ private:
 
 	float _health = 1000.0f;
 	bool _canDamage;
-	bool _equipedMain;
-	bool _equipedSecondary;
 
 	AActor* _trollActor;
-	AActor* _mainWeapon;
-	AActor* _secondaryWeapon;
-	FRotator _mainRotation;
-	FRotator _secondaryRotation;
-	float _mainZ;
-	float _secondaryZ;
+	FRotator _grabbedRotation;
+	float _grabbedZ;
 
 	const float _PICK_UP_RADIO = 256.0f;
 	const float _TROLL_DMG = 1000.0f;

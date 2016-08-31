@@ -19,9 +19,9 @@ EBTNodeResult::Type UBTTask_Steal::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 
 		if (targetEntity && targetOwnable) {
 
-			if(targetEntity->StealFromInventory(targetOwnable, targetEntity))
+			/*if(targetEntity->StealFromInventory(targetOwnable, targetEntity))
 				return EBTNodeResult::Succeeded;
-			else return EBTNodeResult::Failed;
+			else return EBTNodeResult::Failed;*/
 		}
 	}
 	return EBTNodeResult::Succeeded;

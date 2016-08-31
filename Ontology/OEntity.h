@@ -102,7 +102,7 @@ public:
 	void AddCurrentPlotWithPriority(BasePlot* bp);
 
 	UOEntity();
-	UOEntity(OPersonality* personality);
+	//UOEntity(OPersonality* personality);
 
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -232,7 +232,7 @@ public:
 	void ClearState(bool completedOk);
 	//void AddInstantNode(Node* n);
 	void AddInstantHelpNode(Node* n);
-	void AddInstantReact(Graph* g);
+	void AddInstantReactGraph(Graph* g);
 	vector<Graph*> GetReacts();
 
 	void ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notifyType, FString notifyID);
@@ -247,8 +247,8 @@ public:
 	void ReleaseInventory();*/
 
 	void Attack();
-	bool StealFromInventory(UOOwnable* o, UOEntity* buggler);
-	void DamageEdification(UOEdification* targetEdification);
+	//bool StealFromInventory(UOOwnable* o, UOEntity* buggler);
+	//void DamageEdification(UOEdification* targetEdification, FVector collisionPos);
 	UFUNCTION(BlueprintCallable, Category = "Entity")
 		void EndAttack();
 	void RebuildEdification(UOEdification* home);

@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OutOfTheCave_01.h"
-#include "StringCollection.h"
 #include "Ontology/OEntity.h"
 #include "Ontology/OOwnable.h"
 #include "NarrativeGeneration/PlotGenerator.h"

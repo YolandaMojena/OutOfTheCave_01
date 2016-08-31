@@ -17,15 +17,15 @@ EBTNodeResult::Type UBTTask_Help::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 		if (entityToHelp) {
 
 			if (entityToHelp->GetCurrentState() == UOEntity::AIState::plot) {
-				entityToHelp->GetCurrentPlot()->AddInvolvedInPlot(entity);	
+				entityToHelp->GetCurrentPlot()->AddInvolvedInPlot(entity);
 			}
 			else if (entityToHelp->GetCurrentState() == UOEntity::AIState::react) {
-				entity->AddInstantReact(entityToHelp->GetReacts()[0]);
+				entity->AddInstantReactGraph(entityToHelp->GetReacts()[0]);
 			}
-			else if((entityToHelp->GetCurrentState() == UOEntity::AIState::idle)){
+			else if ((entityToHelp->GetCurrentState() == UOEntity::AIState::idle)) {
 				Graph g;
 				g.AddNode(entityToHelp->GetIdleGraph()->firstNode);
-				entity->AddInstantReact(&g);
+				entity->AddInstantReactGraph(&g);
 			}
 
 			entity->RethinkState();

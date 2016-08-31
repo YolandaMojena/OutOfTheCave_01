@@ -26,4 +26,6 @@ class OUTOFTHECAVE_01_API UBTTask_Destroy : public UBTTask_BlackboardBase
 public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	
+private:
+	FVector GetDestroyPoint(AActor* actor);
 };
