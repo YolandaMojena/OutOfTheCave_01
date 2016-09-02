@@ -55,9 +55,6 @@ public:
 	void IHaveBeenStolenBySomeone(UOEntity* potentialOwner, UOEntity* buggler);
 	void IHaveBeenGivenToSomeone(UOEntity* potentialOwner, UOEntity* newOwner);
 
-
-	//static void SpawnOwnable(UOOwnable* o, UItem* spawner);
-
 	
 protected:
 	static FVector RandomDisplacementVector(int radius);

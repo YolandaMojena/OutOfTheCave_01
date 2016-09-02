@@ -109,15 +109,19 @@ void UOOwnable::IHaveBeenStolenBySomeone(UOEntity * potentialOwner, UOEntity * b
 
 			ORelation* relation = e->GetRelationWith(buggler);
 
-			if (relation)
-				relation->SetAppreciation(-ownership->GetWorth());
+			if (!relation)
+				relation = e->AddRelationship(buggler);
 
-			if (!relation || relation->GetAppreciation() < 50) {
+			relation->SetAppreciation(-ownership->GetWorth());
 
-				Report* newReport = new Report(e->GetOwnershipWith(this), TypeOfPlot::possessive, buggler);
+			if (relation->GetAppreciation() < 50) {
+
+				if (e == potentialOwner)
+					e->SendReport(new Report(e->GetOwnershipWith(this), TypeOfPlot::possessive, buggler));
+
+				e->SendReport(new Report(e->GetOwnershipWith(this), TypeOfPlot::aggressive, buggler));
 			}	
 		}
-
 	}
 }
 
