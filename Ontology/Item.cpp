@@ -57,7 +57,7 @@ APlotGenerator* UItem::GetPlotGenerator() {
 
 
 
-float UItem::GetDensity() { return _mass / _volume; }
+/*float UItem::GetDensity() { return _mass / _volume; }
 float UItem::GetMass() { return _mass; }
 float UItem::GetVolume() { return _volume; }
 
@@ -76,7 +76,27 @@ float UItem::GetAngularMomentumTransmission() { return (100.f / (FVector::Dist(_
 float UItem::GetEdgeSharpness() { return _edgeSharpness; }
 float UItem::GetEdgeLength() { return _edgeLength; }
 float UItem::GetSpiky() { return _spiky; }
-float UItem::GetSpikes() { return _spikes; }
+float UItem::GetSpikes() { return _spikes; }*/
+
+int UItem::GetMass() { return _mass; }
+int UItem::GetVolume() { return _volume; }
+int UItem::GetToughness() { return _toughness; }
+int UItem::GetEdgeSharpness() { return _edgeSharpness; }
+int UItem::GetEdgeLength() { return _edgeLength; }
+int UItem::GetSpiky() { return _spiky; }
+int UItem::GetNbrSpikes() { return _nbrSpikes; }
+int UItem::GetElongation() { return _elongation; }
+//RESTRICTED
+int UItem::R_GetMaxLength() { return _r_maxLength; }
+FVector UItem::R_GetGrabPos() { return _r_grabPos; }
+FVector UItem::R_GetGrabDir() { return _r_grabDir; }
+FVector UItem::R_GetFuncPos() { return _r_funcPos; }
+FVector UItem::R_GetFuncDir() { return _r_funcDir; }		//Think of an axe!
+FVector UItem::R_GetFuncPlane() { return _r_funcPlane; }	//Think of an axe!
+FVector UItem::R_GetCenterOfMass() { return _r_centerOfMass; }
+
+
+
 int UItem::GetIntegrity() {
 	return _integrity;
 }

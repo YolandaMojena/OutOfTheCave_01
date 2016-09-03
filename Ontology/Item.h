@@ -75,7 +75,47 @@ public:
 		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		FString _name = "";
+	
+	// FE5
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		int _mass;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		int _volume;
+	
+	// FE3
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		int _toughness;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		int _edgeSharpness;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		int _edgeLength;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		int _spiky;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		int _nbrSpikes;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		int _elongation;
+	
+	// RESTRICTED _r
+	// restricted attributes are not to be used directly when calculating affordances
+	// to be used in VectorDist() and VectorAngle() functions only
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		int _r_maxLength;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		FVector _r_grabPos;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		FVector _r_grabDir;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		FVector _r_funcPos;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		FVector _r_funcDir; //Think of an axe!
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		FVector _r_funcPlane; //Think of an axe!
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+		FVector _r_centerOfMass;
+
+	//   D E P R E C A T E D     A T T R I B U T E S
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _density;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
@@ -84,11 +124,11 @@ public:
 		float _volume;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _maxLength;
-	/*float _elongation{
-		get{
-			return _maxLength / _volume;
-		}
-	}*/
+	//float _elongation{
+	//	get{
+	//		return _maxLength / _volume;
+	//	}
+	//}
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _toughness;
@@ -106,12 +146,12 @@ public:
 		float _edgeSharpness;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _edgeLength;
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		float inertiaMomentum;*/
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
+	//	float inertiaMomentum;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		float _spiky;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		float _spikes;
+		float _spikes;*/
 
 
 	/*float _inertiaMomentum{
@@ -122,7 +162,7 @@ public:
 
 	APlotGenerator* GetPlotGenerator();
 
-	float GetDensity();
+	/*float GetDensity();
 	float GetMass();
 	float GetVolume();
 
@@ -141,9 +181,29 @@ public:
 	float GetEdgeLength();
 	float GetSpiky();
 	float GetSpikes();
-	FString GetItemName();
+	FString GetItemName();*/
+
+	int GetMass();
+	int GetVolume();
+	int GetToughness();
+	int GetEdgeSharpness();
+	int GetEdgeLength();
+	int GetSpiky();
+	int GetNbrSpikes();
+	int GetElongation();
+	// RESTRICTED R_
+	int R_GetMaxLength();
+	FVector R_GetGrabPos();
+	FVector R_GetGrabDir();
+	FVector R_GetFuncPos();
+	FVector R_GetFuncDir();		//Think of an axe!
+	FVector R_GetFuncPlane();	//Think of an axe!
+	FVector R_GetCenterOfMass();
+	
+	
 	int GetIntegrity();
 
+	FString GetItemName();
 	void SetItemName(FString name);
 
 	void CastNotify(UItem* predicate, UOEntity* subject, ENotify notifyType);

@@ -6,9 +6,9 @@
 
 OntologicFunctions::OntologicFunctions()
 {
-	_hands = NewObject<UOOwnable>();
+	/*_hands = NewObject<UOOwnable>();
 	_hands->_name = FString(TEXT("hands"));
-	_hands->_centerOfMass = FVector::ZeroVector;
+	_hands->_r_centerOfMass = FVector::ZeroVector;
 	_hands->_edgeLength = 1;
 	_hands->_edgeSharpness = 10;
 	_hands->_funcDir = FVector(0, 0, 1);
@@ -20,7 +20,7 @@ OntologicFunctions::OntologicFunctions()
 	_hands->_spikes = 5;
 	_hands->_spiky = 1;
 	_hands->_toughness = 30;
-	_hands->_volume = 450;
+	_hands->_volume = 450;*/
 }
 
 OntologicFunctions::~OntologicFunctions()
@@ -28,29 +28,125 @@ OntologicFunctions::~OntologicFunctions()
 }
 
 
-int OntologicFunctions::GetAffordance(AffordableUse au, UItem* i) {
+int OntologicFunctions::GetAffordance(AffordableUse au, UItem* i, UOEntity* u) {
 	switch (au) {
 	case AffordableUse::cultivator:
-		return UseAsCultivator(i);
+		return UseAsCultivator(i, u);
 	case AffordableUse::mine:
-		return UseForMining(i);
+		return UseForMining(i, u);
 	case AffordableUse::weapon:
-		return UseAsWeapon(i);
+		return UseAsWeapon(i, u);
 	case AffordableUse::build:
-		return UseForBuilding(i);
+		return UseForBuilding(i, u);
 	default:
 		return 0;
 	}
 }
 
-int OntologicFunctions::UseAsWeapon(UItem* i) {
+
+int OntologicFunctions::UseAsWeapon(UItem* i, UOEntity* u) {
+	return Clamp100(100 * FE3(i->GetToughness(),3,1,0) * FE3(i->GetElongation(),3,1,0) * FE5(i->GetVolume(),u->GetVolume()-1,1,1) * Clamp01(
+		FE5(i->GetMass(),2,0,2) * FE3(i->GetEdgeSharpness(),3,2,0) * FE3(i->GetEdgeLength(),3,2,0)	//Sword Mode
+		+ FE5(i->GetMass(),3,1,0) * FE3(i->GetEdgeSharpness(),3,2,0) * FE3(i->GetEdgeLength(),2,1,2) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()),3,2,0) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()),1,0,3)	// Axe Mode
+		+ FE5(i->GetMass(),3,2,0) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()),3,2,0) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()),1,0,3)) // Warhammer Mode
+		+ 25 * FE3(i->GetSpiky(),3,3,0) * FE3(i->GetNbrSpikes(),3,1,0)); // Morning Star bonus
+}
+int OntologicFunctions::UseAsCultivator(UItem* i, UOEntity* u) {
+	return Clamp100(100 * FE3(i->GetToughness(),2,3,0) * FE3(i->GetElongation(),3,1,0) * FE5(i->GetVolume(), u->GetVolume() - 1,2,2) * FE5(i->GetMass(),1,0,2) * Clamp01(
+		FE3(i->GetEdgeSharpness(),2,3,0) * FE3(i->GetEdgeLength(),1,0,1) * FE3(FEVectorAngle(i->R_GetFuncPlane(),i->R_GetGrabDir()),1,0,3)
+		+ FE3(i->GetSpiky(),2,3,0) * FE3(i->GetNbrSpikes(),3,3,0)));
+}
+int OntologicFunctions::UseForMining(UItem* i, UOEntity* u) {
+	return Clamp100(100 * FE3(i->GetToughness(),3,3,0) * FE3(i->GetElongation(),3,2,0) * FE5(i->GetVolume(),u->GetVolume()-1,2,2) * FE5(i->GetMass(),2,2,0) *  FE3(i->GetSpiky(), 3, 3, 0) * FE3(i->GetNbrSpikes(), 1, 0, 1)
+		* FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()), 3, 2, 0) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()), 1, 0, 3));
+}
+int OntologicFunctions::UseForBuilding(UItem* i, UOEntity* u) {
+
+	return 0;
+}
+
+
+
+
+float OntologicFunctions::FE3(int value, int target, int permissionLeft, int permissionRight) {
+	return FEX(3.f, value, target, permissionLeft, permissionRight);
+}
+float OntologicFunctions::FE5(int value, int target, int permissionLeft, int permissionRight) {
+	return FEX(5.f, value, target, permissionLeft, permissionRight);
+}
+float OntologicFunctions::FEX(float x, int value, int target, int permissionLeft, int permissionRight) {
+
+	if (value < 1 || value > x)
+		return 0.f;
+
+	if (value == target)
+		return 1.f;
+
+	int permission = value < target ? permissionLeft : permissionRight;
+
+	switch (permission) {
+	case 0:
+		return 1.f;
+	case 1:
+		return (x - abs(target - value)) / x;
+	case 2:
+		return abs(target - value) == 1 ? 0.5f : 0.f;
+	case 3:
+		return 0.f;
+	default:
+		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("Wrong Permission!"));
+		return -1.f;
+	}
+}
+int OntologicFunctions::FEVectorDist(FVector vectorValue, FVector vectorReference, int maxLength) {
+	float distance = FVector::Dist(vectorValue, vectorReference);
+	distance /= maxLength;
+	if (distance <= 10)
+		return 1;
+	else if (distance <= 75)
+		return 2;
+	else
+		return 3;
+}
+int OntologicFunctions::FEVectorAngle(FVector vectorValue, FVector vectorReference) {
+	return 0;
+}
+
+
+float OntologicFunctions::Clamp01(float value) {
+	if (value < 0)
+		return 0.f;
+	if (value > 1)
+		return 1.f;
+	return value;
+}
+
+float OntologicFunctions::Clamp100(float value) {
+	if (value < 0)
+		return 0.f;
+	if (value > 100)
+		return 100.f;
+	return value;
+}
+
+
+
+
+
+
+
+
+
+// D E P R E C A T E D
+
+/*int OntologicFunctions::UseAsWeapon(UItem* i) {
 	int nfactors = 4;
-	/*return ThresholdValue(ExponentialGrowth(i->GetToughness()))
-		* (ThresholdValue(LinearGrowth(i->GetAngularMomentumTransmission())) * ThresholdValue(HyperbolicGrowth(i->GetMass(), 5)) / (pow(100,2-1))
-			+ ThresholdValue(LinearGrowth(i->GetAngularInertia())) * ThresholdValue(HyperbolicDecay(i->GetMass(), 2))) / (pow(100, 2 - 1))
-		* (ThresholdValue(LinearGrowth(i->GetElongation())) + (ThresholdValue(ExponentialGrowth(i->GetEdgeSharpness())) * ThresholdValue(HyperbolicGrowth(i->GetEdgeLength()))) / (pow(100, 2 - 1))
-			+ ThresholdValue(ExponentialGrowth(i->GetSpiky())))
-		/ (pow(100, nfactors - 1));*/
+	//return ThresholdValue(ExponentialGrowth(i->GetToughness()))
+	//	* (ThresholdValue(LinearGrowth(i->GetAngularMomentumTransmission())) * ThresholdValue(HyperbolicGrowth(i->GetMass(), 5)) / (pow(100,2-1))
+	//		+ ThresholdValue(LinearGrowth(i->GetAngularInertia())) * ThresholdValue(HyperbolicDecay(i->GetMass(), 2))) / (pow(100, 2 - 1))
+	//	* (ThresholdValue(LinearGrowth(i->GetElongation())) + (ThresholdValue(ExponentialGrowth(i->GetEdgeSharpness())) * ThresholdValue(HyperbolicGrowth(i->GetEdgeLength()))) / (pow(100, 2 - 1))
+	//		+ ThresholdValue(ExponentialGrowth(i->GetSpiky())))
+	//	/ (pow(100, nfactors - 1));
 
 	int term1 = ThresholdValue(ExponentialGrowth(i->GetToughness()));
 	int term2 = (ThresholdValue(LinearGrowth(i->GetAngularMomentumTransmission())) * ThresholdValue(HyperbolicGrowth(i->GetMass(), 7)) / (pow(100, 2 - 1))
@@ -61,12 +157,12 @@ int OntologicFunctions::UseAsWeapon(UItem* i) {
 
 	int result = ThresholdValue(term1) * ThresholdValue(term2) * ThresholdValue(term3) * ThresholdValue(term4) / (pow(100, nfactors - 1));
 
-	/*GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   score: ") + FString::SanitizeFloat(result));
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 4: ") + FString::SanitizeFloat(term4));
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 3: ") + FString::SanitizeFloat(term3));
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 2: ") + FString::SanitizeFloat(term2));
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 1: ") + FString::SanitizeFloat(term1));
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("Evaluating: ") + i->GetName());*/
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   score: ") + FString::SanitizeFloat(result));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 4: ") + FString::SanitizeFloat(term4));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 3: ") + FString::SanitizeFloat(term3));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 2: ") + FString::SanitizeFloat(term2));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 1: ") + FString::SanitizeFloat(term1));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("Evaluating: ") + i->GetName());
 
 	return result;
 
@@ -84,21 +180,21 @@ int OntologicFunctions::UseAsCultivator(UItem* i){
 	
 	int result = term1 * term2 * term3 * term4 / (pow(100, nfactors - 1));
 
-	/*GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   score: ") + FString::SanitizeFloat(result));
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 4: ") + FString::SanitizeFloat(term4));
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 3: ") + FString::SanitizeFloat(term3));
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 2: ") + FString::SanitizeFloat(term2));
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 1: ") + FString::SanitizeFloat(term1));
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("Evaluating: ") + i->GetName());*/
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   score: ") + FString::SanitizeFloat(result));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 4: ") + FString::SanitizeFloat(term4));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 3: ") + FString::SanitizeFloat(term3));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 2: ") + FString::SanitizeFloat(term2));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("   term 1: ") + FString::SanitizeFloat(term1));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("Evaluating: ") + i->GetName());
 
 	return result;
 
-	/*return ThresholdValue(LinearGrowth(i->GetToughness(), 80)) 
-		* ThresholdValue(LinearGrowth(i->GetElongation(), 1406)) 
-		* (ThresholdValue(HyperbolicGrowth(i->GetEdgeSharpness(), 80)) * ExponentialEqualization(i->GetEdgeLength(), 20) / pow(100,(2-1)))
-			+ ThresholdValue(ExponentialGrowth(i->GetSpikes(), 6)) 
-		* ThresholdValue(ExponentialDecay(i->GetMass(),3)) 
-		/ (pow(100, nfactors-1));*/
+	//return ThresholdValue(LinearGrowth(i->GetToughness(), 80)) 
+	//	* ThresholdValue(LinearGrowth(i->GetElongation(), 1406)) 
+	//	* (ThresholdValue(HyperbolicGrowth(i->GetEdgeSharpness(), 80)) * ExponentialEqualization(i->GetEdgeLength(), 20) / pow(100,(2-1)))
+	//		+ ThresholdValue(ExponentialGrowth(i->GetSpikes(), 6)) 
+	//	* ThresholdValue(ExponentialDecay(i->GetMass(),3)) 
+	//	/ (pow(100, nfactors-1));
 }
 int OntologicFunctions::UseForMining(UItem* i) {
 	int nfactors = 3;
@@ -172,11 +268,11 @@ int OntologicFunctions::HyperbolicDecay(int x, int m, int n) {
 int OntologicFunctions::HyperbolicDecay(int x, int m) {
 	//return (int)((-1.0f / (((float)-x + 2.0f*(float)m) / ((float)m / 1.5f) + 1.0f) + 1.0f) * 0.6f * 100);
 	//return BotThresholdValue(HyperbolicGrowth(-x + 2 * m, m));
-	/*if(m < 100.f)
-		return BotThresholdValue((int)((-1.0f / (((float)-x + 100.f)/ ((100.f - m) / 1.5f) + 1.0f) + 1.0f) * 0.6f * 277.777778f));
-	
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("FUCK THIS HYPERBOLIC DECAY SHIT"));
-	return -1;*/
+	//if(m < 100.f)
+	//	return BotThresholdValue((int)((-1.0f / (((float)-x + 100.f)/ ((100.f - m) / 1.5f) + 1.0f) + 1.0f) * 0.6f * 277.777778f));
+	//
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("FUCK THIS HYPERBOLIC DECAY SHIT"));
+	//return -1;
 	return HyperbolicDecay(x, m, 2 * m);
 }
 int OntologicFunctions::LinearDecay(int x, int m) {
@@ -227,9 +323,9 @@ int OntologicFunctions::ThresholdValue(int x) {
 }
 int OntologicFunctions::BotThresholdValue(int x) {
 	return (x > 0 ? x : 0);
-}
+}*/
 
 
-UOOwnable* OntologicFunctions::GetHands() {
-	return _hands;
-}
+//UOOwnable* OntologicFunctions::GetHands() {
+//	return _hands;
+//}

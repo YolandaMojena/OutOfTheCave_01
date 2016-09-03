@@ -21,16 +21,16 @@ public:
 		build		UMETA(DisplayName = "build")
 	};
 
-	int GetAffordance(AffordableUse au, UItem* i);
+	int GetAffordance(AffordableUse au, UItem* i, UOEntity* u); // u = user
 
-	int UseAsWeapon(UItem* i);
-	int Pierce(UItem* i);
-	int UseAsCultivator(UItem* i);
-	int UseForMining(UItem* i);
-	int UseForBuilding(UItem* i);
+	int UseAsWeapon(UItem* i, UOEntity* u);
+	//int Pierce(UItem* i, UOEntity* user);
+	int UseAsCultivator(UItem* i, UOEntity* u);
+	int UseForMining(UItem* i, UOEntity* u);
+	int UseForBuilding(UItem* i, UOEntity* u);
 
-	UOOwnable* GetHands();
-	UOOwnable* _hands;
+	//UOOwnable* GetHands();
+	//UOOwnable* _hands;
 
 
 	/*struct PriorityCandidates {
@@ -65,7 +65,15 @@ public:
 
 private:
 	
-	int HyperbolicGrowth(int value);
+	float FE3(int value, int target, int permissionLeft, int permissionRight);
+	float FE5(int value, int target, int permissionLeft, int permissionRight);
+	float FEX(float x, int value, int target, int permissionLeft, int permissionRight);
+	int FEVectorDist(FVector vectorValue, FVector vectorReference, int maxLength);
+	int FEVectorAngle(FVector vectorValue, FVector vectorReference);
+	float Clamp01(float value);
+	float Clamp100(float value);
+
+	/*int HyperbolicGrowth(int value);
 	int LinearGrowth(int x);
 	int ExponentialGrowth(int x);
 	int HyperbolicGrowth(int value, int magnitude);
@@ -86,7 +94,7 @@ private:
 
 	int ThresholdValue(int x, int t);
 	int ThresholdValue(int x);
-	int BotThresholdValue(int x);
+	int BotThresholdValue(int x);*/
 
 
 };
