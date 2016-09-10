@@ -31,10 +31,11 @@ EBTNodeResult::Type UBTTask_Help::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 			entity->RethinkState();
 			blackboard->SetValue<UBlackboardKeyType_Bool>("NodeCompleted", false);
 		}
+		return EBTNodeResult::Succeeded;
 	}
-	else blackboard->SetValue<UBlackboardKeyType_Bool>("NodeCompleted", false);
 
-	return::EBTNodeResult::Succeeded;
+	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("NodeCompleted"), false);
+	return EBTNodeResult::Succeeded;	
 }
 
 

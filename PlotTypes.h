@@ -85,30 +85,6 @@ private:
 };
 
 
-//STEAL PLOT
-//**************************************************************************************
-
-class OUTOFTHECAVE_01_API StealPlot : public BasePlot
-{
-public:
-	StealPlot(UOEntity* plotEntity, UOEntity* who, UOOwnable* target, UItem* motivation);
-	StealPlot(UOEntity* plotEntity, UOEntity* who, UOOwnable* target, TypeOfAmbition ambition);
-	~StealPlot();
-
-	void BuildSentence();
-	void InitPlot();
-	UOEntity* GetTargetEntity();
-	UOOwnable* GetTargetOwnable();
-	BasePlot* ConsiderReactions();
-
-private:
-
-	void BuildGraph();
-
-	UOEntity* _targetEntity;
-	UOOwnable* _targetOwnable;
-};
-
 //COLLECT PLOT = GET
 //**************************************************************************************
 
@@ -140,13 +116,12 @@ private:
 class OUTOFTHECAVE_01_API AmbushPlot : public BasePlot
 {
 public:
-	AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* target, UItem* motivation);
-	AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* target, TypeOfAmbition ambition);
+	AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation);
+	AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition);
 	~AmbushPlot();
 
 	void BuildSentence();
 	UOEntity* GetTargetEntity();
-	UItem* GetTarget();
 	void InitPlot();
 	BasePlot* ConsiderReactions();
 
@@ -181,52 +156,75 @@ private:
 	UOEntity* _targetEntity;
 };
 
-//GIVE PLOT
-//**************************************************************************************
-
-class OUTOFTHECAVE_01_API GivePlot : public BasePlot
-{
-public:
-	GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what, UItem* motivation);
-	GivePlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what, TypeOfAmbition ambition);
-	~GivePlot();
-
-	void BuildSentence();
-	void InitPlot();
-	UOEntity* GetTargetEntity();
-	UOOwnable* GetTargetOwnable();
-	BasePlot* ConsiderReactions();
-
-private:
-
-	void BuildGraph();
-
-	UOEntity* _targetEntity;
-	UOOwnable* _targetOwnable;
-};
-
 //DEFEND PLOT
 //**************************************************************************************
 
 class OUTOFTHECAVE_01_API DefendPlot : public BasePlot
 {
 public:
-	DefendPlot(UOEntity* plotEntity, UOEntity* against, UItem* target, UItem* motivation);
+	DefendPlot(UOEntity* plotEntity, UOEntity* against, UItem* motivation);
 	//DefendPlot(UOEntity* plotEntity, UOEntity* target, TypeOfAmbition ambition);
 	~DefendPlot();
 
 	void BuildSentence();
 	void InitPlot();
 	UOEntity* GetTargetEntity();
-	UOEntity* GetTargetToDefend();
+	BasePlot* ConsiderReactions();
+
+private:
+
+	void BuildGraph();
+	UOEntity* _against;
+};
+
+//STEAL PLOT
+//**************************************************************************************
+
+class OUTOFTHECAVE_01_API StealPlot : public BasePlot
+{
+public:
+	StealPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* targetOwnable, UItem* motivation);
+	StealPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* targetOwnable, TypeOfAmbition ambition);
+	~StealPlot();
+
+	void BuildSentence();
+	void InitPlot();
+	UOEntity* GetTargetEntity();
+	UOOwnable* GetTargetOwnable();
+
 	BasePlot* ConsiderReactions();
 
 private:
 
 	void BuildGraph();
 
-	UItem* _target;
-	UOEntity* _against;
+	UOOwnable* _targetOwnable;
+	UOEntity* _targetEntity;
+};
+
+//GIVE PLOT
+//**************************************************************************************
+
+class OUTOFTHECAVE_01_API GivePlot : public BasePlot
+{
+public:
+	GivePlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* targetOwnable, UItem* motivation);
+	GivePlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* targetOwnable, TypeOfAmbition ambition);
+	~GivePlot();
+
+	void BuildSentence();
+	void InitPlot();
+	UOEntity* GetTargetEntity();
+	UOOwnable* GetTargetOwnable();
+
+	BasePlot* ConsiderReactions();
+
+private:
+
+	void BuildGraph();
+
+	UOOwnable* _targetOwnable;
+	UOEntity* _targetEntity;
 };
 
 
@@ -259,7 +257,7 @@ private:
 class OUTOFTHECAVE_01_API Stampede : public BasePlot
 {
 public:
-	Stampede(ERace race, FVector spawnLocation, FVector targetLocation, float num, APlotGenerator* plotGenerator);
+	Stampede(ERace race, FVector spawnLocation, float num, APlotGenerator* plotGenerator);
 	Stampede(ERace race, FVector spawnLocation, UOEntity* targetActor, float num, APlotGenerator* plotGenerator);
 	~Stampede();
 

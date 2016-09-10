@@ -49,7 +49,7 @@ public:
 
 	void AddReportToLog(Report* newReport);
 	void ChangeCurrentPlotsInAction(int dif);
-	vector<UOEntity*> SpawnEntities(int num, ERace race);
+	vector<UOEntity*> SpawnEntities(int num, ERace race, FVector spawnLocation);
 	vector<UOOwnable*> GetValuables();
 	void AddValuable(UOOwnable* valuable);
 	vector<UOEntity*> GetNotoriousEntitiesByRace(ERace race);
@@ -104,7 +104,7 @@ private:
 	TArray<UOEntity*> _notoriousEntities;
 
 
-	const float _TIME_TO_SPAWN = 20.0f;
+	const float _TIME_TO_SPAWN = 10.0f;
 	const int _MAX_NOTORIOUS = 15;
 	const int _MAX_PLOTS = 3;
 

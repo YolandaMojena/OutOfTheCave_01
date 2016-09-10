@@ -47,8 +47,8 @@ void UOOwnable::BeginPlay() {
 	/*for (TObjectIterator<UOCivilian> Itr; Itr; ++Itr){
 	}*/
 
-	for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
-		_plotGenerator = *Itr;
+	/*for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
+		_plotGenerator = *Itr;*/
 
 	if (_rarity == Rarity::mythic || _rarity == Rarity::rare)
 		_plotGenerator->AddValuable(this);
@@ -109,15 +109,19 @@ void UOOwnable::IHaveBeenStolenBySomeone(UOEntity * potentialOwner, UOEntity * b
 
 			ORelation* relation = e->GetRelationWith(buggler);
 
-			if (relation)
-				relation->SetAppreciation(-ownership->GetWorth());
+			if (!relation)
+				relation = e->AddRelationship(buggler);
 
-			if (!relation || relation->GetAppreciation() < 50) {
+			relation->SetAppreciation(-ownership->GetWorth());
 
-				Report* newReport = new Report(e->GetOwnershipWith(this), TypeOfPlot::possessive, buggler);
+			if (relation->GetAppreciation() < 50) {
+
+				if (e == potentialOwner)
+					e->SendReport(new Report(e->GetOwnershipWith(this), TypeOfPlot::possessive, buggler));
+
+				e->SendReport(new Report(e->GetOwnershipWith(this), TypeOfPlot::aggressive, buggler));
 			}	
 		}
-
 	}
 }
 

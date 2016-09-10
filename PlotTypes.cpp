@@ -52,12 +52,6 @@ void AttackPlot::BuildSentence() {
 			+ " began an attack against the unfortunate " + _targetEntity->GetRaceString() + " "
 			+ _targetEntity->GetItemName() + ", in order to exterminate his/her race.\n\n\n";
 	}
-	else if (_ambition == TypeOfAmbition::extermination) {
-
-		_sentence += "The aggressive " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
-			+ " has begun an attack against the unfortunate " + _targetEntity->GetRaceString() + " "
-			+ _targetEntity->GetItemName() + ", in order to exterminate his/her race.\n\n\n";
-	}
 	else if (_ambition == TypeOfAmbition::notoriety) {
 
 		_sentence += "The aggressive " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
@@ -92,16 +86,11 @@ void AttackPlot::BuildGraph() {
 		_plotGraph.AddNode(askTrollForHelpNode);
 	}
 
-	//GO TO KILLER
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_targetEntity->GetOwner());
-	_plotGraph.AddNode(goToNode);
-
 	//ATTACK
 	Node* attackNode = new Node();
 	attackNode->SetNodeType(NodeType::attack);
 	attackNode->SetHighPriority(true);
+	attackNode->SetActor(_targetEntity->GetOwner());
 	attackNode->SetEntity(_targetEntity);
 	_plotGraph.AddNode(attackNode);
 }
@@ -119,27 +108,33 @@ BasePlot* AttackPlot::ConsiderReactions() {
 	UOEntity* reactionEntity = nullptr;
 
 	for (UOEntity* e : _involvedInPlot) {
-		
-		ORelation* relationWithMain = e->GetRelationWith(_plotEntity);
-		ORelation* relationWithOther = e->GetRelationWith(_targetEntity);
 
-		// SHOULD I VALUE RESPECT AND FEAR? 
-		if (relationWithMain && relationWithOther && relationWithOther->GetAppreciation() > relationWithMain->GetAppreciation()) {
-			
-			DeleteFromInvolved(e);
+		if(e->GetPersonality()->GetAstute()>50){
 
-			if (!reactionEntity) {
-				reactionEntity = e;
+			ORelation* relationWithMain = e->GetRelationWith(_plotEntity);
+			ORelation* relationWithOther = e->GetRelationWith(_targetEntity);
 
-				if (e->GetPersonality()->GetAggressiveness() > 50)
-					reaction = new AmbushPlot(e, _plotEntity, _targetEntity, _targetEntity);
-				else
-					reaction = new DefendPlot(e, _plotEntity, _targetEntity, _targetEntity);
+			// SHOULD I VALUE RESPECT AND FEAR? 
+			if (relationWithMain && relationWithOther && 
+				(relationWithOther->GetAppreciation()  + relationWithOther->GetRespect() + relationWithOther->GetFear()) > 
+				(relationWithMain->GetAppreciation() + relationWithMain->GetRespect() + relationWithMain->GetFear())) {
+
+				DeleteFromInvolved(e);
+
+				if (!reactionEntity) {
+					reactionEntity = e;
+
+					/*if (reactionEntity->GetPersonality()->GetAggressiveness() > 50)
+						reaction = new AmbushPlot(e, _plotEntity, _targetEntity);
+					else*/
+						reaction = new DefendPlot(e, _plotEntity, _targetEntity);
+				}
+				else if (reaction)
+					reaction->AddInvolvedInPlot(e);
 			}
-			else if (reaction)
-				reaction->AddInvolvedInPlot(e);
 		}
-	}
+	}	
+		
 	return reaction;
 }
 
@@ -231,15 +226,10 @@ void DestroyPlot::BuildGraph() {
 		_plotGraph.AddNode(askTrollForHelpNode);
 	}
 
-	//GO TO TARGET
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_targetEdification->GetOwner());
-	_plotGraph.AddNode(goToNode);
-
 	//DESTROY
 	Node* destroyNode = new Node();
 	destroyNode->SetNodeType(NodeType::destroy);
+	destroyNode->SetActor(_targetEdification->GetOwner());
 	destroyNode->SetEdification(_targetEdification);
 	_plotGraph.AddNode(destroyNode);
 }
@@ -258,24 +248,29 @@ BasePlot* DestroyPlot::ConsiderReactions() {
 
 	for (UOEntity* e : _involvedInPlot) {
 
-		ORelation* relationWithMain = e->GetRelationWith(_plotEntity);
-		ORelation* relationWithOther = e->GetRelationWith(_targetEntity);
+		if (e->GetPersonality()->GetAstute()>50) {
 
-		// SHOULD I VALUE RESPECT AND FEAR? 
-		if (relationWithMain && relationWithOther && relationWithOther->GetAppreciation() > relationWithMain->GetAppreciation()) {
+			ORelation* relationWithMain = e->GetRelationWith(_plotEntity);
+			ORelation* relationWithOther = e->GetRelationWith(_targetEntity);
 
-			DeleteFromInvolved(e);
+			// SHOULD I VALUE RESPECT AND FEAR? 
+			if (relationWithMain && relationWithOther &&
+				(relationWithOther->GetAppreciation() + relationWithOther->GetRespect() + relationWithOther->GetFear()) >
+				(relationWithMain->GetAppreciation() + relationWithMain->GetRespect() + relationWithMain->GetFear())) {
 
-			if (!reactionEntity) {
-				reactionEntity = e;
+				DeleteFromInvolved(e);
 
-				if (e->GetPersonality()->GetAggressiveness() > 50)
-					reaction = new AmbushPlot(e, _plotEntity, _targetEdification, _targetEntity);
-				else
-					reaction = new DefendPlot(e, _plotEntity, _targetEdification, _targetEntity);
+				if (!reactionEntity) {
+					reactionEntity = e;
+
+					/*if (reactionEntity->GetPersonality()->GetAggressiveness() > 50)
+						reaction = new AmbushPlot(e, _plotEntity, _targetEdification);
+					else*/
+						reaction = new DefendPlot(e, _plotEntity, _targetEdification);
+				}
+				else if (reaction)
+					reaction->AddInvolvedInPlot(e);
 			}
-			else if (reaction)
-				reaction->AddInvolvedInPlot(e);
 		}
 	}
 	return reaction;
@@ -334,15 +329,10 @@ void BuildPlot::BuildGraph() {
 	getNode->SetAffordableUse(OntologicFunctions::mine);
 	_plotGraph.AddNode(getNode);
 
-	//GO TO TARGET
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_targetEdification->GetOwner());
-	_plotGraph.AddNode(goToNode);
-
 	//BUILD
 	Node* buildNode = new Node();
 	buildNode->SetNodeType(NodeType::build);
+	buildNode->SetActor(_targetEdification->GetOwner());
 	buildNode->SetEdification(_targetEdification);
 	_plotGraph.AddNode(buildNode);
 }
@@ -366,19 +356,17 @@ UOEdification* BuildPlot::GetTargetEdification() {
 
 // AMBUSH
 // ********************************************************************
-AmbushPlot::AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* target, UItem* motivation) : BasePlot(plotEntity) {
+AmbushPlot::AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation) : BasePlot(plotEntity) {
 
 	_targetEntity = targetEntity;
-	_target = target;
 	_isExclusive = true;
 	_motivation = motivation;
 	_ambition = TypeOfAmbition::noAmbition;
 }
 
-AmbushPlot::AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* target, TypeOfAmbition ambition) : BasePlot(plotEntity) {
+AmbushPlot::AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition) : BasePlot(plotEntity) {
 
 	_targetEntity = targetEntity;
-	_target = target;
 	_isExclusive = true;
 	_ambition = ambition;
 	_motivation = nullptr;
@@ -395,7 +383,7 @@ void AmbushPlot::BuildSentence() {
 		_sentence += "The " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
 			+ " committed an act of treason and organized an ambush against the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetItemName()
 			+ ", who had planned to ";
-		_sentence += _target->IsA<UOEntity>() ? " attack his/her friend " + _target->GetItemName() : " destroy his/her friend's " + _target->GetItemName();
+		_sentence += _target->IsA<UOEntity>() ? " attack his/her friend " + _motivation->GetItemName() : " destroy his/her friend's " + _motivation->GetItemName();
 		_sentence += ".\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::extermination) {
@@ -411,17 +399,17 @@ void AmbushPlot::BuildGraph() {
 
 	_plotGraph = Graph();
 
-	//GET WEAPON
-	Node* getNode = new Node();
-	getNode->SetNodeType(NodeType::get);
-	getNode->SetAffordableUse(OntologicFunctions::weapon);
-	_plotGraph.AddNode(getNode);
-
 	// ASK FOR HELP
 	Node* askForHelpNode = new Node();
 	askForHelpNode->SetHighPriority(true);
 	askForHelpNode->SetNodeType(NodeType::askForHelp);
 	_plotGraph.AddNode(askForHelpNode);
+
+	//GET WEAPON
+	Node* getNode = new Node();
+	getNode->SetNodeType(NodeType::get);
+	getNode->SetAffordableUse(OntologicFunctions::weapon);
+	_plotGraph.AddNode(getNode);
 
 	UOEntity* troll = UGameplayStatics::GetPlayerCharacter(_plotEntity->GetWorld(), 0)->FindComponentByClass<UOEntity>();
 	ORelation* relation = _plotEntity->GetRelationWith(troll);
@@ -434,11 +422,11 @@ void AmbushPlot::BuildGraph() {
 		_plotGraph.AddNode(askTrollForHelpNode);
 	}
 
-	//GO TO ENEMY'S TARGET LOCATION
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::ambush);
-	goToNode->SetActor(_targetEntity->GetCurrentTarget());
-	_plotGraph.AddNode(goToNode);
+	Node* ambushNode = new Node();
+	ambushNode->SetNodeType(NodeType::ambush);
+	ambushNode->SetPosition(_targetEntity->GetGoingLocation());
+	ambushNode->SetEntity(_targetEntity);
+	_plotGraph.AddNode(ambushNode);
 
 	//ATTACK
 	Node* attackNode = new Node();
@@ -462,96 +450,6 @@ BasePlot* AmbushPlot::ConsiderReactions() {
 UOEntity* AmbushPlot::GetTargetEntity() {
 	return _targetEntity;
 }
-
-UItem* AmbushPlot::GetTarget() {
-	return _target;
-}
-
-
-//STEAL PLOT
-//**************************************************************************************
-
-StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* target, UItem* motivation) : BasePlot(plotEntity) {
-
-	_targetOwnable = target;
-	_targetEntity = targetEntity;
-	_motivation = motivation;
-	_isExclusive = true;
-	_ambition = TypeOfAmbition::noAmbition;
-}
-
-StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* target, TypeOfAmbition ambition) : BasePlot(plotEntity) {
-
-	_targetOwnable = target;
-	_targetEntity = targetEntity;
-	_ambition = ambition;
-	_isExclusive = true;
-	_motivation = nullptr;
-}
-
-StealPlot::~StealPlot() {}
-
-void StealPlot::BuildSentence() {
-
-	_sentence += _identifier;
-
-	if (_motivation) {
-		_sentence += "The vengeful " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
-			+ " stole a " + _targetOwnable->GetItemName() + " from the " + _targetEntity->GetRaceString() +
-			" " + _targetEntity->GetItemName() + ", since it was also stolen from him/her.\n\n\n";
-	}
-	else if (_ambition == TypeOfAmbition::possessions) {
-		_sentence += "The materialistic " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
-			+ " stole a precious " + _targetOwnable->GetItemName() + " from the " + _targetEntity->GetRaceString() +
-			" " + _targetEntity->GetItemName() + ", since his/her ambition in life is to own lots of valuable possessions.\n\n\n";
-	}
-}
-
-void StealPlot::BuildGraph() {
-
-	_plotGraph = Graph();
-
-	//GO TO TARGET
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goTo);
-	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
-	_plotGraph.AddNode(goToNode);
-
-	//STEAL
-	Node* stealNode = new Node();
-	stealNode->SetNodeType(NodeType::steal);
-	stealNode->SetEntity(_targetEntity);
-	stealNode->SetOwnable(_targetOwnable);
-	_plotGraph.AddNode(stealNode);
-
-	//If he's a mad coward, kill
-	if (_plotEntity->GetPersonality()->GetAggressiveness() > 85 && _plotEntity->GetPersonality()->GetBraveness() < 15) {
-		Node* attackNode = new Node();
-		attackNode->SetNodeType(NodeType::attack);
-		attackNode->SetEntity(_targetEntity);
-		_plotGraph.AddNode(attackNode);
-	}
-}
-
-void StealPlot::InitPlot() {
-
-	_identifier = "Steal " + _targetEntity->GetItemName() + "'s " + _targetOwnable->GetItemName() + ":\n";
-	BuildGraph();
-	BuildSentence();
-}
-
-BasePlot* StealPlot::ConsiderReactions() {
-	return nullptr;
-}
-
-UOEntity* StealPlot::GetTargetEntity() {
-	return _targetEntity;
-}
-
-UOOwnable* StealPlot::GetTargetOwnable() {
-	return _targetOwnable;
-}
-
 
 
 //GET PLOT
@@ -610,12 +508,6 @@ void GetPlot::BuildGraph() {
 		askTrollForHelpNode->SetActor(troll->GetOwner());
 		_plotGraph.AddNode(askTrollForHelpNode);
 	}
-
-	//GO TO OBJECT
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_targetOwnable->GetOwner());
-	_plotGraph.AddNode(goToNode);
 
 	//GET OBJECT
 	Node* grabNode = new Node();
@@ -697,18 +589,20 @@ void HelpPlot::BuildGraph() {
 
 	_plotGraph = Graph();
 
-	//GO TO TARGET
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_targetEntity->GetOwner());
-	_plotGraph.AddNode(goToNode);
-
 	// HELP
 	Node* helpNode = new Node();
 	helpNode->SetNodeType(NodeType::help);
 	helpNode->SetEntity(_targetEntity);
-	if(_targetEntity->IsPlayer)
+	helpNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
+	if (_targetEntity->IsPlayer) {
 		helpNode->SetActor(_targetEntity->GetOwner());
+		ORelation* trollRelation = _plotEntity->GetRelationWith(_targetEntity);
+		if (!trollRelation)
+			_plotEntity->AddRelationship(_targetEntity);
+		trollRelation->ChangeAppreciation(+10);
+		trollRelation->ChangeFear(-10);
+	}
+		
 	_plotGraph.AddNode(helpNode);
 
 }
@@ -773,18 +667,18 @@ void GivePlot::BuildGraph() {
 
 	_plotGraph = Graph();
 
-	//INSERT GET IF NOT IN INVENTORY OR GRABBED//
-
-	//GO TO TARGET
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goTo);
-	goToNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
-	_plotGraph.AddNode(goToNode);
+	//GET TARGET
+	Node* grabNode = new Node();
+	grabNode->SetNodeType(NodeType::grab);
+	grabNode->SetOwnable(_targetOwnable);
+	grabNode->SetActor(_targetOwnable->GetOwner());
+	_plotGraph.AddNode(grabNode);
 
 	//GIVE
 	Node* giveNode = new Node();
 	giveNode->SetNodeType(NodeType::give);
 	giveNode->SetOwnable(_targetOwnable);
+	giveNode->SetEntity(_targetEntity);
 	_plotGraph.AddNode(giveNode);
 }
 
@@ -808,17 +702,93 @@ UOOwnable* GivePlot::GetTargetOwnable() {
 	return _targetOwnable;
 }
 
+//STEAL PLOT
+//**************************************************************************************
+
+StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what, UItem* motivation) : BasePlot(plotEntity) {
+
+	_targetEntity = target;
+	_targetOwnable = what;
+	_isExclusive = true;
+	_motivation = motivation;
+	_ambition = TypeOfAmbition::noAmbition;
+}
+
+StealPlot::StealPlot(UOEntity* plotEntity, UOEntity* target, UOOwnable* what, TypeOfAmbition ambition) : BasePlot(plotEntity) {
+
+	_targetEntity = target;
+	_targetOwnable = what;
+	_isExclusive = true;
+	_ambition = ambition;
+	_motivation = nullptr;
+}
+
+StealPlot::~StealPlot() {}
+
+void StealPlot::BuildSentence() {
+
+	_sentence += _identifier;
+
+	if (_motivation) {
+
+		_sentence += "The " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName() + " decided to steal a " + _targetOwnable->GetItemName() + " from the " +
+			_targetEntity->GetRaceString() + " " + _targetEntity->GetItemName() + " as an act of revenge for his/her " + _motivation->GetItemName() + ".\n\n\n";
+	}
+	else if (_ambition == TypeOfAmbition::possessions) {
+		_sentence += "The materialistic " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
+			+ " stole a precious " + _targetOwnable->GetItemName() + " from the " + _targetEntity->GetRaceString() +
+			" " + _targetEntity->GetItemName() + ", since his/her ambition in life is to own lots of valuable possessions.\n\n\n";
+	}
+}
+
+void StealPlot::BuildGraph() {
+
+	_plotGraph = Graph();
+
+	//STEAL
+	Node* stealNode = new Node();
+	stealNode->SetNodeType(NodeType::steal);
+	stealNode->SetOwnable(_targetOwnable);
+	_plotGraph.AddNode(stealNode);
+
+	//If he's a mad coward, kill
+	if (_plotEntity->GetPersonality()->GetAggressiveness() > 85 && _plotEntity->GetPersonality()->GetBraveness() < 15) {
+		Node* attackNode = new Node();
+		attackNode->SetNodeType(NodeType::attack);
+		attackNode->SetEntity(_targetEntity);
+		_plotGraph.AddNode(attackNode);
+	}
+}
+
+void StealPlot::InitPlot() {
+
+	_identifier = "Steal " + _targetOwnable->GetItemName() + " from " + _targetEntity->GetItemName() + ":\n";
+
+	BuildGraph();
+	BuildSentence();
+}
+
+BasePlot* StealPlot::ConsiderReactions() {
+	return nullptr;
+}
+
+UOEntity* StealPlot::GetTargetEntity() {
+	return _targetEntity;
+}
+
+UOOwnable* StealPlot::GetTargetOwnable() {
+	return _targetOwnable;
+}
 
 //DEFEND PLOT
 //**************************************************************************************
 
-DefendPlot::DefendPlot(UOEntity* plotEntity, UOEntity* against, UItem* target, UItem* motivation) : BasePlot(plotEntity) {
+DefendPlot::DefendPlot(UOEntity* plotEntity, UOEntity* against, UItem* motivation) : BasePlot(plotEntity) {
 
-	_target = target;
 	_against = against;
 	_motivation = motivation;
 	_ambition = TypeOfAmbition::noAmbition;
-	_isExclusive = true;
+	_isExclusive = false;
 }
 
 DefendPlot::~DefendPlot() {}
@@ -829,9 +799,9 @@ void DefendPlot::BuildSentence() {
 
 	if (_motivation) {
 
-		_sentence += "And when everything seemed to be lost for the " + ((UOEntity*)_motivation)->GetRaceString() + " " + ((UOEntity*)_motivation)->GetItemName() +
-			", his/her astute and preventive friend " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName() + " came up with a defensive strategy to protect " ;
-		_sentence += _target->IsA<UOEntity>() ? + "him/her " + _target->GetItemName() : + "his/her "  +_target->GetItemName() + " from the "
+		_sentence += "And when everything seemed to be lost for the " + (_motivation->IsA<UOEntity>() ? ((UOEntity*)_motivation)->GetRaceString() : + "") + " " + _motivation->GetItemName() +
+			", the astute " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName() + " came up with a defensive strategy to protect " ;
+		(_sentence += _motivation->IsA<UOEntity>() ? + "him/her " : + "it ") + " from the "
 			+ _against->GetRaceString() + " " + _against->GetItemName();
 			
 		_sentence += ".\n\n\n";
@@ -852,14 +822,14 @@ void DefendPlot::BuildGraph() {
 	//GO TO TARGET
 	Node* goToNode = new Node();
 	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_target->GetOwner());
+	goToNode->SetActor(_motivation->GetOwner());
 	_plotGraph.AddNode(goToNode);
 
-	//GIVE
+	//DEFEND
 	Node* defendNode = new Node();
 	defendNode->SetNodeType(NodeType::defend);
-	defendNode->SetFloatKey(5);
-	defendNode->SetActor(_against->GetOwner());
+	defendNode->SetEntity(_against);
+	defendNode->SetActor(_motivation->GetOwner());
 	_plotGraph.AddNode(defendNode);
 }
 
@@ -880,11 +850,24 @@ BasePlot* DefendPlot::ConsiderReactions() {
 //STAMPEDE
 //*************************************************************************************
 
-Stampede::Stampede(ERace race, FVector spawnLocation, FVector targetLocation, float num, APlotGenerator* plotGenerator) {
+Stampede::Stampede(ERace race, FVector spawnLocation, float num, APlotGenerator* plotGenerator) {
 
 	_race = race;
-	_spawnLocation = spawnLocation;
-	_targetLocation = targetLocation;
+	_spawnLocation = spawnLocation + Utilities::RandomDisplacementVector(500);
+
+	FVector dir;
+	float dist;
+	if (rand() % 10 < 5.0f) {
+		dir = FVector(1, 0, 0);
+		dist = 13000;
+	}
+	else {
+		dir = FVector(0, -1, 0);
+		dist = 11000;
+	}
+	_targetLocation = _spawnLocation + dir*dist;
+	//_targetLocation = _spawnLocation + FVector(UGameplayStatics::GetPlayerCharacter(plotGenerator->GetWorld(), 0)->GetActorLocation() - _spawnLocation).GetSafeNormal() * FVector(5000, 5000, 0);
+
 	_plotGenerator = plotGenerator;
 	_num = num;
 	_targetActor = nullptr;
@@ -929,7 +912,7 @@ void Stampede::BuildGraph() {
 		//GO TO LOCATION
 		Node* goToNode = new Node();
 		goToNode->SetNodeType(NodeType::goTo);
-		goToNode->SetPosition(_targetLocation * FVector(1, 1, 0));
+		goToNode->SetPosition(_targetLocation);
 		_plotGraph.AddNode(goToNode);
 	}
 
@@ -944,7 +927,7 @@ void Stampede::InitPlot() {
 	_identifier = "Stampede:\n";
 	BuildGraph();
 
-	_heard = _plotGenerator->SpawnEntities(_num, _race);
+	_heard = _plotGenerator->SpawnEntities(_num, _race, _spawnLocation);
 
 	for (int i = 0; i < _heard.size(); i++) {
 
@@ -995,13 +978,6 @@ void WarPlot::BuildGraph() {
 	getNode->SetNodeType(NodeType::get);
 	getNode->SetAffordableUse(OntologicFunctions::weapon);
 	_plotGraph.AddNode(getNode);
-
-	//GO TO MOST HATED
-	Node* goToNode = new Node();
-	goToNode->SetHighPriority(true);
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_targetEntity->GetOwner());
-	_plotGraph.AddNode(goToNode);
 
 	//ATTACK
 	Node* attackNode = new Node();

@@ -35,11 +35,11 @@ BasePlot * Ambition::GenerateAmbitionForEntity(UOEntity * entity)
 			candidates.push_back(GetPosessionsAmbition(entity));
 
 		//EXTERMINATE
-		if (entPersonality->GetBraveness() > 50 && entPersonality->GetAggressiveness() > 50 && entPersonality->GetSocial() < 50)
+		if (entPersonality->GetBraveness() > 50 && entPersonality->GetAggressiveness() > 50 && entPersonality->GetKindness() < 50 && entPersonality->GetPride() > 50)
 			candidates.push_back(ExterminateAmbition(entity));
 
 		//NOTORIETY
-		if (entPersonality->GetAggressiveness() > 50 && entPersonality->GetSocial() > 50)
+		if ((entPersonality->GetAggressiveness() > 50 || entPersonality->GetKindness() > 50) && entPersonality->GetSocial() > 50 && entPersonality->GetPride() > 50)
 			candidates.push_back(BecomeNotoriousAmbition(entity));
 
 		//BE APPRECIATED
@@ -51,7 +51,7 @@ BasePlot * Ambition::GenerateAmbitionForEntity(UOEntity * entity)
 			candidates.push_back(BecomeFearedAmbition(entity));
 
 		//FRIEND TROLL
-		if (entPersonality->GetSocial() < 50 && entPersonality->GetCurious() > 25 && !(entity->GetOwner()->FindComponentByClass<UOCivilian>()->GetAmbition() == TypeOfAmbition::friendTroll))
+		if (entPersonality->GetSocial() < 50 && entPersonality->GetCurious() > 50 && !(entity->GetOwner()->FindComponentByClass<UOCivilian>()->GetAmbition() == TypeOfAmbition::friendTroll))
 			candidates.push_back(FriendTrollAmbition(entity));
 
 		if (candidates.size() > 0) {
@@ -127,6 +127,7 @@ BasePlot * Ambition::ExterminateAmbition(UOEntity * entity)
 
 	if (targetEntities.size() > 0) {	
 		return new AttackPlot(entity, targetEntities[targetEntities.size() - 1], TypeOfAmbition::extermination);
+		//return new AmbushPlot(entity, targetEntities[targetEntities.size() - 1], TypeOfAmbition::extermination);
 	}
 	return nullptr;	
 }

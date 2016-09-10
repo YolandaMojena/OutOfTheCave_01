@@ -15,8 +15,10 @@ EBTNodeResult::Type UBTTask_WaitUntilDaytime::ExecuteTask(UBehaviorTreeComponent
 		float timeToWait = blackboard->GetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("Daytime")) - ((UItem*)entity)->GetPlotGenerator()->dayTime;
 		timeToWait *= Utilities::GAMEDAY_LENGTH / Utilities::DAY_LENGTH;
 		blackboard->SetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("FloatKey"), timeToWait);
+
+		return EBTNodeResult::Succeeded;
 	}
 
-
+	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
 	return EBTNodeResult::Succeeded;
 }

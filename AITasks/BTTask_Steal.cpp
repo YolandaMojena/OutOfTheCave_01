@@ -18,12 +18,14 @@ EBTNodeResult::Type UBTTask_Steal::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 		UOOwnable* targetOwnable = (UOOwnable*) blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Ownable"));
 
 		if (targetEntity && targetOwnable) {
-
-			/*if(targetEntity->StealFromInventory(targetOwnable, targetEntity))
-				return EBTNodeResult::Succeeded;
-			else return EBTNodeResult::Failed;*/
+			entity->GrabItem(targetOwnable);
+			if(targetEntity->GetOwnershipWith(targetOwnable))
+				targetOwnable->IHaveBeenStolenBySomeone(targetEntity, entity);
 		}
+		return EBTNodeResult::Succeeded;
 	}
+
+	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
 	return EBTNodeResult::Succeeded;
 }
 

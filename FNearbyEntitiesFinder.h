@@ -4,6 +4,8 @@
 #include "Ontology/OEntity.h"
 #include "ThreadingBase.h"
 
+class ThreadManager;
+
 /**
  * OUTOFTHECAVE_01_API 
  */
@@ -15,7 +17,7 @@ class FNearbyEntitiesFinder : public FRunnable
 	// Thread to run the worker FRunnable on
 	FRunnableThread* Thread;
 
-	// The Data Ptrs
+	// The Data Ptrss
 	TArray<UOEntity*>* EntitiesToCheck;
 	TArray<UOEntity*>* EntitiesFound;
 	UOEntity* TheEntity;
@@ -44,7 +46,7 @@ public:
 	//~~~~ Thread Core Functions ~~~~
 
 	// Constructor / Destructor
-	FNearbyEntitiesFinder(UOEntity* Entity, TArray<UOEntity*>& InputArray, TArray<UOEntity*>& OutputArray);
+	FNearbyEntitiesFinder(UOEntity* Entity, TArray<UOEntity*>* InputArray, TArray<UOEntity*>* OutputArray);
 	virtual ~FNearbyEntitiesFinder();
 
 
@@ -59,7 +61,7 @@ public:
 
 
 	//~~~~ Starting and Stopping Thread ~~~~
-	static FNearbyEntitiesFinder* JoyInit(UOEntity* Entity, TArray<UOEntity*>& InputArray, TArray<UOEntity*>& OutputArray);
+	static FNearbyEntitiesFinder* JoyInit(UOEntity* Entity, TArray<UOEntity*>* InputArray, TArray<UOEntity*>* OutputArray);
 
 	// Shuts down the thread. Static so it can easily be called from outside the thread context
 	static void Shutdown();

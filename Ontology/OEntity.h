@@ -151,6 +151,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Entity")
 		TArray<UOEntity*> GetNearbyEntities();
+		
+	TArray<UOEntity*>* GetNearbyEntitiesPtr();
 
 	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
 		float GetKindness();
@@ -166,6 +168,8 @@ public:
 		float GetCurious();
 	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
 		float GetAstute();
+	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
+		float GetPride();
 
 	UFUNCTION(BlueprintCallable, Category = "EntityRelations")
 		float GetAppreciationTo(UOEntity* ent);
@@ -219,12 +223,10 @@ public:
 	void SetRace(ERace race);
 	EJob GetJob();
 	void SetJob(EJob);
-	AActor* GetCurrentTarget();
-	void SetCurrentTarget(AActor* item);
+	FVector GetGoingLocation();
 	float GetAppreciationToOtherRace();
 	UOEntity* GetMostHated();
 	
-
 	void SetAIController(AEntityAIController* eaic);
 	void SetPlotGenerator();
 	void ExecuteGraph();
@@ -236,18 +238,9 @@ public:
 	vector<Graph*> GetReacts();
 
 	void ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notifyType, FString notifyID);
-
-	/*vector<UOOwnable*> GetInventory();
-	void StoreInInventory(UOOwnable* o);
-	void GrabFromInventory(UOOwnable* o);
-	bool RemoveFromInventory(UOOwnable* o);
-	bool RemoveFromInventory(int i);
-	void SpawnFromInventory(UOOwnable* o);
-	void SpawnFromInventory(int i);
-	void ReleaseInventory();*/
+	void Retaliation(int grade, UItem* predicate, UOEntity* subject);
 
 	void Attack();
-	//bool StealFromInventory(UOOwnable* o, UOEntity* buggler);
 	//void DamageEdification(UOEdification* targetEdification, FVector collisionPos);
 	UFUNCTION(BlueprintCallable, Category = "Entity")
 		void EndAttack();
@@ -266,6 +259,8 @@ public:
 	UFUNCTION()
 		void OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	void ReceivePresent(UOOwnable* present, UOEntity* giver);
+
 	UOEntity* FindPrey();
 	
 	UOEdification* GetHome();
@@ -274,7 +269,7 @@ public:
 	float _currentTime = 10;
 
 
-	void FinishedFindingNearbyEntities();
+	void FinishedFindingNearbyEntities(/*TArray<UOEntity*> entitiesFound*/);
 	
 protected:
 	void SetState(AIState s); //, Graph* g = nullptr
@@ -285,7 +280,7 @@ protected:
 
 	void Die();
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
-	void IHaveBeenHelpedBySomeone(UOEntity* helper, UItem* motivation);
+	void IHaveBeenHelpedBySomeone(UOEntity* helper, UItem* motivation, int oldAppreciation, int newAppreciation);
 
 	AIState _currentState = AIState::idle;
 	ERace _race;
@@ -298,7 +293,6 @@ protected:
 	Graph* _idleGraph;
 	vector<Graph*> _currentReacts;
 	AEntityAIController* _entityAIController;
-	AActor* _currentTarget;
 	UOEntity* _mostHatedEntity;
 
 	vector<ORelation*> _relationships;
@@ -319,7 +313,7 @@ protected:
 
 	vector<UOOwnable*> _inventory;
 	UItem* _grabbedItem;
-	TArray<UOEntity*> _nearbyEntities;
+	TArray<UOEntity*> _nearbyEntities = TArray<UOEntity*>();
 
 	
 

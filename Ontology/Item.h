@@ -50,9 +50,10 @@ enum class EJob : uint8 {
 
 UENUM(BlueprintType)
 enum class ENotify : uint8 {
-	N_Grabbed	UMETA(DisplayName = "Grabbed"),
-	N_Damaged	UMETA(DisplayName = "Damaged"),
-	N_Released	UMETA(DisplayName = "Released")
+	N_Grabbed		UMETA(DisplayName = "Grabbed"),
+	N_Damaged		UMETA(DisplayName = "Damaged"),
+	N_Obliterated	UMETA(DisplayName = "Obliterated"),
+	N_Released		UMETA(DisplayName = "Released")
 };
 
 

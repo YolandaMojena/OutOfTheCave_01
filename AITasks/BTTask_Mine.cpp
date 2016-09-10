@@ -26,7 +26,8 @@ EBTNodeResult::Type UBTTask_Mine::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 		return::EBTNodeResult::Succeeded;
 	}
 
-	return EBTNodeResult::Failed;
+	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
+	return EBTNodeResult::Succeeded;
 }
 
 

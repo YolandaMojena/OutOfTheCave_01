@@ -17,7 +17,6 @@ class UOGrabbable;
 
 UENUM(BlueprintType)
 enum class NodeType : uint8 {
-	branch UMETA(DisplayName = "branch"),
 	goTo UMETA(DisplayName = "goTo"),
 	goToActor UMETA(DisplayName = "goToActor"),
 	wait UMETA(DisplayName = "wait"),
@@ -29,7 +28,7 @@ enum class NodeType : uint8 {
 	grab UMETA(DisplayName = "grab"),
 	steal UMETA(DisplayName = "steal"),
 	destroy UMETA(DisplayName = "destroy"),
-	celebrate UMETA(DisplayName = "celebrate"),
+	//celebrate UMETA(DisplayName = "celebrate"),
 	give UMETA(DisplayName = "give"),
 	build UMETA(DisplayName = "build"),
 	askForHelp UMETA(DisplayName = "askForHelp"),
@@ -37,7 +36,7 @@ enum class NodeType : uint8 {
 	spawn UMETA(DisplayName = "spawn"),
 	cultivate UMETA(DisplayName = "cultivate"),
 	mine UMETA(DisplayName = "mine"),
-	gather UMETA(DisplayName = "gather"),
+	//gather UMETA(DisplayName = "gather"),
 	help UMETA(DisplayName = "help"),
 	numb UMETA(DisplayName = "numb"),
 	stopFight UMETA(Displayname = "stopFight"),
@@ -46,6 +45,7 @@ enum class NodeType : uint8 {
 	destroySelf UMETA(DisplayName = "destroySelf"),
 	ambush UMETA(DisplayName = "ambush"),
 	flee UMETA(DisplayName = "flee"),
+	releaseItem UMETA(DisplayName = "releaseItem")
 };
 
 class OUTOFTHECAVE_01_API Node
@@ -58,12 +58,13 @@ public:
 	class NBlackboard {
 	public:
 
+		UItem* item;
 		UOEntity* entity;
 		AActor* actor;
 		UOOwnable* ownable;
 		OntologicFunctions::AffordableUse affordableUse;
 		UOEdification* edification;
-		FVector position;
+		FVector position = FVector(-1, -1, -1);
 		float daytime = -1.0f;
 		bool boolKey;
 		float floatKey;
@@ -81,6 +82,7 @@ public:
 	//void PopulateBlackboard(UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr);
 	//void PopulateBlackboard(FVector position, UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr);
 
+	void SetItem(UItem* i);
 	void SetEntity(UOEntity* e);
 	void SetActor(AActor* a);
 	void SetOwnable(UOOwnable* o);
@@ -94,6 +96,7 @@ public:
 	void SetAsBranch();
 	void SetCompletedOk();
 	void SetHighPriority(bool isHP);
+	void SetHighPriority();
 	
 	//void SetEntityState(UOEntity::State s);
 

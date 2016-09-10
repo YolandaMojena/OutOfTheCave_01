@@ -47,6 +47,13 @@ void Graph::AddInstantNode(Node* n) {
 	_size++;
 }
 
+void Graph::AddSplitSecondNode(Node* n) {
+	n->nextNodes.push_back(firstNode);
+	firstNode = n;
+
+	_size++;
+}
+
 Node* Graph::Peek() {
 	return firstNode;
 }

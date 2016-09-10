@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OutOfTheCave_01.h"
+#include "Ontology/ThreadManager.h"
 #include "PlotGenerator.h"
 
 
@@ -30,24 +31,25 @@ void APlotGenerator::BeginPlay()
 
 	// HARD CODED
 	// FOREST
-	_stampedeSpawnArea = FVector(4000, 10000, 0);
+	_stampedeSpawnArea = FVector(-55, 10426, 0);
 
 	//INSERT WORLD PLOTS FROM THE BEGINNING
-	//_worldPlots.push_back(new Stampede(ERace::R_Bear, _stampedeSpawnArea + RandomDisplacement(2500), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), rand() % 8 + 5, this));
+	
+	_worldPlots.push_back(new Stampede(ERace::R_Bear, _stampedeSpawnArea, rand() % 8 + 5, this));
 
-	_worldPlots.push_back(new Stampede(ERace::R_Bear, _stampedeSpawnArea + RandomDisplacement(2500), _stampedeSpawnArea + FVector(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation() - _stampedeSpawnArea).GetSafeNormal() * 12000, rand() % 8 + 5, this));
 }
 
 // Called every frame
 void APlotGenerator::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
+	
+	ThreadManager::Tick();
 
 	// PLOT SPAWN
 
 	if (_timeToSpawnPlot < _TIME_TO_SPAWN)
 		_timeToSpawnPlot += DeltaTime;
-
 	else {
 		if (_currentPlotsInAction <= _MAX_PLOTS) {
 
@@ -62,14 +64,12 @@ void APlotGenerator::Tick( float DeltaTime )
 				}
 			}
 
-			if (rand() % 100 <= (25 /(_currentPlotsInAction + 1))) {
-
-			//else if (rand() % 100 < (20 / (_currentPlotsInAction + 1)) && _currentPlotsInAction <= _MAX_PLOTS) {
-
-
+			else if (rand() % 100 < (20 / (_currentPlotsInAction + 1)) && _currentPlotsInAction <= _MAX_PLOTS) {
+				
 				//SpawnAmbitionPlot();
 				_timeToSpawnPlot = 0;
 			}
+
 			else if (rand() % 100 < 2 && _currentPlotsInAction <= _MAX_PLOTS) {
 				//SpawnWorldPlot();
 				_timeToSpawnPlot = 0;
@@ -456,7 +456,7 @@ FVector APlotGenerator::RandomDisplacement(int radius) {
 
 	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
 }
-vector<UOEntity*> APlotGenerator::SpawnEntities(int num, ERace race) {
+vector<UOEntity*> APlotGenerator::SpawnEntities(int num, ERace race, FVector spawnLocation) {
 
 	FActorSpawnParameters SpawnParams;
 
@@ -464,7 +464,7 @@ vector<UOEntity*> APlotGenerator::SpawnEntities(int num, ERace race) {
 	case ERace::R_Bear: {
 
 		for (int i = 0; i < num; i++) {
-			ACharacter* creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Bear, GetActorLocation() + RandomDisplacement(1000), GetActorRotation(), SpawnParams);
+			ACharacter* creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Bear, spawnLocation, GetActorRotation(), SpawnParams);
 
 			if (creatureToSpawn) {
 				float scale = rand() % 10 + 6;

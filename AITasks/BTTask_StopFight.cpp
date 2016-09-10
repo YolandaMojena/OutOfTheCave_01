@@ -11,7 +11,16 @@ EBTNodeResult::Type UBTTask_StopFight::ExecuteTask(UBehaviorTreeComponent& Owner
 	
 	UOEntity* other = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 	AEntityAIController* otherEntityController = other->GetEntityAIController();
-	otherEntityController->entityBlackboard->ClearValue(blackboard->GetKeyID("Entity"));
+
+	UItem* protege = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"));
+
+	if(other->GetBrain()->Peek()->GetNodeType() == NodeType::attack
+		&& other->GetBrain()->Peek()->nBlackboard.entity == (UOEntity*)protege)
+		otherEntityController->entityBlackboard->ClearValue(blackboard->GetKeyID("Entity"));
+	else if (other->GetBrain()->Peek()->GetNodeType() == NodeType::destroy
+		&& other->GetBrain()->Peek()->nBlackboard.edification == (UOEdification*)protege)
+		otherEntityController->entityBlackboard->ClearValue(blackboard->GetKeyID("Edification"));
+
 
 	return EBTNodeResult::Succeeded;
 }

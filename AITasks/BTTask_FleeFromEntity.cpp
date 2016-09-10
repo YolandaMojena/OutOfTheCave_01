@@ -19,12 +19,18 @@ EBTNodeResult::Type UBTTask_FleeFromEntity::ExecuteTask(UBehaviorTreeComponent& 
 	UOEntity* horror = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 	FVector horrorPosition = horror->GetOwner()->GetActorLocation();
 
-	FVector targetPosition = entityPosition + (entityPosition - horrorPosition).GetSafeNormal() * (BASE_FLEE_DISTANCE + (100 - entity->GetPersonality()->GetBraveness() + entity->GetRelationWith(horror)->GetFear()) * BASE_FLEE_MULTIPLIER);
-	targetPosition *= FVector(1, 1, 0);
-	
-	blackboard->SetValue<UBlackboardKeyType_Vector>(blackboard->GetKeyID("Position"), targetPosition);
-	//blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"), nullptr);
-	blackboard->ClearValue(blackboard->GetKeyID("Entity"));
+	if (entity) {
 
+		FVector targetPosition = entityPosition + (entityPosition - horrorPosition).GetSafeNormal() * (BASE_FLEE_DISTANCE + (100 - entity->GetPersonality()->GetBraveness() + entity->GetRelationWith(horror)->GetFear()) * BASE_FLEE_MULTIPLIER);
+		targetPosition *= FVector(1, 1, 0);
+
+		blackboard->SetValue<UBlackboardKeyType_Vector>(blackboard->GetKeyID("Position"), targetPosition);
+		//blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"), nullptr);
+		blackboard->ClearValue(blackboard->GetKeyID("Entity"));
+
+		return EBTNodeResult::Succeeded;
+	}
+
+	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
 	return EBTNodeResult::Succeeded;
 }

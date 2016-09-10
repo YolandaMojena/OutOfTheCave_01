@@ -1,23 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OutOfTheCave_01.h"
-#include "BTTask_DestroySelf.h"
+#include "BTTask_ReleaseGrabbedItem.h"
 
 
-EBTNodeResult::Type UBTTask_DestroySelf::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
+
+
+EBTNodeResult::Type UBTTask_ReleaseGrabbedItem::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
 
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "FACKTHISSHIT");
-
-	if (entity) {
-		entity->GetOwner()->Destroy();
+	if (entity && entity->HasGrabbedItem()) {
+		entity->ReleaseGrabbedItem();
+		return EBTNodeResult::Succeeded;
 	}
 
+	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
 	return EBTNodeResult::Succeeded;
-
 }
-
