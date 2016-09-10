@@ -14,6 +14,14 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	UOEntity* targetEntity = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 
 	if (entity && targetEntity) {
+
+		if (targetEntity->GetIntegrity() <= UOEntity::MIN_INTEGRITY) {
+			blackboard->ClearValue(blackboard->GetKeyID("Entity"));
+			entity->EndAttack();
+			return EBTNodeResult::Succeeded;
+		}
+
+
 		blackboard->SetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("FloatKey"), entity->GetAttackCooldown());
 		
 		// APPLY DAMAGE
@@ -39,7 +47,7 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 		}*/
 	}
 	
-
-	return EBTNodeResult::Failed;
+	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
+	return EBTNodeResult::Succeeded;
 }
 

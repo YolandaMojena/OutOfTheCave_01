@@ -51,6 +51,9 @@ void Node::PopulateBlackboard(FVector position, UOEntity* entityA, UOEntity* ent
 	nBlackboard.position = position;
 }*/
 
+void Node::SetItem(UItem* i) {
+	nBlackboard.item = i;
+}
 void Node::SetEntity(UOEntity* e) {
 	nBlackboard.entity = e;
 }
@@ -82,5 +85,8 @@ void Node::SetAsBranch() {
 	nBlackboard.branch = true;
 }
 void Node::SetHighPriority(bool isHP) {
+	nBlackboard.isHighPriority = true;
+}
+void Node::SetHighPriority() {
 	nBlackboard.isHighPriority = true;
 }

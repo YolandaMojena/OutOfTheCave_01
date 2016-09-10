@@ -86,16 +86,11 @@ void AttackPlot::BuildGraph() {
 		_plotGraph.AddNode(askTrollForHelpNode);
 	}
 
-	//GO TO KILLER
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_targetEntity->GetOwner());
-	_plotGraph.AddNode(goToNode);
-
 	//ATTACK
 	Node* attackNode = new Node();
 	attackNode->SetNodeType(NodeType::attack);
 	attackNode->SetHighPriority(true);
+	attackNode->SetActor(_targetEntity->GetOwner());
 	attackNode->SetEntity(_targetEntity);
 	_plotGraph.AddNode(attackNode);
 }
@@ -129,17 +124,16 @@ BasePlot* AttackPlot::ConsiderReactions() {
 				if (!reactionEntity) {
 					reactionEntity = e;
 
-					if (reactionEntity->GetPersonality()->GetAggressiveness() > 50)
+					/*if (reactionEntity->GetPersonality()->GetAggressiveness() > 50)
 						reaction = new AmbushPlot(e, _plotEntity, _targetEntity);
-					else
+					else*/
 						reaction = new DefendPlot(e, _plotEntity, _targetEntity);
 				}
 				else if (reaction)
 					reaction->AddInvolvedInPlot(e);
 			}
 		}
-	}
-		
+	}	
 		
 	return reaction;
 }
@@ -232,15 +226,10 @@ void DestroyPlot::BuildGraph() {
 		_plotGraph.AddNode(askTrollForHelpNode);
 	}
 
-	//GO TO TARGET
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_targetEdification->GetOwner());
-	_plotGraph.AddNode(goToNode);
-
 	//DESTROY
 	Node* destroyNode = new Node();
 	destroyNode->SetNodeType(NodeType::destroy);
+	destroyNode->SetActor(_targetEdification->GetOwner());
 	destroyNode->SetEdification(_targetEdification);
 	_plotGraph.AddNode(destroyNode);
 }
@@ -274,9 +263,9 @@ BasePlot* DestroyPlot::ConsiderReactions() {
 				if (!reactionEntity) {
 					reactionEntity = e;
 
-					if (reactionEntity->GetPersonality()->GetAggressiveness() > 50)
+					/*if (reactionEntity->GetPersonality()->GetAggressiveness() > 50)
 						reaction = new AmbushPlot(e, _plotEntity, _targetEdification);
-					else
+					else*/
 						reaction = new DefendPlot(e, _plotEntity, _targetEdification);
 				}
 				else if (reaction)
@@ -340,15 +329,10 @@ void BuildPlot::BuildGraph() {
 	getNode->SetAffordableUse(OntologicFunctions::mine);
 	_plotGraph.AddNode(getNode);
 
-	//GO TO TARGET
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_targetEdification->GetOwner());
-	_plotGraph.AddNode(goToNode);
-
 	//BUILD
 	Node* buildNode = new Node();
 	buildNode->SetNodeType(NodeType::build);
+	buildNode->SetActor(_targetEdification->GetOwner());
 	buildNode->SetEdification(_targetEdification);
 	_plotGraph.AddNode(buildNode);
 }
@@ -438,11 +422,11 @@ void AmbushPlot::BuildGraph() {
 		_plotGraph.AddNode(askTrollForHelpNode);
 	}
 
-	//GO TO ENEMY'S TARGET LOCATION
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::ambush);
-	goToNode->SetActor(_targetEntity->GetCurrentTarget());
-	_plotGraph.AddNode(goToNode);
+	Node* ambushNode = new Node();
+	ambushNode->SetNodeType(NodeType::ambush);
+	ambushNode->SetPosition(_targetEntity->GetGoingLocation());
+	ambushNode->SetEntity(_targetEntity);
+	_plotGraph.AddNode(ambushNode);
 
 	//ATTACK
 	Node* attackNode = new Node();
@@ -525,12 +509,6 @@ void GetPlot::BuildGraph() {
 		_plotGraph.AddNode(askTrollForHelpNode);
 	}
 
-	//GO TO OBJECT
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_targetOwnable->GetOwner());
-	_plotGraph.AddNode(goToNode);
-
 	//GET OBJECT
 	Node* grabNode = new Node();
 	grabNode->SetNodeType(NodeType::grab);
@@ -611,16 +589,11 @@ void HelpPlot::BuildGraph() {
 
 	_plotGraph = Graph();
 
-	//GO TO TARGET
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_targetEntity->GetOwner());
-	_plotGraph.AddNode(goToNode);
-
 	// HELP
 	Node* helpNode = new Node();
 	helpNode->SetNodeType(NodeType::help);
 	helpNode->SetEntity(_targetEntity);
+	helpNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
 	if (_targetEntity->IsPlayer) {
 		helpNode->SetActor(_targetEntity->GetOwner());
 		ORelation* trollRelation = _plotEntity->GetRelationWith(_targetEntity);
@@ -701,12 +674,6 @@ void GivePlot::BuildGraph() {
 	grabNode->SetActor(_targetOwnable->GetOwner());
 	_plotGraph.AddNode(grabNode);
 
-	//GO TO TARGET
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_targetEntity->GetOwner());
-	_plotGraph.AddNode(goToNode);
-
 	//GIVE
 	Node* giveNode = new Node();
 	giveNode->SetNodeType(NodeType::give);
@@ -778,12 +745,6 @@ void StealPlot::BuildGraph() {
 
 	_plotGraph = Graph();
 
-	//GO TO TARGET
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_targetOwnable->GetOwner());
-	_plotGraph.AddNode(goToNode);
-
 	//STEAL
 	Node* stealNode = new Node();
 	stealNode->SetNodeType(NodeType::steal);
@@ -827,7 +788,7 @@ DefendPlot::DefendPlot(UOEntity* plotEntity, UOEntity* against, UItem* motivatio
 	_against = against;
 	_motivation = motivation;
 	_ambition = TypeOfAmbition::noAmbition;
-	_isExclusive = true;
+	_isExclusive = false;
 }
 
 DefendPlot::~DefendPlot() {}
@@ -867,8 +828,8 @@ void DefendPlot::BuildGraph() {
 	//DEFEND
 	Node* defendNode = new Node();
 	defendNode->SetNodeType(NodeType::defend);
-	defendNode->SetFloatKey(5);
-	defendNode->SetActor(_against->GetOwner());
+	defendNode->SetEntity(_against);
+	defendNode->SetActor(_motivation->GetOwner());
 	_plotGraph.AddNode(defendNode);
 }
 
@@ -892,8 +853,20 @@ BasePlot* DefendPlot::ConsiderReactions() {
 Stampede::Stampede(ERace race, FVector spawnLocation, float num, APlotGenerator* plotGenerator) {
 
 	_race = race;
-	_spawnLocation = spawnLocation;
-	_targetLocation = _spawnLocation + FVector(UGameplayStatics::GetPlayerCharacter(plotGenerator->GetWorld(), 0)->GetActorLocation() - _spawnLocation).GetSafeNormal() * FVector(5000, 5000, 0);
+	_spawnLocation = spawnLocation + Utilities::RandomDisplacementVector(500);
+
+	FVector dir;
+	float dist;
+	if (rand() % 10 < 5.0f) {
+		dir = FVector(1, 0, 0);
+		dist = 13000;
+	}
+	else {
+		dir = FVector(0, -1, 0);
+		dist = 11000;
+	}
+	_targetLocation = _spawnLocation + dir*dist;
+	//_targetLocation = _spawnLocation + FVector(UGameplayStatics::GetPlayerCharacter(plotGenerator->GetWorld(), 0)->GetActorLocation() - _spawnLocation).GetSafeNormal() * FVector(5000, 5000, 0);
 
 	_plotGenerator = plotGenerator;
 	_num = num;
@@ -954,7 +927,7 @@ void Stampede::InitPlot() {
 	_identifier = "Stampede:\n";
 	BuildGraph();
 
-	_heard = _plotGenerator->SpawnEntities(_num, _race);
+	_heard = _plotGenerator->SpawnEntities(_num, _race, _spawnLocation);
 
 	for (int i = 0; i < _heard.size(); i++) {
 
@@ -1005,13 +978,6 @@ void WarPlot::BuildGraph() {
 	getNode->SetNodeType(NodeType::get);
 	getNode->SetAffordableUse(OntologicFunctions::weapon);
 	_plotGraph.AddNode(getNode);
-
-	//GO TO MOST HATED
-	Node* goToNode = new Node();
-	goToNode->SetHighPriority(true);
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_targetEntity->GetOwner());
-	_plotGraph.AddNode(goToNode);
 
 	//ATTACK
 	Node* attackNode = new Node();

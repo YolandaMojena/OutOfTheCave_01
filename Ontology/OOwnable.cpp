@@ -47,8 +47,8 @@ void UOOwnable::BeginPlay() {
 	/*for (TObjectIterator<UOCivilian> Itr; Itr; ++Itr){
 	}*/
 
-	for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
-		_plotGenerator = *Itr;
+	/*for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
+		_plotGenerator = *Itr;*/
 
 	if (_rarity == Rarity::mythic || _rarity == Rarity::rare)
 		_plotGenerator->AddValuable(this);

@@ -6,6 +6,7 @@
 EBTNodeResult::Type UBTTask_SetIconPath::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
 
 	AEntityAIController* ownerEntityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
+	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 
 	if (ownerEntityController){
 		
@@ -13,8 +14,11 @@ EBTNodeResult::Type UBTTask_SetIconPath::ExecuteTask(UBehaviorTreeComponent& Own
 
 		if(civilianComp)
 			civilianComp->currentIconPath = taskIconPath;
+
+		return EBTNodeResult::Succeeded;
 	}
 
+	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
 	return EBTNodeResult::Succeeded;
 }
 

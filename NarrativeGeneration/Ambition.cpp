@@ -126,8 +126,8 @@ BasePlot * Ambition::ExterminateAmbition(UOEntity * entity)
 	vector<UOEntity*> targetEntities = _plotGenerator->GetNotoriousEntitiesByRace(targetRace);
 
 	if (targetEntities.size() > 0) {	
-		//return new AttackPlot(entity, targetEntities[targetEntities.size() - 1], TypeOfAmbition::extermination);
-		return new AmbushPlot(entity, targetEntities[targetEntities.size() - 1], TypeOfAmbition::extermination);
+		return new AttackPlot(entity, targetEntities[targetEntities.size() - 1], TypeOfAmbition::extermination);
+		//return new AmbushPlot(entity, targetEntities[targetEntities.size() - 1], TypeOfAmbition::extermination);
 	}
 	return nullptr;	
 }

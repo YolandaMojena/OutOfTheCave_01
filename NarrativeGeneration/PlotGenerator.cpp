@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OutOfTheCave_01.h"
+#include "Ontology/ThreadManager.h"
 #include "PlotGenerator.h"
 
 
@@ -30,12 +31,11 @@ void APlotGenerator::BeginPlay()
 
 	// HARD CODED
 	// FOREST
-	_stampedeSpawnArea = FVector(1700, 10300, 0);
+	_stampedeSpawnArea = FVector(-55, 10426, 0);
 
 	//INSERT WORLD PLOTS FROM THE BEGINNING
-	//_worldPlots.push_back(new Stampede(ERace::R_Bear, _stampedeSpawnArea + RandomDisplacement(2500), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>(), rand() % 8 + 5, this));
-
-	_worldPlots.push_back(new Stampede(ERace::R_Bear, _stampedeSpawnArea + RandomDisplacement(500), rand() % 8 + 5, this));
+	
+	_worldPlots.push_back(new Stampede(ERace::R_Bear, _stampedeSpawnArea, rand() % 8 + 5, this));
 
 }
 
@@ -43,12 +43,13 @@ void APlotGenerator::BeginPlay()
 void APlotGenerator::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
+	
+	ThreadManager::Tick();
 
 	// PLOT SPAWN
 
 	if (_timeToSpawnPlot < _TIME_TO_SPAWN)
 		_timeToSpawnPlot += DeltaTime;
-
 	else {
 		if (_currentPlotsInAction <= _MAX_PLOTS) {
 
@@ -455,7 +456,7 @@ FVector APlotGenerator::RandomDisplacement(int radius) {
 
 	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);
 }
-vector<UOEntity*> APlotGenerator::SpawnEntities(int num, ERace race) {
+vector<UOEntity*> APlotGenerator::SpawnEntities(int num, ERace race, FVector spawnLocation) {
 
 	FActorSpawnParameters SpawnParams;
 
@@ -463,7 +464,7 @@ vector<UOEntity*> APlotGenerator::SpawnEntities(int num, ERace race) {
 	case ERace::R_Bear: {
 
 		for (int i = 0; i < num; i++) {
-			ACharacter* creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Bear, GetActorLocation() + RandomDisplacement(1000), GetActorRotation(), SpawnParams);
+			ACharacter* creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Bear, spawnLocation, GetActorRotation(), SpawnParams);
 
 			if (creatureToSpawn) {
 				float scale = rand() % 10 + 6;

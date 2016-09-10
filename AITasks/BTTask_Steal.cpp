@@ -19,9 +19,13 @@ EBTNodeResult::Type UBTTask_Steal::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 
 		if (targetEntity && targetOwnable) {
 			entity->GrabItem(targetOwnable);
-			targetOwnable->IHaveBeenStolenBySomeone(targetEntity, entity);
+			if(targetEntity->GetOwnershipWith(targetOwnable))
+				targetOwnable->IHaveBeenStolenBySomeone(targetEntity, entity);
 		}
+		return EBTNodeResult::Succeeded;
 	}
+
+	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
 	return EBTNodeResult::Succeeded;
 }
 

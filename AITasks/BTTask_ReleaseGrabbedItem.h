@@ -4,30 +4,25 @@
 
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
 
+#include "Ontology/EntityAIController.h"
+#include "Ontology/OEntity.h"
+
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 
-#include "Ontology/EntityAIController.h"
-#include "Ontology/OEntity.h"
-
-#include "BTTask_Defend.generated.h"
+#include "BTTask_ReleaseGrabbedItem.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class OUTOFTHECAVE_01_API UBTTask_Defend : public UBTTask_BlackboardBase
+class OUTOFTHECAVE_01_API UBTTask_ReleaseGrabbedItem : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
-
+		
 public:
-
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-
-private:
-
-const float ATTACK_RANGE = 500.0f;
 	
 };

@@ -22,6 +22,7 @@ public:
 	void AddNode(Node* n);
 	void AddNodeInNewBranch(Node* n, int depth);
 	void AddInstantNode(Node* n);
+	void AddSplitSecondNode(Node* n);
 
 	Node* firstNode;
 

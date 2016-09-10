@@ -15,16 +15,21 @@ EBTNodeResult::Type UBTTask_Flee::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	AActor* horror = (AActor*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Actor"));
 	FVector horrorPosition = horror->GetOwner()->GetActorLocation();
 
-	if ((entityPosition - horrorPosition).Size() > BASE_SECURE_DISTANCE)
-	{
-		blackboard->ClearValue(blackboard->GetKeyID("Actor"));
-	}
-	else {
+	if (entity) {
 
-		FVector targetPosition = entityPosition + (entityPosition - horrorPosition).GetSafeNormal() * BASE_FLEE_DISTANCE;
-		targetPosition *= FVector(1, 1, 0);
-		blackboard->SetValue<UBlackboardKeyType_Vector>(blackboard->GetKeyID("Position"), targetPosition);
+		if ((entityPosition - horrorPosition).Size() > BASE_SECURE_DISTANCE)
+		{
+			blackboard->ClearValue(blackboard->GetKeyID("Actor"));
+		}
+		else {
+
+			FVector targetPosition = entityPosition + (entityPosition - horrorPosition).GetSafeNormal() * BASE_FLEE_DISTANCE;
+			targetPosition *= FVector(1, 1, 0);
+			blackboard->SetValue<UBlackboardKeyType_Vector>(blackboard->GetKeyID("Position"), targetPosition);
+		}
+		EBTNodeResult::Succeeded;
 	}
 
+	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
 	return EBTNodeResult::Succeeded;
 }

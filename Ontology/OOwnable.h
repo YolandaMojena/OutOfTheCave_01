@@ -53,8 +53,7 @@ public:
 
 	// REPORTS
 	void IHaveBeenStolenBySomeone(UOEntity* potentialOwner, UOEntity* buggler);
-	void IHaveBeenGivenToSomeone(UOEntity* potentialOwner, UOEntity* newOwner);
-
+	//void IHaveBeenGivenToSomeone(UOEntity* potentialOwner, UOEntity* newOwner);
 	
 protected:
 	static FVector RandomDisplacementVector(int radius);

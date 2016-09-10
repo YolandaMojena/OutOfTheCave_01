@@ -9,18 +9,33 @@ EBTNodeResult::Type UBTTask_Defend::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOEntity* other = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 
-	if (entity) {
+	if (entity && other) {
 
-		if ((((AActor*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Actor")))->GetActorLocation() - entity->GetOwner()->GetActorLocation()).Size() <= tolerance) {
-			blackboard->SetValue<UBlackboardKeyType_Bool>("BoolKey", true);
-			blackboard->SetValue<UBlackboardKeyType_Float>("FloatKey", 0);
+		if ((entity->GetOwner()->GetActorLocation() - other->GetOwner()->GetActorLocation()).Size() < ATTACK_RANGE)
+		{
+			blackboard->ClearValue(blackboard->GetKeyID("Actor"));
+
+			Node* n = new Node();
+			n->SetNodeType(NodeType::attack); n->SetEntity(other);
+			if (entity->GetCurrentState() == UOEntity::AIState::plot) {
+				entity->GetBrain()->AddInstantNode(n);
+				if (entity->GetCurrentPlot()->GetMainEntity() == entity) {
+					entity->GetCurrentPlot()->GetGraphPointer()->AddSplitSecondNode(entity->GetCurrentPlot()->GetGraphPointer()->Peek());
+				}
+			}
+			else if (entity->GetCurrentState() == UOEntity::AIState::react) {
+				entity->GetBrain()->AddInstantNode(n);
+				entity->GetReacts()[0]->AddInstantNode(n);
+			}
+
+			return EBTNodeResult::Succeeded;
+
 		}
-		else
-			blackboard->SetValue<UBlackboardKeyType_Float>("FloatKey", blackboard->GetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("FloatKey"))-1);
 	}
 
-	return::EBTNodeResult::Succeeded;
+	return EBTNodeResult::Failed;
 }
 
 

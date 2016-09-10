@@ -19,20 +19,23 @@ void AEntityAIController::SetNode(Node* n) {
 	switch (n->GetNodeType()) {
 	case NodeType::askForHelp:
 		break;
+	case NodeType::askTroll:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
+		break;
 	case NodeType::attack:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity") , n->nBlackboard.entity);
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.entity->GetOwner());
 		entityBlackboard->SetValue<UBlackboardKeyType_Float>(entityBlackboard->GetKeyID("FloatKey"), n->nBlackboard.floatKey);
 		break;
-	case NodeType::branch:
-		break;
 	case NodeType::build:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Edification"), n->nBlackboard.edification);
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.edification->GetOwner());
 		break;
-	case NodeType::celebrate:
-		break;
+	//case NodeType::celebrate:
+	//	break;
 	case NodeType::destroy:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Edification"), n->nBlackboard.edification);
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.edification->GetOwner());
 		break;
 	case NodeType::enter:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Residence"), (UOResidence*) n->nBlackboard.edification);
@@ -44,19 +47,21 @@ void AEntityAIController::SetNode(Node* n) {
 		//TestBegin
 		//UOEntity* entity = GetControlledPawn()->FindComponentByClass<UOEntity>();
 		UOEntity* entity = GetPawn()->FindComponentByClass<UOEntity>();
-		UOOwnable* itemToGrab = GetOwnable(entity, n->nBlackboard.affordableUse, n->nBlackboard.isHighPriority);
-		if (itemToGrab) {
-			entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Item"), (UItem*)itemToGrab);
-			if (itemToGrab->GetOwner())
-				entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), itemToGrab->GetOwner());
+		if (entity->IsA<UOCivilian>()) {
+			UOOwnable* itemToGrab = GetOwnable(entity, n->nBlackboard.affordableUse, n->nBlackboard.isHighPriority);
+			if (itemToGrab) {
+				entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Item"), (UItem*)itemToGrab);
+				if (itemToGrab->GetOwner())
+					entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), itemToGrab->GetOwner());
 
-			if (entity->HasGrabbedItem()) {
-				if ((entity->GetGrabbedItem()->GetOwner()->GetActorLocation() - entity->GetHome()->GetOwner()->GetActorLocation()).Size() > (entity->GetOwner()->GetActorLocation() - entity->GetHome()->GetOwner()->GetActorLocation()).Size()) {
-					entity->ReleaseGrabbedItem();
+				if (entity->HasGrabbedItem()) {
+					if ((entity->GetGrabbedItem()->GetOwner()->GetActorLocation() - entity->GetHome()->GetOwner()->GetActorLocation()).Size() > (entity->GetOwner()->GetActorLocation() - entity->GetHome()->GetOwner()->GetActorLocation()).Size()) {
+						entity->ReleaseGrabbedItem();
+					}
 				}
-			}
 
-			entityBlackboard->SetValue<UBlackboardKeyType_Enum>(nodeTypeID, static_cast<UBlackboardKeyType_Enum::FDataType>(NodeType::grab));
+				entityBlackboard->SetValue<UBlackboardKeyType_Enum>(nodeTypeID, static_cast<UBlackboardKeyType_Enum::FDataType>(NodeType::grab));
+			}
 		}
 		//TestEnd
 	}
@@ -64,6 +69,7 @@ void AEntityAIController::SetNode(Node* n) {
 	case NodeType::give:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Ownable"), n->nBlackboard.ownable);
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity"), n->nBlackboard.entity);
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.entity->GetOwner());
 		break;
 	case NodeType::goTo:
 		entityBlackboard->SetValue<UBlackboardKeyType_Vector>(positionID, n->nBlackboard.position  * FVector(1, 1, 0));
@@ -71,12 +77,18 @@ void AEntityAIController::SetNode(Node* n) {
 	case NodeType::goToActor:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
 		break;
-	case NodeType::ambush:
+	case NodeType::defend:
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity"), n->nBlackboard.entity);
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
 		break;
 	case NodeType::grab:
-		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Ownable"), n->nBlackboard.ownable);
-		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
+	{
+		UOCivilian* civilian = GetPawn()->FindComponentByClass<UOCivilian>();
+		if (civilian) {
+			entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Ownable"), n->nBlackboard.ownable);
+			entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
+		}
+	}
 		break;
 	case NodeType::cultivate:
 		entityBlackboard->SetValue<UBlackboardKeyType_Vector>(positionID, (n->nBlackboard.edification->GetOwner()->GetActorLocation() + RandomDisplacementVector(400)) * FVector(1, 1, 0));
@@ -87,6 +99,8 @@ void AEntityAIController::SetNode(Node* n) {
 	case NodeType::steal:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Ownable"), n->nBlackboard.ownable);
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity"), n->nBlackboard.entity);
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.entity->GetOwner());
+
 		break;
 	case NodeType::wait:
 		if(n->nBlackboard.floatKey > 0)
@@ -96,14 +110,11 @@ void AEntityAIController::SetNode(Node* n) {
 		break;
 	case NodeType::waitUntilDaytime:
 		break;
-	case NodeType::defend:
-		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
-		entityBlackboard->SetValue<UBlackboardKeyType_Float>(entityBlackboard->GetKeyID("FloatKey"), n->nBlackboard.floatKey);
-		break;
 	case NodeType::help:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity"), n->nBlackboard.entity);
 		if(n->nBlackboard.entity->IsPlayer)
 			entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
+		entityBlackboard->SetValue<UBlackboardKeyType_Vector>(positionID, n->nBlackboard.position  * FVector(1, 1, 0));
 		break;
 	case NodeType::preyUpon:	// Convertible Node
 	{
@@ -287,27 +298,29 @@ vector<UOOwnable*> AEntityAIController::FindNearbyOwnables(UOEntity* entity) {
 	vector<UOOwnable*> results;
 	for (auto hr : hitData) {
 		UOOwnable* o = hr.GetActor()->FindComponentByClass<UOOwnable>();
-		bool admit = true;
-		
-		for (UOOwnable* own : results) {
-			if (o == own) {
-				admit = false;
-			}
-		}
+		if (o) {
+			bool admit = true;
 
-		if (admit && !o->IsA<UOEdification>() && !o->GetIsGrabbed()) {
-			
-			vector<UOEntity*> grabbers = o->GetGrabbers();
-			for (UOEntity* g : grabbers) {
-				ORelation* r = entity->GetRelationWith(g);
-				if (r && (r->GetAppreciation() > 25 || r->GetRespect() > 37 || r->GetFear() > 25)) {
+			for (UOOwnable* own : results) {
+				if (o == own) {
 					admit = false;
-					break;
 				}
 			}
 
-			if (admit)
-				results.push_back(o);
+			if (admit && !o->IsA<UOEdification>() && !o->GetIsGrabbed()) {
+
+				vector<UOEntity*> grabbers = o->GetGrabbers();
+				for (UOEntity* g : grabbers) {
+					ORelation* r = entity->GetRelationWith(g);
+					if (r && (r->GetAppreciation() > 25 || r->GetRespect() > 37 || r->GetFear() > 25)) {
+						admit = false;
+						break;
+					}
+				}
+
+				if (admit)
+					results.push_back(o);
+			}
 		}
 	}
 	return results;
