@@ -61,8 +61,8 @@ int OntologicFunctions::UseForMining(UItem* i, UOEntity* u) {
 		* FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()), 3, 2, 0) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()), 1, 0, 3));
 }
 int OntologicFunctions::UseForBuilding(UItem* i, UOEntity* u) {
-
-	return 0;
+	return Clamp100(100 * FE3(i->GetToughtness(),2,3,0) * FE3(i->GetElongation(), 3,1,0) * FE5(i->GetVolume(),u->GetVolume()-2,2,2)
+		* FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()), 3, 2, 0) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()), 1, 0, 3));
 }
 
 
