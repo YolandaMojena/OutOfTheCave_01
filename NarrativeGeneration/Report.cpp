@@ -10,7 +10,7 @@ Report::Report(ORelation * newRelation, TypeOfPlot type, UItem* motivation)
 	_targetEntity = newRelation->GetOtherEntity();
 	_newRelation = newRelation;
 	_type = type;
-	_motivation = motivation;
+	_motivation = *motivation;
 
 	_tag = ReportTag::relation;
 }
@@ -21,13 +21,13 @@ Report::Report(OOwnership* newOwnership, TypeOfPlot type, UItem* motivation)
 	_targetOwnable = newOwnership->GetOwnable();
 	_newOwnership = newOwnership;
 	_type = type;
-	_motivation = motivation;
+	_motivation = *motivation;
 
 	_tag = ReportTag::ownership;
 }
 
 //Constructor for world events
-Report::Report(UOEntity* entity, TypeOfPlot type, UItem* motivation)
+Report::Report(UOEntity* entity, TypeOfPlot type)
 {
 	_reportEntity = entity;
 	_type = type;
@@ -115,5 +115,5 @@ TypeOfPlot Report::GetType() {
 	return _type;
 }
 UItem* Report::GetMotivation() {
-	return _motivation;
+	return &_motivation;
 }

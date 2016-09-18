@@ -15,8 +15,11 @@ EBTNodeResult::Type UBTTask_AskForHelpNode::ExecuteTask(UBehaviorTreeComponent& 
 		TArray<UOEntity*> helpers;
 
 		// Added by reports
-		for (UOEntity* e : plotEntity->GetCurrentPlot()->GetInvolvedInPlot())
-			if (!helpers.Contains(e) && e!=plotEntity) helpers.Add(e);
+		for (UOEntity* e : plotEntity->GetCurrentPlot()->GetInvolvedInPlot()) {
+			if (!helpers.Contains(e) && e != plotEntity) {
+				helpers.Add(e);
+			}
+		}
 
 		if (plotEntity->GetPersonality()->GetSocial() > 50) {
 			// Add by relationships
@@ -38,8 +41,9 @@ EBTNodeResult::Type UBTTask_AskForHelpNode::ExecuteTask(UBehaviorTreeComponent& 
 		// Check if the entity is free to be involved
 		for(UOEntity* e : helpers) {
 
-			if (!e->GetIsNumb() || e->GetMainPlotEntity() != plotEntity) {
+			if (!e->GetIsNumb() && !e->GetMainPlotEntity()) {
 				e->ChangeNotoriety(+1);
+				e->SetMainPlotEntity(plotEntity);
 				e->RethinkState();
 			}
 			else {

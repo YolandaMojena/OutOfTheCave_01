@@ -652,9 +652,14 @@ void UOEntity::Die() {
 					if (entity->GetNotoriety() >= notorious->GetNotoriety())
 						notorious = entity;
 				}
+
+				_currentPlots[0]->ChangeMainEntity(notorious);
+				_currentPlots[0]->DeleteFromInvolved(notorious);
+				notorious->AddCurrentPlotWithPriority(_currentPlots[0]);
+				notorious->SetMainPlotEntity(nullptr);
+
 				for (UOEntity* entity : _currentPlots[0]->GetInvolvedInPlot()) {
-					entity->SetMainPlotEntity(notorious);
-					notorious->SetMainPlotEntity(nullptr);
+					entity->SetMainPlotEntity(notorious);	
 				}
 			}
 			else _plotGenerator->ChangeCurrentPlotsInAction(-1);
@@ -686,9 +691,13 @@ void UOEntity::Die() {
 			entityNearbies->Remove(this);
 	}
 
+	ThreadManager::SomeoneDied(this);
+
 	_brain = NULL;
-	GetOwner()->SetActorTickEnabled(false);
-	DestroyComponent();
+	IsDead = true;
+	//GetOwner()->SetActorTickEnabled(false);
+	//SetComponentTickEnabled(false);
+	//DestroyComponent();
 }
 
 
@@ -718,15 +727,19 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 
 				relationWithKiller->ChangeAppreciation(-relationFromOther->GetAppreciation());
 
-				if (relationWithKiller->GetAppreciation() < ORelation::LOW_APPRECIATION)
-					SendReport(new Report(relationWithKiller, TypeOfPlot::aggressive, this));
+				if (relationWithKiller->GetAppreciation() < ORelation::LOW_APPRECIATION) {
+					UOEntity* e = this;
+					SendReport(new Report(relationWithKiller, TypeOfPlot::aggressive, *e));
+				}
+
 
 				//Since something bad has happened, let's check the overall hate against the enemy race
-				if (killer->GetRace() != ERace::R_Troll && killer->GetRace()!=_race) 
+				/*if (killer->GetRace() != ERace::R_Troll && killer->GetRace()!=_race) {
 					if (_plotGenerator->GetOverallHateAgainstRace(_race == ERace::R_Human ? ERace::R_Goblin : ERace::R_Human) < ORelation::LOW_APPRECIATION / 2) {
 						for(UOEntity* e : _plotGenerator->GetNotoriousEntitiesByRace(_race))
 							SendReport(new Report(e, TypeOfPlot::world, this));
 					}
+				}*/
 			}
 			//o->GetOtherEntity()->DeleteRelation(this);
 		}
@@ -858,7 +871,7 @@ void UOEntity::SetState(AIState s) {
 		{
 			if (_currentPlots.size() > 0 && !_mainPlotEntity) {
 				_brain = _currentPlots[0]->GetGraph();
-				_mainPlotEntity = this;
+				//_mainPlotEntity = this;
 				_currentPlots[0]->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
 				_currentPlots[0]->PrintSentence(_plotGenerator, _currentPlots[0]->GetMotivation(), _currentPlots[0]->GetAmbition());
 
@@ -918,8 +931,8 @@ void UOEntity::SetState(AIState s) {
 //   N O T I F Y
 
 void UOEntity::ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notifyType, FString notifyID) {
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("Subject: ") + subject->GetItemName());
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("Predicate: ") + predicate->GetItemName());
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, TEXT("Subject: ") + subject->GetItemName());
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, TEXT("Predicate: ") + predicate->GetItemName());
 	if (IsPlayer || !predicate || !subject|| this == subject || predicate->IsA<UOEntity>() && this == ((UOEntity*) predicate))
 		return;
 	
@@ -928,7 +941,7 @@ void UOEntity::ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notify
 			return;
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" received a Notify! ") + notifyID);
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, GetOwner()->GetName() + TEXT(" received a Notify! ") + notifyID);
 
 	_knownNotifyIDs.push_back(notifyID);
 
@@ -978,68 +991,8 @@ void UOEntity::ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notify
 		}
 
 		Retaliation(1, predicate, subject);
-
-		//Check relation with predicate
-		/*bool doICare = false;
-		ORelation* relationWithPredicate = GetRelationWith((UOEntity*)predicate);
-		OOwnership* ownership = GetOwnershipWith((UOOwnable*)predicate);
-		if (relationWithPredicate && (relationWithPredicate->GetAppreciation() > 50 || relationWithPredicate->GetRespect() > 75)) {
-			doICare = true;
-		}
-		else if (ownership && ownership->GetWorth() > 50) {
-			doICare = true;
-		}
-
-		//Check relation with subject
-		if (doICare) {
-			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" thinks this compels him!"));
-			Graph* reactGraph = new Graph();
-			Node* n;
-			ORelation* relationWithSubject = GetRelationWith(subject);
-			if (!relationWithSubject || (relationWithSubject->GetAppreciation() < 50 && relationWithSubject->GetRespect() < 75)) {
-				//Se va a liar parda
-				n = new Node();
-				n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::weapon); n->SetHighPriority(true);
-				reactGraph->AddNode(n);
-				n = new Node();
-				n->SetNodeType(NodeType::attack);  n->SetEntity(subject); n->SetActor(subject->GetOwner()); n->SetHighPriority(true);
-				reactGraph->AddNode(n);
-
-				_currentReacts.push_back(reactGraph);
-
-				GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" wants to smash ") + subject->GetOwner()->GetName() + TEXT("!"));
-
-				RethinkState();
-			}
-			else if (relationWithPredicate) { //(make peace only when we are dealing between two entities fighting. Otherwise we're not doing anything.
-				// Peace and love
-				//RethinkState();
-
-				n = new Node();
-				n->SetNodeType(NodeType::goToActor);  n->SetActor(subject->GetOwner());
-				reactGraph->AddNode(n);
-				n = new Node();
-				n->SetNodeType(NodeType::stopFight); n->SetActor(subject->GetOwner());
-				reactGraph->AddNode(n);
-
-				n = new Node();
-				n->SetNodeType(NodeType::goToActor);  n->SetActor(predicate->GetOwner());
-				reactGraph->AddNode(n);
-				n = new Node();
-				n->SetNodeType(NodeType::stopFight); n->SetActor(predicate->GetOwner());
-				reactGraph->AddNode(n);
-
-				GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" wants to stop the fight!"));
-			}
-			else {
-				GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" can't act!"));
-			}
-		}
-		else {
-			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetName() + TEXT(" doesn't give a fuck"));
-		}*/
 	
-		// SUBJECT HELPS KILLING / DESTROYING PREDICATE
+		// SUBJECT HELPS KILLING / DESTROYING PREDICATE ?
 		Node* currentNode = _brain.Peek();
 		if (currentNode
 			&& (currentNode->GetNodeType() == NodeType::attack || currentNode->GetNodeType() == NodeType::destroy)
@@ -1161,7 +1114,7 @@ void UOEntity::Retaliation(int grade, UItem* predicate, UOEntity* subject) {
 	if (this == predicate || this == subject || IsPlayer)
 		return;
 
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, GetItemName() + TEXT(" is going to retaliate against ") + subject->GetItemName() + TEXT(" doing something of grade ") + FString::SanitizeFloat(grade) + TEXT(" over ") + predicate->GetItemName());
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, GetItemName() + TEXT(" is going to retaliate against ") + subject->GetItemName() + TEXT(" doing something of grade ") + FString::SanitizeFloat(grade) + TEXT(" over ") + predicate->GetItemName());
 
 	ORelation* relationWithSubject = GetRelationWith(subject);
 	if (!relationWithSubject)
@@ -1312,16 +1265,15 @@ void UOEntity::ExecuteGraph() {
 void UOEntity::NodeCompleted(bool completedOk) {
 	if (completedOk && !_brain.IsLastNode()) {
 		_brain.NextNode();
-		if (_currentState == AIState::plot 
-			&& GetCurrentPlot()->GetMainEntity() && GetCurrentPlot()->GetMainEntity() == this){
+		if (_currentState == AIState::plot && GetCurrentPlot()
+			&& GetCurrentPlot()->GetMainEntity() == this){
 			Graph* plotGraph = _currentPlots[0]->GetGraphPointer();
 			if (plotGraph->Peek()->GetNodeType() != NodeType::grab
 				&& plotGraph->Peek()->GetNodeType() != NodeType::get)
 			{
 				plotGraph->NextNode();
 			}
-		}
-			
+		}	
 		else if (_currentState == AIState::react) {
 			if (_currentReacts[0]->Peek()->GetNodeType() != NodeType::grab
 				&& _currentReacts[0]->Peek()->GetNodeType() != NodeType::get) 
@@ -1368,6 +1320,10 @@ void UOEntity::ClearState()
 	}
 
 	_currentState = AIState::restart;
+	_isEntityAttacking = false;
+	_isEntityBuilding = false;
+	_isEntityCultivating = false;
+	_isEntityMining = false;
 }
 
 /*void UOEntity::AddInstantNode(Node* n) {
@@ -1390,6 +1346,12 @@ vector<Graph*> UOEntity::GetReacts()
 
 void UOEntity::RethinkState() {	
 	if (GetCurrentState() != AIState::numb) {
+
+		_isEntityAttacking = false;
+		_isEntityBuilding = false;
+		_isEntityCultivating = false;
+		_isEntityMining = false;
+
 		// Current action is of high priority
 		if (_currentState != AIState::restart && _brain.Peek() && _brain.Peek()->nBlackboard.isHighPriority) {
 			SetState(_currentState);
@@ -1400,10 +1362,10 @@ void UOEntity::RethinkState() {
 			SetState(State::react);*/
 
 		// Hay un react
-		else if (!_currentReacts.empty()) {
-			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, GetOwner()->GetActorLabel() + TEXT(" wants to react!"));
+		/*else if (!_currentReacts.empty()) {
+			//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, GetOwner()->GetActorLabel() + TEXT(" wants to react!"));
 			SetState(AIState::react);
-		}
+		}*/
 
 			// Pending plot to execute
 		else if (!_currentPlots.empty() || _mainPlotEntity)
@@ -1512,7 +1474,16 @@ void UOEntity::FinishedFindingNearbyEntities(/*TArray<UOEntity*> entitiesFound*/
 	_searchingNearbyEntities = false;
 	//_nearbyEntities = entitiesFound;
 	//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::FromHex("#88FF11"), GetItemName() + TEXT(" found ") + FString::SanitizeFloat(_nearbyEntities.Num()) + TEXT(" nearby entities."));
-	for (UOEntity* e : _nearbyEntities) {
+	int startNearbyEntitiesCount = _nearbyEntities.Num();
+	int i = 0;
+	while (i < _nearbyEntities.Num()) {
+		if (startNearbyEntitiesCount != _nearbyEntities.Num()) {
+			entitiesFinderDelay = ENTITIES_FINDER_DELAY;
+			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Red, TEXT("NearbyEntities num changed"));
+			return;
+		}
+		UOEntity* e = _nearbyEntities[i];
+
 		ORelation* r = GetRelationWith(e);
 		//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::FromHex("#FF8811"), TEXT("Hi ") + e->GetItemName() + TEXT(", I greet you!"));
 		if (!r) {
@@ -1525,16 +1496,16 @@ void UOEntity::FinishedFindingNearbyEntities(/*TArray<UOEntity*> entitiesFound*/
 		else if (r->GetAppreciation() < 25) {
 			//fight?
 		}
-		else if (r->GetFear() > 75) {
+		else if (r->GetFear() > GetBraveness()) {
 			//Run, run, run away
 			//lost, lost, lost my mind...
 		}
 		else if (r->GetRespect() > 75) {
 			//Reverence
 		}
+
+		i++;
 	}
-	//_nearbyEntities.Empty();
-	FNearbyEntitiesFinder::Shutdown();
 }
 
 

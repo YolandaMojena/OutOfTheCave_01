@@ -13,6 +13,7 @@
 using namespace std;
 
 class UOEntity;
+class UItem;
 class APlotGenerator;
 
 enum class TypeOfPlot : uint8 {
@@ -36,6 +37,7 @@ public:
 	void AddInvolvedInPlot(UOEntity* entity);
 	void SavePlotToFile(const FString path, const FString fileName);
 	void AbortPlot(const FString path, const FString fileName);
+	void ChangeMainEntity(UOEntity* entity);
 
 	virtual void BuildSentence() = 0;
 	virtual void InitPlot() = 0;
@@ -46,7 +48,6 @@ public:
 	UOEntity* GetMainEntity();
 	TArray<UOEntity*> GetInvolvedInPlot();
 	void DeleteFromInvolved(UOEntity* entity);
-	UItem* GetPlotMotivation();
 	TypeOfAmbition GetPlotTypeOfAmbition();
 	bool GetIsExclusive();
 	FString GetSentence();
@@ -61,7 +62,7 @@ protected:
 	UOEntity* _plotEntity;
 	Graph _plotGraph;
 	TArray<UOEntity*> _involvedInPlot;
-	UItem* _motivation = nullptr;
+	UItem* _motivation;
 	TypeOfAmbition _ambition = TypeOfAmbition::noAmbition;
 	bool _isExclusive = false;
 	bool _isPlotValid;

@@ -134,6 +134,8 @@ public:
 	// It must be considered whether if the entity is the player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 		bool IsPlayer;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+		bool IsDead = false;
 
 	UPROPERTY(EditAnywhere, Category = Behaviour)
 	class UBehaviorTree* entityBehaviorTree;

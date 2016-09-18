@@ -79,12 +79,6 @@ public:
 	};
 
 	void RewriteNode(vector<Node*> nodes);
-	void ExecuteTask();
-	void NodeCompleted(bool completedOk);
-
-	// Allows nullptr if a value is not required
-	//void PopulateBlackboard(UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr);
-	//void PopulateBlackboard(FVector position, UOEntity* entityA = nullptr, UOEntity* entityB = nullptr, UOOwnable* ownable = nullptr, UOEdification* edification = nullptr, UOGrabbable* grabbable = nullptr);
 
 	void SetItem(UItem* i);
 	void SetEntity(UOEntity* e);
@@ -102,11 +96,8 @@ public:
 	void SetCompletedOk();
 	void SetHighPriority(bool isHP);
 	void SetHighPriority();
-	
-	//void SetEntityState(UOEntity::State s);
 
 	NBlackboard nBlackboard;
-	string name;
 	vector<Node*> nextNodes;
 
 	void SetNodeType(NodeType n);

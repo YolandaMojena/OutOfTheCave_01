@@ -80,24 +80,34 @@ void UOResidence::SpawnTenants() {
 		ACharacter* tentantCharacter = GetTentantCharacterFromRace();
 		if (tentantCharacter) {
 			UOEntity* ten = tentantCharacter->FindComponentByClass<UOEntity>();
+			ten->SetHome(this);
 
 			if (ten) {
 				// SET RELATIONS
+				bool chief = true;
 				for (UOEntity* ent : tentants) {
-					ORelation* rel = new ORelation(ten, ent);
+					/*ORelation* rel = new ORelation(ten, ent);
 					ten->AddRelationship(rel);
 					rel = new ORelation(ent, ten);
-					ent->AddRelationship(rel);
+					ent->AddRelationship(rel);*/
+					ORelation* rel = ten->AddRelationship(ent);
+					if (chief) {
+						rel->ChangeRespect(50 + rand() % 50);
+						chief = false;
+					}
+					ent->AddRelationship(ten);
 				}
 
 				if (villageID != 0) {
 					for (UOEdification* edf : _village->edifications) {
 						UOResidence* res = (UOResidence*)edf;
 						for (UOEntity* ent : res->tentants) {
-							ORelation* rel = new ORelation(ten, ent);
+							/*ORelation* rel = new ORelation(ten, ent);
 							ten->AddRelationship(rel);
 							rel = new ORelation(ent, ten);
-							ent->AddRelationship(rel);
+							ent->AddRelationship(rel);*/
+							ten->AddRelationship(ent);
+							ent->AddRelationship(ten);
 						}
 					}
 				}
@@ -107,7 +117,6 @@ void UOResidence::SpawnTenants() {
 				ten->SetIdleGraph(GenerateIdleFromJob());
 				
 				ten->SetJob(job);
-				ten->SetHome(this);
 				ten->SetPlotGenerator();
 				ten->RethinkState();
 				

@@ -46,3 +46,21 @@ void ThreadManager::RequestFinished()
 	if (customers.Num() > 0)
 		FindNext();
 }
+
+
+void ThreadManager::SomeoneDied(UOEntity* corpse) {
+	if(customers.Contains(corpse))
+		customers.Remove(corpse);
+
+	if (threadRunning) {
+		if (currentCustomer == corpse) {
+			FNearbyEntitiesFinder::Shutdown();
+			threadRunning = false;
+			if (customers.Num() > 0)
+				FindNext();
+		}
+		else {
+			FNearbyEntitiesFinder::RestartSearch();
+		}
+	}
+}

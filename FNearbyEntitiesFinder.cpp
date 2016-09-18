@@ -113,3 +113,11 @@ void FNearbyEntitiesFinder::CheckNextEntity()
 		EntitiesFound->Add(currentEntity);
 	}
 }
+
+void FNearbyEntitiesFinder::RestartSearch()
+{
+	Runnable->EntitiesCheckedCount = 0;
+	Runnable->TotalEntitiesToCheck = Runnable->EntitiesToCheck->Num();
+	while (Runnable->EntitiesFound->Num() > 0)
+		Runnable->EntitiesFound->RemoveAt(0);
+}

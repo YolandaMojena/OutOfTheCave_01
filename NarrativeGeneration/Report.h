@@ -6,6 +6,7 @@
 #include "Ontology/OEntity.h"
 #include "Ontology/ORelation.h"
 #include "Ontology/OOwnable.h"
+#include "Ontology/Item.h"
 #include "Ontology/OOwnership.h"
 #include "NarrativeGeneration/Utilities.h"
 #include "BasePlot.h"
@@ -25,7 +26,7 @@ public:
 
 	Report(ORelation* newRelation, TypeOfPlot type, UItem* motivation);
 	Report(OOwnership* newOwnership, TypeOfPlot type, UItem* motivation);
-	Report(UOEntity* entity, TypeOfPlot type, UItem* motivation);
+	Report(UOEntity* entity, TypeOfPlot type);
 
 	~Report();
 
@@ -58,8 +59,12 @@ private:
 	UOOwnable* _targetOwnable;
 	ORelation* _newRelation;
 	OOwnership* _newOwnership;
-	UItem* _motivation;
+	UItem _motivation;
 
 	ReportTag _tag;
 	TypeOfPlot _type;
+
+	bool _isMotivationEntity;
+	ERace _motivationRace;
+	FString _motivationName;
 };

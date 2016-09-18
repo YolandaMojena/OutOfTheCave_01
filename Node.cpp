@@ -32,25 +32,6 @@ NodeType Node::GetNodeType() {
 	return _nodeType;
 }
 
-/*void Node::PopulateBlackboard(UOEntity* entityA, UOEntity* entityB, UOOwnable* ownable, UOEdification* edification, UOGrabbable* grabbable) {
-
-	nBlackboard.entityA = entityA;
-	nBlackboard.entityB = entityB;
-	nBlackboard.ownable = ownable;
-	nBlackboard.edification = edification;
-	nBlackboard.grabbable = grabbable;
-}
-
-void Node::PopulateBlackboard(FVector position, UOEntity* entityA, UOEntity* entityB, UOOwnable* ownable, UOEdification* edification, UOGrabbable* grabbable) {
-
-	nBlackboard.entityA = entityA;
-	nBlackboard.entityB = entityB;
-	nBlackboard.ownable = ownable;
-	nBlackboard.edification = edification;
-	nBlackboard.grabbable = grabbable;
-	nBlackboard.position = position;
-}*/
-
 void Node::SetItem(UItem* i) {
 	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, TEXT("Pon un print aquí"));
 	nBlackboard.item = i;

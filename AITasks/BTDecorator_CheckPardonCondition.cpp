@@ -24,10 +24,10 @@ bool UBTDecorator_CheckPardonCondition::CalculateRawConditionValue(UBehaviorTree
 		}
 		
 		else if (otherEntity->IsPlayer && FVector::Dist(entity->GetOwner()->GetActorLocation(), otherEntity->GetOwner()->GetActorLocation()) > 2000) {
-			ORelation* relationWithOther = entity->GetRelationWith(otherEntity);
+			/*ORelation* relationWithOther = entity->GetRelationWith(otherEntity);
 			if (!relationWithOther)
 				relationWithOther = entity->AddRelationship(otherEntity);
-			if(relationWithOther->GetAppreciation() > 5)
+			if(relationWithOther->GetAppreciation() > 5)*/
 				return true;
 		}
 	}

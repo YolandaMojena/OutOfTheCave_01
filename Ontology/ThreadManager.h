@@ -20,6 +20,8 @@ public:
 	static void RequestFinished();
 	static void Tick();
 
+	static void SomeoneDied(UOEntity* corpse);
+
 private:
 
 	static void FindNext();

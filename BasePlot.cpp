@@ -35,7 +35,7 @@ void BasePlot::PrintSentence(APlotGenerator* plotGenerator, UItem* motivation, T
 void BasePlot::AddInvolvedInPlot(UOEntity * entity)
 {
 	_involvedInPlot.Add(entity);
-	entity->SetMainPlotEntity(_plotEntity);
+	//entity->SetMainPlotEntity(_plotEntity);
 }
 
 void BasePlot::DeleteFromInvolved(UOEntity* entity) {
@@ -74,10 +74,6 @@ bool BasePlot::GetIsExclusive() {
 	return _isExclusive;
 }
 
-UItem* BasePlot::GetPlotMotivation() {
-	return _motivation;
-}
-
 TypeOfAmbition BasePlot::GetPlotTypeOfAmbition() {
 	return _ambition;
 }
@@ -93,4 +89,8 @@ UItem* BasePlot::GetMotivation() {
 
 TypeOfAmbition BasePlot::GetAmbition() {
 	return _ambition;
+}
+
+void BasePlot::ChangeMainEntity(UOEntity* entity) {
+	_plotEntity = entity;
 }

@@ -13,10 +13,10 @@ EBTNodeResult::Type UBTTask_Flee::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 	FVector entityPosition = entity->GetOwner()->GetActorLocation();
 	AActor* horror = (AActor*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Actor"));
-	FVector horrorPosition = horror->GetActorLocation();
 
-	if (entity) {
-
+	if (entity && horror) {
+		FVector horrorPosition = horror->GetActorLocation();
+		
 		if ((entityPosition - horrorPosition).Size() > BASE_SECURE_DISTANCE)
 		{
 			blackboard->ClearValue(blackboard->GetKeyID("Actor"));

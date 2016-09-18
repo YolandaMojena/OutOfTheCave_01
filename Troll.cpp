@@ -246,22 +246,17 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 
 	if (edificationComp /*&& _isAttacking*/ && /*!edificationComp->GetIsDestroyed() &&*/ _canDamage && !_victims.Contains(edificationComp->GetOwner())){
 
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Hit"));
+		//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Hit"));
 		_victims.Add(edificationComp->GetOwner());
 
 		OntologicFunctions of;
-		UItem* test = _myEntityComp->GetGrabbedItem();
 		float damage = _myEntityComp->GetStrength() * of.UseAsWeapon(_myEntityComp->GetGrabbedItem(), _myEntityComp) / (edificationComp->GetToughness()*33.f);
 		edificationComp->ReceiveDamage(damage, _myEntityComp, GetMesh()->GetSocketLocation("RightHandSocket"));
 
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, TEXT("Strength: ") + FString::SanitizeFloat(_myEntityComp->GetStrength()));
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, TEXT("Affordance: ") + FString::SanitizeFloat(of.UseAsWeapon(_myEntityComp->GetGrabbedItem(), _myEntityComp)));
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, TEXT("OtherToughness: ") + FString::SanitizeFloat(edificationComp->GetToughness()));
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, TEXT("Damage: ") + FString::SanitizeFloat(damage));
-
-		if(test)
-			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Hit Affordance: ") + FString::SanitizeFloat(of.UseAsWeapon(_myEntityComp->GetGrabbedItem(), _myEntityComp)));
-
+		//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, TEXT("Strength: ") + FString::SanitizeFloat(_myEntityComp->GetStrength()));
+		//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, TEXT("Affordance: ") + FString::SanitizeFloat(of.UseAsWeapon(_myEntityComp->GetGrabbedItem(), _myEntityComp)));
+		//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, TEXT("OtherToughness: ") + FString::SanitizeFloat(edificationComp->GetToughness()));
+		//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, TEXT("Damage: ") + FString::SanitizeFloat(damage));
 	}
 
 	else if (hitEntity /*&& _isAttacking*/ && _canDamage && !_victims.Contains(hitEntity->GetOwner())) {

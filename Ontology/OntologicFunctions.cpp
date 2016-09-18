@@ -44,7 +44,7 @@ int OntologicFunctions::UseAsWeapon(UItem* i, UOEntity* u) {
 
 	float result = (term1 + term2 + term3 + term4) / nTerms + bonusTerm;
 
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" as weapon: ") + FString::SanitizeFloat(result));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" as weapon: ") + FString::SanitizeFloat(result));
 
 	return Clamp100(result*100);
 
@@ -68,7 +68,7 @@ int OntologicFunctions::UseAsCultivator(UItem* i, UOEntity* u) {
 
 	float result = (term1 + term2 + term3 + term4 + term5)/nTerms;
 
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" for cultivating: ") + FString::SanitizeFloat(result));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" for cultivating: ") + FString::SanitizeFloat(result));
 	
 	return Clamp100(result*100.f);
 	/*return Clamp100(100 * FE3(i->GetToughness(),2,3,0) * FE3(i->GetElongation(),3,1,0) * FE5(i->GetVolume(), u->GetVolume() - 1,2,2) * FE5(i->GetMass(),1,0,2) * Clamp01(
@@ -89,7 +89,7 @@ int OntologicFunctions::UseForMining(UItem* i, UOEntity* u) {
 
 	float result = (term1 + term2 + term3 + term4 + term5 + term6 + term7 + term8) / nTerms;
 
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" for mining: ") + FString::SanitizeFloat(result));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" for mining: ") + FString::SanitizeFloat(result));
 
 	return Clamp100(result*100.f);
 	/*return Clamp100(100 * FE3(i->GetToughness(),3,3,0) * FE3(i->GetElongation(),3,2,0) * FE5(i->GetVolume(),u->GetVolume()-1,2,2) * FE5(i->GetMass(),2,2,0) *  FE3(i->GetSpiky(), 3, 3, 0) * FE3(i->GetNbrSpikes(), 1, 0, 1)
@@ -106,7 +106,7 @@ int OntologicFunctions::UseForBuilding(UItem* i, UOEntity* u) {
 
 	float result = (term1 + term2 + term3 + term4 + term5) / nTerms;
 
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" for building: ") + FString::SanitizeFloat(result));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" for building: ") + FString::SanitizeFloat(result));
 
 	return Clamp100(result*100.f);
 	/*return Clamp100(100 * FE3(i->GetToughness(),2,3,0) * FE3(i->GetElongation(), 3,1,0) * FE5(i->GetVolume(),u->GetVolume()-2,2,2)
@@ -127,7 +127,7 @@ float OntologicFunctions::FE5(int value, int target, int permissionLeft, int per
 float OntologicFunctions::FEX(float x, int value, int target, int permissionLeft, int permissionRight) {
 
 	if (value < 1 || value > x) {
-		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, FString::SanitizeFloat(value) + TEXT(" out of bounds!"));
+		//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, FString::SanitizeFloat(value) + TEXT(" out of bounds!"));
 		return 0.f;
 	}
 
@@ -169,12 +169,12 @@ int OntologicFunctions::FEVectorDistAlongAxis(FVector vectorValue, FVector vecto
 int OntologicFunctions::FEVectorAngle(FVector vectorValue, FVector vectorReference) {
 	float angle = VectorAngle(vectorValue, vectorReference);
 
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, "angle: " + FString::SanitizeFloat(angle));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, "angle: " + FString::SanitizeFloat(angle));
 
 	
 	if (angle > PI / 2.f) {
 		angle = PI - angle;
-		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, "angle adjusted: " + FString::SanitizeFloat(angle));
+		//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, "angle adjusted: " + FString::SanitizeFloat(angle));
 	}
 		
 	if (angle < PI / 8.f)

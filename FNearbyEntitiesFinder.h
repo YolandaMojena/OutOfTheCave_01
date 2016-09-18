@@ -66,6 +66,8 @@ public:
 	// Shuts down the thread. Static so it can easily be called from outside the thread context
 	static void Shutdown();
 
+	static void RestartSearch();
+
 	static bool IsThreadFinished();
 
 };

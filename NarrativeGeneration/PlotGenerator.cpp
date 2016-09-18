@@ -58,7 +58,7 @@ void APlotGenerator::Tick( float DeltaTime )
 			if (rand() % 100 < log(_pReportLog.Num()+1)*37.533f) {
 				GetPlotFromReportLog();
 				if (!_reactivePlots.empty()) {
-					//SpawnReactivePlot();
+					SpawnReactivePlot();
 				}
 			}
 
@@ -67,7 +67,7 @@ void APlotGenerator::Tick( float DeltaTime )
 			}
 
 			else if (rand() % 100 < 2) {
-				//SpawnWorldPlot();
+				SpawnWorldPlot();
 			}
 
 			i++;
@@ -192,12 +192,16 @@ void APlotGenerator::GetPlotFromReportLog() {
 			else if (plot == _DESTROY_PLOT) {
 
 				UOEdification* targetEdification = nullptr;
-				for (OOwnership* o : currentReport->GetReportEntity()->GetPossessions()) {
-					if (o->GetOwnable()->IsA<UOEdification>()) {
-						if (!((UOEdification*)o->GetOwnable())->GetIsDestroyed()){
-							targetEdification = (UOEdification*)o->GetOwnable();
-							break;
-						}	
+
+				if (!currentReport->GetTargetEntity()->IsPlayer) {
+					
+					for (OOwnership* o : currentReport->GetTargetEntity()->GetPossessions()) {
+						if (o->GetOwnable()->IsA<UOEdification>()) {
+							if (!((UOEdification*)o->GetOwnable())->GetIsDestroyed()) {
+								targetEdification = (UOEdification*)o->GetOwnable();
+								break;
+							}
+						}
 					}
 				}
 				
@@ -222,7 +226,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 				}
 				else plotCandidates.erase(plotCandidates.begin() + randType);
 			}
-			else if (plot == _HELP_PLOT) {
+			/*else if (plot == _HELP_PLOT) {
 				newPlot = new HelpPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivation());
 				plotIsValid = ValidateHelpPlot((HelpPlot*)newPlot);
 
@@ -239,7 +243,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 					currentReport->GetReportEntity()->ChangeNotoriety(3);
 				}
 				else plotCandidates.erase(plotCandidates.begin() + randType);
-			}
+			}*/
 			// Unknown type
 			else plotCandidates.erase(plotCandidates.begin() + randType);
 		}

@@ -10,7 +10,7 @@ EBTNodeResult::Type UBTTask_NodeCompleted::ExecuteTask(UBehaviorTreeComponent & 
 
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass <UOEntity>();
 
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, entity->GetItemName() + TEXT(" finished the node"));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, entity->GetItemName() + TEXT(" finished the node"));
 
 	if (entity) {
 		entity->SetLastNode(entity->GetBrain()->Peek());
