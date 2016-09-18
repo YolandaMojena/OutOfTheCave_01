@@ -4,6 +4,8 @@
 #include "Ontology/Item.h"
 #include "Ontology/OOwnable.h"
 
+class UOEntity;
+
 /**
  * 
  */
@@ -29,47 +31,16 @@ public:
 	int UseForMining(UItem* i, UOEntity* u);
 	int UseForBuilding(UItem* i, UOEntity* u);
 
-	//UOOwnable* GetHands();
-	//UOOwnable* _hands;
-
-
-	/*struct PriorityCandidates {
-		PriorityCandidates(AffordableUse au) {
-			_au = au;
-		}
-		PriorityCandidates() {}
-		~PriorityCandidates() {}
-		
-		bool operator()(UOOwnable& A, UOOwnable& B) const {
-			switch (_au) {
-			case AffordableUse::build:
-				return true;
-			case AffordableUse::cultivator:
-				return true;
-			case AffordableUse::mine:
-				return true;
-			case AffordableUse::weapon:
-				return true;
-			default:
-				return true;
-			}
-			
-		}
-
-	private:
-		AffordableUse _au;
-	};*/
-
 	
-
-
 private:
 	
 	float FE3(int value, int target, int permissionLeft, int permissionRight);
 	float FE5(int value, int target, int permissionLeft, int permissionRight);
 	float FEX(float x, int value, int target, int permissionLeft, int permissionRight);
 	int FEVectorDist(FVector vectorValue, FVector vectorReference, int maxLength);
+	int FEVectorDistAlongAxis(FVector vectorValue, FVector vectorReference, int maxLength, FVector axis);
 	int FEVectorAngle(FVector vectorValue, FVector vectorReference);
+	float VectorAngle(FVector a, FVector b);
 	float Clamp01(float value);
 	float Clamp100(float value);
 

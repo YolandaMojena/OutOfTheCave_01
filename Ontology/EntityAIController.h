@@ -4,6 +4,7 @@
 
 #include "AIController.h"
 #include "Node.h"
+#include "Ontology/Item.h"
 #include "Ontology/OEntity.h"
 #include "Ontology/OEdification.h"
 #include "Ontology/OOwnable.h"

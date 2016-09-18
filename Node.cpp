@@ -52,6 +52,7 @@ void Node::PopulateBlackboard(FVector position, UOEntity* entityA, UOEntity* ent
 }*/
 
 void Node::SetItem(UItem* i) {
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, TEXT("Pon un print aquí"));
 	nBlackboard.item = i;
 }
 void Node::SetEntity(UOEntity* e) {
@@ -71,6 +72,9 @@ void Node::SetEdification(UOEdification* edf) {
 }
 void Node::SetPosition(FVector v) {
 	nBlackboard.position = v * FVector(1, 1, 0);
+}
+void Node::SetAnotherEntity(UOEntity* ae) {
+	nBlackboard.anotherEntity = ae;
 }
 void Node::SetDaytime(float d) {
 	nBlackboard.daytime = d;

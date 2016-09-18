@@ -21,6 +21,7 @@ class OUTOFTHECAVE_01_API APlotGenerator : public AActor
 	
 public:	
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlotGenerator)
 	TArray<UOEntity*> allEntities;
 
 	struct intTest
@@ -115,7 +116,6 @@ private:
 	bool ValidateGiftPlot(GivePlot* build);
 	bool ValidateStealPlot(StealPlot* plot);
 	bool ValidateGetPlot(GetPlot* plot);
-	bool ValidateAmbushPlot(AmbushPlot* plot);
 	bool ValidateWarPlot(WarPlot* plot);
 	bool ValidateDefendPlot(DefendPlot* plot);
 

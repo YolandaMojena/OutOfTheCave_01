@@ -11,8 +11,6 @@ using namespace std;
 
 class UOOwnable;
 class UOEntity;
-class UOEdification;
-class UItem;
 class APlotGenerator;
 
 
@@ -75,33 +73,33 @@ public:
 
 		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		FString _name = "";
+		FString _name = FString("");
 	
 	// FE5
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		int _mass;
+		int32 _mass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		int _volume;
+		int32 _volume;
 	
 	// FE3
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		int _toughness;
+		int32 _toughness;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		int _edgeSharpness;
+		int32 _edgeSharpness;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		int _edgeLength;
+		int32 _edgeLength;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		int _spiky;
+		int32 _spiky;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		int _nbrSpikes;
+		int32 _nbrSpikes;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		int _elongation;
+		int32 _elongation;
 	
 	// RESTRICTED _r
 	// restricted attributes are not to be used directly when calculating affordances
 	// to be used in VectorDist() and VectorAngle() functions only
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
-		int _r_maxLength;
+		int32 _r_maxLength;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)
 		FVector _r_grabPos;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Item)

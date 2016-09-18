@@ -10,6 +10,8 @@ EBTNodeResult::Type UBTTask_NodeCompleted::ExecuteTask(UBehaviorTreeComponent & 
 
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass <UOEntity>();
 
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, entity->GetItemName() + TEXT(" finished the node"));
+
 	if (entity) {
 		entity->SetLastNode(entity->GetBrain()->Peek());
 		DidIHelpSomeone(entity, blackboard);
@@ -27,6 +29,7 @@ void UBTTask_NodeCompleted::ClearBlackboard(UBlackboardComponent* blackboard) {
 	blackboard->ClearValue(blackboard->GetKeyID("Ownable"));
 	blackboard->ClearValue(blackboard->GetKeyID("Edification"));
 	blackboard->ClearValue(blackboard->GetKeyID("Entity"));
+	blackboard->ClearValue(blackboard->GetKeyID("AnotherEntity"));
 	blackboard->ClearValue(blackboard->GetKeyID("AffordableUse"));
 	blackboard->ClearValue(blackboard->GetKeyID("Position"));
 	blackboard->ClearValue(blackboard->GetKeyID("BoolKey"));

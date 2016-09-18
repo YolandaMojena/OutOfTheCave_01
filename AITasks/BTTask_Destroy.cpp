@@ -17,7 +17,7 @@ EBTNodeResult::Type UBTTask_Destroy::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 
 		// APPLY DAMAGE
 		OntologicFunctions of = OntologicFunctions();
-		float damage = entity->GetStrength() * of.UseAsWeapon(entity->GetGrabbedItem()) / targetEdification->GetToughness();
+		float damage = entity->GetStrength() * of.UseAsWeapon(entity->GetGrabbedItem(), entity) / (targetEdification->GetToughness()*33.f);
 		targetEdification->ReceiveDamage(damage, entity, GetDestroyPoint(entity->GetOwner()));
 
 		// DESTROYED / WINCON

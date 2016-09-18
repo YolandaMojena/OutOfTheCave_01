@@ -112,8 +112,6 @@ void UOResidence::SpawnTenants() {
 				ten->RethinkState();
 				
 				tentants.push_back(ten);
-
-				_plotGenerator->allEntities.Add(ten);
 			}
 		}
 	}

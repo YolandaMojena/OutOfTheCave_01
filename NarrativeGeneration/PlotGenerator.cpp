@@ -2,6 +2,7 @@
 
 #include "OutOfTheCave_01.h"
 #include "Ontology/ThreadManager.h"
+#include "Ontology/OEdification.h"
 #include "PlotGenerator.h"
 
 
@@ -51,30 +52,27 @@ void APlotGenerator::Tick( float DeltaTime )
 	if (_timeToSpawnPlot < _TIME_TO_SPAWN)
 		_timeToSpawnPlot += DeltaTime;
 	else {
-		if (_currentPlotsInAction <= _MAX_PLOTS) {
+		int i = 1;
+		while (_currentPlotsInAction <= _MAX_PLOTS && i <= 5) {
 
-			if (rand() % 100 < 25 + (25 * _MAX_PLOTS - _currentPlotsInAction)) {
-
-				if (_reactivePlots.empty()) {
-					GetPlotFromReportLog();
-				}
-				if (_reactivePlots.size() > 0) {
+			if (rand() % 100 < log(_pReportLog.Num()+1)*37.533f) {
+				GetPlotFromReportLog();
+				if (!_reactivePlots.empty()) {
 					//SpawnReactivePlot();
-					_timeToSpawnPlot = 0;
 				}
 			}
 
-			else if (rand() % 100 < (20 / (_currentPlotsInAction + 1)) && _currentPlotsInAction <= _MAX_PLOTS) {
-				
+			else if (rand() % 100 < 20*i) {
 				//SpawnAmbitionPlot();
-				_timeToSpawnPlot = 0;
 			}
 
-			else if (rand() % 100 < 2 && _currentPlotsInAction <= _MAX_PLOTS) {
+			else if (rand() % 100 < 2) {
 				//SpawnWorldPlot();
-				_timeToSpawnPlot = 0;
 			}
+
+			i++;
 		}
+		_timeToSpawnPlot = 0;
 	}
 }
 
@@ -90,7 +88,7 @@ bool APlotGenerator::SpawnReactivePlot()
 
 		BasePlot* currentPlot = _reactivePlots.at(0);
 		_reactivePlots.erase(_reactivePlots.begin());
-		_currentPlotsInAction++;
+		//_currentPlotsInAction++;
 
 		UOEntity* plotEntity = currentPlot->GetMainEntity();
 		if (plotEntity) {
@@ -318,38 +316,51 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 // PLOT VALIDATION
 bool APlotGenerator::ValidateAttackPlot(AttackPlot * plot)
 {
+	if (!plot->GetMainEntity() || !plot->GetTargetEntity())
+		return false;
 	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEntity()->GetIntegrity() > 0;
 }
 bool APlotGenerator::ValidateDestroyPlot(DestroyPlot * plot)
 {
+	if (!plot->GetMainEntity())
+		return false;
 	return plot->GetMainEntity()->GetIntegrity() > 0 && !plot->GetTargetEdification()->GetIsDestroyed();
 }
 bool APlotGenerator::ValidateBuildPlot(BuildPlot* plot)
 {
+	if (!plot->GetMainEntity())
+		return false;
 	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEdification()->GetIsDestroyed();
 }
 bool APlotGenerator::ValidateHelpPlot(HelpPlot* plot) {
+	if (!plot->GetMainEntity() || !plot->GetTargetEntity())
+		return false;
 	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEntity()->GetIntegrity() > 0 ;
 }
 bool APlotGenerator::ValidateGiftPlot(GivePlot* plot) {
-	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEntity()->GetIntegrity() > 0
-		&& !plot->GetTargetOwnable()->GetIsGrabbed();
-}
-bool APlotGenerator::ValidateStealPlot(StealPlot* plot) {
-	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEntity()->GetIntegrity() > 0
-		&& !plot->GetTargetOwnable()->GetIsGrabbed();
-}
-bool APlotGenerator::ValidateGetPlot(GetPlot* plot) {
-	return plot->GetMainEntity()->GetIntegrity() > 0 && !plot->GetTargetOwnable()->GetIsGrabbed();
-}
-bool APlotGenerator::ValidateAmbushPlot(AmbushPlot* plot) {
+	if (!plot->GetMainEntity() || !plot->GetTargetEntity())
+		return false;
 	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEntity()->GetIntegrity() > 0;
 }
+bool APlotGenerator::ValidateStealPlot(StealPlot* plot) {
+	if (!plot->GetMainEntity() || !plot->GetTargetEntity())
+		return false;
+	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetTargetEntity()->GetIntegrity() > 0;
+}
+bool APlotGenerator::ValidateGetPlot(GetPlot* plot) {
+	if (!plot->GetMainEntity())
+		return false;
+	return plot->GetMainEntity()->GetIntegrity() > 0 && !plot->GetTargetOwnable()->GetIsGrabbed();
+}
 bool APlotGenerator::ValidateWarPlot(WarPlot* plot) {
+	if (!plot->GetMainEntity())
+		return false;
 	return plot->GetMainEntity()->GetIntegrity() > 0;
 }
 bool APlotGenerator::ValidateDefendPlot(DefendPlot* plot) {
-	return plot->GetMainEntity()->GetIntegrity() > 0;
+	if (!plot->GetMainEntity() || !plot->GetMotivation())
+		return false;
+	return plot->GetMainEntity()->GetIntegrity() > 0 && plot->GetMotivation()->GetIntegrity() > 0;
 }
 
 

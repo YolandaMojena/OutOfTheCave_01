@@ -166,9 +166,8 @@ BasePlot * Ambition::BecomeAppreciatedAmbition(UOEntity * entity)
 					break;
 				}
 			}
-			if (ownableToGive) {}
-				//Give Task not Implemented
-				//return new GivePlot(entity, targetEntities[0], ownableToGive, TypeOfAmbition::appreciation);
+			if (ownableToGive) 
+				return new GivePlot(entity, targetEntities[0], ownableToGive, TypeOfAmbition::appreciation);
 			else {
 				return new HelpPlot(entity, targetEntities[0], TypeOfAmbition::appreciation);
 			}

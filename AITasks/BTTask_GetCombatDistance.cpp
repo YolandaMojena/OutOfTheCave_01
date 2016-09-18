@@ -7,7 +7,7 @@
 
 EBTNodeResult::Type UBTTask_GetCombatDistance::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
 
-	AEntityAIController* entityAIController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
+//	AEntityAIController* entityAIController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 
 
 	return EBTNodeResult::Succeeded;

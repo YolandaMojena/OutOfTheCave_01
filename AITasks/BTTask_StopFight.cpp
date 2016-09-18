@@ -10,13 +10,27 @@ EBTNodeResult::Type UBTTask_StopFight::ExecuteTask(UBehaviorTreeComponent& Owner
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 	
 	UOEntity* other = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
+
+	if (other->IsPlayer) {
+		blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("BoolKey"), true);
+		return EBTNodeResult::Succeeded;
+	}
+
 	AEntityAIController* otherEntityController = other->GetEntityAIController();
 
-	UItem* protege = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"));
+	UItem* protege;// = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"));
+	//if(!protege)
+		protege = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Residence"));
+	if (!protege)
+		protege = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Edification"));
+	if (!protege)
+		protege = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("AnotherEntity"));
 
-	if(other->GetBrain()->Peek()->GetNodeType() == NodeType::attack
-		&& other->GetBrain()->Peek()->nBlackboard.entity == (UOEntity*)protege)
+	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("BoolKey"), false);
+	if (other->GetBrain()->Peek()->GetNodeType() == NodeType::attack
+		&& other->GetBrain()->Peek()->nBlackboard.entity == (UOEntity*)protege) {
 		otherEntityController->entityBlackboard->ClearValue(blackboard->GetKeyID("Entity"));
+	}
 	else if (other->GetBrain()->Peek()->GetNodeType() == NodeType::destroy
 		&& other->GetBrain()->Peek()->nBlackboard.edification == (UOEdification*)protege)
 		otherEntityController->entityBlackboard->ClearValue(blackboard->GetKeyID("Edification"));

@@ -15,7 +15,7 @@ bool UBTDecorator_CheckPardonCondition::CalculateRawConditionValue(UBehaviorTree
 	UOEntity* otherEntity = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 
 	if (entity && otherEntity) {
-		if (otherEntity->GetBrain()->Peek()->GetNodeType() == NodeType::flee) {
+		if (!otherEntity->IsPlayer && otherEntity->GetBrain()->Peek()->GetNodeType() == NodeType::flee) {
 			ORelation* relationWithOther = entity->GetRelationWith(otherEntity);
 			if (!relationWithOther)
 				relationWithOther = entity->AddRelationship(otherEntity);
@@ -23,7 +23,7 @@ bool UBTDecorator_CheckPardonCondition::CalculateRawConditionValue(UBehaviorTree
 				return true;
 		}
 		
-		if (FVector::Dist(entity->GetOwner()->GetActorLocation(), otherEntity->GetOwner()->GetActorLocation()) > 2000) {
+		else if (otherEntity->IsPlayer && FVector::Dist(entity->GetOwner()->GetActorLocation(), otherEntity->GetOwner()->GetActorLocation()) > 2000) {
 			ORelation* relationWithOther = entity->GetRelationWith(otherEntity);
 			if (!relationWithOther)
 				relationWithOther = entity->AddRelationship(otherEntity);

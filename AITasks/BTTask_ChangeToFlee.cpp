@@ -25,6 +25,8 @@ EBTNodeResult::Type UBTTask_ChangeToFlee::ExecuteTask(UBehaviorTreeComponent& Ow
 		else if (entity->GetCurrentState() == UOEntity::AIState::react) {
 			entity->GetBrain()->AddInstantNode(n);
 			entity->GetReacts()[0]->AddInstantNode(n);
+			//entity->GetReacts()[0]->NextNode();
+			//entity->GetBrain()->NextNode();
 		}
 		blackboard->ClearValue(blackboard->GetKeyID("Entity"));
 		return EBTNodeResult::Succeeded;

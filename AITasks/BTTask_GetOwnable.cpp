@@ -36,14 +36,14 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 
 	OntologicFunctions ontF;
 
-	UOOwnable* bestChoice = ontF.GetHands();
+	UOOwnable* bestChoice = entity->GetHands();
 	int bestChoiceAffordance;
-	bestChoiceAffordance = ontF.GetAffordance(affordableUse, bestChoice);
+	bestChoiceAffordance = ontF.GetAffordance(affordableUse, bestChoice, entity);
 	bool bestChoiceSomeoneWhoCares = true;
 
 	if (entity->HasGrabbedItem()){
 		UOOwnable* grabbedItem = (UOOwnable*)entity->GetGrabbedItem();
-		int grabbedItemAffordance = ontF.GetAffordance(affordableUse, grabbedItem);
+		int grabbedItemAffordance = ontF.GetAffordance(affordableUse, grabbedItem, entity);
 		if (grabbedItemAffordance > bestChoiceAffordance) {
 			bestChoice = grabbedItem;
 		}
@@ -69,7 +69,7 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 					continue;
 				}
 			}
-			int newAffordance = ontF.GetAffordance(affordableUse, ownable);
+			int newAffordance = ontF.GetAffordance(affordableUse, ownable, entity);
 			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("BCA: ") + FString::SanitizeFloat(bestChoiceAffordance));
 			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, TEXT("NA: ") + FString::SanitizeFloat(newAffordance));
 			if (newAffordance > bestChoiceAffordance) {
@@ -87,7 +87,7 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 		entity->AddPossession(bestChoice);
 	}
 
-	if (bestChoice != ontF.GetHands() && bestChoice != entity->GetGrabbedItem()) {
+	if (bestChoice != entity->GetHands() && bestChoice != entity->GetGrabbedItem()) {
 		/*Node* n = new Node();
 		n->SetNodeType(NodeType::grab);
 		n->SetOwnable(bestChoice);

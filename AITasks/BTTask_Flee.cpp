@@ -13,7 +13,7 @@ EBTNodeResult::Type UBTTask_Flee::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 	FVector entityPosition = entity->GetOwner()->GetActorLocation();
 	AActor* horror = (AActor*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Actor"));
-	FVector horrorPosition = horror->GetOwner()->GetActorLocation();
+	FVector horrorPosition = horror->GetActorLocation();
 
 	if (entity) {
 

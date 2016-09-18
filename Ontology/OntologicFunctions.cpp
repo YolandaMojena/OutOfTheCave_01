@@ -2,25 +2,11 @@
 
 #include "OutOfTheCave_01.h"
 #include <math.h>
+#include "Ontology/OEntity.h"
 #include "OntologicFunctions.h"
 
 OntologicFunctions::OntologicFunctions()
 {
-	/*_hands = NewObject<UOOwnable>();
-	_hands->_name = FString(TEXT("hands"));
-	_hands->_r_centerOfMass = FVector::ZeroVector;
-	_hands->_edgeLength = 1;
-	_hands->_edgeSharpness = 10;
-	_hands->_funcDir = FVector(0, 0, 1);
-	_hands->_funcPos = FVector::ZeroVector;
-	_hands->_grabDir = FVector(0, 0, 1);
-	_hands->_grabPos = FVector(0, 0, 0);
-	_hands->_mass = 1;
-	_hands->_maxLength = 10;
-	_hands->_spikes = 5;
-	_hands->_spiky = 1;
-	_hands->_toughness = 30;
-	_hands->_volume = 450;*/
 }
 
 OntologicFunctions::~OntologicFunctions()
@@ -45,25 +31,89 @@ int OntologicFunctions::GetAffordance(AffordableUse au, UItem* i, UOEntity* u) {
 
 
 int OntologicFunctions::UseAsWeapon(UItem* i, UOEntity* u) {
-	return Clamp100(100 * FE3(i->GetToughness(),3,1,0) * FE3(i->GetElongation(),3,1,0) * FE5(i->GetVolume(),u->GetVolume()-1,1,1) * Clamp01(
+	float nTerms = 4.f;
+
+	float term1 = FE3(i->GetToughness(), 3, 1, 0);
+	float term2 = FE3(i->GetElongation(), 3, 1, 0);
+	float term3 = FE5(i->GetVolume(), u->GetVolume() - 1, 1, 1);
+	float term4 = Clamp01(
+		(FE5(i->GetMass(), 2, 0, 2) + FE3(i->GetEdgeSharpness(), 3, 2, 0) + FE3(i->GetEdgeLength(), 3, 2, 0))/3.f	//Sword Mode
+		+ (FE5(i->GetMass(), 3, 1, 0) + FE3(i->GetEdgeSharpness(), 3, 2, 0) + FE3(i->GetEdgeLength(), 2, 1, 2) + FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()), 3, 2, 0) + FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()), 1, 0, 3))/5.f	// Axe Mode
+		+ (FE5(i->GetMass(), 3, 2, 0) + FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()), 3, 2, 0) + FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()), 1, 0, 3))/3.f); // Warhammer Mode;
+	float bonusTerm = 0.25 * (FE3(i->GetSpiky(), 3, 3, 0) + FE3(i->GetNbrSpikes(), 3, 1, 0)/2.f); // Morning Star bonus;
+
+	float result = (term1 + term2 + term3 + term4) / nTerms + bonusTerm;
+
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" as weapon: ") + FString::SanitizeFloat(result));
+
+	return Clamp100(result*100);
+
+	/*return Clamp100(100 * FE3(i->GetToughness(),3,1,0) * FE3(i->GetElongation(),3,1,0) * FE5(i->GetVolume(),u->GetVolume()-1,1,1) * Clamp01(
 		FE5(i->GetMass(),2,0,2) * FE3(i->GetEdgeSharpness(),3,2,0) * FE3(i->GetEdgeLength(),3,2,0)	//Sword Mode
 		+ FE5(i->GetMass(),3,1,0) * FE3(i->GetEdgeSharpness(),3,2,0) * FE3(i->GetEdgeLength(),2,1,2) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()),3,2,0) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()),1,0,3)	// Axe Mode
 		+ FE5(i->GetMass(),3,2,0) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()),3,2,0) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()),1,0,3)) // Warhammer Mode
-		+ 25 * FE3(i->GetSpiky(),3,3,0) * FE3(i->GetNbrSpikes(),3,1,0)); // Morning Star bonus
+		+ 25 * FE3(i->GetSpiky(),3,3,0) * FE3(i->GetNbrSpikes(),3,1,0)); // Morning Star bonus*/
 }
+
 int OntologicFunctions::UseAsCultivator(UItem* i, UOEntity* u) {
-	return Clamp100(100 * FE3(i->GetToughness(),2,3,0) * FE3(i->GetElongation(),3,1,0) * FE5(i->GetVolume(), u->GetVolume() - 1,2,2) * FE5(i->GetMass(),1,0,2) * Clamp01(
+	float nTerms = 5;
+
+	float term1 = FE3(i->GetToughness(), 2, 2, 0);
+	float term2 = FE3(i->GetElongation(), 3, 1, 0);
+	float term3 = FE5(i->GetVolume(), u->GetVolume() - 1, 2, 2);
+	float term4 = FE5(i->GetMass(), u->GetMass() - 2, 0, 1);
+	float term5 = Clamp01(
+		(FE3(i->GetEdgeSharpness(), 2, 3, 0) + FE3(i->GetEdgeLength(), 1, 0, 1) + FE3(FEVectorAngle(i->R_GetFuncPlane(), i->R_GetGrabDir()), 1, 0, 3)) / 3.f
+		+ (FE3(i->GetSpiky(), 2, 3, 0) + FE3(i->GetNbrSpikes(), 3, 3, 0))/2.f);
+
+	float result = (term1 + term2 + term3 + term4 + term5)/nTerms;
+
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" for cultivating: ") + FString::SanitizeFloat(result));
+	
+	return Clamp100(result*100.f);
+	/*return Clamp100(100 * FE3(i->GetToughness(),2,3,0) * FE3(i->GetElongation(),3,1,0) * FE5(i->GetVolume(), u->GetVolume() - 1,2,2) * FE5(i->GetMass(),1,0,2) * Clamp01(
 		FE3(i->GetEdgeSharpness(),2,3,0) * FE3(i->GetEdgeLength(),1,0,1) * FE3(FEVectorAngle(i->R_GetFuncPlane(),i->R_GetGrabDir()),1,0,3)
-		+ FE3(i->GetSpiky(),2,3,0) * FE3(i->GetNbrSpikes(),3,3,0)));
+		+ FE3(i->GetSpiky(),2,3,0) * FE3(i->GetNbrSpikes(),3,3,0)));*/
 }
 int OntologicFunctions::UseForMining(UItem* i, UOEntity* u) {
-	return Clamp100(100 * FE3(i->GetToughness(),3,3,0) * FE3(i->GetElongation(),3,2,0) * FE5(i->GetVolume(),u->GetVolume()-1,2,2) * FE5(i->GetMass(),2,2,0) *  FE3(i->GetSpiky(), 3, 3, 0) * FE3(i->GetNbrSpikes(), 1, 0, 1)
-		* FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()), 3, 2, 0) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()), 1, 0, 3));
+	float nTerms = 8;
+
+	float term1 = FE3(i->GetToughness(), 3, 3, 0);
+	float term2 = FE3(i->GetElongation(), 3, 2, 0);
+	float term3 = FE5(i->GetVolume(), u->GetVolume() - 1, 2, 2);
+	float term4 = FE5(i->GetMass(), 2, 2, 0);
+	float term5 = FE3(i->GetSpiky(), 3, 3, 0);
+	float term6 = FE3(i->GetNbrSpikes(), 1, 0, 1);
+	float term7 = FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()), 3, 2, 0);
+	float term8 = FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()), 1, 0, 3);
+
+	float result = (term1 + term2 + term3 + term4 + term5 + term6 + term7 + term8) / nTerms;
+
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" for mining: ") + FString::SanitizeFloat(result));
+
+	return Clamp100(result*100.f);
+	/*return Clamp100(100 * FE3(i->GetToughness(),3,3,0) * FE3(i->GetElongation(),3,2,0) * FE5(i->GetVolume(),u->GetVolume()-1,2,2) * FE5(i->GetMass(),2,2,0) *  FE3(i->GetSpiky(), 3, 3, 0) * FE3(i->GetNbrSpikes(), 1, 0, 1)
+		* FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()), 3, 2, 0) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()), 1, 0, 3));*/
 }
 int OntologicFunctions::UseForBuilding(UItem* i, UOEntity* u) {
-	return Clamp100(100 * FE3(i->GetToughtness(),2,3,0) * FE3(i->GetElongation(), 3,1,0) * FE5(i->GetVolume(),u->GetVolume()-2,2,2)
-		* FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()), 3, 2, 0) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()), 1, 0, 3));
+	float nTerms = 5;
+
+	float term1 = FE3(i->GetToughness(), 2, 3, 0);
+	float term2 = FE3(i->GetElongation(), 3, 1, 0);
+	float term3 = FE5(i->GetVolume(), u->GetVolume() - 2, 2, 2);
+	float term4 = FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()), 3, 2, 0);
+	float term5 = FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()), 1, 0, 3);
+
+	float result = (term1 + term2 + term3 + term4 + term5) / nTerms;
+
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" for building: ") + FString::SanitizeFloat(result));
+
+	return Clamp100(result*100.f);
+	/*return Clamp100(100 * FE3(i->GetToughness(),2,3,0) * FE3(i->GetElongation(), 3,1,0) * FE5(i->GetVolume(),u->GetVolume()-2,2,2)
+		* FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength()), 3, 2, 0) * FE3(FEVectorDist(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength()), 1, 0, 3));*/
 }
+
+
 
 
 
@@ -76,8 +126,10 @@ float OntologicFunctions::FE5(int value, int target, int permissionLeft, int per
 }
 float OntologicFunctions::FEX(float x, int value, int target, int permissionLeft, int permissionRight) {
 
-	if (value < 1 || value > x)
+	if (value < 1 || value > x) {
+		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, FString::SanitizeFloat(value) + TEXT(" out of bounds!"));
 		return 0.f;
+	}
 
 	if (value == target)
 		return 1.f;
@@ -108,8 +160,36 @@ int OntologicFunctions::FEVectorDist(FVector vectorValue, FVector vectorReferenc
 	else
 		return 3;
 }
+int OntologicFunctions::FEVectorDistAlongAxis(FVector vectorValue, FVector vectorReference, int maxLength, FVector axis) {
+	vectorValue *= cos(VectorAngle(vectorValue, axis));
+	vectorReference *= cos(VectorAngle(vectorReference, axis));
+	return FEVectorDist(vectorValue, vectorReference, maxLength);
+}
+
 int OntologicFunctions::FEVectorAngle(FVector vectorValue, FVector vectorReference) {
-	return 0;
+	float angle = VectorAngle(vectorValue, vectorReference);
+
+	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, "angle: " + FString::SanitizeFloat(angle));
+
+	
+	if (angle > PI / 2.f) {
+		angle = PI - angle;
+		GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, "angle adjusted: " + FString::SanitizeFloat(angle));
+	}
+		
+	if (angle < PI / 8.f)
+		return 1;
+	else if (angle < PI - PI / 8.f)
+		return 2;
+	else
+		return 3;
+}
+
+float OntologicFunctions::VectorAngle(FVector a, FVector b) {
+	a = a.GetSafeNormal();
+	b = b.GetSafeNormal();
+	float dot = FVector::DotProduct(a, b);
+	return acos(dot);
 }
 
 

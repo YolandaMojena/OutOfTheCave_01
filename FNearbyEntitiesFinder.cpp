@@ -45,7 +45,7 @@ uint32 FNearbyEntitiesFinder::Run()
 
 	//While not told to stop this thread
 	//		and not yet finished finding PrimeNumbers
-	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::FromHex("#11FF11"), TEXT("from a list of ") + FString::SanitizeFloat(EntitiesToCheck->Num()));
+	//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::FromHex("#11FF11"), TEXT("from a list of ") + FString::SanitizeFloat(EntitiesToCheck->Num()));
 
 	while (StopTaskCounter.GetValue() == 0 && !IsFinished())
 	{
@@ -105,12 +105,8 @@ void FNearbyEntitiesFinder::CheckNextEntity()
 {
 	const int RANGE = 1500;
 
-	//UOEntity* currentEntity = (*EntitiesToCheck)[EntitiesCheckedCount];
-	//UOEntity* currentEntity = (*EntitiesToCheck).operator[](EntitiesCheckedCount);
-	//UOEntity* currentEntity = *EntitiesToCheck->FindByKey(EntitiesCheckedCount);
-	//UOEntity* currentEntity = EntitiesToCheck[EntitiesCheckedCount];
 	UOEntity* currentEntity = (*EntitiesToCheck)[EntitiesCheckedCount];
-	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::FromHex("#FF77FF"), currentEntity->GetItemName());
+	//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::FromHex("#FF77FF"), currentEntity->GetItemName());
 
 	if(currentEntity != TheEntity && FVector::Dist(currentEntity->GetOwner()->GetActorLocation(), TheEntity->GetOwner()->GetActorLocation()) < RANGE)
 	{

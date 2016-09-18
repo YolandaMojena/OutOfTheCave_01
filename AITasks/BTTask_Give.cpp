@@ -14,7 +14,7 @@ EBTNodeResult::Type UBTTask_Give::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 
 	if (entity && targetOwnable && entity->GetGrabbedItem() == targetOwnable && receiver) {
 		entity->ReleaseGrabbedItem();
-		receiver->ReceivePresent(targetOwnable, entity);
+		if(!receiver->IsPlayer) receiver->ReceivePresent(targetOwnable, entity);
 
 		return EBTNodeResult::Succeeded;
 	}

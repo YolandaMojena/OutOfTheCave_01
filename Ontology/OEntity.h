@@ -67,34 +67,42 @@ public:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
-		FString _hands_name = FString(TEXT("hands"));
+		FString _hands_name = "hands";
+	// FE5
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
-		FVector _hands_centerOfMass = FVector::ZeroVector;
+		int32 _hands_mass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
-		float _hands_edgeLength = 1;
+		int32 _hands_volume;
+	// FE3
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
-		float _hands_edgeSharpness = 10;
+		int32 _hands_toughness;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
-		FVector _hands_funcDir = FVector(0, 0, 1);
+		int32 _hands_edgeSharpness;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
-		FVector _hands_funcPos = FVector::ZeroVector;
+		int32 _hands_edgeLength;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
-		FVector _hands_grabDir = FVector(0, 0, 1);
+		int32 _hands_spiky;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
-		FVector _hands_grabPos = FVector(0, 0, 0);
+		int32 _hands_nbrSpikes;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
-		float _hands_mass = 1;
+		int32 _hands_elongation;
+	// RESTRICTED _r
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
-		float _hands_maxLength = 10;
+		int32 _hands_r_maxLength;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
-		float _hands_spikes = 5;
+		FVector _hands_r_grabPos;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
-		float _hands_spiky = 1;
+		FVector _hands_r_grabDir;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
-		float _hands_toughness = 30;
+		FVector _hands_r_funcPos;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
-		float _hands_volume = 450;
+		FVector _hands_r_funcDir; //Think of an axe!
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		FVector _hands_r_funcPlane; //Think of an axe!
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Hands)
+		FVector _hands_r_centerOfMass;
 
+	UOOwnable* GetHands();
 
 	vector<BasePlot*> GetCurrentPlots();
 	BasePlot* GetCurrentPlot();
@@ -107,6 +115,9 @@ public:
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
+		FString TraitsString;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
 		bool _isEntityAttacking;
 
@@ -117,13 +128,12 @@ public:
 		bool _isEntityCultivating;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
 		bool _isEntityMining;
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
+		bool _isNumb;
 
 	// It must be considered whether if the entity is the player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 		bool IsPlayer;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
-		bool _isNumb;
 
 	UPROPERTY(EditAnywhere, Category = Behaviour)
 	class UBehaviorTree* entityBehaviorTree;
@@ -185,24 +195,19 @@ public:
 
 	void AddRelationship(ORelation* newRelation);
 	ORelation* AddRelationship(UOEntity* newEntity);
-	void AddPotentialRelationship(UOEntity* newEntity);
 	void AddPossession(OOwnership* newOwnership);
 	void AddPossession(UOOwnable* newOwnable);
 	void AddTerritory(OTerritory* newTerritory);
-	void AddDesire(OOwnership* newOwnership);
-	void AddDesire(UOOwnable* newOwnable);
 	bool DoesOwn(UOOwnable* ownable);
 	bool DoesOwn(UItem* item);
 	
 	ORelation* GetRelationWith(UOEntity* other);
 	OOwnership* GetOwnershipWith(UOOwnable* other);
 	void DeleteRelation(UOEntity* relation);
-	void DeletePotentitalRelationship(UOEntity* entity);
 	void DeletePossession(UOOwnable* possession);
-	void DeleteDesire(UOOwnable* desire);
 
 	bool GetIsNumb();
-	void SetIsNumb(bool value);
+	void SetNumb();
 
 	void ReceiveDamage(float damage, UOEntity* damager);
 	bool CheckValidPersonality(TypeOfPlot type);
@@ -231,7 +236,7 @@ public:
 	void SetPlotGenerator();
 	void ExecuteGraph();
 	void NodeCompleted(bool completedOk);
-	void ClearState(bool completedOk);
+	void ClearState();
 	//void AddInstantNode(Node* n);
 	void AddInstantHelpNode(Node* n);
 	void AddInstantReactGraph(Graph* g);
@@ -311,8 +316,7 @@ protected:
 	int _notoriety = 0;
 	vector<FString> _knownNotifyIDs;
 
-	vector<UOOwnable*> _inventory;
-	UItem* _grabbedItem;
+	UItem* _grabbedItem = nullptr;
 	TArray<UOEntity*> _nearbyEntities = TArray<UOEntity*>();
 
 	
@@ -329,7 +333,6 @@ private:
 	float _notifyDeadline = 0.f;
 	void CleanKnownNotifyIDs(float deltaTime);
 		
-	UItem* _hands;
 	UOEdification* _entityHome;
 
 	AOwnableSpawner* _ownableSpawner;

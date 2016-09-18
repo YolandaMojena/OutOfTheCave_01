@@ -72,23 +72,23 @@ void Report::SaveReportToFile(const FString SaveDirectory, const FString FileNam
 
 		 /*"Report from entity " + GetReportEntity()->GetOwner()->GetActorLabel() + " about entity " + GetTargetEntity()->GetOwner()->GetActorLabel() + " caused by " + GetMotivation()->GetOwner()->GetActorLabel();*/
 		report += "Change in relation report\n";
-		report += "Report entity: " + GetReportEntity()->GetName() + "\n";
-		report += "Target entity: " + GetTargetEntity()->GetName() + "\n";
-		report += "Motivation: " + GetMotivation()->GetOwner()->GetActorLabel() + "\n";
+		report += "Report entity: " + GetReportEntity()->GetItemName() + "\n";
+		report += "Target entity: " + GetTargetEntity()->GetItemName() + "\n";
+		report += "Motivation: " + GetMotivation()->GetItemName() + "\n";
 		//report += "Report type: " + FindObject<UEnum>(ANY_PACKAGE, TEXT("TypeOfPlot"), true)->GetEnumName((int32)_type);
 	}
 	else if (GetTag() == Report::ReportTag::ownership) {
 
 		/*FString report = "Report from entity " + GetReportEntity()->GetOwner()->GetActorLabel() + " about ownable " + GetTargetOwnable()->GetOwner()->GetActorLabel() + " caused by: " + GetMotivation()->GetOwner()->GetActorLabel();*/
 		report += "Change in ownership report\n";
-		report += "Report entity: " + GetReportEntity()->GetName() + "\n";
-		report += "Target ownable: " + GetTargetOwnable()->GetOwner()->GetActorLabel() + "\n";
-		report += "Motivation: " + GetMotivation()->GetOwner()->GetActorLabel() + "\n";
+		report += "Report entity: " + GetReportEntity()->GetItemName() + "\n";
+		report += "Target ownable: " + GetTargetOwnable()->GetItemName() + "\n";
+		report += "Motivation: " + GetMotivation()->GetItemName() + "\n";
 		//report += "Report type: " + FindObject<UEnum>(ANY_PACKAGE, TEXT("TypeOfPlot"), true)->GetEnumName((int32)_type);
 	}
 	else report += "Massive change in world state report\n";
 
-	report += ".\n\n\n";
+	report += "\n\n";
 	Utilities::SaveStringToFile(report, SaveDirectory, FileName);
 }
 

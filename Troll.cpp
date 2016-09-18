@@ -197,7 +197,7 @@ void ATroll::PickUpMain() {
 
 			if (hitEntity && !hitEntity->GetIsNumb()) {
 				((ACharacter*)hitEntity->GetOwner())->GetMesh()->SetAllBodiesBelowSimulatePhysics(((ACharacter*)hitEntity->GetOwner())->GetMesh()->GetBoneName(1), true);
-				hitEntity->SetIsNumb(true);
+				hitEntity->SetNumb();
 			}
 
 			_myEntityComp->GrabItem(grabbedItemActor->FindComponentByClass<UItem>());
@@ -207,7 +207,8 @@ void ATroll::PickUpMain() {
 		UOEntity* hitEntity = _myEntityComp->GetGrabbedItem()->GetOwner()->FindComponentByClass<UOEntity>();
 		if (hitEntity) {
 			((ACharacter*)hitEntity->GetOwner())->GetMesh()->SetAllBodiesSimulatePhysics(false);
-			hitEntity->SetIsNumb(false);
+			hitEntity->ClearState();
+			hitEntity->RethinkState();
 		}
 
 		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED
@@ -245,19 +246,32 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 
 	if (edificationComp /*&& _isAttacking*/ && /*!edificationComp->GetIsDestroyed() &&*/ _canDamage && !_victims.Contains(edificationComp->GetOwner())){
 
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("HIt"));
+		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Hit"));
 		_victims.Add(edificationComp->GetOwner());
 
 		OntologicFunctions of;
-		float damage = _myEntityComp->GetStrength() * of.UseAsWeapon(_myEntityComp->GetGrabbedItem()) / edificationComp->GetToughness();
+		UItem* test = _myEntityComp->GetGrabbedItem();
+		float damage = _myEntityComp->GetStrength() * of.UseAsWeapon(_myEntityComp->GetGrabbedItem(), _myEntityComp) / (edificationComp->GetToughness()*33.f);
 		edificationComp->ReceiveDamage(damage, _myEntityComp, GetMesh()->GetSocketLocation("RightHandSocket"));
+
+		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, TEXT("Strength: ") + FString::SanitizeFloat(_myEntityComp->GetStrength()));
+		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, TEXT("Affordance: ") + FString::SanitizeFloat(of.UseAsWeapon(_myEntityComp->GetGrabbedItem(), _myEntityComp)));
+		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, TEXT("OtherToughness: ") + FString::SanitizeFloat(edificationComp->GetToughness()));
+		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, TEXT("Damage: ") + FString::SanitizeFloat(damage));
+
+		if(test)
+			GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Hit Affordance: ") + FString::SanitizeFloat(of.UseAsWeapon(_myEntityComp->GetGrabbedItem(), _myEntityComp)));
+
 	}
 
 	else if (hitEntity /*&& _isAttacking*/ && _canDamage && !_victims.Contains(hitEntity->GetOwner())) {
 		const float IMPULSE_MULTIPLIER = 300.f;
 
+		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Hit someone"));
+
 		OntologicFunctions of;
-		float damage = _myEntityComp->GetStrength() * of.UseAsWeapon(_myEntityComp->GetGrabbedItem()) / hitEntity->GetToughness();
+		float damage = _myEntityComp->GetStrength() * of.UseAsWeapon(_myEntityComp->GetGrabbedItem(), _myEntityComp) / (hitEntity->GetToughness()*33.f);
+
 		hitEntity->ReceiveDamage(damage, _myEntityComp);
 
 		ACharacter* character = (ACharacter*)OtherActor;
@@ -275,10 +289,9 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 			//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, impulse.ToString());
 			//OtherActor->FindComponentByClass<UCharacterMovementComponent>()->AddImpulse(impulse);
 			//OtherActor->FindComponentByClass<UCharacterMovementComponent>()->AddForce(impulse);
-			OtherActor->FindComponentByClass<UCharacterMovementComponent>()->Velocity = OtherActor->GetVelocity() + impulse;
+			//OtherActor->FindComponentByClass<UCharacterMovementComponent>()->Velocity = OtherActor->GetVelocity() + impulse;
 			
-		}
-		
+		}	
 		
 		_victims.Add(hitEntity->GetOwner());
 	}

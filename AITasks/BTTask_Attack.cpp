@@ -25,10 +25,10 @@ EBTNodeResult::Type UBTTask_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 		blackboard->SetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("FloatKey"), entity->GetAttackCooldown());
 		
 		// APPLY DAMAGE
-		if ((targetEntity->GetOwner()->GetActorLocation() - entity->GetOwner()->GetActorLocation()).Size() < entity->GetGrabbedItem()->GetFuncPos().Size() + 200.f) {
+		if ((targetEntity->GetOwner()->GetActorLocation() - entity->GetOwner()->GetActorLocation()).Size() < entity->GetGrabbedItem()->R_GetFuncPos().Size() + 200.f) {
 			//targetEntity->ReceiveDamage(25 + rand() % 50, entity);
 			OntologicFunctions of = OntologicFunctions();
-			float damage = entity->GetStrength() * of.UseAsWeapon(entity->GetGrabbedItem()) / targetEntity->GetToughness();
+			float damage = entity->GetStrength() * of.UseAsWeapon(entity->GetGrabbedItem(), entity) / (targetEntity->GetToughness()*33.f);
 			targetEntity->ReceiveDamage(damage, entity);
 		}
 

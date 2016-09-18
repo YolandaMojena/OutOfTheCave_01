@@ -23,9 +23,12 @@ void AEntityAIController::SetNode(Node* n) {
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
 		break;
 	case NodeType::attack:
-		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity") , n->nBlackboard.entity);
+	{
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity"), n->nBlackboard.entity);
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.entity->GetOwner());
-		entityBlackboard->SetValue<UBlackboardKeyType_Float>(entityBlackboard->GetKeyID("FloatKey"), n->nBlackboard.floatKey);
+		UOEntity* entity = GetPawn()->FindComponentByClass<UOEntity>();
+		entityBlackboard->SetValue<UBlackboardKeyType_Float>(entityBlackboard->GetKeyID("FloatKey"), entity->GetAttackCooldown());
+	}
 		break;
 	case NodeType::build:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Edification"), n->nBlackboard.edification);
@@ -50,7 +53,8 @@ void AEntityAIController::SetNode(Node* n) {
 		if (entity->IsA<UOCivilian>()) {
 			UOOwnable* itemToGrab = GetOwnable(entity, n->nBlackboard.affordableUse, n->nBlackboard.isHighPriority);
 			if (itemToGrab) {
-				entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Item"), (UItem*)itemToGrab);
+				//entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Item"), (UItem*)itemToGrab);
+				entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Ownable"), itemToGrab);
 				if (itemToGrab->GetOwner())
 					entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), itemToGrab->GetOwner());
 
@@ -59,8 +63,8 @@ void AEntityAIController::SetNode(Node* n) {
 						entity->ReleaseGrabbedItem();
 					}
 				}
-
-				entityBlackboard->SetValue<UBlackboardKeyType_Enum>(nodeTypeID, static_cast<UBlackboardKeyType_Enum::FDataType>(NodeType::grab));
+				//n->SetNodeType(NodeType::grab);
+				entityBlackboard->SetValue<UBlackboardKeyType_Enum>(nodeTypeID, static_cast<UBlackboardKeyType_Enum::FDataType>(NodeType::grab));	
 			}
 		}
 		//TestEnd
@@ -134,6 +138,24 @@ void AEntityAIController::SetNode(Node* n) {
 	case NodeType::flee:
 		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.actor);
 		break;
+	case NodeType::stopFight:
+	{
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity"), n->nBlackboard.entity);
+		entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.entity->GetOwner());
+		UItem* item = n->nBlackboard.item;
+		if (item) {
+			if (item->IsA<UOEntity>())
+				entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("AnotherEntity"), dynamic_cast<UOEntity*>(item));
+			else if (item->IsA<UOResidence>())
+				entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Residence"), dynamic_cast<UOResidence*>(item));
+			else if (item->IsA<UOEdification>())
+				entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Edification"), dynamic_cast<UOEdification*>(item));
+			//entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Item"), item);
+		}
+		else
+			GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Red, TEXT("NO ITEM"));	
+	}
+		break;
 	default:
 		break;
 	}
@@ -142,7 +164,6 @@ void AEntityAIController::SetNode(Node* n) {
 
 
 void AEntityAIController::SetState(UOEntity::AIState s) {
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, TEXT("SetState: ") + (int)s);
 	
 	entityBlackboard->SetValue<UBlackboardKeyType_Enum>(entityBlackboard->GetKeyID("EntityState"), static_cast<UBlackboardKeyType_Enum::FDataType>(s));
 	if (s == UOEntity::AIState::numb) entityBlackboard->ClearValue(nodeTypeID);
@@ -208,13 +229,14 @@ UOOwnable* AEntityAIController::GetOwnable(UOEntity* entity, OntologicFunctions:
 
 	OntologicFunctions ontF;
 
-	UOOwnable* bestChoice = ontF.GetHands();
-	int bestChoiceAffordance = ontF.GetAffordance(affordableUse, bestChoice);
+	UOOwnable* hands = entity->GetHands();
+	UOOwnable* bestChoice = hands;
+	int bestChoiceAffordance = ontF.GetAffordance(affordableUse, bestChoice, entity);
 	bool bestChoiceSomeoneWhoCares = true;
 
 	if (entity->HasGrabbedItem()) {
 		UOOwnable* grabbedItem = (UOOwnable*)entity->GetGrabbedItem();
-		int grabbedItemAffordance = ontF.GetAffordance(affordableUse, grabbedItem);
+		int grabbedItemAffordance = ontF.GetAffordance(affordableUse, grabbedItem, entity);
 		if (grabbedItemAffordance > bestChoiceAffordance) {
 			bestChoice = grabbedItem;
 			bestChoiceAffordance = grabbedItemAffordance;
@@ -245,7 +267,7 @@ UOOwnable* AEntityAIController::GetOwnable(UOEntity* entity, OntologicFunctions:
 					continue;
 				}
 			}
-			int newAffordance = ontF.GetAffordance(affordableUse, ownable);
+			int newAffordance = ontF.GetAffordance(affordableUse, ownable, entity);
 			if (newAffordance > bestChoiceAffordance) {
 				bestChoice = ownable;
 				bestChoiceAffordance = newAffordance;
@@ -254,21 +276,25 @@ UOOwnable* AEntityAIController::GetOwnable(UOEntity* entity, OntologicFunctions:
 		}
 	}
 
-	if (!bestChoiceSomeoneWhoCares && entity->GetPersonality()->GetMaterialist() > 50) {
-		//create ownership!
-		entity->AddPossession(bestChoice);
+	if (bestChoice != hands) {
+		if (!bestChoiceSomeoneWhoCares && entity->GetPersonality()->GetMaterialist() > 50) {
+			//create ownership!
+			entity->AddPossession(bestChoice);
+		}
+
+		if (bestChoice != hands && bestChoice != entity->GetGrabbedItem())
+		{
+			//blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"), (UItem*)bestChoice);
+			//if (bestChoice->GetOwner())
+			//	blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Actor"), bestChoice->GetOwner());
+
+			bestChoice->AddGrabber(entity);
+			hands = nullptr;
+			return bestChoice;
+		}
 	}
-
-	if (bestChoice != ontF.GetHands() && bestChoice != entity->GetGrabbedItem())
-	{
-		//blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"), (UItem*)bestChoice);
-		//if (bestChoice->GetOwner())
-		//	blackboard->SetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Actor"), bestChoice->GetOwner());
-
-		bestChoice->AddGrabber(entity);
-		return bestChoice;
-	}
-
+	
+	hands = nullptr;
 	//return bestChoice;
 	return nullptr;
 }

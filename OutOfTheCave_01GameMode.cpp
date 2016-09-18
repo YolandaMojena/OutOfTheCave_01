@@ -20,11 +20,6 @@ void AOutOfTheCave_01GameMode::BeginPlay()
 	Super::BeginPlay();
 
 	StartMatch();
-
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("HELLO WORLD"));
-	}
 }
 
 

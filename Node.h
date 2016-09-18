@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Ontology/OntologicFunctions.h"
+#include "Ontology/Item.h"
 #include <vector>
 #include <string>
 
@@ -14,6 +15,7 @@ class UOEntity;
 class UOOwnable;
 class UOEdification;
 class UOGrabbable;
+class UOResidence;
 
 UENUM(BlueprintType)
 enum class NodeType : uint8 {
@@ -58,13 +60,15 @@ public:
 	class NBlackboard {
 	public:
 
-		UItem* item;
+		UItem* item = nullptr;
 		UOEntity* entity;
 		AActor* actor;
 		UOOwnable* ownable;
 		OntologicFunctions::AffordableUse affordableUse;
 		UOEdification* edification;
+		UOResidence* residence;
 		FVector position = FVector(-1, -1, -1);
+		UOEntity* anotherEntity;
 		float daytime = -1.0f;
 		bool boolKey;
 		float floatKey;
@@ -90,6 +94,7 @@ public:
 	void SetEdification(UOEdification* edf);
 	void SetGrabbable(UOGrabbable* grb);
 	void SetPosition(FVector v);
+	void SetAnotherEntity(UOEntity* ae);
 	void SetDaytime(float d);
 	void SetBoolKey(bool b);
 	void SetFloatKey(float f);

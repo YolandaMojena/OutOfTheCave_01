@@ -5,7 +5,6 @@
 #include "OOwnable.h"
 #include "NarrativeGeneration/PlotGenerator.h"
 #include "OEntity.h"
-#include "OEdification.h"
 
 
 // Sets default values for this component's properties
@@ -27,6 +26,7 @@ void UItem::BeginPlay()
 
 	for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
 		_plotGenerator = *Itr;
+
 }
 
 
@@ -114,7 +114,7 @@ void UItem::SetItemName(FString name)
 
 
 void UItem::CastNotify(UItem* predicate, UOEntity* subject, ENotify notifyType) {
-	float const _NOTIFY_RADIUS = 1000.0f;
+	float const _NOTIFY_RADIUS = 2500.0f;
 	FVector start = GetOwner()->GetActorLocation() + FVector(0, 0, -_NOTIFY_RADIUS);
 	FVector end = start + FVector(0, 0, _NOTIFY_RADIUS * 2);
 	TArray<FHitResult> hitData;

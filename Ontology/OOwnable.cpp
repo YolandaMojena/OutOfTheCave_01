@@ -43,6 +43,7 @@ void UOOwnable::BeginPlay() {
 
 	Super::BeginPlay();
 
+	
 	//EXAMPLE OF OBJECT ITERATOR
 	/*for (TObjectIterator<UOCivilian> Itr; Itr; ++Itr){
 	}*/
@@ -64,6 +65,14 @@ vector<UOEntity*> UOOwnable::GetOwners() {
 }
 void UOOwnable::AddOwner(UOEntity* e) {
 	_owners.push_back(e);
+}
+void UOOwnable::RemoveOwner(UOEntity* owner) {
+	int i = 0;
+	for (UOEntity* o : _owners) {
+		if (o == owner)
+			_owners.erase(_owners.begin() + i);
+		i++;
+	}
 }
 
 Rarity UOOwnable::GetRarity() {
@@ -116,7 +125,7 @@ void UOOwnable::IHaveBeenStolenBySomeone(UOEntity * potentialOwner, UOEntity * b
 
 			if (relation->GetAppreciation() < 50) {
 
-				if (e == potentialOwner)
+				if (e == potentialOwner && ownership->GetWorth() > 60)
 					e->SendReport(new Report(e->GetOwnershipWith(this), TypeOfPlot::possessive, buggler));
 
 				e->SendReport(new Report(e->GetOwnershipWith(this), TypeOfPlot::aggressive, buggler));

@@ -40,19 +40,17 @@ void UOEdification::ReceiveDamage(float damage, UOEntity* damager, FVector colli
 
 	if (!_isDestroyed) {
 
-		CastNotify(this, damager, ENotify::N_Damaged);
-
 		_integrity -= damage;
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "damage: " + FString::SanitizeFloat(damage));
 		_attacker = damager;
 
 		UDestructibleComponent* targetDestructible = GetOwner()->FindComponentByClass<UDestructibleComponent>();
-
 		if (targetDestructible)
 			targetDestructible->ApplyRadiusDamage(damage, collisionPos, 50, 0.01, false);
 
 		if (_integrity <= 0)
 			DestroyEdification(damager);
+		else
+			CastNotify(this, damager, ENotify::N_Damaged);
 	}
 }
 
@@ -64,8 +62,6 @@ void UOEdification::ReceiveDamage(float damage, UOEntity* damager, FVector colli
 
 void UOEdification::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("I have been destroyed by " + damager->GetOwner()->GetName()));
-
 	//   P L O T S
 	//	For each owner, check existing ownership and relation with damager, change ontological relation if required and send reports
 

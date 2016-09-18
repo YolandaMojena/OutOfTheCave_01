@@ -34,11 +34,9 @@ public:
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	//void BePickedUp(UOEntity* entity);
-	void BeStolen(UOEntity* burglar);
-
 	vector<UOEntity*> GetOwners();
 	void AddOwner(UOEntity* e);
+	void RemoveOwner(UOEntity* e);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ownable)
 		Rarity _rarity;

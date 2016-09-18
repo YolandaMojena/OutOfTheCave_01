@@ -654,7 +654,7 @@ void GivePlot::BuildSentence() {
 	if (_motivation) {
 
 		_sentence += "The generous: " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName() + " is giving his precious " + _targetOwnable->GetItemName() + " to the " +
-			_targetEntity->GetRaceString() + " " + _targetEntity->GetItemName() + ", in gratitude for the help received with his " + _motivation->GetItemName() + ".\n\n\n";
+			_targetEntity->GetRaceString() + " " + _targetEntity->GetItemName() + ", in gratitude for the help received with his/her " + _motivation->GetItemName() + ".\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::appreciation) {
 
@@ -732,7 +732,7 @@ void StealPlot::BuildSentence() {
 	if (_motivation) {
 
 		_sentence += "The " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName() + " decided to steal a " + _targetOwnable->GetItemName() + " from the " +
-			_targetEntity->GetRaceString() + " " + _targetEntity->GetItemName() + " as an act of revenge for his/her " + _motivation->GetItemName() + ".\n\n\n";
+			_targetEntity->GetRaceString() + " " + _targetEntity->GetItemName() + " as an act of revenge for his/her own stolen " + _motivation->GetItemName() + ".\n\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::possessions) {
 		_sentence += "The materialistic " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
@@ -818,12 +818,6 @@ void DefendPlot::BuildGraph() {
 	askForHelpNode->SetHighPriority(true);
 	askForHelpNode->SetNodeType(NodeType::askForHelp);
 	_plotGraph.AddNode(askForHelpNode);
-
-	//GO TO TARGET
-	Node* goToNode = new Node();
-	goToNode->SetNodeType(NodeType::goToActor);
-	goToNode->SetActor(_motivation->GetOwner());
-	_plotGraph.AddNode(goToNode);
 
 	//DEFEND
 	Node* defendNode = new Node();
