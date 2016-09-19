@@ -21,7 +21,7 @@ class APlotGenerator;
 class OUTOFTHECAVE_01_API AttackPlot : public BasePlot
 {
 public:
-	AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation);
+	AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity, FString motivationName, FString motivationRace);
 	AttackPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition);
 	~AttackPlot();
 
@@ -43,7 +43,7 @@ private:
 class OUTOFTHECAVE_01_API DestroyPlot : public BasePlot
 {
 public:
-	DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOEdification* targetEdification, UItem* motivation);
+	DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOEdification* targetEdification, FString motivationName, FString motivationRace);
 	DestroyPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOEdification* targetEdification, TypeOfAmbition ambition);
 	~DestroyPlot();
 
@@ -68,7 +68,7 @@ private:
 class OUTOFTHECAVE_01_API BuildPlot : public BasePlot
 {
 public:
-	BuildPlot(UOEntity* plotEntity, UOEdification* target, UItem* motivation);
+	BuildPlot(UOEntity* plotEntity, UOEdification* target, FString motivationName, FString motivationRace);
 	BuildPlot(UOEntity* plotEntity, UOEdification* target, TypeOfAmbition ambition);
 	~BuildPlot();
 
@@ -91,7 +91,7 @@ private:
 class OUTOFTHECAVE_01_API GetPlot : public BasePlot
 {
 public:
-	GetPlot(UOEntity* plotEntity, UOOwnable* target, UItem* motivation);
+	GetPlot(UOEntity* plotEntity, UOOwnable* target, FString motivationName, FString motivationRace);
 	GetPlot(UOEntity* plotEntity, UOOwnable* target, TypeOfAmbition ambition);
 	~GetPlot();
 
@@ -116,7 +116,7 @@ private:
 class OUTOFTHECAVE_01_API AmbushPlot : public BasePlot
 {
 public:
-	AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, UItem* motivation);
+	AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, FString motivationName, FString motivationRace);
 	AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, TypeOfAmbition ambition);
 	~AmbushPlot();
 
@@ -140,7 +140,7 @@ private:
 class OUTOFTHECAVE_01_API HelpPlot : public BasePlot
 {
 public:
-	HelpPlot(UOEntity* plotEntity, UOEntity* target, UItem* motivation);
+	HelpPlot(UOEntity* plotEntity, UOEntity* target, FString motivationName, FString motivationRace);
 	HelpPlot(UOEntity* plotEntity, UOEntity* target, TypeOfAmbition ambition);
 	~HelpPlot();
 
@@ -162,7 +162,7 @@ private:
 class OUTOFTHECAVE_01_API DefendPlot : public BasePlot
 {
 public:
-	DefendPlot(UOEntity* plotEntity, UOEntity* against, UItem* motivation);
+	DefendPlot(UOEntity* plotEntity, UOEntity* against, UItem* target, FString motivationName, FString motivationRace);
 	//DefendPlot(UOEntity* plotEntity, UOEntity* target, TypeOfAmbition ambition);
 	~DefendPlot();
 
@@ -170,11 +170,13 @@ public:
 	void InitPlot();
 	UOEntity* GetTargetEntity();
 	BasePlot* ConsiderReactions();
+	UItem* GetTarget();
 
 private:
 
 	void BuildGraph();
 	UOEntity* _against;
+	UItem* _target;
 };
 
 //STEAL PLOT
@@ -183,7 +185,7 @@ private:
 class OUTOFTHECAVE_01_API StealPlot : public BasePlot
 {
 public:
-	StealPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* targetOwnable, UItem* motivation);
+	StealPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* targetOwnable, FString motivationName, FString motivationRace);
 	StealPlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* targetOwnable, TypeOfAmbition ambition);
 	~StealPlot();
 
@@ -208,7 +210,7 @@ private:
 class OUTOFTHECAVE_01_API GivePlot : public BasePlot
 {
 public:
-	GivePlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* targetOwnable, UItem* motivation);
+	GivePlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* targetOwnable, FString motivationName, FString motivationRace);
 	GivePlot(UOEntity* plotEntity, UOEntity* targetEntity, UOOwnable* targetOwnable, TypeOfAmbition ambition);
 	~GivePlot();
 

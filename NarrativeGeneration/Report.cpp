@@ -10,7 +10,13 @@ Report::Report(ORelation * newRelation, TypeOfPlot type, UItem* motivation)
 	_targetEntity = newRelation->GetOtherEntity();
 	_newRelation = newRelation;
 	_type = type;
-	_motivation = *motivation;
+	//_motivation = motivation;
+
+	_motivationName = motivation->GetItemName();
+	if (motivation->IsA<UOEntity>())
+		_motivationRace = ((UOEntity*)motivation)->GetRaceString();
+	else
+		_motivationRace = "";
 
 	_tag = ReportTag::relation;
 }
@@ -21,7 +27,13 @@ Report::Report(OOwnership* newOwnership, TypeOfPlot type, UItem* motivation)
 	_targetOwnable = newOwnership->GetOwnable();
 	_newOwnership = newOwnership;
 	_type = type;
-	_motivation = *motivation;
+	//_motivation = motivation;
+
+	_motivationName = motivation->GetItemName();
+	if (motivation->IsA<UOEntity>())
+		_motivationRace = ((UOEntity*)motivation)->GetRaceString();
+	else
+		_motivationRace = "";
 
 	_tag = ReportTag::ownership;
 }
@@ -74,7 +86,7 @@ void Report::SaveReportToFile(const FString SaveDirectory, const FString FileNam
 		report += "Change in relation report\n";
 		report += "Report entity: " + GetReportEntity()->GetItemName() + "\n";
 		report += "Target entity: " + GetTargetEntity()->GetItemName() + "\n";
-		report += "Motivation: " + GetMotivation()->GetItemName() + "\n";
+		report += "Motivation: " + GetMotivationName() + "\n";
 		//report += "Report type: " + FindObject<UEnum>(ANY_PACKAGE, TEXT("TypeOfPlot"), true)->GetEnumName((int32)_type);
 	}
 	else if (GetTag() == Report::ReportTag::ownership) {
@@ -83,7 +95,7 @@ void Report::SaveReportToFile(const FString SaveDirectory, const FString FileNam
 		report += "Change in ownership report\n";
 		report += "Report entity: " + GetReportEntity()->GetItemName() + "\n";
 		report += "Target ownable: " + GetTargetOwnable()->GetItemName() + "\n";
-		report += "Motivation: " + GetMotivation()->GetItemName() + "\n";
+		report += "Motivation: " + GetMotivationName() + "\n";
 		//report += "Report type: " + FindObject<UEnum>(ANY_PACKAGE, TEXT("TypeOfPlot"), true)->GetEnumName((int32)_type);
 	}
 	else report += "Massive change in world state report\n";
@@ -114,6 +126,9 @@ Report::ReportTag Report::GetTag() {
 TypeOfPlot Report::GetType() {
 	return _type;
 }
-UItem* Report::GetMotivation() {
-	return &_motivation;
+FString Report::GetMotivationName() {
+	return _motivationName;
+}
+FString Report::GetMotivationRace() {
+	return _motivationRace;
 }

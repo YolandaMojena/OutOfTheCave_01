@@ -40,6 +40,7 @@ class OUTOFTHECAVE_01_API UOEntity : public UItem
 
 public:
 
+	UOEntity();
 	UENUM(BlueprintType)
 	enum class AIState : uint8 {
 		idle UMETA(DisplayName = "idle"),
@@ -108,12 +109,12 @@ public:
 	BasePlot* GetCurrentPlot();
 	void AddCurrentPlot(BasePlot* bp);
 	void AddCurrentPlotWithPriority(BasePlot* bp);
-
-	UOEntity();
 	//UOEntity(OPersonality* personality);
 
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	void BeginDestroy() override;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
 		FString TraitsString;
@@ -256,6 +257,8 @@ public:
 	bool IsEntityAttacking();
 	float GetAttackCooldown();
 	//void SetIsEntityAttacking(bool attacking);
+	
+	void GenerateTraits();
 
 	void GrabItem(UItem* item);
 	UItem* GetGrabbedItem();
@@ -269,12 +272,12 @@ public:
 	void ReceivePresent(UOOwnable* present, UOEntity* giver);
 
 	UOEntity* FindPrey();
+	void Die();
 	
 	UOEdification* GetHome();
 	void SetHome(UOEdification* home);
 
 	float _currentTime = 10;
-
 
 	void FinishedFindingNearbyEntities(/*TArray<UOEntity*> entitiesFound*/);
 	
@@ -283,9 +286,7 @@ protected:
 	void SetStrength(float st);
 	void SetSpeed(float sd);
 	void SetAgility(float ag);
-	void GenerateTraits();
-
-	void Die();
+	
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
 	void IHaveBeenHelpedBySomeone(UOEntity* helper, UItem* motivation, int oldAppreciation, int newAppreciation);
 
@@ -303,9 +304,7 @@ protected:
 	UOEntity* _mostHatedEntity;
 
 	vector<ORelation*> _relationships;
-	vector<UOEntity*> _potentialRelationships;
 	vector<OOwnership*> _possessions;
-	vector<OOwnership*> _materialDesires;
 	vector<OTerritory*> _landlord;
 
 	UOEntity* _attacker;
@@ -328,16 +327,10 @@ private:
 	const float ENTITIES_FINDER_DELAY = 5.f;
 	float entitiesFinderDelay = 0.f;
 	bool _searchingNearbyEntities = false;
-
-	
-
-	class UOOwnable* _deadOwnable;
 	float _notifyDeadline = 0.f;
 	void CleanKnownNotifyIDs(float deltaTime);
 		
-	UOEdification* _entityHome;
-
-	AOwnableSpawner* _ownableSpawner;
+	UOEdification* _entityHome = nullptr;
 };
 
 #undef LOCTEXT_NAMESPACE 

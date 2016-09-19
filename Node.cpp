@@ -33,7 +33,6 @@ NodeType Node::GetNodeType() {
 }
 
 void Node::SetItem(UItem* i) {
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, TEXT("Pon un print aquí"));
 	nBlackboard.item = i;
 }
 void Node::SetEntity(UOEntity* e) {

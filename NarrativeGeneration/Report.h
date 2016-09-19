@@ -37,7 +37,9 @@ public:
 	UOOwnable* GetTargetOwnable();
 	ORelation* GetNewRelation();
 	OOwnership* GetNewOwnership();
-	UItem* GetMotivation();
+	//UItem* GetMotivation();
+	FString GetMotivationRace();
+	FString GetMotivationName();
 	ReportTag GetTag();
 	TypeOfPlot GetType();
 
@@ -59,12 +61,11 @@ private:
 	UOOwnable* _targetOwnable;
 	ORelation* _newRelation;
 	OOwnership* _newOwnership;
-	UItem _motivation;
+	//UItem _motivation;
 
 	ReportTag _tag;
 	TypeOfPlot _type;
 
-	bool _isMotivationEntity;
-	ERace _motivationRace;
+	FString _motivationRace;
 	FString _motivationName;
 };

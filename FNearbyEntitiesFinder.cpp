@@ -110,7 +110,8 @@ void FNearbyEntitiesFinder::CheckNextEntity()
 
 	if(currentEntity != TheEntity && FVector::Dist(currentEntity->GetOwner()->GetActorLocation(), TheEntity->GetOwner()->GetActorLocation()) < RANGE)
 	{
-		EntitiesFound->Add(currentEntity);
+		//if(!EntitiesFound->Contains(currentEntity))
+			EntitiesFound->Add(currentEntity);
 	}
 }
 

@@ -33,7 +33,7 @@ public:
 	BasePlot(UOEntity* plotEntity);
 	~BasePlot();
 
-	void PrintSentence(APlotGenerator* plotGenerator, UItem* motivation, TypeOfAmbition ambition);
+	void PrintSentence(APlotGenerator* plotGenerator, FString motivationName, TypeOfAmbition ambition);
 	void AddInvolvedInPlot(UOEntity* entity);
 	void SavePlotToFile(const FString path, const FString fileName);
 	void AbortPlot(const FString path, const FString fileName);
@@ -51,7 +51,8 @@ public:
 	TypeOfAmbition GetPlotTypeOfAmbition();
 	bool GetIsExclusive();
 	FString GetSentence();
-	UItem* GetMotivation();
+	FString GetMotivationName();
+	FString GetMotivationRace();
 	TypeOfAmbition GetAmbition();
 
 
@@ -62,10 +63,11 @@ protected:
 	UOEntity* _plotEntity;
 	Graph _plotGraph;
 	TArray<UOEntity*> _involvedInPlot;
-	UItem* _motivation;
 	TypeOfAmbition _ambition = TypeOfAmbition::noAmbition;
 	bool _isExclusive = false;
 	bool _isPlotValid;
+	FString _motivationRace;
+	FString _motivationName;
 
 	virtual void BuildGraph() = 0;
 };

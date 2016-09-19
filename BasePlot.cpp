@@ -15,16 +15,16 @@ BasePlot::BasePlot() {}
 BasePlot::~BasePlot() {}
 
 
-void BasePlot::PrintSentence(APlotGenerator* plotGenerator, UItem* motivation, TypeOfAmbition ambition) {
+void BasePlot::PrintSentence(APlotGenerator* plotGenerator, FString motivationName, TypeOfAmbition ambition) {
 
 	// Print on screen
 	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, _sentence);
 	plotGenerator->SetCurrentPlotString(FString(*(_sentence)));
 
-	if(motivation == nullptr && ambition == TypeOfAmbition::noAmbition)
+	if(motivationName == "" && ambition == TypeOfAmbition::noAmbition)
 		plotGenerator->SetCurrentPlotTypeColor(FLinearColor::Red);
 
-	else if (motivation && ambition == TypeOfAmbition::noAmbition) {
+	else if (motivationName != "" && ambition == TypeOfAmbition::noAmbition) {
 		plotGenerator->SetCurrentPlotTypeColor(FLinearColor::Black);
 	}
 	else if(ambition!=TypeOfAmbition::noAmbition)
@@ -82,10 +82,13 @@ FString BasePlot::GetSentence() {
 	return FString(*(_sentence));
 }
 
-UItem* BasePlot::GetMotivation() {
-	return _motivation;
+FString BasePlot::GetMotivationRace() {
+	return _motivationRace;
 }
 
+FString BasePlot::GetMotivationName() {
+	return _motivationName;
+}
 
 TypeOfAmbition BasePlot::GetAmbition() {
 	return _ambition;

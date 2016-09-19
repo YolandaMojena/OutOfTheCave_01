@@ -164,9 +164,17 @@ void AEntityAIController::SetNode(Node* n) {
 
 
 void AEntityAIController::SetState(UOEntity::AIState s) {
-	entityBlackboard->SetValue<UBlackboardKeyType_Enum>(entityBlackboard->GetKeyID("EntityState"), static_cast<UBlackboardKeyType_Enum::FDataType>(s));
-	if (s == UOEntity::AIState::numb)
-		entityBlackboard->ClearValue(nodeTypeID);
+
+	UOEntity* entity = GetPawn()->FindComponentByClass<UOEntity>();
+	if (entity && !entity->IsDead && entityBlackboard) {
+
+		UBlackboardKeyType_Enum::FDataType blackboardState = static_cast<UBlackboardKeyType_Enum::FDataType>(s);
+		if (blackboardState) {
+			entityBlackboard->SetValue<UBlackboardKeyType_Enum>(entityBlackboard->GetKeyID("EntityState"), blackboardState);
+			if (s == UOEntity::AIState::numb)
+				entityBlackboard->ClearValue(nodeTypeID);
+		}	
+	}
 }
 
 

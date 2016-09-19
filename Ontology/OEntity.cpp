@@ -13,6 +13,7 @@
 #include "FNearbyEntitiesFinder.h"
 #include "BasePlot.h"
 #include "Ontology/ThreadManager.h"
+#include "Components/WidgetComponent.h"
 
 
 float UOEntity::MIN_INTEGRITY = 20.f;
@@ -93,8 +94,7 @@ void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 				ThreadManager::AddRequest(this);
 				//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::FromHex("#FF8811"), GetItemName() + TEXT(" STARTED searching for nearby entities."));
 			}
-		}
-			
+		}		
 	}
 }
 
@@ -480,9 +480,11 @@ void UOEntity::AddRelationship(ORelation* newRelation) {
 ORelation* UOEntity::AddRelationship(UOEntity* newEntity) {
 	if (newEntity != this) {
 		//ORelation* newRelation = new ORelation(this, newEntity, _personality->GetSocial(), newEntity->GetNotoriety(), _personality->GetMaxValue() - _personality->GetBraveness());
-		int newAppreciation = GetSocial();
-		if (newEntity->GetHome())
-			newAppreciation += GetHome()->villageID == newEntity->GetHome()->villageID ? 20 : 0 + GetHome()->edificationID == newEntity->GetHome()->edificationID ? 20 : 0;
+		int newAppreciation = 25 + GetSocial()*3/4;
+		if (GetHome() && newEntity->GetHome()) {
+			newAppreciation += GetHome()->villageID == newEntity->GetHome()->villageID ? rand() % 20 : 0;
+			newAppreciation += GetHome()->edificationID == newEntity->GetHome()->edificationID ? 20 : 0;
+		}
 		ORelation* newRelation = new ORelation(this, newEntity,
 			newAppreciation,	// Appreciation,
 			newEntity->GetNotoriety(),																		// Respect
@@ -629,15 +631,24 @@ void UOEntity::SendReport(Report* newReport)
 // If the entity is involved in a plot, the most notorious entity ascends to main entity
 void UOEntity::Die() {
 
-	ACharacter* character = (ACharacter*)GetOwner();
-	character->GetMesh()->SetSimulatePhysics(true);
-	character->GetMesh()->AttachTo(character->GetCapsuleComponent());
-	character->GetCapsuleComponent()->AttachTo(character->GetMesh());
-
 	if (IsA<UOCivilian>()) {
+
+		ACharacter* character = (ACharacter*)GetOwner();
+		character->GetMesh()->SetSimulatePhysics(true);
+		character->GetMesh()->AttachTo(character->GetCapsuleComponent());
+		character->GetCapsuleComponent()->AttachTo(character->GetMesh());
+
 		((UOCivilian*)this)->currentIconPath = "";
+
+		UWidgetComponent* iconComp = GetOwner()->FindComponentByClass<UWidgetComponent>();
+		if (iconComp) iconComp->DestroyComponent();
+
 		FText TestHUDText = NSLOCTEXT("FText Namespace", "Key", "");
 		GetOwner()->FindComponentByClass<UTextRenderComponent>()->Text = TestHUDText;
+
+		GetOwner()->FindComponentByClass<UTextRenderComponent>()->DestroyComponent();
+		GetOwner()->FindComponentByClass<UTextRenderComponent>()->DestroyComponent();
+
 		ReleaseGrabbedItem();
 	}
 	
@@ -669,6 +680,7 @@ void UOEntity::Die() {
 	ClearState();
 	GetEntityAIController()->behaviorTree->StopTree();
 	GetEntityAIController()->UnPossess();
+	GetEntityAIController()->Destroy();
 	_entityAIController = nullptr;
 	// Deleted from notorious entities
 	_plotGenerator->DeleteNotorious(this);
@@ -717,7 +729,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 	for (ORelation* o : relations) {
 		ORelation* relationFromOther = o->GetOtherEntity()->GetRelationWith(this);
 
-		if (relationFromOther){
+		if (relationFromOther && FVector::Dist(GetOwner()->GetActorLocation(), o->GetOtherEntity()->GetOwner()->GetActorLocation()) < 2000){
 			if (relationFromOther->GetAppreciation() > 50) {
 				ORelation* relationWithKiller = relationFromOther->GetEntity()->GetRelationWith(killer);
 
@@ -728,8 +740,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 				relationWithKiller->ChangeAppreciation(-relationFromOther->GetAppreciation());
 
 				if (relationWithKiller->GetAppreciation() < ORelation::LOW_APPRECIATION) {
-					UOEntity* e = this;
-					SendReport(new Report(relationWithKiller, TypeOfPlot::aggressive, *e));
+					SendReport(new Report(relationWithKiller, TypeOfPlot::aggressive, this));
 				}
 
 
@@ -873,7 +884,7 @@ void UOEntity::SetState(AIState s) {
 				_brain = _currentPlots[0]->GetGraph();
 				//_mainPlotEntity = this;
 				_currentPlots[0]->SavePlotToFile(Utilities::SavePath, Utilities::PlotFile);
-				_currentPlots[0]->PrintSentence(_plotGenerator, _currentPlots[0]->GetMotivation(), _currentPlots[0]->GetAmbition());
+				_currentPlots[0]->PrintSentence(_plotGenerator, _currentPlots[0]->GetMotivationName(), _currentPlots[0]->GetAmbition());
 
 				BasePlot* plotToReact = _currentPlots[0]->ConsiderReactions();
 				if (plotToReact) {
@@ -920,7 +931,8 @@ void UOEntity::SetState(AIState s) {
 			break;
 		}
 
-		_entityAIController->SetState(_currentState);
+		if(GetEntityAIController())
+			GetEntityAIController()->SetState(_currentState);
 	}
 
 	if (_currentState != AIState::numb) 
@@ -1255,7 +1267,12 @@ void UOEntity::SetPlotGenerator()
 }
 
 void UOEntity::ExecuteGraph() {
-	_entityAIController->SetNode(_brain.Peek());
+	_isEntityAttacking = false;
+	_isEntityBuilding = false;
+	_isEntityCultivating = false;
+	_isEntityMining = false;
+	if(GetEntityAIController())
+		GetEntityAIController()->SetNode(_brain.Peek());
 	//_entityAIController->ExecuteNode();
 }
 
@@ -1265,7 +1282,7 @@ void UOEntity::ExecuteGraph() {
 void UOEntity::NodeCompleted(bool completedOk) {
 	if (completedOk && !_brain.IsLastNode()) {
 		_brain.NextNode();
-		if (_currentState == AIState::plot && GetCurrentPlot()
+		if (_currentState == AIState::plot && !_mainPlotEntity && GetCurrentPlot()
 			&& GetCurrentPlot()->GetMainEntity() == this){
 			Graph* plotGraph = _currentPlots[0]->GetGraphPointer();
 			if (plotGraph->Peek()->GetNodeType() != NodeType::grab
@@ -1345,15 +1362,10 @@ vector<Graph*> UOEntity::GetReacts()
 }
 
 void UOEntity::RethinkState() {	
-	if (GetCurrentState() != AIState::numb) {
-
-		_isEntityAttacking = false;
-		_isEntityBuilding = false;
-		_isEntityCultivating = false;
-		_isEntityMining = false;
+	if (GetCurrentState() != AIState::numb && !IsDead) {
 
 		// Current action is of high priority
-		if (_currentState != AIState::restart && _brain.Peek() && _brain.Peek()->nBlackboard.isHighPriority) {
+		if (_currentState != AIState::restart && _brain.GetGraphSize() >0 && _brain.Peek() && _brain.Peek()->nBlackboard.isHighPriority) {
 			SetState(_currentState);
 		}
 

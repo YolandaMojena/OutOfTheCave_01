@@ -39,7 +39,8 @@ public:
 	//~FNearbyEntitiesFinder();
 
 	bool IsFinished() const {
-		return EntitiesCheckedCount >= TotalEntitiesToCheck;
+		return EntitiesCheckedCount >= EntitiesToCheck->Num();
+		//return EntitiesCheckedCount >= TotalEntitiesToCheck;
 	}
 	//bool IsFinished();
 

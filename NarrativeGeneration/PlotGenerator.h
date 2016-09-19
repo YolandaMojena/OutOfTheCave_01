@@ -93,9 +93,8 @@ private:
 
 	TArray<Report*> _pReportLog;
 	bool _lastPlotCompleted = true;
-	float _timeToSpawnPlot;
-	int _currentPlotsInAction;
-	vector<UOEntity*> spawnedHeard;
+	float _timeToSpawnPlot = 0.f;
+	int _currentPlotsInAction = 0;
 
 	TSubclassOf<class ACharacter> BP_Bear;
 	vector<UOOwnable*> _valuables;

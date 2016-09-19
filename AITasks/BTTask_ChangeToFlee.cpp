@@ -18,7 +18,7 @@ EBTNodeResult::Type UBTTask_ChangeToFlee::ExecuteTask(UBehaviorTreeComponent& Ow
 		n->SetNodeType(NodeType::flee); n->SetActor(((UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity")))->GetOwner()); n->SetHighPriority();
 		if (entity->GetCurrentState() == UOEntity::AIState::plot) {
 			entity->GetBrain()->AddInstantNode(n);
-			if (entity->GetCurrentPlot()->GetMainEntity() == entity) {
+			if (entity->GetMainPlotEntity() == nullptr && entity->GetCurrentPlot() && entity->GetCurrentPlot()->GetMainEntity() == entity) {
 				entity->GetCurrentPlot()->GetGraphPointer()->AddSplitSecondNode(entity->GetCurrentPlot()->GetGraphPointer()->Peek());
 			}
 		}

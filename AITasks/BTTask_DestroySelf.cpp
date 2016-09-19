@@ -11,13 +11,10 @@ EBTNodeResult::Type UBTTask_DestroySelf::ExecuteTask(UBehaviorTreeComponent& Own
 
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "FACKTHISSHIT");
-
 	if (entity) {
+		entity->Die();
 		entity->GetOwner()->Destroy();
 	}
-
 	return EBTNodeResult::Succeeded;
-
 }
 
