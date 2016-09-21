@@ -262,8 +262,6 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 	else if (hitEntity /*&& _isAttacking*/ && _canDamage && !_victims.Contains(hitEntity->GetOwner())) {
 		const float IMPULSE_MULTIPLIER = 300.f;
 
-		GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Hit someone"));
-
 		OntologicFunctions of;
 		float damage = _myEntityComp->GetStrength() * of.UseAsWeapon(_myEntityComp->GetGrabbedItem(), _myEntityComp) / (hitEntity->GetToughness()*33.f);
 

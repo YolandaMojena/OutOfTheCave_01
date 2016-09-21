@@ -115,6 +115,8 @@ private:
 	bool ValidateWarPlot(WarPlot* plot);
 	bool ValidateDefendPlot(DefendPlot* plot);
 
+	bool ValidateEntity(UOEntity* e);
+
 	FVector _stampedeTargetLocation;
 	FVector _stampedeSpawnArea;
 };

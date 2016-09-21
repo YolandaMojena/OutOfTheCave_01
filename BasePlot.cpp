@@ -18,7 +18,7 @@ BasePlot::~BasePlot() {}
 void BasePlot::PrintSentence(APlotGenerator* plotGenerator, FString motivationName, TypeOfAmbition ambition) {
 
 	// Print on screen
-	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, _sentence);
+	//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, _sentence);
 	plotGenerator->SetCurrentPlotString(FString(*(_sentence)));
 
 	if(motivationName == "" && ambition == TypeOfAmbition::noAmbition)

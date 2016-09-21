@@ -4,6 +4,7 @@
 
 #include "Ontology/OEntity.h"
 #include "NarrativeGeneration/Ambition.h"
+#include "NarrativeGeneration/PlotGenerator.h"
 #include "OCivilian.generated.h"
 
 
@@ -13,6 +14,8 @@ class OUTOFTHECAVE_01_API UOCivilian : public UOEntity
 	GENERATED_BODY()
 
 public:
+
+	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Civilian)
 		FString currentIconPath;

@@ -113,8 +113,6 @@ public:
 
 	void BeginPlay() override;
 	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	void BeginDestroy() override;
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HUD)
 		FString TraitsString;
@@ -137,6 +135,8 @@ public:
 		bool IsPlayer;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
 		bool IsDead = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
+		ERace _race;
 
 	UPROPERTY(EditAnywhere, Category = Behaviour)
 	class UBehaviorTree* entityBehaviorTree;
@@ -166,6 +166,7 @@ public:
 		TArray<UOEntity*> GetNearbyEntities();
 		
 	TArray<UOEntity*>* GetNearbyEntitiesPtr();
+	TArray<UOEntity*>* GetPreviousNearbyEntitiesPtr();
 
 	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
 		float GetKindness();
@@ -291,7 +292,6 @@ protected:
 	void IHaveBeenHelpedBySomeone(UOEntity* helper, UItem* motivation, int oldAppreciation, int newAppreciation);
 
 	AIState _currentState = AIState::idle;
-	ERace _race;
 	EJob _job;
 
 	vector<BasePlot*> _currentPlots;
@@ -319,6 +319,7 @@ protected:
 
 	UItem* _grabbedItem = nullptr;
 	TArray<UOEntity*> _nearbyEntities = TArray<UOEntity*>();
+	TArray<UOEntity*> _previousNearbyEntities = TArray<UOEntity*>();
 
 	
 

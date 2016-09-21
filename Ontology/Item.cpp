@@ -26,7 +26,6 @@ void UItem::BeginPlay()
 
 	for (TActorIterator<APlotGenerator> Itr(GetOwner()->GetWorld()); Itr; ++Itr)
 		_plotGenerator = *Itr;
-
 }
 
 
@@ -109,12 +108,12 @@ FString UItem::GetItemName()
 void UItem::SetItemName(FString name)
 {
 	_name = name;
-	GetOwner()->SetActorLabel(name);
+	//GetOwner()->SetActorLabel(name);
 }
 
 
 void UItem::CastNotify(UItem* predicate, UOEntity* subject, ENotify notifyType) {
-	float const _NOTIFY_RADIUS = 2500.0f;
+	float const _NOTIFY_RADIUS = 5500.0f;
 	FVector start = GetOwner()->GetActorLocation() + FVector(0, 0, -_NOTIFY_RADIUS);
 	FVector end = start + FVector(0, 0, _NOTIFY_RADIUS * 2);
 	TArray<FHitResult> hitData;

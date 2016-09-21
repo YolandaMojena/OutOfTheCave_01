@@ -110,6 +110,9 @@ BasePlot* AttackPlot::ConsiderReactions() {
 
 	for (UOEntity* e : _involvedInPlot) {
 
+		if (!e || !e->IsValidLowLevel())
+			continue;
+
 		if(e->GetPersonality()->GetAstute()>50){
 
 			ORelation* relationWithMain = e->GetRelationWith(_plotEntity);
@@ -586,7 +589,7 @@ void HelpPlot::BuildSentence() {
 	else if (_ambition == TypeOfAmbition::friendTroll) {
 
 		_sentence += "The curious " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
-			+ "wants to be the troll's friend! He/She's started following him around to learn from him and "
+			+ " wants to be the troll's friend! He/She's started following him around to learn from him and "
 			+ "maybe, someday, do something useful for him.\n\n\n.";
 	}
 }
@@ -604,7 +607,7 @@ void HelpPlot::BuildGraph() {
 		helpNode->SetActor(_targetEntity->GetOwner());
 		ORelation* trollRelation = _plotEntity->GetRelationWith(_targetEntity);
 		if (!trollRelation)
-			_plotEntity->AddRelationship(_targetEntity);
+			trollRelation =_plotEntity->AddRelationship(_targetEntity);
 		trollRelation->ChangeAppreciation(+10);
 		trollRelation->ChangeFear(-10);
 	}
@@ -957,7 +960,6 @@ WarPlot::WarPlot(UOEntity* plotEntity) : BasePlot(plotEntity) {
 	_plotEntity = plotEntity;
 	_motivationName = "";
 	_ambition = TypeOfAmbition::noAmbition;
-
 	_targetEntity = _plotEntity->GetMostHated();
 }
 
@@ -987,7 +989,6 @@ void WarPlot::BuildGraph() {
 
 	//ATTACK
 	Node* attackNode = new Node();
-	attackNode->SetHighPriority(true);
 	attackNode->SetNodeType(NodeType::attack);
 	attackNode->SetHighPriority(true);
 	attackNode->SetEntity(_targetEntity);

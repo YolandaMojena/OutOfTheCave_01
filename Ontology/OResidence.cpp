@@ -80,6 +80,10 @@ void UOResidence::SpawnTenants() {
 		ACharacter* tentantCharacter = GetTentantCharacterFromRace();
 		if (tentantCharacter) {
 			UOEntity* ten = tentantCharacter->FindComponentByClass<UOEntity>();
+
+			ten->SetJob(job);
+			ten->SetRace(race);
+			ten->GenerateTraits();
 			ten->SetHome(this);
 
 			if (ten) {
@@ -113,10 +117,8 @@ void UOResidence::SpawnTenants() {
 				}
 
 				// SET OWNERSHIP WITH THE EDIFICATION
-				ten->AddPossession(new OOwnership(ten, ((UOOwnable*)this), 25 + ten->GetPersonality()->GetMaterialist()));
 				ten->SetIdleGraph(GenerateIdleFromJob());
-				
-				ten->SetJob(job);
+
 				ten->SetPlotGenerator();
 				ten->RethinkState();
 				
@@ -136,7 +138,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 		if ((rand() % 10) < 5) {
 			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Male, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
 			UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
-			if (entityComp) {
+			if (entityComp && _village) {
 				entityComp->SetItemName(_village->AssignMaleHumanName());
 				entityComp->SetRace(race);
 			}	
@@ -144,7 +146,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 		else {
 			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Female, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
 			UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
-			if (entityComp) {
+			if (entityComp && _village) {
 				entityComp->SetItemName(_village->AssignFemaleHumanName());
 				entityComp->SetRace(race);
 			}		
@@ -155,7 +157,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 	{
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
 		UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
-		if (entityComp) {
+		if (entityComp && _village) {
 			entityComp->SetItemName(_village->AssignGoblinName());
 			entityComp->SetRace(race);
 		}

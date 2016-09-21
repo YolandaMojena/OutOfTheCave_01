@@ -83,7 +83,6 @@ void UOEdification::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 
 		// NOTIFY ABSENSE OF HOME
 		o->SendReport(new Report(ownership, TypeOfPlot::resources, damager));
-		
 	}
 }
 

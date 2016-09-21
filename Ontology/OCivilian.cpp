@@ -3,6 +3,15 @@
 #include "OutOfTheCave_01.h"
 #include "OCivilian.h"
 
+void UOCivilian::BeginPlay() {
+	Super::BeginPlay();
+
+	if (rand() % 100 < 50) {
+		ChangeNotoriety(+10);
+		_plotGenerator->AddNotorious(this);
+	}	
+}
+
 UTexture2D* UOCivilian::LoadTextureFromPath(const FString & Path)
 {
 	if (Path.IsEmpty()) return NULL;
