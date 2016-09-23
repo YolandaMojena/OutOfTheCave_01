@@ -117,8 +117,13 @@ private:
 
 	bool ValidateEntity(UOEntity* e);
 
+	const int MAX_STAMPEDE_SIZE = 20;
+	void InitialStampedeSpawn();
 	FVector _stampedeTargetLocation;
 	FVector _stampedeSpawnArea;
+	vector<UOEntity*> _bearHeard;
+	vector<UOEntity*> _wolfHeard;
+	vector<UOEntity*> _herbivoreHeard;
 };
 
 

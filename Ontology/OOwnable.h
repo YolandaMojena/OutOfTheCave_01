@@ -48,6 +48,7 @@ public:
 	void AddGrabber(UOEntity* g);
 	void RemoveGrabber(UOEntity* g);
 	//bool IsBeingGrabbed();
+	//int GetIntrinsicValue();
 
 	// REPORTS
 	void IHaveBeenStolenBySomeone(UOEntity* potentialOwner, UOEntity* buggler);

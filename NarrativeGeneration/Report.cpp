@@ -23,7 +23,6 @@ Report::Report(OOwnership* newOwnership, TypeOfPlot type, UItem* motivation)
 {
 	_reportEntity = newOwnership->GetOwner();
 	_targetOwnable = newOwnership->GetOwnable();
-	_newOwnership = newOwnership;
 	_type = type;
 	//_motivation = motivation;
 
@@ -112,12 +111,7 @@ UOEntity* Report::GetTargetEntity() {
 UOOwnable* Report::GetTargetOwnable(){
 	return _targetOwnable;
 }
-ORelation* Report::GetNewRelation() {
-	return _newRelation;
-}
-OOwnership* Report::GetNewOwnership() {
-	return _newOwnership;
-}
+
 Report::ReportTag Report::GetTag() {
 	return _tag;
 }

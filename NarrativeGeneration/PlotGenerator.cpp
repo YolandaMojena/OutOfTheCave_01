@@ -88,10 +88,10 @@ bool APlotGenerator::SpawnReactivePlot()
 		BasePlot* currentPlot = _reactivePlots.at(0);
 		currentPlot->InitPlot();
 		_reactivePlots.erase(_reactivePlots.begin());
-		//_currentPlotsInAction++;
+		_currentPlotsInAction++;
 
 		UOEntity* plotEntity = currentPlot->GetMainEntity();
-		if (plotEntity) {
+		if (plotEntity->IsValidItem()) {
 			plotEntity->AddCurrentPlot(currentPlot);
 			plotEntity->RethinkState();
 			return true;
@@ -105,12 +105,11 @@ bool APlotGenerator::SpawnAmbitionPlot()
 	Ambition ambition = Ambition(this, UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>());
 	UOEntity* entity = _notoriousEntities.Num() > 0 ? _notoriousEntities[rand() % _notoriousEntities.Num()] : nullptr;
 
-	if (entity) {
-
+	if (entity->IsValidItem()) {
 		BasePlot* ambitionPlot = ambition.GenerateAmbitionForEntity(entity);
 
 		if (ambitionPlot) {
-			//_currentPlotsInAction++;
+			_currentPlotsInAction++;
 			ambitionPlot->InitPlot();
 			entity->AddCurrentPlot(ambitionPlot);
 			entity->RethinkState();
@@ -189,28 +188,32 @@ void APlotGenerator::GetPlotFromReportLog() {
 			}
 
 			else if (plot == _DESTROY_PLOT) {
+				plotIsValid = ValidateDestroyPlot((DestroyPlot*)newPlot);
+				if (plotIsValid) {
 
-				UOEdification* targetEdification = nullptr;
+					UOEdification* targetEdification = nullptr;
 
-				if (!currentReport->GetTargetEntity()->IsPlayer) {
-					
-					for (OOwnership* o : currentReport->GetTargetEntity()->GetPossessions()) {
-						if (o->GetOwnable()->IsA<UOEdification>()) {
-							if (!((UOEdification*)o->GetOwnable())->GetIsDestroyed()) {
-								targetEdification = (UOEdification*)o->GetOwnable();
-								break;
+					if (!currentReport->GetTargetEntity()->IsPlayer) {
+
+						for (OOwnership* o : currentReport->GetTargetEntity()->GetPossessions()) {
+							if (o->GetOwnable()->IsA<UOEdification>()) {
+								if (!((UOEdification*)o->GetOwnable())->GetIsDestroyed()) {
+									targetEdification = (UOEdification*)o->GetOwnable();
+									break;
+								}
 							}
 						}
 					}
-				}
-				
-				if (targetEdification) {
-					newPlot = new DestroyPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), targetEdification, currentReport->GetMotivationName(), currentReport->GetMotivationRace());
-					plotIsValid = ValidateDestroyPlot((DestroyPlot*)newPlot);
 
-					if (plotIsValid) {
-						currentReport->GetReportEntity()->ChangeNotoriety(3);
-						currentReport->GetTargetEntity()->ChangeNotoriety(2);
+					if (targetEdification) {
+						newPlot = new DestroyPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), targetEdification, currentReport->GetMotivationName(), currentReport->GetMotivationRace());
+						plotIsValid = ValidateDestroyPlot((DestroyPlot*)newPlot);
+
+						if (plotIsValid) {
+							currentReport->GetReportEntity()->ChangeNotoriety(3);
+							currentReport->GetTargetEntity()->ChangeNotoriety(2);
+						}
+						else plotCandidates.erase(plotCandidates.begin() + randType);
 					}
 					else plotCandidates.erase(plotCandidates.begin() + randType);
 				}
@@ -250,6 +253,8 @@ void APlotGenerator::GetPlotFromReportLog() {
 		if (plotIsValid) {
 			if (!newPlot->GetIsExclusive()) {
 				for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
+					if (!entity->IsValidItem())
+						continue;
 					newPlot->AddInvolvedInPlot(entity);
 				}
 			}
@@ -276,6 +281,11 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 		while(i < _pReportLog.Num()){
 			if (_pReportLog[i]->GetTag() == tag) {
+
+				if (!_pReportLog[i]->GetReportEntity()->IsValidItem()) {
+					_pReportLog.RemoveAt(i);
+					continue;
+				}
 				if (_pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetOwnable() == report->GetTargetOwnable() && _pReportLog[i]->GetMotivationName() == report->GetMotivationName()) {
 					if(_pReportLog[i]->GetReportEntity()->GetIntegrity()>0)
 						helpers.push_back(_pReportLog[i]->GetReportEntity());
@@ -290,6 +300,12 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 
 		while (i < _pReportLog.Num()) {
 			if (_pReportLog[i]->GetTag() == tag) {
+
+				if (!_pReportLog[i]->GetReportEntity()->IsValidItem() || !_pReportLog[i]->GetTargetEntity()->IsValidItem()) {
+					_pReportLog.RemoveAt(i);
+					continue;
+				}
+
 				if (_pReportLog[i]->GetType() == report->GetType() && _pReportLog[i]->GetTargetEntity() == report->GetTargetEntity() && _pReportLog[i]->GetMotivationName() == report->GetMotivationName()) {
 					if (_pReportLog[i]->GetReportEntity()->GetIntegrity()>0)
 						helpers.push_back(_pReportLog[i]->GetReportEntity());
@@ -301,15 +317,22 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 		}
 	}
 	else if (tag == Report::ReportTag::world) {
-		if (_pReportLog[i]->GetTag() == tag) {
-			if (_pReportLog[i]->GetType() == report->GetType()) {
-				if (_pReportLog[i]->GetReportEntity()->GetIntegrity()>0)
-					helpers.push_back(_pReportLog[i]->GetReportEntity());
-				_pReportLog.RemoveAt(i);
+
+		while (i < _pReportLog.Num()) {
+			if (_pReportLog[i]->GetTag() == tag) {
+				if (!_pReportLog[i]->GetReportEntity()->IsValidItem()) {
+					_pReportLog.RemoveAt(i);
+					continue;
+				}
+				if (_pReportLog[i]->GetType() == report->GetType()) {
+					if (_pReportLog[i]->GetReportEntity()->GetIntegrity()>0)
+						helpers.push_back(_pReportLog[i]->GetReportEntity());
+					_pReportLog.RemoveAt(i);
+				}
+				else i++;
 			}
 			else i++;
 		}
-		else i++;
 	}
 	return helpers;
 }
@@ -318,38 +341,38 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 // PLOT VALIDATION
 bool APlotGenerator::ValidateAttackPlot(AttackPlot * plot)
 {
-	return ValidateEntity(plot->GetMainEntity()) && ValidateEntity(plot->GetTargetEntity());
+	return plot && ValidateEntity(plot->GetMainEntity()) && ValidateEntity(plot->GetTargetEntity());
 }
 bool APlotGenerator::ValidateDestroyPlot(DestroyPlot * plot)
 {
-	return ValidateEntity(plot->GetMainEntity()) && !plot->GetTargetEdification()->GetIsDestroyed();
+	return plot && ValidateEntity(plot->GetMainEntity()) && ValidateEntity(plot->GetTargetEntity()) && !plot->GetTargetEdification()->GetIsDestroyed();
 }
 bool APlotGenerator::ValidateBuildPlot(BuildPlot* plot)
 {
-	return ValidateEntity(plot->GetMainEntity()) && !plot->GetTargetEdification()->GetIsDestroyed();
+	return plot && ValidateEntity(plot->GetMainEntity()) && !plot->GetTargetEdification()->GetIsDestroyed();
 }
 bool APlotGenerator::ValidateHelpPlot(HelpPlot* plot) {
 	
-	return ValidateEntity(plot->GetMainEntity()) && ValidateEntity(plot->GetTargetEntity());
+	return plot && ValidateEntity(plot->GetMainEntity()) && ValidateEntity(plot->GetTargetEntity());
 }
 bool APlotGenerator::ValidateGiftPlot(GivePlot* plot) {
 
-	return ValidateEntity(plot->GetMainEntity()) && ValidateEntity(plot->GetTargetEntity());
+	return plot && ValidateEntity(plot->GetMainEntity()) && ValidateEntity(plot->GetTargetEntity());
 }
 bool APlotGenerator::ValidateStealPlot(StealPlot* plot) {
 	
-	return ValidateEntity(plot->GetMainEntity()) && ValidateEntity(plot->GetTargetEntity());
+	return plot && ValidateEntity(plot->GetMainEntity()) && ValidateEntity(plot->GetTargetEntity());
 }
 bool APlotGenerator::ValidateGetPlot(GetPlot* plot) {
 
-	return ValidateEntity(plot->GetMainEntity()) && !plot->GetTargetOwnable()->GetIsGrabbed();
+	return plot && ValidateEntity(plot->GetMainEntity()) && !plot->GetTargetOwnable()->GetIsGrabbed();
 }
 bool APlotGenerator::ValidateWarPlot(WarPlot* plot) {
 
-	return ValidateEntity(plot->GetMainEntity()) && ValidateEntity(plot->GetMainEntity()->GetMostHated());
+	return plot && ValidateEntity(plot->GetMainEntity()) && ValidateEntity(plot->GetMainEntity()->GetMostHated());
 }
 bool APlotGenerator::ValidateDefendPlot(DefendPlot* plot) {
-	return ValidateEntity(plot->GetMainEntity()) && 
+	return plot && ValidateEntity(plot->GetMainEntity()) &&
 		(plot->GetTarget()->IsA<UOEntity>() ?
 			ValidateEntity((UOEntity*)(plot->GetTarget())) :
 			!((UOEdification*)plot->GetTarget())->GetIsDestroyed());
@@ -371,6 +394,9 @@ vector<UOEntity*> APlotGenerator::GetNotoriousEntitiesByRace(ERace race)
 	vector<UOEntity*> entities;
 
 	for (UOEntity* e : _notoriousEntities) {
+		if (!e->IsValidItem())
+			continue;
+
 		if (e->GetRace() == race)
 			entities.push_back(e);
 	}
@@ -382,6 +408,9 @@ vector<UOEntity*> APlotGenerator::GetNotoriousEntities()
 	vector<UOEntity*> entities;
 
 	for (UOEntity* e : _notoriousEntities) {
+		if (!e->IsValidItem())
+			continue;
+
 		entities.push_back(e);
 	}
 			
@@ -414,7 +443,8 @@ void APlotGenerator::AddNotorious(UOEntity * notorious)
 }
 void APlotGenerator::DeleteNotorious(UOEntity * entity)
 {
-	_notoriousEntities.Remove(entity);
+	if(entity && _notoriousEntities.Contains(entity))
+		_notoriousEntities.Remove(entity);
 }
 
 
@@ -442,6 +472,9 @@ float APlotGenerator::GetOverallHateAgainstRace(ERace race)
 		else poblationSample = GetNotoriousEntitiesByRace(ERace::R_Human);
 
 		for (UOEntity* e : poblationSample) {
+			if (!e->IsValidItem())
+				continue;
+
 			sum += e->GetAppreciationToOtherRace();
 		}
 		return sum / poblationSample.size();
@@ -498,5 +531,7 @@ vector<UOEntity*> APlotGenerator::SpawnEntities(int num, ERace race, FVector spa
 }
 
 bool APlotGenerator::ValidateEntity(UOEntity* e) {
-	return e && e->IsValidLowLevel();
+	if (e)
+		return e->IsValidItem();
+	return false;
 }

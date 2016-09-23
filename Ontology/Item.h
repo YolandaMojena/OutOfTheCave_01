@@ -207,6 +207,8 @@ public:
 
 	void CastNotify(UItem* predicate, UOEntity* subject, ENotify notifyType);
 
+	bool IsValidItem();
+
 protected:
 	const float _NOTIFICATION_RADIUS = 1000.0f;
 
@@ -220,6 +222,7 @@ protected:
 	//string GenerateNotifyID(UOOwnable* ownable, UOEntity* entity, _NotifyTag tag);
 	//string GenerateNotifyID(UOEntity* pasiva, UOEntity* activa, _NotifyTag tag);
 	FString GenerateNotifyID(UItem* predicate, UOEntity* subject, ENotify notifyType);
+
 
 	float _integrity = 100;
 };

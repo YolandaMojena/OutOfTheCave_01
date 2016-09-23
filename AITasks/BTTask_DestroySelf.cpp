@@ -9,11 +9,14 @@ EBTNodeResult::Type UBTTask_DestroySelf::ExecuteTask(UBehaviorTreeComponent& Own
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	AActor* entityActor = entityController->GetPawn();
+	UOEntity* entity = entityActor->FindComponentByClass<UOEntity>();
+	
 
 	if (entity) {
 		entity->Die();
-		entity->GetOwner()->Destroy();
+		entityActor->SetActorLocation(FVector(rand() % 5000, rand() % 5000, -10000));
+		//entity->GetOwner()->Destroy();
 	}
 	return EBTNodeResult::Succeeded;
 }

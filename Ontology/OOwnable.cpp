@@ -64,11 +64,18 @@ vector<UOEntity*> UOOwnable::GetOwners() {
 	return _owners;
 }
 void UOOwnable::AddOwner(UOEntity* e) {
-	_owners.push_back(e);
+	if(e->IsValidItem())
+		_owners.push_back(e);
 }
 void UOOwnable::RemoveOwner(UOEntity* owner) {
+	if (!owner->IsValidItem())
+		return;
+
 	int i = 0;
 	for (UOEntity* o : _owners) {
+		if (!o->IsValidItem())
+			continue;
+
 		if (o == owner)
 			_owners.erase(_owners.begin() + i);
 		i++;
@@ -97,65 +104,69 @@ vector<UOEntity*> UOOwnable::GetGrabbers() {
 }
 
 void UOOwnable::AddGrabber(UOEntity* g) {
+	if (!g->IsValidItem())
+		return;
+	
 	_grabbers.push_back(g);
 }
 
 void UOOwnable::RemoveGrabber(UOEntity* rg) {
+	if (!rg->IsValidItem())
+		return;
+
 	int i = 0;
 	for (UOEntity* g : _grabbers) {
+		if (!g->IsValidItem())
+			continue;
+
 		if (g == rg)
 			_grabbers.erase(_grabbers.begin() + i);
 		i++;
 	}
 }
 
+/*int UOOwnable::GetIntrinsicValue() {
+	int value = 0;
+	value += 10 * GetRarityAsInt();
+	OntologicFunctions* ontf = new OntologicFunctions();
+	for (int i = OntologicFunctions::AffordableUse::weapon; i < OntologicFunctions::AffordableUse::build; i++) {
+		value += ontf->GetAffordance((OntologicFunctions::AffordableUse)i, present, this) * 5.f / 100.f;
+	}
+	return value;
+}*/
+
 void UOOwnable::IHaveBeenStolenBySomeone(UOEntity * potentialOwner, UOEntity * buggler)
 {
+	if (!potentialOwner->IsValidItem() || !buggler->IsValidItem())
+		return;
+
 	for (UOEntity* e : _owners) {
+		if (!e->IsValidItem())
+			continue;
+
 		OOwnership* ownership = e->GetOwnershipWith(this);
 
-		if (ownership->GetWorth() > 50) {
+		if (ownership && ownership->GetWorth() > 50) {
 
 			ORelation* relation = e->GetRelationWith(buggler);
 
 			if (!relation)
 				relation = e->AddRelationship(buggler);
 
-			relation->SetAppreciation(-ownership->GetWorth());
+			if (relation) {
+				relation->ChangeAppreciation(-ownership->GetWorth());
 
-			if (relation->GetAppreciation() < 50) {
+				if (relation->GetAppreciation() < 50) {
 
-				if (e == potentialOwner && ownership->GetWorth() > 60)
-					e->SendReport(new Report(e->GetOwnershipWith(this), TypeOfPlot::possessive, buggler));
+					if (e == potentialOwner && ownership->GetWorth() > 60)
+						e->SendReport(new Report(e->GetOwnershipWith(this), TypeOfPlot::possessive, buggler));
 
-				e->SendReport(new Report(e->GetOwnershipWith(this), TypeOfPlot::aggressive, buggler));
-			}	
+					e->SendReport(new Report(e->GetOwnershipWith(this), TypeOfPlot::aggressive, buggler));
+				}
+			}
 		}
 	}
 }
-
-
-/*void UOOwnable::SpawnOwnable(UOOwnable* o, UItem* spawner) {
-	FActorSpawnParameters SpawnParams;
-	if (o->GetItemName() == "hammer") {
-		//spawner->GetWorld()->SpawnActor<AActor>(APlotGenerator::GetHammer(), spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
-	}
-	else if (o->GetItemName() == "hoe") {
-		//spawner->GetWorld()->SpawnActor<AActor>(APlotGenerator::BP_Hoe, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
-	}
-	else if (o->GetItemName() == "pickaxe") {
-		//spawner->GetWorld()->SpawnActor<AActor>(APlotGenerator::BP_Pickaxe, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
-	}
-	else if (o->GetItemName() == "rake") {
-		//spawner->GetWorld()->SpawnActor<AActor>(APlotGenerator::BP_Rake, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
-	}
-	else if (o->GetItemName() == "sword") {
-		//spawner->GetWorld()->SpawnActor<AActor>(APlotGenerator::BP_Sword, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
-	}
-	else if (o->GetItemName() == "leaflesstree") {
-		//spawner->GetWorld()->SpawnActor<AActor>(APlotGenerator::BP_LeaflessTree, spawner->GetOwner()->GetActorLocation() + RandomDisplacementVector(500), spawner->GetOwner()->GetActorRotation(), SpawnParams);
-	}
-}*/
 
 FVector UOOwnable::RandomDisplacementVector(int radius) {
 	return FVector(rand() % (2 * radius) - radius, rand() % (2 * radius) - radius, 0);

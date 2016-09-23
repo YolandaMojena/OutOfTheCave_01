@@ -142,3 +142,23 @@ void UItem::CastNotify(UItem* predicate, UOEntity* subject, ENotify notifyType) 
 		}
 	}
 }
+
+bool UItem::IsValidItem() {
+	if (this == nullptr)
+		return false;
+
+	if (IsPendingKill())
+		return false;
+
+	/*if (!IsValid(this))
+		return false;
+
+	if (!IsValidLowLevel())
+		return false;*/
+
+	if (IsA<UOEntity>() && ((UOEntity*)this)->IsDead)
+		return false;
+
+	return true;
+	//return (this != nullptr && IsValid(this));
+}

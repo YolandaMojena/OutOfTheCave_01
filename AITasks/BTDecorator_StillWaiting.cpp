@@ -12,7 +12,7 @@ bool UBTDecorator_StillWaiting::CalculateRawConditionValue(UBehaviorTreeComponen
 	UOEntity* otherEntity = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 	AActor* targetActor = (AActor*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Actor"));
 
-	if (entity && otherEntity && targetActor) {
+	if (entity->IsValidItem() && otherEntity->IsValidItem() && targetActor) {
 
 		if (otherEntity->GetCurrentPlot()->GetGraphPointer()->Peek()->nBlackboard.actor != targetActor) {
 			blackboard->ClearValue(blackboard->GetKeyID("Actor"));

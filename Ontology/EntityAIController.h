@@ -59,4 +59,10 @@ private:
 	vector<UOOwnable*> FindNearbyOwnables(UOEntity* entity);
 
 	FVector RandomDisplacementVector(int radius);
+
+	void ReleaseGrabbedItemNearestToHome(UOEntity* entity, FVector targetPosition);
+
+	void AbortNode();
+
+	bool ValidateObject(UObject* obj);
 };

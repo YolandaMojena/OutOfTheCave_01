@@ -47,7 +47,9 @@ UOEntity* ORelation::GetOtherEntity() {
 	return _otherEntity;
 }
 int ORelation::GetAppreciation() {
-	return _appreciation;
+	if (this != nullptr && this != NULL)
+		return _appreciation;
+	return 50;
 }
 int ORelation::GetRespect() {
 	return _respect;

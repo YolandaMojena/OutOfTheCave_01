@@ -10,13 +10,13 @@ EBTNodeResult::Type UBTTask_AskForHelpNode::ExecuteTask(UBehaviorTreeComponent& 
 
 	UOEntity* plotEntity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 
-	if (plotEntity) {
+	if (plotEntity->IsValidItem()) {
 
 		TArray<UOEntity*> helpers;
 
 		// Added by reports
 		for (UOEntity* e : plotEntity->GetCurrentPlot()->GetInvolvedInPlot()) {
-			if (e && !helpers.Contains(e) && e != plotEntity) {
+			if (e->IsValidItem() && !helpers.Contains(e) && e != plotEntity) {
 				helpers.Add(e);
 			}
 		}
@@ -25,6 +25,8 @@ EBTNodeResult::Type UBTTask_AskForHelpNode::ExecuteTask(UBehaviorTreeComponent& 
 			// Add by relationships
 			for (ORelation* r : plotEntity->GetRelationships()) {
 				UOEntity* potentialHelper = r->GetOtherEntity();
+				if (!potentialHelper->IsValidItem())
+					continue;
 
 				if (!potentialHelper->IsPlayer && !helpers.Contains(potentialHelper) 
 					&& potentialHelper->GetRelationWith(plotEntity) 

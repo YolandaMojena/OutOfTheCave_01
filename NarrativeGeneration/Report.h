@@ -59,8 +59,6 @@ private:
 	UOEntity* _reportEntity;
 	UOEntity* _targetEntity;
 	UOOwnable* _targetOwnable;
-	ORelation* _newRelation;
-	OOwnership* _newOwnership;
 	//UItem _motivation;
 
 	ReportTag _tag;

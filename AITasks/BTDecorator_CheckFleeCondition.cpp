@@ -12,13 +12,15 @@ bool UBTDecorator_CheckFleeCondition::CalculateRawConditionValue(UBehaviorTreeCo
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 	UOEntity* otherEntity = (UOEntity*) blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 
-	if (entity && otherEntity) {
+	if (entity->IsValidItem() && otherEntity->IsValidItem()) {
 		ORelation* relationWithOther = entity->GetRelationWith(otherEntity);
 		if (!relationWithOther)
 			relationWithOther = entity->AddRelationship(otherEntity);
-		if (entity->GetBraveness() + entity->GetPride() + entity->GetIntegrity() <
-			relationWithOther->GetFear() + otherEntity->GetIntegrity())
-			return true;
+		if (relationWithOther) {
+			if (entity->GetBraveness() + entity->GetPride() + entity->GetIntegrity() <
+				relationWithOther->GetFear() + otherEntity->GetIntegrity())
+				return true;
+		}
 	}
 
 	return false;

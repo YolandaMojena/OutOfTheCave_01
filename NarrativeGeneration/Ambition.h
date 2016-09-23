@@ -4,6 +4,7 @@
 
 class BasePlot;
 class UOEntity;
+class UOEdification;
 class APlotGenerator;
 
 using namespace std;

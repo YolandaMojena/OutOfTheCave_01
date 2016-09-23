@@ -126,7 +126,8 @@ void UOResidence::SpawnTenants() {
 			}
 		}
 	}
-	_village->edifications.push_back(this);
+	if(villageID != 0)
+		_village->edifications.push_back(this);
 }
 
 ACharacter* UOResidence::GetTentantCharacterFromRace() {
@@ -138,7 +139,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 		if ((rand() % 10) < 5) {
 			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Male, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
 			UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
-			if (entityComp && _village) {
+			if (entityComp && villageID != 0 && _village) {
 				entityComp->SetItemName(_village->AssignMaleHumanName());
 				entityComp->SetRace(race);
 			}	
@@ -146,7 +147,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 		else {
 			tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Human_Female, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
 			UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
-			if (entityComp && _village) {
+			if (entityComp && villageID != 0 && _village) {
 				entityComp->SetItemName(_village->AssignFemaleHumanName());
 				entityComp->SetRace(race);
 			}		
@@ -157,7 +158,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 	{
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
 		UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
-		if (entityComp && _village) {
+		if (entityComp && villageID != 0 &&_village) {
 			entityComp->SetItemName(_village->AssignGoblinName());
 			entityComp->SetRace(race);
 		}
@@ -252,19 +253,6 @@ Graph* UOResidence::GenerateIdleFromJob() {
 				peasantField = *ObjItr;
 		}
 
-
-		// D E S T R O Y    T E S T
-
-		/*n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::weapon); n->SetDaytime(8);
-		idleGraph->AddNode(n);
-
-		n = new Node();
-		n->SetNodeType(NodeType::destroy); n->SetEdification((UOEdification*) this); n->SetDaytime(8);
-		idleGraph->AddNode(n);
-
-		n = new Node();*/
-
-
 		//MADRUGADA
 		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(8);
 		idleGraph->AddNode(n);
@@ -300,52 +288,78 @@ Graph* UOResidence::GenerateIdleFromJob() {
 		break;
 	case EJob::J_Soldier:
 	{
-		//MADRUGADA
-		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(8);
+
+		//JORNADA NOCTURNA
+		n = new Node();
+		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::weapon); n->SetDaytime(3);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(3);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::waitUntilDaytime); n->SetDaytime(3);
+		idleGraph->AddNode(n);
+		
+		n = new Node();
+		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::weapon); n->SetDaytime(6);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(6);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::waitUntilDaytime); n->SetDaytime(6);
+		idleGraph->AddNode(n);
+		
+		n = new Node();
+		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::weapon); n->SetDaytime(9);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(9);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::waitUntilDaytime); n->SetDaytime(9);
+		idleGraph->AddNode(n);
+		
+		//DESCANSO 1
+		n = new Node();
+		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(13);
 		idleGraph->AddNode(n);
 
-		//JORNADA LABORAL 1
+		//JORNADA 2
 		n = new Node();
-		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(10);
+		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::weapon); n->SetDaytime(15);
 		idleGraph->AddNode(n);
 		n = new Node();
-		n->SetNodeType(NodeType::waitUntilDaytime); n->SetDaytime(10);
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(15);
 		idleGraph->AddNode(n);
 		n = new Node();
-		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(13);
+		n->SetNodeType(NodeType::waitUntilDaytime); n->SetDaytime(15);
 		idleGraph->AddNode(n);
+		
 		n = new Node();
-		n->SetNodeType(NodeType::waitUntilDaytime); n->SetDaytime(13);
+		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::weapon); n->SetDaytime(17);
 		idleGraph->AddNode(n);
-
-		//MEDIODÍA
-		n = new Node();
-		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(15);
-		idleGraph->AddNode(n);
-
-		//JORNADA LABORAL 2
 		n = new Node();
 		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(17);
 		idleGraph->AddNode(n);
 		n = new Node();
 		n->SetNodeType(NodeType::waitUntilDaytime); n->SetDaytime(17);
 		idleGraph->AddNode(n);
+
+		//DESCANSO 2
 		n = new Node();
-		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(20);
-		idleGraph->AddNode(n);
-		n = new Node();
-		n->SetNodeType(NodeType::waitUntilDaytime); n->SetDaytime(20);
-		idleGraph->AddNode(n);
-		n = new Node();
-		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(23);
-		idleGraph->AddNode(n);
-		n = new Node();
-		n->SetNodeType(NodeType::waitUntilDaytime); n->SetDaytime(23);
+		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(21);
 		idleGraph->AddNode(n);
 
-		//NOCHE
+		//JORNADA LABORAL 2
 		n = new Node();
-		n->SetNodeType(NodeType::enter); n->SetEdification(this); n->SetDaytime(24);
+		n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::weapon); n->SetDaytime(24);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::goTo); n->SetPosition(this->GetOwner()->GetActorLocation() + RandomDisplacementVector(1000));  n->SetDaytime(24);
+		idleGraph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::waitUntilDaytime); n->SetDaytime(24);
 		idleGraph->AddNode(n);
 	}
 		break;

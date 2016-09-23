@@ -14,12 +14,12 @@ bool UBTDecorator_CheckPardonCondition::CalculateRawConditionValue(UBehaviorTree
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 	UOEntity* otherEntity = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 
-	if (entity && otherEntity) {
+	if (entity->IsValidItem() && otherEntity->IsValidItem() && otherEntity->GetBrain() && otherEntity->GetBrain()->Peek()) {
 		if (!otherEntity->IsPlayer && otherEntity->GetBrain()->Peek()->GetNodeType() == NodeType::flee) {
 			ORelation* relationWithOther = entity->GetRelationWith(otherEntity);
 			if (!relationWithOther)
 				relationWithOther = entity->AddRelationship(otherEntity);
-			if (otherEntity->GetIntegrity() < relationWithOther->GetAppreciation() / 2 + entity->GetKindness() / 2 + entity->GetIntegrity() - entity->GetAggressiveness())
+			if (relationWithOther && otherEntity->GetIntegrity() < relationWithOther->GetAppreciation() / 2 + entity->GetKindness() / 2 + entity->GetIntegrity() - entity->GetAggressiveness())
 				return true;
 		}
 		

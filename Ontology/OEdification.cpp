@@ -37,21 +37,24 @@ void UOEdification::FindVillage() {
 }
 
 void UOEdification::ReceiveDamage(float damage, UOEntity* damager, FVector collisionPos) {
+	//->IsValidItem() inside the main <if>
 
 	if (!_isDestroyed) {
-
 		_integrity -= damage;
-		_attacker = damager;
 
-		UDestructibleComponent* targetDestructible = GetOwner()->FindComponentByClass<UDestructibleComponent>();
+		if (damager->IsValidItem()) {
+			_attacker = damager;
+
+			if (_integrity <= 0)
+				DestroyEdification(damager);
+			else
+				CastNotify(this, damager, ENotify::N_Damaged);
+		}
+	}
+	
+	UDestructibleComponent* targetDestructible = GetOwner()->FindComponentByClass<UDestructibleComponent>();
 		if (targetDestructible)
 			targetDestructible->ApplyRadiusDamage(damage, collisionPos, 50, 0.01, false);
-
-		if (_integrity <= 0)
-			DestroyEdification(damager);
-		else
-			CastNotify(this, damager, ENotify::N_Damaged);
-	}
 }
 
 
@@ -62,31 +65,36 @@ void UOEdification::ReceiveDamage(float damage, UOEntity* damager, FVector colli
 
 void UOEdification::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 {
+	if (!damager->IsValidItem())
+		return;
 	//   P L O T S
 	//	For each owner, check existing ownership and relation with damager, change ontological relation if required and send reports
 
 	for(UOEntity* o : GetOwners()) {
+		if (!o->IsValidItem())
+			continue;
 
 		OOwnership* ownership = o->GetOwnershipWith(this);
 		ORelation* relation = o->GetRelationWith(damager);
-
 		if (!relation) {
-			o->AddRelationship(new ORelation(o, damager));
-			relation = o->GetRelationWith(damager);
+			relation = o->AddRelationship(damager);
 		}
 
-		relation->ChangeAppreciation(-ownership->GetWorth());
-		if (relation->GetAppreciation() <= ORelation::LOW_APPRECIATION)
-			o->SendReport(new Report(relation, TypeOfPlot::aggressive, this));
+		if (relation) {
+			relation->ChangeAppreciation(-ownership->GetWorth());
+			if (relation->GetAppreciation() <= ORelation::LOW_APPRECIATION)
+				o->SendReport(new Report(relation, TypeOfPlot::aggressive, this));
 
-		CastNotify((UItem*)this, damager, ENotify::N_Obliterated);
+			CastNotify((UItem*)this, damager, ENotify::N_Obliterated);
 
-		// NOTIFY ABSENSE OF HOME
-		o->SendReport(new Report(ownership, TypeOfPlot::resources, damager));
+			// NOTIFY ABSENSE OF HOME
+			o->SendReport(new Report(ownership, TypeOfPlot::resources, damager));
+		}
 	}
 }
 
 void UOEdification::DestroyEdification(UOEntity* damager) {
+	//->IsValidItem() in between
 
 	_isDestroyed = true;
 
@@ -96,7 +104,8 @@ void UOEdification::DestroyEdification(UOEntity* damager) {
 		if (part)
 			part->ActivateSystem();
 
-		IHaveBeenDestroyedBySomeone(damager);
+		if(damager->IsValidItem())
+			IHaveBeenDestroyedBySomeone(damager);
 	}
 	else if (IsA<UOTree>()) {
 		((UOTree*)this)->SpawnLeaflessTree();

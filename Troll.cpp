@@ -57,6 +57,11 @@ void ATroll::BeginPlay()
 	Super::BeginPlay();
 
 	_trollActor = (AActor*) this;
+
+	UOEntity* a = nullptr;
+	UOEntity* b = nullptr;
+	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, a == b ? "Ci" : "No");
+	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "Tell the world I survived.");
 }
 
 // Called every frame

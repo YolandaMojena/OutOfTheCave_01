@@ -32,27 +32,27 @@ BasePlot * Ambition::GenerateAmbitionForEntity(UOEntity * entity)
 
 		//POSSESSIONS
 		//if (entPersonality->GetMaterialist() > 50 && entPersonality->GetCurious() > 50)
-			candidates.push_back(GetPosessionsAmbition(entity));
+			//candidates.push_back(GetPosessionsAmbition(entity));
 
 		//EXTERMINATE
-		/*if (entPersonality->GetBraveness() > 50 && entPersonality->GetAggressiveness() > 50 && entPersonality->GetKindness() < 50 && entPersonality->GetPride() > 50)
+		//if (entPersonality->GetBraveness() > 50 && entPersonality->GetAggressiveness() > 50 && entPersonality->GetKindness() < 50 && entPersonality->GetPride() > 50)
 			candidates.push_back(ExterminateAmbition(entity));
 
 		//NOTORIETY
-		if ((entPersonality->GetAggressiveness() > 50 || entPersonality->GetKindness() > 50) && entPersonality->GetSocial() > 50 && entPersonality->GetPride() > 50)
-			candidates.push_back(BecomeNotoriousAmbition(entity));
+		/*if ((entPersonality->GetAggressiveness() > 50 || entPersonality->GetKindness() > 50) && entPersonality->GetSocial() > 50 && entPersonality->GetPride() > 50)
+			candidates.push_back(BecomeNotoriousAmbition(entity));*/
 
 		//BE APPRECIATED
-		if (entPersonality->GetKindness() > 50 && entPersonality->GetSocial() > 50)
+		//if (entPersonality->GetKindness() > 50 && entPersonality->GetSocial() > 50)
 			candidates.push_back(BecomeAppreciatedAmbition(entity));
 
 		//BE FEARED
-		if (entPersonality->GetBraveness() < 50 && entPersonality->GetAggressiveness() > 50)
-			candidates.push_back(BecomeFearedAmbition(entity));
+		/*if (entPersonality->GetBraveness() < 50 && entPersonality->GetAggressiveness() > 50)
+			candidates.push_back(BecomeFearedAmbition(entity));*/
 
 		//FRIEND TROLL
-		if (entPersonality->GetSocial() < 50 && entPersonality->GetCurious() > 50 && !(entity->GetOwner()->FindComponentByClass<UOCivilian>()->GetAmbition() == TypeOfAmbition::friendTroll))*/
-			candidates.push_back(FriendTrollAmbition(entity));
+		//if (entPersonality->GetSocial() < 50 && entPersonality->GetCurious() > 50 && !(entity->GetOwner()->FindComponentByClass<UOCivilian>()->GetAmbition() == TypeOfAmbition::friendTroll))
+			//candidates.push_back(FriendTrollAmbition(entity));
 
 		if (candidates.size() > 0) {
 			BasePlot* ambitionPlot = candidates[rand() % candidates.size()];
@@ -106,8 +106,18 @@ BasePlot * Ambition::GetPosessionsAmbition(UOEntity * entity)
 	
 	if (valuableToOwn) {
 
-		if(valuableToOwn->GetOwners().size() > 0)
-			return new StealPlot(entity, valuableToOwn->GetOwners()[0], valuableToOwn, TypeOfAmbition::possessions);
+		if (valuableToOwn->GetOwners().size() > 0) {
+
+			UOEntity* targetOwner = nullptr;
+			for (UOEntity* e : valuableToOwn->GetOwners()) {
+				if (e && e->IsValidItem()) {
+					targetOwner = e;
+					break;
+				}
+			}
+			if(targetOwner)
+				return new StealPlot(entity, valuableToOwn->GetOwners()[0], valuableToOwn, TypeOfAmbition::possessions);
+		}
 		return new GetPlot(entity, valuableToOwn, TypeOfAmbition::possessions);
 	}
 	return nullptr;
@@ -123,9 +133,13 @@ BasePlot * Ambition::ExterminateAmbition(UOEntity * entity)
 
 	vector<UOEntity*> targetEntities = _plotGenerator->GetNotoriousEntitiesByRace(targetRace);
 
-	if (targetEntities.size() > 0) {	
-		return new AttackPlot(entity, targetEntities[targetEntities.size() - 1], TypeOfAmbition::extermination);
-		//return new AmbushPlot(entity, targetEntities[targetEntities.size() - 1], TypeOfAmbition::extermination);
+	if (targetEntities.size() > 0) {
+		UOEntity* targetEntity = nullptr;
+		for (int i = targetEntities.size() - 1; i >= 0; i--) {
+			 targetEntity = targetEntities[i];
+			if (targetEntity->IsValidItem())
+				return new AttackPlot(entity, targetEntity, TypeOfAmbition::extermination);
+		}
 	}
 	return nullptr;	
 }
@@ -133,19 +147,19 @@ BasePlot * Ambition::ExterminateAmbition(UOEntity * entity)
 //Ambition based on two paths for becoming notorious: killing to ascend or helping those who already are notorious
 BasePlot * Ambition::BecomeNotoriousAmbition(UOEntity * entity)
 {
-	ERace targetRace;
-	if (entity->GetRace() == ERace::R_Human)
-		targetRace = ERace::R_Goblin;
-	else targetRace = ERace::R_Human;
-
-	vector<UOEntity*> targetEntities = _plotGenerator->GetNotoriousEntitiesByRace(targetRace);
+	vector<UOEntity*> targetEntities = _plotGenerator->GetNotoriousEntities();
 	
 	if (targetEntities.size() > 0) {
-
-		if (entity->GetPersonality()->GetAggressiveness() > entity->GetPersonality()->GetKindness())
-			return new AttackPlot(entity, targetEntities[targetEntities.size() - 1], TypeOfAmbition::notoriety);
-		else
-			return new HelpPlot(entity, targetEntities[0], TypeOfAmbition::notoriety);
+		UOEntity* targetEntity = nullptr;
+		for (int i = targetEntities.size() - 1; i >= 0; i--) {
+			 targetEntity = targetEntities[i];
+			if (targetEntity->IsValidItem() && !(targetEntity == entity)) {
+				if (entity->GetPersonality()->GetAggressiveness() > entity->GetPersonality()->GetKindness())
+					return new AttackPlot(entity, targetEntity, TypeOfAmbition::notoriety);
+				else
+					return new HelpPlot(entity, targetEntity, TypeOfAmbition::notoriety);
+			}
+		}
 	}	
 	return nullptr;
 }
@@ -155,24 +169,28 @@ BasePlot * Ambition::BecomeAppreciatedAmbition(UOEntity * entity)
 	vector<UOEntity*> targetEntities = _plotGenerator->GetNotoriousEntities();
 
 	if (targetEntities.size() > 0) {
-		if (entity->GetPersonality()->GetMaterialist() < 50) {
 
-			UOOwnable* ownableToGive = nullptr;
-			for (OOwnership* o : entity->GetPossessions()) {
-				if (o->GetOwnable()->GetRarityAsInt() > 2 || targetEntities[0]->GetOwnershipWith(o->GetOwnable()) && targetEntities[0]->GetOwnershipWith(o->GetOwnable())->GetWorth() > 50) {
-					ownableToGive = o->GetOwnable();
-					break;
+		UOEntity* targetEntity = nullptr;
+		for (int i = 0; i < targetEntities.size() - 1; i++) {
+			targetEntity = targetEntities[i];
+			if (targetEntity->IsValidItem() && !(targetEntity == entity))
+				break;
+		}
+		if (targetEntity) {
+			if (entity->GetPersonality()->GetMaterialist() < 50) {
+
+				UOOwnable* ownableToGive = nullptr;
+				for (OOwnership* o : entity->GetPossessions()) {
+					if (!o->GetOwnable()->IsA<UOEdification>() && o->GetOwnable()->GetRarityAsInt() > 2 || targetEntity->GetOwnershipWith(o->GetOwnable()) && targetEntity->GetOwnershipWith(o->GetOwnable())->GetWorth() > 50) {
+						ownableToGive = o->GetOwnable();
+						break;
+					}
 				}
-			}
-			if (ownableToGive) 
-				return new GivePlot(entity, targetEntities[0], ownableToGive, TypeOfAmbition::appreciation);
-			else {
-				return new HelpPlot(entity, targetEntities[0], TypeOfAmbition::appreciation);
+				if (ownableToGive)
+					return new GivePlot(entity, targetEntity, ownableToGive, TypeOfAmbition::appreciation);
 			}
 		}
-		else {
-			return new HelpPlot(entity, targetEntities[0], TypeOfAmbition::appreciation);
-		}
+		return new HelpPlot(entity, targetEntity, TypeOfAmbition::appreciation);
 	}
 	return nullptr;	
 }
@@ -189,18 +207,27 @@ BasePlot * Ambition::BecomeFearedAmbition(UOEntity * entity)
 
 	if (targetEntities.size() > 0){
 
-		UOEdification* targetEdification = nullptr;
-		for (OOwnership* o : targetEntities[targetEntities.size() - 1]->GetPossessions()) {
-			if (o->GetOwnable()->IsA<UOEdification>()) {
-				if (!((UOEdification*)o->GetOwnable())->GetIsDestroyed()) {
-					targetEdification = (UOEdification*)o->GetOwnable();
-					break;
-				}
-			}
+		UOEntity* targetEntity = nullptr;
+		for (int i = 0; i < targetEntities.size() - 1; i++) {
+			targetEntity = targetEntities[i];
+			if (targetEntity->IsValidItem() && !(targetEntity == entity))
+				break;
 		}
 
-		if (targetEdification) {
-			return new DestroyPlot(entity, targetEntities[targetEntities.size() - 1], targetEdification, TypeOfAmbition::fear);
+		if (targetEntity) {
+			UOEdification* targetEdification = nullptr;
+			for (OOwnership* o : targetEntity->GetPossessions()) {
+				if (o->GetOwnable()->IsA<UOEdification>()) {
+					if (!((UOEdification*)o->GetOwnable())->GetIsDestroyed()) {
+						targetEdification = (UOEdification*)o->GetOwnable();
+						break;
+					}
+				}
+			}
+
+			if (targetEdification) {
+				return new DestroyPlot(entity, targetEntity, targetEdification, TypeOfAmbition::fear);
+			}
 		}
 	}
 	return nullptr;

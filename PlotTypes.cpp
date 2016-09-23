@@ -241,7 +241,7 @@ void DestroyPlot::BuildGraph() {
 
 void DestroyPlot::InitPlot() {
 
-	_identifier = "Destroy " + _targetEdification->GetItemName() + ":\n";
+	_identifier = "Destroy " + _targetEdification->GetItemName() + ":\n\n";
 	BuildGraph();
 	BuildSentence();
 }
@@ -527,7 +527,7 @@ void GetPlot::BuildGraph() {
 
 void GetPlot::InitPlot() {
 
-	_identifier = "Get " + _targetOwnable->GetItemName() + " from world:\n";
+	_identifier = "Get " + _targetOwnable->GetItemName() + " from world:\n\n";
 	BuildGraph();
 	BuildSentence();
 }
@@ -608,8 +608,10 @@ void HelpPlot::BuildGraph() {
 		ORelation* trollRelation = _plotEntity->GetRelationWith(_targetEntity);
 		if (!trollRelation)
 			trollRelation =_plotEntity->AddRelationship(_targetEntity);
-		trollRelation->ChangeAppreciation(+10);
-		trollRelation->ChangeFear(-10);
+		if (trollRelation) {
+			trollRelation->ChangeAppreciation(+10);
+			trollRelation->ChangeFear(-10);
+		}
 	}
 		
 	_plotGraph.AddNode(helpNode);
@@ -619,7 +621,7 @@ void HelpPlot::BuildGraph() {
 void HelpPlot::InitPlot() {
 
 	_identifier = "The " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName() +
-		"wants to help!:\n";
+		" wants to help!:\n";
 	BuildGraph();
 	BuildSentence();
 }
@@ -760,6 +762,7 @@ void StealPlot::BuildGraph() {
 	Node* stealNode = new Node();
 	stealNode->SetNodeType(NodeType::steal);
 	stealNode->SetOwnable(_targetOwnable);
+	stealNode->SetEntity(_targetEntity);
 	_plotGraph.AddNode(stealNode);
 
 	//If he's a mad coward, kill

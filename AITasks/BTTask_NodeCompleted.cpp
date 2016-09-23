@@ -100,8 +100,10 @@ void UBTTask_NodeCompleted::DidIHelpSomeone(UOEntity* me, UBlackboardComponent* 
 			if (!r) {
 				r = other->AddRelationship(me);
 			}
-			r->ChangeAppreciation(UOEntity::HELP_APPRECIATION_INCREASE);
-			r->ChangeFear(UOEntity::HELP_FEAR_DECREASE);
+			if (r) {
+				r->ChangeAppreciation(UOEntity::HELP_APPRECIATION_INCREASE);
+				r->ChangeFear(UOEntity::HELP_FEAR_DECREASE);
+			}
 		}
 	}
 }
