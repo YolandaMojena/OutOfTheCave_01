@@ -31,28 +31,28 @@ BasePlot * Ambition::GenerateAmbitionForEntity(UOEntity * entity)
 		vector<BasePlot*> candidates;
 
 		//POSSESSIONS
-		//if (entPersonality->GetMaterialist() > 50 && entPersonality->GetCurious() > 50)
-			//candidates.push_back(GetPosessionsAmbition(entity));
+		if (entPersonality->GetMaterialist() > 50 && entPersonality->GetCurious() > 50)
+			candidates.push_back(GetPosessionsAmbition(entity));
 
 		//EXTERMINATE
-		//if (entPersonality->GetBraveness() > 50 && entPersonality->GetAggressiveness() > 50 && entPersonality->GetKindness() < 50 && entPersonality->GetPride() > 50)
+		if (entPersonality->GetBraveness() > 50 && entPersonality->GetAggressiveness() > 50 && entPersonality->GetKindness() < 50 && entPersonality->GetPride() > 50)
 			candidates.push_back(ExterminateAmbition(entity));
 
 		//NOTORIETY
-		/*if ((entPersonality->GetAggressiveness() > 50 || entPersonality->GetKindness() > 50) && entPersonality->GetSocial() > 50 && entPersonality->GetPride() > 50)
-			candidates.push_back(BecomeNotoriousAmbition(entity));*/
+		if ((entPersonality->GetAggressiveness() > 50 || entPersonality->GetKindness() > 50) && entPersonality->GetSocial() > 50 && entPersonality->GetPride() > 50)
+			candidates.push_back(BecomeNotoriousAmbition(entity));
 
 		//BE APPRECIATED
-		//if (entPersonality->GetKindness() > 50 && entPersonality->GetSocial() > 50)
+		if (entPersonality->GetKindness() > 50 && entPersonality->GetSocial() > 50)
 			candidates.push_back(BecomeAppreciatedAmbition(entity));
 
 		//BE FEARED
-		/*if (entPersonality->GetBraveness() < 50 && entPersonality->GetAggressiveness() > 50)
-			candidates.push_back(BecomeFearedAmbition(entity));*/
+		if (entPersonality->GetBraveness() < 50 && entPersonality->GetAggressiveness() > 50)
+			candidates.push_back(BecomeFearedAmbition(entity));
 
 		//FRIEND TROLL
-		//if (entPersonality->GetSocial() < 50 && entPersonality->GetCurious() > 50 && !(entity->GetOwner()->FindComponentByClass<UOCivilian>()->GetAmbition() == TypeOfAmbition::friendTroll))
-			//candidates.push_back(FriendTrollAmbition(entity));
+		if (entPersonality->GetSocial() < 50 && entPersonality->GetCurious() > 50 && !(entity->GetOwner()->FindComponentByClass<UOCivilian>()->GetAmbition() == TypeOfAmbition::friendTroll))
+			candidates.push_back(FriendTrollAmbition(entity));
 
 		if (candidates.size() > 0) {
 			BasePlot* ambitionPlot = candidates[rand() % candidates.size()];

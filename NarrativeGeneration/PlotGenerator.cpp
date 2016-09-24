@@ -12,9 +12,22 @@ APlotGenerator::APlotGenerator()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;	
 
+	// Herbivore
+	static ConstructorHelpers::FObjectFinder<UBlueprint> HerbivoreBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_Herbivore.BP_Herbivore'"));
+	if (HerbivoreBlueprint.Object) {
+		BP_Herbivore = (UClass*)HerbivoreBlueprint.Object->GeneratedClass;
+	}
+
+	// Bear
 	static ConstructorHelpers::FObjectFinder<UBlueprint> BearBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_Bear.BP_Bear'"));
 	if (BearBlueprint.Object) {
 		BP_Bear = (UClass*)BearBlueprint.Object->GeneratedClass;
+	}
+
+	// Wolf
+	static ConstructorHelpers::FObjectFinder<UBlueprint> WolfBlueprint(TEXT("Blueprint'/Game/Blueprints/BP_Wolf.BP_Wolf'"));
+	if (WolfBlueprint.Object) {
+		BP_Wolf = (UClass*)WolfBlueprint.Object->GeneratedClass;
 	}
 
 	// Associates types of plots with identifiers
@@ -36,7 +49,9 @@ void APlotGenerator::BeginPlay()
 
 	//INSERT WORLD PLOTS FROM THE BEGINNING
 	
-	_worldPlots.push_back(new Stampede(ERace::R_Bear, _stampedeSpawnArea, rand() % 6 + 3, this));
+	_worldPlots.push_back(new Stampede(ERace::R_Bear, _stampedeSpawnArea, this));
+	_worldPlots.push_back(new Stampede(ERace::R_Wolf, _stampedeSpawnArea, this));
+	_worldPlots.push_back(new Stampede(ERace::R_Herbivore, _stampedeSpawnArea, this));
 
 }
 
@@ -61,12 +76,13 @@ void APlotGenerator::Tick( float DeltaTime )
 					SpawnReactivePlot();
 				}
 			}
-			else if (rand() % 100 < /*20*i*/100) {
+			else if (rand() % 100 < 20*i) {
 				SpawnAmbitionPlot();
 			}
 
-			else if (rand() % 100 < 2) {
+			else if (rand() % 100 < 3 && _stampedeCount < _MAX_STAMPEDES) {
 				SpawnWorldPlot();
+				_stampedeCount++;
 				break;
 			}
 			i++;
@@ -88,10 +104,10 @@ bool APlotGenerator::SpawnReactivePlot()
 		BasePlot* currentPlot = _reactivePlots.at(0);
 		currentPlot->InitPlot();
 		_reactivePlots.erase(_reactivePlots.begin());
-		_currentPlotsInAction++;
 
 		UOEntity* plotEntity = currentPlot->GetMainEntity();
 		if (plotEntity->IsValidItem()) {
+			_currentPlotsInAction++;
 			plotEntity->AddCurrentPlot(currentPlot);
 			plotEntity->RethinkState();
 			return true;
@@ -237,6 +253,47 @@ void APlotGenerator::GetPlotFromReportLog() {
 				}
 				else plotCandidates.erase(plotCandidates.begin() + randType);
 			}
+			else if (plot == _GIVE_PLOT) {
+
+				UOOwnable* ownableToGive = nullptr;
+
+				for (OOwnership* o : currentReport->GetReportEntity()->GetPossessions()) {
+					if (!o->GetOwnable()->IsA<UOEdification>() && o->GetOwnable()->GetRarityAsInt() > 2 || currentReport->GetTargetEntity()->GetOwnershipWith(o->GetOwnable()) && currentReport->GetTargetEntity()->GetOwnershipWith(o->GetOwnable())->GetWorth() > 50) {
+						ownableToGive = o->GetOwnable();
+						break;
+					}
+				}
+				if (ownableToGive) {
+					newPlot = new GivePlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), ownableToGive, currentReport->GetMotivationName(), currentReport->GetMotivationRace());
+					plotIsValid = ValidateGiftPlot((GivePlot*)newPlot);
+				}
+
+				if (plotIsValid) {
+					currentReport->GetReportEntity()->ChangeNotoriety(3);
+				}
+				else plotCandidates.erase(plotCandidates.begin() + randType);
+			}
+			else if (plot == _ROBBERY_PLOT) {
+
+				UOEntity* targetEntity = nullptr;
+
+				for (UOEntity* e : allEntities) {
+					if (currentReport->GetMotivationName() == e->GetItemName()) {
+						targetEntity = e;
+						break;
+					}
+				}
+
+				if (targetEntity) {
+					newPlot = new StealPlot(currentReport->GetReportEntity(), targetEntity, currentReport->GetTargetOwnable(), currentReport->GetMotivationName(), currentReport->GetMotivationRace());
+					plotIsValid = ValidateStealPlot((StealPlot*)newPlot);
+				}
+
+				if (plotIsValid) {
+					currentReport->GetReportEntity()->ChangeNotoriety(3);
+				}
+				else plotCandidates.erase(plotCandidates.begin() + randType);
+			}
 			else if (plot == _WAR_PLOT) {
 				newPlot = new WarPlot(currentReport->GetReportEntity());
 				plotIsValid = ValidateWarPlot((WarPlot*) newPlot);
@@ -246,6 +303,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 				}
 				else plotCandidates.erase(plotCandidates.begin() + randType);
 			}
+
 			// Unknown type
 			else plotCandidates.erase(plotCandidates.begin() + randType);
 		}
@@ -324,12 +382,10 @@ vector<UOEntity*> APlotGenerator::WeHaveALotInCommon(Report* report) {
 					_pReportLog.RemoveAt(i);
 					continue;
 				}
-				if (_pReportLog[i]->GetType() == report->GetType()) {
-					if (_pReportLog[i]->GetReportEntity()->GetIntegrity()>0)
-						helpers.push_back(_pReportLog[i]->GetReportEntity());
+				else{
+					helpers.push_back(_pReportLog[i]->GetReportEntity());
 					_pReportLog.RemoveAt(i);
 				}
-				else i++;
 			}
 			else i++;
 		}
@@ -349,7 +405,7 @@ bool APlotGenerator::ValidateDestroyPlot(DestroyPlot * plot)
 }
 bool APlotGenerator::ValidateBuildPlot(BuildPlot* plot)
 {
-	return plot && ValidateEntity(plot->GetMainEntity()) && !plot->GetTargetEdification()->GetIsDestroyed();
+	return plot && ValidateEntity(plot->GetMainEntity()) && plot->GetTargetEdification()->GetIsDestroyed();
 }
 bool APlotGenerator::ValidateHelpPlot(HelpPlot* plot) {
 	
@@ -495,19 +551,29 @@ vector<UOEntity*> APlotGenerator::SpawnEntities(int num, ERace race, FVector spa
 	vector<UOEntity*> spawnedHeard;
 	ACharacter* creatureToSpawn;
 
+	spawnLocation *= FVector(1, 1, 0);
+
 	for (int i = 0; i < num; i++) {
+
 		switch (race) {
 			case ERace::R_Bear:
-				creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Bear, spawnLocation + RandomDisplacement(500), GetActorRotation(), SpawnParams);
+				creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Bear, spawnLocation + RandomDisplacement(1000), GetActorRotation(), SpawnParams);
+				break;
+			case ERace::R_Wolf:
+				creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Wolf, spawnLocation + RandomDisplacement(1000), GetActorRotation(), SpawnParams);
+				break;
+			case ERace::R_Herbivore:
+				creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Herbivore, spawnLocation + RandomDisplacement(1000), GetActorRotation(), SpawnParams);
 				break;
 			default:
-				creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Bear, spawnLocation + RandomDisplacement(500), GetActorRotation(), SpawnParams);
+				creatureToSpawn = GetWorld()->SpawnActor<ACharacter>(BP_Bear, spawnLocation + RandomDisplacement(1000), GetActorRotation(), SpawnParams);
 				break;
 		}
 
 		if (creatureToSpawn) {
 			float scale = rand() % 10 + 6;
 			creatureToSpawn->SetActorScale3D(FVector(scale / 10, scale / 10, scale / 10));
+			creatureToSpawn->SetActorLocation(creatureToSpawn->GetActorLocation() * FVector(1, 1, 0) + FVector(0, 0, 100));
 
 			UOEntity* spawnedEntity = creatureToSpawn->FindComponentByClass<UOEntity>();
 

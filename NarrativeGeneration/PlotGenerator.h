@@ -89,6 +89,7 @@ private:
 	string _BUILD_PLOT = "buildPlot";
 	string _GIVE_PLOT = "givePlot";
 	string _HELP_PLOT = "helpPlot";
+	string _DEFENSE_PLOT = "defensePlot";
 	string _WAR_PLOT = "warPlot";
 
 	TArray<Report*> _pReportLog;
@@ -97,13 +98,17 @@ private:
 	int _currentPlotsInAction = 0;
 
 	TSubclassOf<class ACharacter> BP_Bear;
+	TSubclassOf<class ACharacter> BP_Wolf;
+	TSubclassOf<class ACharacter> BP_Herbivore;
 	vector<UOOwnable*> _valuables;
 	TArray<UOEntity*> _notoriousEntities;
 
 
-	const float _TIME_TO_SPAWN = 10.0f;
+	const float _TIME_TO_SPAWN = 15.0f;
 	const int _MAX_NOTORIOUS = 15;
 	const int _MAX_PLOTS = 3;
+	const int _MAX_STAMPEDES = 5;
+	int _stampedeCount;
 
 	bool ValidateAttackPlot(AttackPlot* plot);
 	bool ValidateBuildPlot(BuildPlot* build);
@@ -117,8 +122,6 @@ private:
 
 	bool ValidateEntity(UOEntity* e);
 
-	const int MAX_STAMPEDE_SIZE = 20;
-	void InitialStampedeSpawn();
 	FVector _stampedeTargetLocation;
 	FVector _stampedeSpawnArea;
 	vector<UOEntity*> _bearHeard;

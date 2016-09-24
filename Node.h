@@ -45,7 +45,7 @@ enum class NodeType : uint8 {
 	preyUpon UMETA(DisplayName = "preyUpon"),
 	defend UMETA(DisplayName = "defend"),
 	destroySelf UMETA(DisplayName = "destroySelf"),
-	ambush UMETA(DisplayName = "ambush"),
+	//ambush UMETA(DisplayName = "ambush"),
 	flee UMETA(DisplayName = "flee"),
 	releaseItem UMETA(DisplayName = "releaseItem")
 };

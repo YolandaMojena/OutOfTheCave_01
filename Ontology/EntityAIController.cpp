@@ -465,7 +465,7 @@ void AEntityAIController::AbortNode() {
 }
 
 bool AEntityAIController::ValidateObject(UObject* obj) {
-	if (obj == nullptr)
+	if (obj == nullptr || obj->IsPendingKill())
 		return false;
 
 	if (obj->IsA<UItem>())

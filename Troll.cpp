@@ -57,11 +57,6 @@ void ATroll::BeginPlay()
 	Super::BeginPlay();
 
 	_trollActor = (AActor*) this;
-
-	UOEntity* a = nullptr;
-	UOEntity* b = nullptr;
-	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, a == b ? "Ci" : "No");
-	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "Tell the world I survived.");
 }
 
 // Called every frame
@@ -209,11 +204,11 @@ void ATroll::PickUpMain() {
 		}
 	}
 	else {
-		UOEntity* hitEntity = _myEntityComp->GetGrabbedItem()->GetOwner()->FindComponentByClass<UOEntity>();
-		if (hitEntity) {
-			((ACharacter*)hitEntity->GetOwner())->GetMesh()->SetAllBodiesSimulatePhysics(false);
-			hitEntity->ClearState();
-			hitEntity->RethinkState();
+		UOEntity* releasedEntity = _myEntityComp->GetGrabbedItem()->GetOwner()->FindComponentByClass<UOEntity>();
+		if (releasedEntity) {
+			((ACharacter*)releasedEntity->GetOwner())->GetMesh()->SetAllBodiesSimulatePhysics(false);
+			releasedEntity->ClearState();
+			releasedEntity->RethinkState();
 		}
 
 		// HOW THE ACTOR IS LEFT ON THE FLOOR MUST BE SOLVED

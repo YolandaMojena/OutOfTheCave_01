@@ -241,9 +241,9 @@ public:
 	void ExecuteGraph();
 	void NodeCompleted(bool completedOk);
 	void ClearState();
-	//void AddInstantNode(Node* n);
-	void AddInstantHelpNode(Node* n);
+	void AddInstantNode(Node* n);
 	void AddInstantReactGraph(Graph* g);
+	void AddReactGraph(Graph* g);
 	vector<Graph*> GetReacts();
 
 	void ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notifyType, FString notifyID);
@@ -281,6 +281,8 @@ public:
 	float _currentTime = 10;
 
 	void FinishedFindingNearbyEntities(/*TArray<UOEntity*> entitiesFound*/);
+
+	bool IsInitialized = false;
 	
 protected:
 	void SetState(AIState s); //, Graph* g = nullptr
@@ -332,6 +334,8 @@ private:
 	void CleanKnownNotifyIDs(float deltaTime);
 		
 	UOEdification* _entityHome = nullptr;
+
+	
 };
 
 #undef LOCTEXT_NAMESPACE 

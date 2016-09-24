@@ -20,13 +20,13 @@ EBTNodeResult::Type UBTTask_Defend::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 			Node* n = new Node();
 			n->SetNodeType(NodeType::attack); n->SetEntity(other);
 			if (entity->GetCurrentState() == UOEntity::AIState::plot) {
-				entity->GetBrain()->AddInstantNode(n);
+				entity->AddInstantNode(n);
 				if (entity->GetCurrentPlot()->GetMainEntity() == entity) {
 					entity->GetCurrentPlot()->GetGraphPointer()->AddSplitSecondNode(entity->GetCurrentPlot()->GetGraphPointer()->Peek());
 				}
 			}
 			else if (entity->GetCurrentState() == UOEntity::AIState::react) {
-				entity->GetBrain()->AddInstantNode(n);
+				entity->AddInstantNode(n);
 				entity->GetReacts()[0]->AddInstantNode(n);
 			}
 

@@ -156,7 +156,7 @@ bool UItem::IsValidItem() {
 	if (!IsValidLowLevel())
 		return false;*/
 
-	if (IsA<UOEntity>() && ((UOEntity*)this)->IsDead)
+	if (IsA<UOEntity>() && (((UOEntity*)this)->IsDead || !((UOEntity*)this)->IsInitialized))
 		return false;
 
 	return true;

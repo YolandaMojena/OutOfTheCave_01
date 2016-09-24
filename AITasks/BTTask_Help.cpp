@@ -16,8 +16,17 @@ EBTNodeResult::Type UBTTask_Help::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 
 		if (entityToHelp) {
 
+			entity->ClearState();
+
 			if (entityToHelp->GetCurrentState() == UOEntity::AIState::plot) {
-				entityToHelp->GetCurrentPlot()->AddInvolvedInPlot(entity);
+				if (entityToHelp->GetCurrentPlot() && entityToHelp->GetCurrentPlot()->GetMainEntity() == entityToHelp) {
+					entityToHelp->GetCurrentPlot()->AddInvolvedInPlot(entity);
+					entity->SetMainPlotEntity(entityToHelp);
+				}
+				else if (entityToHelp->GetMainPlotEntity() && entityToHelp->GetMainPlotEntity()->GetCurrentPlot()) {
+					entityToHelp->GetMainPlotEntity()->GetCurrentPlot()->AddInvolvedInPlot(entity);
+					entity->SetMainPlotEntity(entityToHelp->GetMainPlotEntity());
+				}
 			}
 			else if (entityToHelp->GetCurrentState() == UOEntity::AIState::react) {
 				entity->AddInstantReactGraph(entityToHelp->GetReacts()[0]);

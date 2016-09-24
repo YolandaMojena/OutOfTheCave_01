@@ -86,10 +86,10 @@ void UOEdification::IHaveBeenDestroyedBySomeone(UOEntity* damager)
 				o->SendReport(new Report(relation, TypeOfPlot::aggressive, this));
 
 			CastNotify((UItem*)this, damager, ENotify::N_Obliterated);
-
-			// NOTIFY ABSENSE OF HOME
-			o->SendReport(new Report(ownership, TypeOfPlot::resources, damager));
 		}
+
+		// NOTIFY ABSENSE OF HOME
+		o->SendReport(new Report(ownership, TypeOfPlot::resources, damager));
 	}
 }
 

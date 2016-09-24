@@ -13,17 +13,17 @@ EBTNodeResult::Type UBTTask_ChangeToFlee::ExecuteTask(UBehaviorTreeComponent& Ow
 
 	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 
-	if (entity) {
+	if (entity->IsValidItem()) {
 		Node* n = new Node();
 		n->SetNodeType(NodeType::flee); n->SetActor(((UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity")))->GetOwner()); n->SetHighPriority();
 		if (entity->GetCurrentState() == UOEntity::AIState::plot) {
-			entity->GetBrain()->AddInstantNode(n);
+			entity->AddInstantNode(n);
 			if (entity->GetMainPlotEntity() == nullptr && entity->GetCurrentPlot() && entity->GetCurrentPlot()->GetMainEntity() == entity) {
 				entity->GetCurrentPlot()->GetGraphPointer()->AddSplitSecondNode(entity->GetCurrentPlot()->GetGraphPointer()->Peek());
 			}
 		}
 		else if (entity->GetCurrentState() == UOEntity::AIState::react) {
-			entity->GetBrain()->AddInstantNode(n);
+			entity->AddInstantNode(n);
 			entity->GetReacts()[0]->AddInstantNode(n);
 			//entity->GetReacts()[0]->NextNode();
 			//entity->GetBrain()->NextNode();

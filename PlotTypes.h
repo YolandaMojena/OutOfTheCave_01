@@ -110,7 +110,7 @@ private:
 
 
 
-//AMBUSH
+/*AMBUSH
 //**************************************************************************************
 
 class OUTOFTHECAVE_01_API AmbushPlot : public BasePlot
@@ -131,7 +131,7 @@ private:
 
 	UOEntity* _targetEntity;
 	UItem* _target;
-};
+};*/
 
 
 //HELP PLOT
@@ -259,8 +259,8 @@ private:
 class OUTOFTHECAVE_01_API Stampede : public BasePlot
 {
 public:
-	Stampede(ERace race, FVector spawnLocation, float num, APlotGenerator* plotGenerator);
-	Stampede(ERace race, FVector spawnLocation, UOEntity* targetActor, float num, APlotGenerator* plotGenerator);
+	Stampede(ERace race, FVector spawnLocation, APlotGenerator* plotGenerator);
+	Stampede(ERace race, FVector spawnLocation, UOEntity* targetActor, APlotGenerator* plotGenerator);
 	~Stampede();
 
 	void BuildSentence();

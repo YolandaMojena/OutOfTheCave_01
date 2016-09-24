@@ -11,6 +11,11 @@ EBTNodeResult::Type UBTTask_StopFight::ExecuteTask(UBehaviorTreeComponent& Owner
 	
 	UOEntity* other = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 
+	if (!other->IsValidItem()) {
+		blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
+		return EBTNodeResult::Succeeded;
+	}
+
 	if (other->IsPlayer) {
 		blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("BoolKey"), true);
 		return EBTNodeResult::Succeeded;
@@ -26,15 +31,27 @@ EBTNodeResult::Type UBTTask_StopFight::ExecuteTask(UBehaviorTreeComponent& Owner
 	if (!protege)
 		protege = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("AnotherEntity"));
 
-	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("BoolKey"), false);
-	if (other->GetBrain()->Peek()->GetNodeType() == NodeType::attack
-		&& other->GetBrain()->Peek()->nBlackboard.entity == (UOEntity*)protege) {
-		otherEntityController->entityBlackboard->ClearValue(blackboard->GetKeyID("Entity"));
+	if (!protege->IsValidItem()) {
+		blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
+		return EBTNodeResult::Succeeded;
 	}
-	else if (other->GetBrain()->Peek()->GetNodeType() == NodeType::destroy
-		&& other->GetBrain()->Peek()->nBlackboard.edification == (UOEdification*)protege)
-		otherEntityController->entityBlackboard->ClearValue(blackboard->GetKeyID("Edification"));
 
+	blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("BoolKey"), false);
+	if (other->IsValidItem() && other->GetBrain() && other->GetBrain()->Peek() && otherEntityController && otherEntityController->entityBlackboard) {
+		if (other->GetBrain()->Peek()->GetNodeType() == NodeType::attack
+			&& other->GetBrain()->Peek()->nBlackboard.entity == (UOEntity*)protege)
+		{
+			otherEntityController->entityBlackboard->ClearValue(blackboard->GetKeyID("Entity"));
+		}
+		else if (other->GetBrain()->Peek()->GetNodeType() == NodeType::destroy
+			&& other->GetBrain()->Peek()->nBlackboard.edification == (UOEdification*)protege)
+		{
+			otherEntityController->entityBlackboard->ClearValue(blackboard->GetKeyID("Edification"));
+		}
+	}
+	else {
+		blackboard->SetValue<UBlackboardKeyType_Bool>(blackboard->GetKeyID("CompletedOk"), false);
+	}
 
 	return EBTNodeResult::Succeeded;
 }

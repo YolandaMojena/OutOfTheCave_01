@@ -15,6 +15,8 @@ EBTNodeResult::Type UBTTask_DestroySelf::ExecuteTask(UBehaviorTreeComponent& Own
 
 	if (entity) {
 		entity->Die();
+		entity->GetOwner()->SetActorHiddenInGame(true);
+		entity->GetOwner()->SetActorEnableCollision(false);
 		entityActor->SetActorLocation(FVector(rand() % 5000, rand() % 5000, -10000));
 		//entity->GetOwner()->Destroy();
 	}

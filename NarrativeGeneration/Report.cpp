@@ -9,7 +9,6 @@ Report::Report(ORelation * newRelation, TypeOfPlot type, UItem* motivation)
 	_reportEntity =  newRelation->GetEntity();
 	_targetEntity = newRelation->GetOtherEntity();
 	_type = type;
-	//_motivation = motivation;
 	_motivationName = motivation->GetItemName();
 	if (motivation->IsA<UOEntity>())
 		_motivationRace = ((UOEntity*)motivation)->GetRaceString();

@@ -362,7 +362,7 @@ UOEdification* BuildPlot::GetTargetEdification() {
 
 // AMBUSH
 // ********************************************************************
-AmbushPlot::AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, FString motivationName, FString motivationRace) : BasePlot(plotEntity) {
+/*AmbushPlot::AmbushPlot(UOEntity* plotEntity, UOEntity* targetEntity, FString motivationName, FString motivationRace) : BasePlot(plotEntity) {
 
 	_targetEntity = targetEntity;
 	_isExclusive = true;
@@ -456,7 +456,7 @@ BasePlot* AmbushPlot::ConsiderReactions() {
 
 UOEntity* AmbushPlot::GetTargetEntity() {
 	return _targetEntity;
-}
+}*/
 
 
 //GET PLOT
@@ -512,7 +512,7 @@ void GetPlot::BuildGraph() {
 
 		//ASK TROLL FOR HELP
 		Node* askTrollForHelpNode = new Node();
-		askTrollForHelpNode->SetNodeType(NodeType::goToActor);
+		askTrollForHelpNode->SetNodeType(NodeType::askTroll);
 		askTrollForHelpNode->SetActor(troll->GetOwner());
 		_plotGraph.AddNode(askTrollForHelpNode);
 	}
@@ -603,7 +603,8 @@ void HelpPlot::BuildGraph() {
 	helpNode->SetNodeType(NodeType::help);
 	helpNode->SetEntity(_targetEntity);
 	helpNode->SetPosition(_targetEntity->GetOwner()->GetActorLocation());
-	if (_targetEntity->IsPlayer) {
+
+	if (_targetEntity->IsValidItem() && _targetEntity->IsPlayer) {
 		helpNode->SetActor(_targetEntity->GetOwner());
 		ORelation* trollRelation = _plotEntity->GetRelationWith(_targetEntity);
 		if (!trollRelation)
@@ -615,7 +616,6 @@ void HelpPlot::BuildGraph() {
 	}
 		
 	_plotGraph.AddNode(helpNode);
-
 }
 
 void HelpPlot::InitPlot() {
@@ -860,7 +860,7 @@ UItem* DefendPlot::GetTarget() {
 //STAMPEDE
 //*************************************************************************************
 
-Stampede::Stampede(ERace race, FVector spawnLocation, float num, APlotGenerator* plotGenerator) {
+Stampede::Stampede(ERace race, FVector spawnLocation, APlotGenerator* plotGenerator) {
 
 	_race = race;
 	_spawnLocation = spawnLocation + Utilities::RandomDisplacementVector(500);
@@ -879,20 +879,18 @@ Stampede::Stampede(ERace race, FVector spawnLocation, float num, APlotGenerator*
 	//_targetLocation = _spawnLocation + FVector(UGameplayStatics::GetPlayerCharacter(plotGenerator->GetWorld(), 0)->GetActorLocation() - _spawnLocation).GetSafeNormal() * FVector(5000, 5000, 0);
 
 	_plotGenerator = plotGenerator;
-	_num = num;
 	_targetActor = nullptr;
 
 	_motivationName = "";
 	_ambition = TypeOfAmbition::noAmbition;
 }
 
-Stampede::Stampede(ERace race, FVector spawnLocation, UOEntity* targetActor, float num, APlotGenerator* plotGenerator) {
+Stampede::Stampede(ERace race, FVector spawnLocation, UOEntity* targetActor, APlotGenerator* plotGenerator) {
 
 	_race = race;
 	_spawnLocation = spawnLocation;
 	_targetActor = targetActor;
 	_plotGenerator = plotGenerator;
-	_num = num;
 
 	_motivationName = "";
 	_ambition = TypeOfAmbition::noAmbition;
@@ -937,7 +935,7 @@ void Stampede::InitPlot() {
 	_identifier = "Stampede:\n";
 	BuildGraph();
 
-	_heard = _plotGenerator->SpawnEntities(_num, _race, _spawnLocation);
+	_heard = _plotGenerator->SpawnEntities(rand() % 3 + 6, _race, _spawnLocation);
 
 	for (int i = 0; i < _heard.size(); i++) {
 
