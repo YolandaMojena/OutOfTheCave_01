@@ -113,8 +113,8 @@ void UItem::SetItemName(FString name)
 
 
 void UItem::CastNotify(UItem* predicate, UOEntity* subject, ENotify notifyType) {
-	float const _NOTIFY_RADIUS = 5500.0f;
-	FVector start = GetOwner()->GetActorLocation() + FVector(0, 0, -_NOTIFY_RADIUS);
+	float const _NOTIFY_RADIUS = 2500.0f;
+	/*FVector start = GetOwner()->GetActorLocation() + FVector(0, 0, -_NOTIFY_RADIUS);
 	FVector end = start + FVector(0, 0, _NOTIFY_RADIUS * 2);
 	TArray<FHitResult> hitData;
 
@@ -136,8 +136,15 @@ void UItem::CastNotify(UItem* predicate, UOEntity* subject, ENotify notifyType) 
 	FString notifyID = GenerateNotifyID(predicate, subject, notifyType);
 
 	for (auto hr : hitData) {
-		UOEntity* entity = hr.GetActor()->FindComponentByClass<UOEntity>();
-		if (entity) {
+		UOEntity* entity = nullptr;
+		entity = hr.GetActor()->FindComponentByClass<UOEntity>();
+		if (entity->IsValidItem()) {
+			entity->ReceiveNotify(predicate, subject, notifyType, notifyID);
+		}
+	}*/
+	FString notifyID = GenerateNotifyID(predicate, subject, notifyType);
+	for (UOEntity* entity : GetPlotGenerator()->allEntities) {
+		if (entity->IsValidItem() && FVector::Dist(entity->GetOwner()->GetActorLocation(), GetOwner()->GetActorLocation()) < _NOTIFY_RADIUS) {
 			entity->ReceiveNotify(predicate, subject, notifyType, notifyID);
 		}
 	}
@@ -147,14 +154,23 @@ bool UItem::IsValidItem() {
 	if (this == nullptr)
 		return false;
 
-	if (IsPendingKill())
+	if (this == NULL)
 		return false;
 
+	if (this > (UItem*)0xa000000000000000)
+		return false;
+
+	if (IsPendingKill())
+		return false;
+	
 	/*if (!IsValid(this))
 		return false;
 
 	if (!IsValidLowLevel())
 		return false;*/
+
+	if (abs(_mass) > 1000 || abs(_volume) > 1000 || abs(_toughness) > 1000 || abs(_elongation) > 1000)
+		return false;
 
 	if (IsA<UOEntity>() && (((UOEntity*)this)->IsDead || !((UOEntity*)this)->IsInitialized))
 		return false;

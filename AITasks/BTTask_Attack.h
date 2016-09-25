@@ -3,12 +3,15 @@
 #pragma once
 
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
+
 #include "Ontology/EntityAIController.h"
 #include "Ontology/OEntity.h"
+
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
+
 #include "BTTask_Attack.generated.h"
 
 /**

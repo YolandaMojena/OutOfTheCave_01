@@ -9,8 +9,10 @@ EBTNodeResult::Type UBTTask_Destroy::ExecuteTask(UBehaviorTreeComponent& OwnerCo
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
-	UOEdification* targetEdification = (UOEdification*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Edification"));
+	UOEntity* entity = nullptr;
+	entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOEdification* targetEdification = nullptr;
+	targetEdification = (UOEdification*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Edification"));
 
 	if (entity && targetEdification) {
 		blackboard->SetValue<UBlackboardKeyType_Float>(blackboard->GetKeyID("FloatKey"), entity->GetAttackCooldown());

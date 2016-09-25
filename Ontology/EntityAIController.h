@@ -30,10 +30,10 @@ class OUTOFTHECAVE_01_API AEntityAIController : public AAIController
 public:
 
 	UPROPERTY(transient)
-	class UBlackboardComponent* entityBlackboard;
+	class UBlackboardComponent* entityBlackboard = nullptr;
 
 	UPROPERTY(transient)
-	class UBehaviorTreeComponent* behaviorTree;
+	class UBehaviorTreeComponent* behaviorTree = nullptr;
 
 
 	AEntityAIController();
@@ -51,7 +51,7 @@ public:
 	uint8 positionID;
 
 private:
-	Node* _currentNode;
+	Node* _currentNode = nullptr;
 	
 	void TryLeaveGrabbedObject(UOEntity* entity);
 

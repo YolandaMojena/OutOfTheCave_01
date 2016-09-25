@@ -8,8 +8,10 @@ bool UBTDecorator_StillWaiting::CalculateRawConditionValue(UBehaviorTreeComponen
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
-	UOEntity* otherEntity = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
+	UOEntity* entity = nullptr;
+	entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOEntity* otherEntity = nullptr;
+	otherEntity = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 	AActor* targetActor = (AActor*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Actor"));
 
 	if (entity->IsValidItem() && otherEntity->IsValidItem() && targetActor) {

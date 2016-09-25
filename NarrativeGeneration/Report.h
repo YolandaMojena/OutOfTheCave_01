@@ -56,9 +56,9 @@ public:
 
 
 private:
-	UOEntity* _reportEntity;
-	UOEntity* _targetEntity;
-	UOOwnable* _targetOwnable;
+	UOEntity* _reportEntity = nullptr;
+	UOEntity* _targetEntity = nullptr;
+	UOOwnable* _targetOwnable = nullptr;
 	//UItem _motivation;
 
 	ReportTag _tag;

@@ -16,6 +16,7 @@ class OUTOFTHECAVE_01_API UOCivilian : public UOEntity
 public:
 
 	virtual void BeginPlay() override;
+	void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Civilian)
 		FString currentIconPath;
@@ -32,4 +33,5 @@ private:
 	const FString _DEFAULT_PATH = "Texture2D'/Game/Icons/";
 	TypeOfAmbition _ambition = TypeOfAmbition::noAmbition;
 
+	bool _notorietyCheck = false;
 };

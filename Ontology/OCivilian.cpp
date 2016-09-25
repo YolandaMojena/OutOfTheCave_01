@@ -5,12 +5,21 @@
 
 void UOCivilian::BeginPlay() {
 	Super::BeginPlay();
-
-	if (rand() % 100 < 50) {
-		ChangeNotoriety(+10);
-		_plotGenerator->AddNotorious(this);
-	}	
 }
+
+void UOCivilian::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (IsInitialized && _isRecognized && !_notorietyCheck) {
+		_notorietyCheck = true;
+		if (rand() % 100 < 50) {
+			ChangeNotoriety(+10);
+			_plotGenerator->AddNotorious(this);
+		}
+	}
+}
+
+
 
 UTexture2D* UOCivilian::LoadTextureFromPath(const FString & Path)
 {

@@ -11,12 +11,16 @@ EBTNodeResult::Type UBTTask_AttackMove::ExecuteTask(UBehaviorTreeComponent& Owne
 	const int MOVEMENT_RADIUS = 600;
 	const int MIN_RADIUS = 400;
 
-	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
-	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
+	AEntityAIController* entityController = nullptr;
+	entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
+	UBlackboardComponent* blackboard = nullptr;
+	blackboard = OwnerComp.GetBlackboardComponent();
 
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOEntity* entity = nullptr;
+	entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 	//FVector entityPosition = entity->GetOwner()->GetActorLocation();
-	UOEntity* enemy = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
+	UOEntity* enemy = nullptr;
+	enemy = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 	FVector enemyPosition = enemy->GetOwner()->GetActorLocation();
 
 	FVector targetPosition = enemyPosition + FVector((float)rand() / RAND_MAX - 0.5f, (float)rand() / RAND_MAX - 0.5f, 0).GetSafeNormal() * (rand() % (MOVEMENT_RADIUS - MIN_RADIUS) + MIN_RADIUS);

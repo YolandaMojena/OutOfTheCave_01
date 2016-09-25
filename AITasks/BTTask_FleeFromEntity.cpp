@@ -11,12 +11,16 @@ EBTNodeResult::Type UBTTask_FleeFromEntity::ExecuteTask(UBehaviorTreeComponent& 
 	const int BASE_FLEE_DISTANCE = 500;
 	const int BASE_FLEE_MULTIPLIER = 4;
 
-	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
-	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
+	AEntityAIController* entityController = nullptr;
+	entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
+	UBlackboardComponent* blackboard = nullptr;
+	blackboard = OwnerComp.GetBlackboardComponent();
 
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOEntity* entity = nullptr;
+	entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 	FVector entityPosition = entity->GetOwner()->GetActorLocation();
-	UOEntity* horror = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
+	UOEntity* horror = nullptr;
+	horror = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 	FVector horrorPosition = horror->GetOwner()->GetActorLocation();
 
 	if (entity) {

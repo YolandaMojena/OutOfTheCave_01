@@ -9,7 +9,8 @@ EBTNodeResult::Type UBTTask_Mine::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOEntity* entity = nullptr;
+	entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 
 	if (entity) {
 		if (!entity->_isEntityMining) {

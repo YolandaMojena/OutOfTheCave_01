@@ -38,13 +38,29 @@ void Graph::AddNodeInNewBranch(Node* n, int depth) {
 }
 
 void Graph::AddInstantNode(Node* n) {
+
+	Node* auxFirst = new Node(); // Node(*firstNode);
+	auxFirst->SetNodeType(NodeType::numb);
+	//auxFirst.nextNodes.clear();
+	auxFirst->nextNodes.push_back(n);
 	for (Node* nn : firstNode->nextNodes) {
 		n->nextNodes.push_back(nn);
 	}
-	firstNode->nextNodes.clear();
+	firstNode = auxFirst;
+
+
+	/*if (firstNode == _lastNode) {
+		_lastNode = n;
+	}
+	else {
+		for (Node* nn : firstNode->nextNodes) {
+			n->nextNodes.push_back(nn);
+		}
+		firstNode->nextNodes.clear();
+	}
 	firstNode->nextNodes.push_back(n);
 
-	_size++;
+	_size++;*/
 }
 
 void Graph::AddSplitSecondNode(Node* n) {

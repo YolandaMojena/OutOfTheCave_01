@@ -5,10 +5,13 @@
 
 EBTNodeResult::Type UBTTask_AskForHelpNode::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
 
-	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
-	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
+	AEntityAIController* entityController = nullptr;
+	entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
+	UBlackboardComponent* blackboard = nullptr;
+	blackboard = OwnerComp.GetBlackboardComponent();
 
-	UOEntity* plotEntity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOEntity* plotEntity = nullptr;
+	plotEntity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 
 	if (plotEntity->IsValidItem()) {
 
@@ -24,7 +27,8 @@ EBTNodeResult::Type UBTTask_AskForHelpNode::ExecuteTask(UBehaviorTreeComponent& 
 		if (plotEntity->GetPersonality()->GetSocial() > 65) {
 			// Add by relationships
 			for (ORelation* r : plotEntity->GetRelationships()) {
-				UOEntity* potentialHelper = r->GetOtherEntity();
+				UOEntity* potentialHelper = nullptr;
+				potentialHelper = r->GetOtherEntity();
 				if (!potentialHelper->IsValidItem())
 					continue;
 

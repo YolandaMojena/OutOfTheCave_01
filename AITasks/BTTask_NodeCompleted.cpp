@@ -5,10 +5,13 @@
 
 EBTNodeResult::Type UBTTask_NodeCompleted::ExecuteTask(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory)
 {
-	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
-	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
+	AEntityAIController* entityController = nullptr;
+	entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
+	UBlackboardComponent* blackboard = nullptr;
+	blackboard = OwnerComp.GetBlackboardComponent();
 
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass <UOEntity>();
+	UOEntity* entity = nullptr;
+	entity = entityController->GetPawn()->FindComponentByClass <UOEntity>();
 
 	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, entity->GetItemName() + TEXT(" finished the node"));
 
@@ -40,9 +43,9 @@ void UBTTask_NodeCompleted::ClearBlackboard(UBlackboardComponent* blackboard) {
 
 void UBTTask_NodeCompleted::DidIHelpSomeone(UOEntity* me, UBlackboardComponent* blackboard) {
 	for (UOEntity* other : me->GetNearbyEntities()) {
-		Node* myNode = me->GetBrain()->Peek();
-		Node* otherNode = other->GetBrain()->Peek();
-		Node* otherLastNode = other->GetLastNode();
+		Node* myNode = nullptr; myNode = me->GetBrain()->Peek();
+		Node* otherNode = nullptr; otherNode = other->GetBrain()->Peek();
+		Node* otherLastNode = nullptr; otherLastNode = other->GetLastNode();
 
 		bool helping = false;
 		if (myNode) {

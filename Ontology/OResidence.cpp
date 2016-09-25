@@ -156,7 +156,7 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 	break;
 	case ERace::R_Goblin:
 	{
-		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
 		UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
 		if (entityComp && villageID != 0 &&_village) {
 			entityComp->SetItemName(_village->AssignGoblinName());
@@ -164,34 +164,21 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 		}
 	}
 		break;
-	case ERace::R_Mixt_HG:
-		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
-		break;
 	case ERace::R_Bear:
-		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Bear, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Bear, compOwner->GetActorLocation() + RandomDisplacementVector(500), compOwner->GetActorRotation(), SpawnParams);
 		break;
 	case ERace::R_Wolf:
-		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Wolf, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
-		break;
-	case ERace::R_Beast:
-		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
-		break;
-	case ERace::R_Boar:
-		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
-		break;
-	case ERace::R_Cow:
-		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
-		break;
-	case ERace::R_Goat:
-		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Wolf, compOwner->GetActorLocation() + RandomDisplacementVector(500), compOwner->GetActorRotation(), SpawnParams);
 		break;
 	case ERace::R_Herbivore:
-		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Herbivore, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Herbivore, compOwner->GetActorLocation() + RandomDisplacementVector(500), compOwner->GetActorRotation(), SpawnParams);
 		break;
 	default:
-		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + FVector(rand() % 200 - 100, rand() % 200 - 100, 100), compOwner->GetActorRotation(), SpawnParams);
+		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
 		break;
 	}
+
+	tentantCharacter->SetActorLocation(tentantCharacter->GetActorLocation() * FVector(1, 1, 0) + FVector(0, 0, 100));
 
 	return tentantCharacter;
 }

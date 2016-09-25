@@ -33,7 +33,7 @@ public:
 private:
 
 	void BuildGraph();
-	UOEntity* _targetEntity;
+	UOEntity* _targetEntity = nullptr;
 };
 
 
@@ -57,8 +57,8 @@ private:
 
 	void BuildGraph();
 
-	UOEdification* _targetEdification;
-	UOEntity* _targetEntity;
+	UOEdification* _targetEdification = nullptr;
+	UOEntity* _targetEntity = nullptr;
 };
 
 
@@ -81,7 +81,7 @@ private:
 
 	void BuildGraph();
 
-	UOEdification* _targetEdification;
+	UOEdification* _targetEdification = nullptr;
 };
 
 
@@ -104,7 +104,7 @@ private:
 
 	void BuildGraph();
 
-	UOOwnable* _targetOwnable;
+	UOOwnable* _targetOwnable = nullptr;
 	vector<UOEntity*> _owners;
 };
 
@@ -153,7 +153,7 @@ private:
 
 	void BuildGraph();
 
-	UOEntity* _targetEntity;
+	UOEntity* _targetEntity = nullptr;
 };
 
 //DEFEND PLOT
@@ -175,8 +175,8 @@ public:
 private:
 
 	void BuildGraph();
-	UOEntity* _against;
-	UItem* _target;
+	UOEntity* _against = nullptr;
+	UItem* _target = nullptr;
 };
 
 //STEAL PLOT
@@ -200,8 +200,8 @@ private:
 
 	void BuildGraph();
 
-	UOOwnable* _targetOwnable;
-	UOEntity* _targetEntity;
+	UOOwnable* _targetOwnable = nullptr;
+	UOEntity* _targetEntity = nullptr;
 };
 
 //GIVE PLOT
@@ -225,8 +225,8 @@ private:
 
 	void BuildGraph();
 
-	UOOwnable* _targetOwnable;
-	UOEntity* _targetEntity;
+	UOOwnable* _targetOwnable = nullptr;
+	UOEntity* _targetEntity = nullptr;
 };
 
 
@@ -247,7 +247,7 @@ public:
 private:
 
 	void BuildGraph();
-	UOEntity* _targetEntity;
+	UOEntity* _targetEntity = nullptr;
 };
 
 
@@ -274,8 +274,8 @@ private:
 	FString _raceString;
 	FVector _spawnLocation;
 	FVector _targetLocation;
-	UOEntity* _targetActor;
-	APlotGenerator* _plotGenerator;
+	UOEntity* _targetActor = nullptr;
+	APlotGenerator* _plotGenerator = nullptr;
 	float _num;
 	vector<UOEntity*> _heard;
 };

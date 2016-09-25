@@ -2,7 +2,6 @@
 
 #pragma once
 #include "Ontology/OEntity.h"
-#include "NarrativeGeneration/PlotGenerator.h"
 #include "FNearbyEntitiesFinder.h"
 
 /**
@@ -21,6 +20,7 @@ public:
 	static void Tick();
 
 	static void SomeoneDied(UOEntity* corpse);
+
 
 private:
 

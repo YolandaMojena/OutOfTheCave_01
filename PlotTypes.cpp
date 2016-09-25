@@ -45,19 +45,19 @@ void AttackPlot::BuildSentence() {
 			" hurt his/her friend " + _motivationName
 			: " damaged his/her " + _motivationName;
 
-		_sentence += ".\n\n\n";
+		_sentence += ".\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::extermination) {
 
 		_sentence += "The aggressive " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
 			+ " began an attack against the unfortunate " + _targetEntity->GetRaceString() + " "
-			+ _targetEntity->GetItemName() + ", in order to exterminate his/her race.\n\n\n";
+			+ _targetEntity->GetItemName() + ", in order to exterminate his/her race.\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::notoriety) {
 
 		_sentence += "The aggressive " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
 			+ " has begun an attack against the highly notorious " + _targetEntity->GetRaceString() + " "
-			+ _targetEntity->GetItemName() + ", in order to obtain his/her position in society.\n\n\n";
+			+ _targetEntity->GetItemName() + ", in order to obtain his/her position in society.\n\n";
 	}
 }
 
@@ -105,7 +105,7 @@ void AttackPlot::InitPlot() {
 
 BasePlot* AttackPlot::ConsiderReactions() {
 
-	BasePlot* reaction = nullptr;
+	/*BasePlot* reaction = nullptr;
 	UOEntity* reactionEntity = nullptr;
 
 	for (UOEntity* e : _involvedInPlot) {
@@ -128,9 +128,9 @@ BasePlot* AttackPlot::ConsiderReactions() {
 				if (!reactionEntity) {
 					reactionEntity = e;
 
-					/*if (reactionEntity->GetPersonality()->GetAggressiveness() > 50)
-						reaction = new AmbushPlot(e, _plotEntity, _targetEntity);
-					else*/
+					//if (reactionEntity->GetPersonality()->GetAggressiveness() > 50)
+					//	reaction = new AmbushPlot(e, _plotEntity, _targetEntity);
+					//else
 						reaction = new DefendPlot(e, _plotEntity, _targetEntity, _targetEntity->GetItemName(), _targetEntity->GetRaceString());
 				}
 				else if (reaction)
@@ -139,7 +139,9 @@ BasePlot* AttackPlot::ConsiderReactions() {
 		}
 	}	
 		
-	return reaction;
+	return reaction;*/
+
+	return nullptr;
 }
 
 UOEntity* AttackPlot::GetTargetEntity() {
@@ -193,7 +195,7 @@ void DestroyPlot::BuildSentence() {
 			" had hurt his/her friend " + _motivationName
 			: " had damaged his/her " + _motivationName;
 
-		_sentence += ".\n\n\n";
+		_sentence += ".\n\n";
 	}
 
 	else if (_ambition == TypeOfAmbition::fear) {
@@ -201,7 +203,7 @@ void DestroyPlot::BuildSentence() {
 		_sentence += "The coward " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
 			+ " began to destroy a " + ((UOEntity*)(_targetEdification->GetOwners()[0]))->GetRaceString() + "'s home.";
 
-		_sentence += " His/Her hope was that this would lead others to fear him.\n\n\n";
+		_sentence += " His/Her hope was that this would lead others to fear him.\n\n";
 	}
 }
 
@@ -241,14 +243,14 @@ void DestroyPlot::BuildGraph() {
 
 void DestroyPlot::InitPlot() {
 
-	_identifier = "Destroy " + _targetEdification->GetItemName() + ":\n\n";
+	_identifier = "Destroy " + _targetEdification->GetItemName() + ":\n";
 	BuildGraph();
 	BuildSentence();
 }
 
 BasePlot* DestroyPlot::ConsiderReactions() {
 
-	BasePlot* reaction = nullptr;
+	/*BasePlot* reaction = nullptr;
 	UOEntity* reactionEntity = nullptr;
 
 	for (UOEntity* e : _involvedInPlot) {
@@ -268,9 +270,9 @@ BasePlot* DestroyPlot::ConsiderReactions() {
 				if (!reactionEntity) {
 					reactionEntity = e;
 
-					/*if (reactionEntity->GetPersonality()->GetAggressiveness() > 50)
-						reaction = new AmbushPlot(e, _plotEntity, _targetEdification);
-					else*/
+					//if (reactionEntity->GetPersonality()->GetAggressiveness() > 50)
+					//	reaction = new AmbushPlot(e, _plotEntity, _targetEdification);
+					//else
 						reaction = new DefendPlot(e, _plotEntity, _targetEdification, _targetEdification->GetItemName(), "");
 				}
 				else if (reaction)
@@ -278,7 +280,8 @@ BasePlot* DestroyPlot::ConsiderReactions() {
 			}
 		}
 	}
-	return reaction;
+	return reaction;*/
+	return nullptr;
 }
 
 UOEntity* DestroyPlot::GetTargetEntity() {
@@ -317,7 +320,7 @@ void BuildPlot::BuildSentence() {
 
 	_sentence += _identifier;
 	_sentence += "The unfortunate " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName() + " had to rebuild his/her home, which had been destroyed by the merciless " + _motivationRace + " " + _motivationName;
-	_sentence += ".\n\n\n";
+	_sentence += ".\n\n";
 }
 
 void BuildPlot::BuildGraph() {
@@ -391,14 +394,14 @@ void AmbushPlot::BuildSentence() {
 			+ " committed an act of treason and organized an ambush against the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetItemName()
 			+ ", who had planned to ";
 		_sentence += _target->IsA<UOEntity>() ? " attack his/her friend " + _motivationName : " destroy his/her friend's " + _motivationName;
-		_sentence += ".\n\n\n";
+		_sentence += ".\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::extermination) {
 
 		_sentence += "The astute " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
 			+ " assaulted the " + _targetEntity->GetRaceString() + "s! "
 			+ "This time his/her victim was the unfortunate" + _targetEntity->GetItemName() +
-			". He/she will go as far a necessary to exterminate the race.\n\n\n";
+			". He/she will go as far a necessary to exterminate the race.\n\n";
 	}
 }
 
@@ -488,17 +491,17 @@ void GetPlot::BuildSentence() {
 	  if  (_motivationName != "") {
 		_sentence += "The " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
 			+ " was in need of a " + _targetOwnable->GetItemName()
-			+ ". He/she traversed the land to get it.\n\n\n";
+			+ ". He/she traversed the land to get it.\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::possessions) {
 		_sentence += "The materialistic " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
 			+ " embarked on an adventure to find a precious " + _targetOwnable->GetItemName() +
-			", since his/her ambition in life is to own lots of valuable possessions.\n\n\n";
+			", since his/her ambition in life is to own lots of valuable possessions.\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::appreciation) {
 		_sentence += "The materialistic " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
 			+ " embarked on an adventure to find a precious " + _targetOwnable->GetItemName() +
-			". It is for someone he/she wants to be noticed by.\n\n\n";
+			". It is for someone he/she wants to be noticed by.\n\n";
 	}
 }
 
@@ -527,7 +530,7 @@ void GetPlot::BuildGraph() {
 
 void GetPlot::InitPlot() {
 
-	_identifier = "Get " + _targetOwnable->GetItemName() + " from world:\n\n";
+	_identifier = "Get " + _targetOwnable->GetItemName() + " from world:\n";
 	BuildGraph();
 	BuildSentence();
 }
@@ -570,27 +573,27 @@ void HelpPlot::BuildSentence() {
 		
 		_sentence += "The kind " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
 			+ " did his/her best to help the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetItemName()
-			+ ", since he/she was really helpful to him/her in the past.\n\n\n";
+			+ ", since he/she was really helpful to him/her in the past.\n\n";
 	}
 
 	else if (_ambition == TypeOfAmbition::appreciation) {
 
 		_sentence += "The kind " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
 			+ " did his/her best to help the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetItemName()
-			+ ", since he/she would like to be more appreciated by him/her.\n\n\n";
+			+ ", since he/she would like to be more appreciated by him/her.\n\n";
 	}
 
 	else if (_ambition == TypeOfAmbition::notoriety) {
 
 		_sentence += "The kind " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
 			+ " did his/her best to help the " + _targetEntity->GetRaceString() + " " + _targetEntity->GetItemName()
-			+ ", since he/she is highly notorious in society. Maybe one day he/she'll get to be like him/her.\n\n\n";
+			+ ", since he/she is highly notorious in society. Maybe one day he/she'll get to be like him/her.\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::friendTroll) {
 
 		_sentence += "The curious " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
 			+ " wants to be the troll's friend! He/She's started following him around to learn from him and "
-			+ "maybe, someday, do something useful for him.\n\n\n.";
+			+ "maybe, someday, do something useful for him.\n\n";
 	}
 }
 
@@ -666,12 +669,12 @@ void GivePlot::BuildSentence() {
 	  if  (_motivationName != "") {
 
 		_sentence += "The generous: " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName() + " is giving his precious " + _targetOwnable->GetItemName() + " to the " +
-			_targetEntity->GetRaceString() + " " + _targetEntity->GetItemName() + ", in gratitude for the help received with his/her " + _motivationName + ".\n\n\n";
+			_targetEntity->GetRaceString() + " " + _targetEntity->GetItemName() + ", in gratitude for the help received with his/her " + _motivationName + ".\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::appreciation) {
 
 		_sentence += "The generous: " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName() + " is giving a precious " + _targetOwnable->GetItemName() + " to the " +
-			_targetEntity->GetRaceString() + " " + _targetEntity->GetItemName() + ", since he/she feels he/she would like to be more appreciated by others.\n\n\n";
+			_targetEntity->GetRaceString() + " " + _targetEntity->GetItemName() + ", since he/she feels he/she would like to be more appreciated by others.\n\n";
 	}
 }
 
@@ -745,12 +748,12 @@ void StealPlot::BuildSentence() {
 	  if  (_motivationName != "") {
 
 		_sentence += "The " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName() + " decided to steal a " + _targetOwnable->GetItemName() + " from the " +
-			_targetEntity->GetRaceString() + " " + _targetEntity->GetItemName() + " as an act of revenge for his/her own stolen " + _motivationName + ".\n\n\n";
+			_targetEntity->GetRaceString() + " " + _targetEntity->GetItemName() + " as an act of revenge for his/her own stolen " + _motivationName + ".\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::possessions) {
 		_sentence += "The materialistic " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()
 			+ " stole a precious " + _targetOwnable->GetItemName() + " from the " + _targetEntity->GetRaceString() +
-			" " + _targetEntity->GetItemName() + ", since his/her ambition in life is to own lots of valuable possessions.\n\n\n";
+			" " + _targetEntity->GetItemName() + ", since his/her ambition in life is to own lots of valuable possessions.\n\n";
 	}
 }
 
@@ -818,7 +821,7 @@ void DefendPlot::BuildSentence() {
 	(_sentence += _motivationRace != "" ? + "him/her " : + "it ") + " from the "
 		+ _against->GetRaceString() + " " + _against->GetItemName();
 			
-	_sentence += ".\n\n\n";
+	_sentence += ".\n\n";
 }
 
 void DefendPlot::BuildGraph() {
@@ -901,7 +904,7 @@ Stampede::~Stampede() {}
 void Stampede::BuildSentence() {
 
 	_sentence += _identifier;
-	_sentence += "And suddenly, a stampede of beasts could be seen in the distance!\n\n\n";
+	_sentence += "And suddenly, a stampede of beasts could be seen in the distance!\n\n";
 }
 
 void Stampede::BuildGraph() {
@@ -969,7 +972,7 @@ WarPlot::~WarPlot() {}
 void WarPlot::BuildSentence() {
 
 	_sentence += _identifier;
-	_sentence += "Goblins and humans had been in conflict for over a hundred years, but things had gone too far.\nIt was time for war.\n\n\n";
+	_sentence += "Goblins and humans had been in conflict for over a hundred years, but things had gone too far.\nIt was time for war.\n\n";
 }
 
 void WarPlot::BuildGraph() {

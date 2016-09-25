@@ -166,7 +166,7 @@ public:
 		TArray<UOEntity*> GetNearbyEntities();
 		
 	TArray<UOEntity*>* GetNearbyEntitiesPtr();
-	TArray<UOEntity*>* GetPreviousNearbyEntitiesPtr();
+	TArray<UOEntity*>* GetEntitiesReactingToPtr();
 
 	UFUNCTION(BlueprintCallable, Category = "EntityPersonality")
 		float GetKindness();
@@ -233,7 +233,7 @@ public:
 	EJob GetJob();
 	void SetJob(EJob);
 	FVector GetGoingLocation();
-	float GetAppreciationToOtherRace();
+	float GetAppreciationToOtherRace(ERace race);
 	UOEntity* GetMostHated();
 	
 	void SetAIController(AEntityAIController* eaic);
@@ -243,7 +243,8 @@ public:
 	void ClearState();
 	void AddInstantNode(Node* n);
 	void AddInstantReactGraph(Graph* g);
-	void AddReactGraph(Graph* g);
+	void AddReactGraph(Graph* g, UOEntity* e);
+	void AddInconditionalReactGraph(Graph* g);
 	vector<Graph*> GetReacts();
 
 	void ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notifyType, FString notifyID);
@@ -289,6 +290,9 @@ protected:
 	void SetStrength(float st);
 	void SetSpeed(float sd);
 	void SetAgility(float ag);
+	void ChangeStrength(float add);
+	void ChangeSpeed(float add);
+	void ChangeAgility(float add);
 	
 	void IHaveBeenKilledBySomeone(UOEntity* killer);
 	void IHaveBeenHelpedBySomeone(UOEntity* helper, UItem* motivation, int oldAppreciation, int newAppreciation);
@@ -299,31 +303,31 @@ protected:
 	vector<BasePlot*> _currentPlots;
 	UOEntity* _mainPlotEntity = nullptr;
 	Graph _brain;
-	Node* _lastNode;
-	Graph* _idleGraph;
+	Node* _lastNode = nullptr;
+	Graph* _idleGraph = nullptr;
 	vector<Graph*> _currentReacts;
-	AEntityAIController* _entityAIController;
-	UOEntity* _mostHatedEntity;
+	AEntityAIController* _entityAIController = nullptr;
+	UOEntity* _mostHatedEntity = nullptr;
 
 	vector<ORelation*> _relationships;
 	vector<OOwnership*> _possessions;
 	vector<OTerritory*> _landlord;
 
-	UOEntity* _attacker;
+	UOEntity* _attacker = nullptr;
 	float _attackCooldown;
-	USkeletalMeshComponent* _skelMesh;
+	USkeletalMeshComponent* _skelMesh = nullptr;
 	
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Entity)
-	OPersonality* _personality;
+	OPersonality* _personality = nullptr;
 
 	int _notoriety = 0;
 	vector<FString> _knownNotifyIDs;
 
 	UItem* _grabbedItem = nullptr;
 	TArray<UOEntity*> _nearbyEntities = TArray<UOEntity*>();
-	TArray<UOEntity*> _previousNearbyEntities = TArray<UOEntity*>();
+	TArray<UOEntity*> _entitiesReactingTo = TArray<UOEntity*>();
 
-	
+	bool _isRecognized = false;
 
 private:
 
@@ -334,8 +338,6 @@ private:
 	void CleanKnownNotifyIDs(float deltaTime);
 		
 	UOEdification* _entityHome = nullptr;
-
-	
 };
 
 #undef LOCTEXT_NAMESPACE 

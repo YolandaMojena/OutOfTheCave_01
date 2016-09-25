@@ -8,17 +8,20 @@
 
 EBTNodeResult::Type UBTTask_ChangeToFlee::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
 
-	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
-	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
+	AEntityAIController* entityController = nullptr;
+	entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
+	UBlackboardComponent* blackboard = nullptr;
+	blackboard = OwnerComp.GetBlackboardComponent();
 
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOEntity* entity = nullptr;
+	entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 
 	if (entity->IsValidItem()) {
 		Node* n = new Node();
 		n->SetNodeType(NodeType::flee); n->SetActor(((UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity")))->GetOwner()); n->SetHighPriority();
 		if (entity->GetCurrentState() == UOEntity::AIState::plot) {
 			entity->AddInstantNode(n);
-			if (entity->GetMainPlotEntity() == nullptr && entity->GetCurrentPlot() && entity->GetCurrentPlot()->GetMainEntity() == entity) {
+			if (entity->GetCurrentPlot() && entity->GetCurrentPlot()->GetMainEntity() == entity) {
 				entity->GetCurrentPlot()->GetGraphPointer()->AddSplitSecondNode(entity->GetCurrentPlot()->GetGraphPointer()->Peek());
 			}
 		}
@@ -28,6 +31,7 @@ EBTNodeResult::Type UBTTask_ChangeToFlee::ExecuteTask(UBehaviorTreeComponent& Ow
 			//entity->GetReacts()[0]->NextNode();
 			//entity->GetBrain()->NextNode();
 		}
+		entityController->StopMovement();
 		blackboard->ClearValue(blackboard->GetKeyID("Entity"));
 		return EBTNodeResult::Succeeded;
 	}

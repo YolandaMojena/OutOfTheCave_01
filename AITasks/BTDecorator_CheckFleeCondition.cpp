@@ -6,11 +6,15 @@
 
 bool UBTDecorator_CheckFleeCondition::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const{
 
-	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
-	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
+	AEntityAIController* entityController = nullptr;
+	entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
+	UBlackboardComponent* blackboard = nullptr;
+	blackboard = OwnerComp.GetBlackboardComponent();
 
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
-	UOEntity* otherEntity = (UOEntity*) blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
+	UOEntity* entity = nullptr;
+	entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOEntity* otherEntity = nullptr;
+	otherEntity = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 
 	if (entity->IsValidItem() && otherEntity->IsValidItem()) {
 		ORelation* relationWithOther = entity->GetRelationWith(otherEntity);

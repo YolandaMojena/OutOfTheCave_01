@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include "Report.h"
 #include "NarrativeGeneration/Ambition.h"
+#include "Ontology/ThreadManager.h"
 #include "PlotGenerator.generated.h"
 
 using namespace std;
@@ -62,6 +63,7 @@ public:
 	void SetCurrentPlotTypeColor(FLinearColor color);
 
 	float GetOverallHateAgainstRace(ERace race);
+	int WarCount = 0;
 
 private:
 
@@ -104,11 +106,11 @@ private:
 	TArray<UOEntity*> _notoriousEntities;
 
 
-	const float _TIME_TO_SPAWN = 15.0f;
+	const float _TIME_TO_SPAWN = 10.0f;
 	const int _MAX_NOTORIOUS = 15;
-	const int _MAX_PLOTS = 3;
+	const int _MAX_PLOTS = 5;
 	const int _MAX_STAMPEDES = 5;
-	int _stampedeCount;
+	int _stampedeCount = 0;
 
 	bool ValidateAttackPlot(AttackPlot* plot);
 	bool ValidateBuildPlot(BuildPlot* build);

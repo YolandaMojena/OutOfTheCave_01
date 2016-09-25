@@ -42,7 +42,6 @@ void BasePlot::DeleteFromInvolved(UOEntity* entity) {
 
 	if (_involvedInPlot.Contains(entity)) {
 		_involvedInPlot.Remove(entity);
-		entity->SetMainPlotEntity(nullptr);
 	}
 }
 

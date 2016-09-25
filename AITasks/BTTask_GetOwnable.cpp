@@ -13,13 +13,16 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 	const int RESPECT_TO_BORROW = 80;
 
 
-	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
-	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
+	AEntityAIController* entityController = nullptr;
+	entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
+	UBlackboardComponent* blackboard = nullptr;
+	blackboard = OwnerComp.GetBlackboardComponent();
 	//FString arquetype = blackboard->GetValueAsString(blackboard->GetKeyID("Position")); //Deprecated
 	//FString arquetype = blackboard->GetValue<UBlackboardKeyType_String>(blackboard->GetKeyID("Arquetype"));
 	OntologicFunctions::AffordableUse affordableUse = (OntologicFunctions::AffordableUse) blackboard->GetValue<UBlackboardKeyType_Enum>(blackboard->GetKeyID("AffordableUse"));
 
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOEntity* entity = nullptr;
+	entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
 
 	/*vector<UOOwnable*> candidates = entity->GetInventory();
 	vector<UOOwnable*> nearbyOwnables = FindNearbyOwnables(entity);
@@ -36,13 +39,15 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 
 	OntologicFunctions ontF;
 
-	UOOwnable* bestChoice = entity->GetHands();
+	UOOwnable* bestChoice = nullptr;
+	bestChoice = entity->GetHands();
 	int bestChoiceAffordance;
 	bestChoiceAffordance = ontF.GetAffordance(affordableUse, bestChoice, entity);
 	bool bestChoiceSomeoneWhoCares = true;
 
 	if (entity->HasGrabbedItem()){
-		UOOwnable* grabbedItem = (UOOwnable*)entity->GetGrabbedItem();
+		UOOwnable* grabbedItem = nullptr;
+		grabbedItem = (UOOwnable*)entity->GetGrabbedItem();
 		int grabbedItemAffordance = ontF.GetAffordance(affordableUse, grabbedItem, entity);
 		if (grabbedItemAffordance > bestChoiceAffordance) {
 			bestChoice = grabbedItem;
@@ -105,7 +110,8 @@ EBTNodeResult::Type UBTTask_GetOwnable::ExecuteTask(UBehaviorTreeComponent& Owne
 }
 
 vector<UOOwnable*> UBTTask_GetOwnable::FindNearbyOwnables(UOEntity* entity) {
-	AActor* actor = entity->GetOwner();
+	AActor* actor = nullptr;
+	actor = entity->GetOwner();
 	float const _SEARCH_RADIUS = 3000.0f;
 	FVector start = actor->GetActorLocation() + FVector(0, 0, -_SEARCH_RADIUS);
 	FVector end = start + FVector(0, 0, _SEARCH_RADIUS * 2);
@@ -128,14 +134,17 @@ vector<UOOwnable*> UBTTask_GetOwnable::FindNearbyOwnables(UOEntity* entity) {
 
 	vector<UOOwnable*> results;
 	for (auto hr : hitData) {
-		UOOwnable* o = hr.GetActor()->FindComponentByClass<UOOwnable>();
-		UOEdification* edf = hr.GetActor()->FindComponentByClass<UOEdification>();
+		UOOwnable* o = nullptr;
+		o = hr.GetActor()->FindComponentByClass<UOOwnable>();
+		UOEdification* edf = nullptr;
+		edf = hr.GetActor()->FindComponentByClass<UOEdification>();
 		if (!edf && o) {
 			bool admit = true;
 			vector<UOEntity*> grabbers = o->GetGrabbers();
 			vector<ORelation*> relatives = entity->GetRelationships();
 			for (ORelation* r : relatives) {
-				UOEntity* e = r->GetOtherEntity();
+				UOEntity* e = nullptr;
+				e = r->GetOtherEntity();
 				for (UOEntity* g : grabbers) {
 					if (e == g && (r->GetAppreciation() > 25 || r->GetRespect() > 37 || r->GetFear() > 25)) {
 						admit = false;

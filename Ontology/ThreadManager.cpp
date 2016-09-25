@@ -1,9 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OutOfTheCave_01.h"
+#include "NarrativeGeneration/PlotGenerator.h"
 #include "ThreadManager.h"
 
 bool ThreadManager::threadRunning = false;
+
 TArray<UOEntity*> ThreadManager::customers = TArray<UOEntity*>();
 
 UOEntity* ThreadManager::currentCustomer = nullptr;
@@ -33,16 +35,23 @@ void ThreadManager::FindNext()
 {
 	threadRunning = true;
 	currentCustomer = customers.Pop();
-	TArray<UOEntity*>* inputArray = &(currentCustomer->GetPlotGenerator()->allEntities);
-	TArray<UOEntity*>* outputArray = currentCustomer->GetNearbyEntitiesPtr();
-	outputArray->Empty();
-	FNearbyEntitiesFinder::JoyInit(currentCustomer, inputArray, outputArray);
+	if (currentCustomer->IsValidItem()) {
+		TArray<UOEntity*>* inputArray = &(currentCustomer->GetPlotGenerator()->allEntities);
+		TArray<UOEntity*>* outputArray = currentCustomer->GetNearbyEntitiesPtr();
+		outputArray->Empty();
+		FNearbyEntitiesFinder::JoyInit(currentCustomer, inputArray, outputArray);
+	}
+	else if (customers.Num() > 0)
+		FindNext();
+	else
+		threadRunning = false;
 }
 
 void ThreadManager::RequestFinished()
 {
 	threadRunning = false;
-	currentCustomer->FinishedFindingNearbyEntities();
+	if(currentCustomer->IsValidItem())
+		currentCustomer->FinishedFindingNearbyEntities();
 	if (customers.Num() > 0)
 		FindNext();
 }

@@ -6,10 +6,13 @@
 
 EBTNodeResult::Type UBTTask_GrabItem::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
 	
-	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass <UOEntity>();
-	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
-	
+	AEntityAIController* entityController = nullptr;
+	entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
+	UBlackboardComponent* blackboard = nullptr;
+	blackboard = OwnerComp.GetBlackboardComponent();
+
+	UOEntity* entity = nullptr;
+	entity = entityController->GetPawn()->FindComponentByClass <UOEntity>();
 	/*UItem* item = (UItem*) blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"));
 	if(item)
 		entity->GrabItem(item);
@@ -19,7 +22,8 @@ EBTNodeResult::Type UBTTask_GrabItem::ExecuteTask(UBehaviorTreeComponent& OwnerC
 			entity->GrabItem(item);
 	}*/
 
-	UItem* item = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"));
+	UItem* item = nullptr;
+	item = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Item"));
 	if(!item)
 		item = (UItem*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Ownable"));
 

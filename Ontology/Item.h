@@ -210,14 +210,14 @@ public:
 	bool IsValidItem();
 
 protected:
-	const float _NOTIFICATION_RADIUS = 1000.0f;
+	//const float _NOTIFICATION_RADIUS = 2000.0f;
 
 	/*enum _NotifyTag {
 		damaged, destroyed, grabbed
 	};*/
 
 	// All entities will send reports to the plotGenerator situated in the game world
-	APlotGenerator* _plotGenerator;
+	APlotGenerator* _plotGenerator = nullptr;
 
 	//string GenerateNotifyID(UOOwnable* ownable, UOEntity* entity, _NotifyTag tag);
 	//string GenerateNotifyID(UOEntity* pasiva, UOEntity* activa, _NotifyTag tag);

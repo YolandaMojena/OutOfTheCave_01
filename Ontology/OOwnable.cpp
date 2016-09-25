@@ -161,7 +161,7 @@ void UOOwnable::IHaveBeenStolenBySomeone(UOEntity * potentialOwner, UOEntity * b
 					if (e == potentialOwner && ownership->GetWorth() > 60)
 						e->SendReport(new Report(e->GetOwnershipWith(this), TypeOfPlot::possessive, buggler));
 
-					e->SendReport(new Report(e->GetOwnershipWith(this), TypeOfPlot::aggressive, buggler));
+					e->SendReport(new Report(e->GetRelationWith(buggler), TypeOfPlot::aggressive, this));
 				}
 			}
 		}

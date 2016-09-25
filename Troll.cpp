@@ -193,7 +193,8 @@ void ATroll::PickUpMain() {
 			_grabbedRotation = grabbedItemActor->GetActorRotation();
 			_grabbedZ = grabbedItemActor->GetActorLocation().Z;
 
-			UOEntity* hitEntity = grabbedItemActor->FindComponentByClass<UOEntity>();
+			UOEntity* hitEntity = nullptr;
+			hitEntity = grabbedItemActor->FindComponentByClass<UOEntity>();
 
 			if (hitEntity && !hitEntity->GetIsNumb()) {
 				((ACharacter*)hitEntity->GetOwner())->GetMesh()->SetAllBodiesBelowSimulatePhysics(((ACharacter*)hitEntity->GetOwner())->GetMesh()->GetBoneName(1), true);
@@ -204,7 +205,8 @@ void ATroll::PickUpMain() {
 		}
 	}
 	else {
-		UOEntity* releasedEntity = _myEntityComp->GetGrabbedItem()->GetOwner()->FindComponentByClass<UOEntity>();
+		UOEntity* releasedEntity = nullptr;
+		releasedEntity = _myEntityComp->GetGrabbedItem()->GetOwner()->FindComponentByClass<UOEntity>();
 		if (releasedEntity) {
 			((ACharacter*)releasedEntity->GetOwner())->GetMesh()->SetAllBodiesSimulatePhysics(false);
 			releasedEntity->ClearState();
@@ -241,12 +243,15 @@ void ATroll::AttachToSocket(AActor* target, string socket) {
 
 void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
 
+	//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, TEXT("Hit ") + OtherActor->GetActorLabel());
+
 	UOEdification* edificationComp = OtherActor->FindComponentByClass<UOEdification>();
-	UOEntity* hitEntity = OtherActor->FindComponentByClass<UOEntity>();
+	UOEntity* hitEntity = nullptr;
+	hitEntity = OtherActor->FindComponentByClass<UOEntity>();
 
 	if (edificationComp /*&& _isAttacking*/ && /*!edificationComp->GetIsDestroyed() &&*/ _canDamage && !_victims.Contains(edificationComp->GetOwner())){
 
-		//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Hit"));
+		
 		_victims.Add(edificationComp->GetOwner());
 
 		OntologicFunctions of;
@@ -267,8 +272,10 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 
 		hitEntity->ReceiveDamage(damage, _myEntityComp);
 
-		ACharacter* character = (ACharacter*)OtherActor;
-		UCharacterMovementComponent* ucmc = character->FindComponentByClass<UCharacterMovementComponent>();
+		ACharacter* character = nullptr;
+		character = (ACharacter*)OtherActor;
+		UCharacterMovementComponent* ucmc = nullptr;
+		ucmc = character->FindComponentByClass<UCharacterMovementComponent>();
 
 		//OtherActor->FindComponentByClass<CharacterMovement>()
 		if (_trollActor) {

@@ -8,8 +8,10 @@ EBTNodeResult::Type UBTTask_Defend::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
-	UOEntity* other = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
+	UOEntity* entity = nullptr;
+	entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOEntity* other = nullptr;
+	other = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 
 	if (entity && other) {
 

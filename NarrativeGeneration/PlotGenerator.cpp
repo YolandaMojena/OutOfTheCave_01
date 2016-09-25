@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OutOfTheCave_01.h"
-#include "Ontology/ThreadManager.h"
 #include "Ontology/OEdification.h"
 #include "PlotGenerator.h"
 
@@ -43,6 +42,9 @@ void APlotGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Utilities::SaveStringToFile("\n\n\nNew game\n\n\n", Utilities::SavePath, Utilities::PlotFile);
+	Utilities::SaveStringToFile("\n\n\nNew game\n\n\n", Utilities::SavePath, Utilities::ReportFile);
+
 	// HARD CODED
 	// FOREST
 	_stampedeSpawnArea = FVector(-55, 10426, 0);
@@ -68,19 +70,19 @@ void APlotGenerator::Tick( float DeltaTime )
 		_timeToSpawnPlot += DeltaTime;
 	else {
 		int i = 1;
-		while (_currentPlotsInAction <= _MAX_PLOTS && i <= 5) {
+		while (_currentPlotsInAction <= _MAX_PLOTS && i <= 3) {
 
-			if (rand() % 100 < log(_pReportLog.Num()+1)*37.533f) {
-				GetPlotFromReportLog();
+			if (rand() % 100 < 20+log(_pReportLog.Num()+1)*37.533f) {
+			GetPlotFromReportLog();
 				if (!_reactivePlots.empty()) {
 					SpawnReactivePlot();
 				}
 			}
-			else if (rand() % 100 < 20*i) {
+			else if (rand() % 100 < 15*i) {
 				SpawnAmbitionPlot();
 			}
 
-			else if (rand() % 100 < 3 && _stampedeCount < _MAX_STAMPEDES) {
+			else if (rand() % 100 < (_MAX_STAMPEDES - _stampedeCount)) {
 				SpawnWorldPlot();
 				_stampedeCount++;
 				break;
@@ -94,19 +96,21 @@ void APlotGenerator::Tick( float DeltaTime )
 void APlotGenerator::ChangeCurrentPlotsInAction(int dif)
 {
 	_currentPlotsInAction += dif;
-	if (_currentPlotsInAction < 0) _currentPlotsInAction = 0;
 }
 
 bool APlotGenerator::SpawnReactivePlot()
 {
 	if (_reactivePlots.size() > 0) {
 
-		BasePlot* currentPlot = _reactivePlots.at(0);
+		BasePlot* currentPlot = nullptr;
+		currentPlot = _reactivePlots.at(0);
 		currentPlot->InitPlot();
 		_reactivePlots.erase(_reactivePlots.begin());
 
-		UOEntity* plotEntity = currentPlot->GetMainEntity();
+		UOEntity* plotEntity = nullptr;
+		plotEntity = currentPlot->GetMainEntity();
 		if (plotEntity->IsValidItem()) {
+			//if(!((WarPlot*)currentPlot))
 			_currentPlotsInAction++;
 			plotEntity->AddCurrentPlot(currentPlot);
 			plotEntity->RethinkState();
@@ -119,7 +123,8 @@ bool APlotGenerator::SpawnReactivePlot()
 bool APlotGenerator::SpawnAmbitionPlot()
 {
 	Ambition ambition = Ambition(this, UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->FindComponentByClass<UOEntity>());
-	UOEntity* entity = _notoriousEntities.Num() > 0 ? _notoriousEntities[rand() % _notoriousEntities.Num()] : nullptr;
+	UOEntity* entity = nullptr;
+	entity = _notoriousEntities.Num() > 0 ? _notoriousEntities[rand() % _notoriousEntities.Num()] : nullptr;
 
 	if (entity->IsValidItem()) {
 		BasePlot* ambitionPlot = ambition.GenerateAmbitionForEntity(entity);
@@ -180,17 +185,18 @@ void APlotGenerator::GetPlotFromReportLog() {
 
 	if (_pReportLog.Num() > 0) {
 
-		Report* currentReport;
+		Report* currentReport = nullptr;
 		_pReportLog.HeapPop(currentReport, Report::ReportNotoriety());
 		vector<string> plotCandidates = GetPlotsOfType(currentReport->GetType());
 
 		bool plotIsValid = false;
 		BasePlot* newPlot = nullptr;
+		string plot = "";
 
 		while (!plotIsValid && plotCandidates.size() > 0) {
 
 			int randType = rand() % plotCandidates.size();
-			string plot = plotCandidates[randType];
+			plot = plotCandidates[randType];
 
 			if (plot == _ATTACK_PLOT) {
 				newPlot = new AttackPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), currentReport->GetMotivationName(), currentReport->GetMotivationRace());
@@ -204,32 +210,29 @@ void APlotGenerator::GetPlotFromReportLog() {
 			}
 
 			else if (plot == _DESTROY_PLOT) {
-				plotIsValid = ValidateDestroyPlot((DestroyPlot*)newPlot);
-				if (plotIsValid) {
 
-					UOEdification* targetEdification = nullptr;
+				UOEdification* targetEdification = nullptr;
 
-					if (!currentReport->GetTargetEntity()->IsPlayer) {
+				if (!currentReport->GetTargetEntity()->IsPlayer) {
 
-						for (OOwnership* o : currentReport->GetTargetEntity()->GetPossessions()) {
-							if (o->GetOwnable()->IsA<UOEdification>()) {
-								if (!((UOEdification*)o->GetOwnable())->GetIsDestroyed()) {
-									targetEdification = (UOEdification*)o->GetOwnable();
-									break;
-								}
+					for (OOwnership* o : currentReport->GetTargetEntity()->GetPossessions()) {
+						if (o->GetOwnable()->IsA<UOEdification>()) {
+							if (!((UOEdification*)o->GetOwnable())->GetIsDestroyed()) {
+								targetEdification = (UOEdification*)o->GetOwnable();
+								break;
 							}
 						}
 					}
+				}
+				
+				if (targetEdification->IsValidItem()) {
 
-					if (targetEdification) {
-						newPlot = new DestroyPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), targetEdification, currentReport->GetMotivationName(), currentReport->GetMotivationRace());
-						plotIsValid = ValidateDestroyPlot((DestroyPlot*)newPlot);
+					newPlot = new DestroyPlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), targetEdification, currentReport->GetMotivationName(), currentReport->GetMotivationRace());
+					plotIsValid = ValidateDestroyPlot((DestroyPlot*)newPlot);
 
-						if (plotIsValid) {
-							currentReport->GetReportEntity()->ChangeNotoriety(3);
-							currentReport->GetTargetEntity()->ChangeNotoriety(2);
-						}
-						else plotCandidates.erase(plotCandidates.begin() + randType);
+					if (plotIsValid) {
+						currentReport->GetReportEntity()->ChangeNotoriety(3);
+						currentReport->GetTargetEntity()->ChangeNotoriety(2);
 					}
 					else plotCandidates.erase(plotCandidates.begin() + randType);
 				}
@@ -263,7 +266,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 						break;
 					}
 				}
-				if (ownableToGive) {
+				if (ownableToGive->IsValidItem()) {
 					newPlot = new GivePlot(currentReport->GetReportEntity(), currentReport->GetTargetEntity(), ownableToGive, currentReport->GetMotivationName(), currentReport->GetMotivationRace());
 					plotIsValid = ValidateGiftPlot((GivePlot*)newPlot);
 				}
@@ -284,7 +287,7 @@ void APlotGenerator::GetPlotFromReportLog() {
 					}
 				}
 
-				if (targetEntity) {
+				if (targetEntity->IsValidItem()) {
 					newPlot = new StealPlot(currentReport->GetReportEntity(), targetEntity, currentReport->GetTargetOwnable(), currentReport->GetMotivationName(), currentReport->GetMotivationRace());
 					plotIsValid = ValidateStealPlot((StealPlot*)newPlot);
 				}
@@ -294,12 +297,17 @@ void APlotGenerator::GetPlotFromReportLog() {
 				}
 				else plotCandidates.erase(plotCandidates.begin() + randType);
 			}
-			else if (plot == _WAR_PLOT) {
+			else if (plot == _WAR_PLOT && WarCount == 0) {
 				newPlot = new WarPlot(currentReport->GetReportEntity());
 				plotIsValid = ValidateWarPlot((WarPlot*) newPlot);
 
 				if (plotIsValid)  {
 					currentReport->GetReportEntity()->ChangeNotoriety(3);
+					WarCount++;
+
+					for (UOEntity* e : allEntities) {
+						newPlot->AddInvolvedInPlot(e);
+					}
 				}
 				else plotCandidates.erase(plotCandidates.begin() + randType);
 			}
@@ -313,7 +321,8 @@ void APlotGenerator::GetPlotFromReportLog() {
 				for (UOEntity* entity : WeHaveALotInCommon(currentReport)) {
 					if (!entity->IsValidItem())
 						continue;
-					newPlot->AddInvolvedInPlot(entity);
+					if(plot != _WAR_PLOT)
+						newPlot->AddInvolvedInPlot(entity);
 				}
 			}
 			_reactivePlots.push_back(newPlot);
@@ -527,11 +536,13 @@ float APlotGenerator::GetOverallHateAgainstRace(ERace race)
 			poblationSample = GetNotoriousEntitiesByRace(ERace::R_Goblin);
 		else poblationSample = GetNotoriousEntitiesByRace(ERace::R_Human);
 
+		if (poblationSample.size() == 0) return 100;
+
 		for (UOEntity* e : poblationSample) {
 			if (!e->IsValidItem())
 				continue;
 
-			sum += e->GetAppreciationToOtherRace();
+			sum += e->GetAppreciationToOtherRace(race == ERace::R_Human? ERace::R_Goblin : ERace::R_Human);
 		}
 		return sum / poblationSample.size();
 	}
@@ -575,7 +586,8 @@ vector<UOEntity*> APlotGenerator::SpawnEntities(int num, ERace race, FVector spa
 			creatureToSpawn->SetActorScale3D(FVector(scale / 10, scale / 10, scale / 10));
 			creatureToSpawn->SetActorLocation(creatureToSpawn->GetActorLocation() * FVector(1, 1, 0) + FVector(0, 0, 100));
 
-			UOEntity* spawnedEntity = creatureToSpawn->FindComponentByClass<UOEntity>();
+			UOEntity* spawnedEntity = nullptr;
+			spawnedEntity = creatureToSpawn->FindComponentByClass<UOEntity>();
 
 			spawnedEntity->SetRace(ERace::R_Bear);
 			spawnedEntity->SetJob(EJob::J_Predator);

@@ -35,7 +35,8 @@ void AEntityAIController::SetNode(Node* n) {
 		if (ValidateObject(n->nBlackboard.entity)) {
 			entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity"), n->nBlackboard.entity);
 			entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.entity->GetOwner());
-			UOEntity* entity = GetPawn()->FindComponentByClass<UOEntity>();
+			UOEntity* entity = nullptr;
+			entity = GetPawn()->FindComponentByClass<UOEntity>();
 			if(entity)
 				entityBlackboard->SetValue<UBlackboardKeyType_Float>(entityBlackboard->GetKeyID("FloatKey"), entity->GetAttackCooldown());
 			else
@@ -76,9 +77,11 @@ void AEntityAIController::SetNode(Node* n) {
 	{
 		//TestBegin
 		//UOEntity* entity = GetControlledPawn()->FindComponentByClass<UOEntity>();
-		UOEntity* entity = GetPawn()->FindComponentByClass<UOEntity>();
-		if (ValidateObject(entity) && entity->IsA<UOCivilian>() && n->nBlackboard.affordableUse) {
-			UOOwnable* itemToGrab = GetOwnable(entity, n->nBlackboard.affordableUse, n->nBlackboard.isHighPriority);
+		UOEntity* entity = nullptr;
+		entity = GetPawn()->FindComponentByClass<UOEntity>();
+		if (ValidateObject(entity) && entity->IsA<UOCivilian>()){ //&& n->nBlackboard.affordableUse) {
+			UOOwnable* itemToGrab = nullptr;
+			itemToGrab = GetOwnable(entity, n->nBlackboard.affordableUse, n->nBlackboard.isHighPriority);
 			if (ValidateObject(itemToGrab)) {
 				//entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Item"), (UItem*)itemToGrab);
 				entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Ownable"), itemToGrab);
@@ -184,9 +187,11 @@ void AEntityAIController::SetNode(Node* n) {
 		break;
 	case NodeType::preyUpon:	// Convertible Node
 	{
-		UOEntity* entity = GetPawn()->FindComponentByClass<UOEntity>();
+		UOEntity* entity = nullptr;
+		entity = GetPawn()->FindComponentByClass<UOEntity>();
 		if (ValidateObject(entity)) {
-			UOEntity* prey = entity->FindPrey();
+			UOEntity* prey = nullptr;
+			prey = entity->FindPrey();
 			if (ValidateObject(prey)) {
 				entityBlackboard->SetValue<UBlackboardKeyType_Enum>(nodeTypeID, static_cast<UBlackboardKeyType_Enum::FDataType>(NodeType::attack));
 				entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity"), prey);
@@ -215,7 +220,8 @@ void AEntityAIController::SetNode(Node* n) {
 		if (ValidateObject(n->nBlackboard.entity) && ValidateObject(n->nBlackboard.entity->GetOwner())) {
 			entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Entity"), n->nBlackboard.entity);
 			entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("Actor"), n->nBlackboard.entity->GetOwner());
-			UItem* item = n->nBlackboard.item;
+			UItem* item = nullptr;
+			item = n->nBlackboard.item;
 			if (item) {
 				if (item->IsA<UOEntity>())
 					entityBlackboard->SetValue<UBlackboardKeyType_Object>(entityBlackboard->GetKeyID("AnotherEntity"), dynamic_cast<UOEntity*>(item));
@@ -242,7 +248,8 @@ void AEntityAIController::SetNode(Node* n) {
 
 void AEntityAIController::SetState(UOEntity::AIState s) {
 
-	UOEntity* entity = GetPawn()->FindComponentByClass<UOEntity>();
+	UOEntity* entity = nullptr;
+	entity = GetPawn()->FindComponentByClass<UOEntity>();
 	if (entity && !entity->IsDead && entityBlackboard) {
 
 		UBlackboardKeyType_Enum::FDataType blackboardState = static_cast<UBlackboardKeyType_Enum::FDataType>(s);
@@ -258,7 +265,8 @@ void AEntityAIController::SetState(UOEntity::AIState s) {
 
 void AEntityAIController::Possess(APawn* pawn) {
 	AActor* controllerEntity = dynamic_cast<AActor*>(pawn);
-	UOEntity* entity = controllerEntity->FindComponentByClass<UOEntity>();
+	UOEntity* entity = nullptr;
+	entity = controllerEntity->FindComponentByClass<UOEntity>();
 
 	if (entity && !entity->IsPlayer) {
 		Super::Possess(pawn);
@@ -315,14 +323,17 @@ UOOwnable* AEntityAIController::GetOwnable(UOEntity* entity, OntologicFunctions:
 	OntologicFunctions ontF;
 	
 	// Check hands
-	UOOwnable* hands = entity->GetHands();
-	UOOwnable* bestChoice = hands;
+	UOOwnable* hands = nullptr;
+	hands = entity->GetHands();
+	UOOwnable* bestChoice = nullptr;
+	bestChoice = hands;
 	int bestChoiceAffordance = ontF.GetAffordance(affordableUse, bestChoice, entity);
 	bool bestChoiceSomeoneWhoCares = true;
 
 	// Check Grabbed Item
 	if (entity->HasGrabbedItem()) {
-		UOOwnable* grabbedItem = (UOOwnable*)entity->GetGrabbedItem();
+		UOOwnable* grabbedItem = nullptr;
+		grabbedItem = (UOOwnable*)entity->GetGrabbedItem();
 		int grabbedItemAffordance = ontF.GetAffordance(affordableUse, grabbedItem, entity);
 		if (grabbedItemAffordance > bestChoiceAffordance) {
 			bestChoice = grabbedItem;
@@ -345,7 +356,7 @@ UOOwnable* AEntityAIController::GetOwnable(UOEntity* entity, OntologicFunctions:
 
 	//Ponder candidates
 	for (UOOwnable* ownable : candidates) {
-		if (ownable->GetMass() <= entity->GetStrength() / STRENGTH_TO_WEIGHT && !ownable->GetIsGrabbed()) {
+		if (ownable->GetMass() <= entity->GetStrength() / STRENGTH_TO_WEIGHT && !ownable->GetIsGrabbed() && !ownable->IsA<UOEdification>()) {
 			bool someoneWhoCares = true; // to not try to possess the object if you already own it or if you are taking it because of HighPriority
 										 // Consider or not who owns the object if you don't own it depending on if the node is HighPriority
 			if (!entity->DoesOwn(ownable) && !isHighPriority) {
@@ -423,30 +434,32 @@ vector<UOOwnable*> AEntityAIController::FindNearbyOwnables(UOEntity* entity) {
 
 	vector<UOOwnable*> results;
 	for (auto hr : hitData) {
-		UOOwnable* o = hr.GetActor()->FindComponentByClass<UOOwnable>();
-		if (o) {
+		UOOwnable* o = nullptr;
+		o = hr.GetActor()->FindComponentByClass<UOOwnable>();
+		if (o->IsValidItem()) { // !edification && !isgrabbed
+
 			bool admit = true;
 
-			for (UOOwnable* own : results) {
-				if (o == own) {
+			for (UOOwnable* repeated : results) {
+				if (o == repeated) {
 					admit = false;
+					break;
 				}
 			}
 
-			if (admit && !o->IsA<UOEdification>() && !o->GetIsGrabbed()) {
-
+			if (admit) {
 				vector<UOEntity*> grabbers = o->GetGrabbers();
 				for (UOEntity* g : grabbers) {
 					ORelation* r = entity->GetRelationWith(g);
-					if (r && (r->GetAppreciation() > 25 || r->GetRespect() > 37 || r->GetFear() > 25)) {
+					if (r && (r->GetAppreciation() > 25 || r->GetRespect() > 37 || r->GetFear() < 75)) {
 						admit = false;
 						break;
 					}
 				}
-
-				if (admit)
-					results.push_back(o);
 			}
+
+			if (admit)
+				results.push_back(o);
 		}
 	}
 	return results;
@@ -466,6 +479,9 @@ void AEntityAIController::AbortNode() {
 
 bool AEntityAIController::ValidateObject(UObject* obj) {
 	if (obj == nullptr || obj->IsPendingKill())
+		return false;
+
+	if (obj > (UObject*)0xa000000000000000)
 		return false;
 
 	if (obj->IsA<UItem>())

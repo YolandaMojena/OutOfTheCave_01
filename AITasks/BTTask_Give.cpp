@@ -5,12 +5,17 @@
 
 EBTNodeResult::Type UBTTask_Give::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
 
-	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
-	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
+	AEntityAIController* entityController = nullptr;
+	entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
+	UBlackboardComponent* blackboard = nullptr;
+	blackboard = OwnerComp.GetBlackboardComponent();
 
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
-	UOOwnable* targetOwnable = (UOOwnable*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Ownable"));
-	UOEntity* receiver = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
+	UOEntity* entity = nullptr;
+	entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOOwnable* targetOwnable = nullptr;
+	targetOwnable = (UOOwnable*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Ownable"));
+	UOEntity* receiver = nullptr;
+	receiver = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 
 	if (entity && targetOwnable && entity->GetGrabbedItem() == targetOwnable && receiver) {
 		entity->ReleaseGrabbedItem();

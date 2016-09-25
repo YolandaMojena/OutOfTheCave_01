@@ -31,8 +31,6 @@ void UOEntity::BeginPlay() {
 
 	Super::BeginPlay();
 
-	_plotGenerator->allEntities.Add(this);
-
 	if (IsPlayer) {
 		GenerateTraits(); //->for other entities, called on spawning (either from Residence or from WorldPlot)
 		SetRace(ERace::R_Troll);
@@ -55,7 +53,12 @@ void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		_attackCooldown -= DeltaTime;
 	}*/
 
-	if (!IsPlayer) {
+	if (IsInitialized && !_isRecognized) {
+		_isRecognized = true;
+		_plotGenerator->allEntities.Add(this);
+	}
+
+	if (!IsPlayer && IsInitialized) {
 		for (TArray<const FAnimNotifyEvent*>::TIterator it = _skelMesh->AnimScriptInstance->AnimNotifies.CreateIterator(); it; ++it) {
 			if ((*it)->NotifyName.ToString() == "EndAttack") EndAttack();
 		}
@@ -226,7 +229,7 @@ FVector UOEntity::GetGoingLocation() {
 	return GetHome()->GetOwner()->GetActorLocation();
 }
 
-float UOEntity::GetAppreciationToOtherRace()
+float UOEntity::GetAppreciationToOtherRace(ERace race)
 {
 	int raceCounter = 0;
 	int appreciationSum = 0;
@@ -236,7 +239,7 @@ float UOEntity::GetAppreciationToOtherRace()
 		if (!o || !o->IsValidItem())
 			continue;
 
-		if (o->GetRace() != _race && !o->IsPlayer) {
+		if (o->GetRace() == race) {
 			raceCounter++;
 			ORelation* relation = GetRelationWith(o);
 			if (relation)  {
@@ -251,7 +254,7 @@ float UOEntity::GetAppreciationToOtherRace()
 }
 
 UOEntity* UOEntity::GetMostHated() {
-	GetAppreciationToOtherRace();
+	GetAppreciationToOtherRace(_race == ERace::R_Human ? ERace::R_Goblin : ERace::R_Human);
 	return _mostHatedEntity;
 }
 
@@ -265,8 +268,8 @@ TArray<UOEntity*> UOEntity::GetNearbyEntities() {
 TArray<UOEntity*>* UOEntity::GetNearbyEntitiesPtr() {
 	return &_nearbyEntities;
 }
-TArray<UOEntity*>* UOEntity::GetPreviousNearbyEntitiesPtr() {
-	return &_previousNearbyEntities;
+TArray<UOEntity*>* UOEntity::GetEntitiesReactingToPtr() {
+	return &_entitiesReactingTo;
 }
 
 UOEdification* UOEntity::GetHome() {
@@ -276,13 +279,37 @@ UOEdification* UOEntity::GetHome() {
 
 // S E T T E R S
 void UOEntity::SetStrength(float st) {
-	_strength = st;
+	if (st > 100)
+		_strength = 100;
+	else if (st < 0)
+		_strength = 0;
+	else
+		_strength = st;
 }
-void UOEntity::SetSpeed(float sd) {
-	_speed = sd;
+void UOEntity::SetSpeed(float sp) {
+	if (sp > 100)
+		_speed = 100;
+	else if (sp < 0)
+		_speed = 0;
+	else
+		_speed = sp;
 }
 void UOEntity::SetAgility(float ag) {
-	_agility = ag;
+	if (ag > 100)
+		_agility = 100;
+	else if (ag < 0)
+		_agility = 0;
+	else
+		_agility = ag;
+}
+void UOEntity::ChangeStrength(float add) {
+	SetStrength(GetStrength() + add);
+}
+void UOEntity::ChangeSpeed(float add) {
+	SetSpeed(GetSpeed() + add);
+}
+void UOEntity::ChangeAgility(float add) {
+	SetAgility(GetAgility() + add);
 }
 void UOEntity::SetRace(ERace race)
 {
@@ -291,75 +318,15 @@ void UOEntity::SetRace(ERace race)
 void UOEntity::SetJob(EJob job) {
 	_job = job;
 }
+
+
+// G E N E R A T E    T R A I T S   -   INITIALIZE ENTITY
 void UOEntity::GenerateTraits() {
 
 	IsInitialized = true;
 
-	if (!IsPlayer) {
-
-		const float BASE_MOVEMENT_SPEED = 300.f;
-		const float MOVEMENT_SPEED_GROWTH = 6.f;
-		const float BASE_JUMP_FORCE = 1400.f;
-		const float JUMP_FORCE_GROWTH = 2.f;
-
-		const int RANDOM_WIDTH = 5;
-		//+ rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH
-
-		switch (_job) {
-		case EJob::J_Farmer:
-			SetStrength(20);
-			SetSpeed(25);
-			SetAgility(10);
-			break;
-		case EJob::J_Ironsmith:
-			SetStrength(30);
-			SetSpeed(15);
-			SetAgility(10);
-			break;
-		case EJob::J_Miner:
-			SetStrength(30);
-			SetSpeed(15);
-			SetAgility(15);
-			break;
-		case EJob::J_Peasant:
-			SetStrength(20);
-			SetSpeed(20);
-			SetAgility(10);
-			break;
-		case EJob::J_Shaman:
-			SetStrength(10);
-			SetSpeed(10);
-			SetAgility(10);
-			break;
-		case EJob::J_Soldier:
-			SetStrength(30);
-			SetSpeed(30);
-			SetAgility(30);
-			break;
-
-		case EJob::J_Herbibore:
-			SetStrength(50);
-			SetSpeed(50);
-			SetAgility(50);
-			break;
-		case EJob::J_Predator:
-			SetStrength(80);
-			SetSpeed(60);
-			SetAgility(60);
-			break;
-		}
-
-		SetStrength(GetStrength() + rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH);
-		SetSpeed(GetSpeed() + rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH);
-		SetAgility(GetAgility() + rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH);
-
-		_attackCooldown = 1.5f - GetAgility() / 100.f;
-
-		((ACharacter*)GetOwner())->GetCharacterMovement()->MaxWalkSpeed = BASE_MOVEMENT_SPEED + MOVEMENT_SPEED_GROWTH * GetSpeed()*2;
-		((ACharacter*)GetOwner())->GetCharacterMovement()->JumpZVelocity = BASE_JUMP_FORCE + JUMP_FORCE_GROWTH * (GetStrength() + GetAgility());
-
-	}
-
+	
+	// R A C E - D E F I N E D   T R A I T S
 	int PERSONALITY_SPARE = 25;
 
 	switch (_race) {
@@ -374,6 +341,9 @@ void UOEntity::GenerateTraits() {
 			10 + rand() % PERSONALITY_SPARE,
 			75 + rand() % PERSONALITY_SPARE
 			);
+		SetStrength(20);
+		SetSpeed(15);
+		SetAgility(10);
 		break;
 	case ERace::R_Goblin:
 		_personality = new OPersonality(
@@ -386,6 +356,9 @@ void UOEntity::GenerateTraits() {
 			75 + rand() % PERSONALITY_SPARE,
 			15 + rand() % PERSONALITY_SPARE
 			);
+		SetStrength(15);
+		SetSpeed(20);
+		SetAgility(20);
 		break;
 	case ERace::R_Bear:
 		_personality = new OPersonality(
@@ -398,6 +371,9 @@ void UOEntity::GenerateTraits() {
 			75,
 			0
 			);
+		SetStrength(80);
+		SetSpeed(30);
+		SetAgility(60);
 		break;
 	case ERace::R_Herbivore:
 		_personality = new OPersonality(
@@ -410,6 +386,9 @@ void UOEntity::GenerateTraits() {
 			25,
 			0
 			);
+		SetStrength(20);
+		SetSpeed(50);
+		SetAgility(50);
 		break;
 	case ERace::R_Wolf:
 		_personality = new OPersonality(
@@ -422,6 +401,9 @@ void UOEntity::GenerateTraits() {
 			75,
 			0
 			);
+		SetStrength(60);
+		SetSpeed(60);
+		SetAgility(60);
 		break;
 	case ERace::R_Troll:
 		_personality = new OPersonality(
@@ -438,6 +420,66 @@ void UOEntity::GenerateTraits() {
 	default:
 		_personality = new OPersonality();
 		break;
+	}
+
+	// J O B - D E F I N E D   T R A I T S
+	if (!IsPlayer) {
+
+		const float BASE_MOVEMENT_SPEED = 300.f;
+		const float MOVEMENT_SPEED_GROWTH = 6.f;
+		const float BASE_JUMP_FORCE = 1400.f;
+		const float JUMP_FORCE_GROWTH = 2.f;
+
+		const int RANDOM_WIDTH = 5;
+		//+ rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH
+
+		switch (_job) {
+		case EJob::J_Farmer:
+			break;
+		case EJob::J_Ironsmith:
+			break;
+		case EJob::J_Miner:
+			ChangeStrength(10);
+			//SetSpeed(15);
+			//SetAgility(15);
+			break;
+		case EJob::J_Peasant:
+			ChangeStrength(5);
+			//ChangeSpeed(5);
+			//ChangeAgility(5);
+			break;
+		case EJob::J_Shaman:
+			//SetStrength(10);
+			//SetSpeed(10);
+			//SetAgility(10);
+			break;
+		case EJob::J_Soldier:
+			ChangeStrength(15);
+			ChangeSpeed(15);
+			ChangeAgility(15);
+			break;
+
+		case EJob::J_Herbibore:
+			//SetStrength(50);
+			//SetSpeed(50);
+			//SetAgility(50);
+			break;
+		case EJob::J_Predator:
+			//ChangeStrength(10);
+			//ChangeSpeed(10);
+			//ChangeAgility(10);
+			break;
+		}
+
+		ChangeStrength(rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH);
+		ChangeSpeed(rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH);
+		ChangeAgility(rand() % (RANDOM_WIDTH * 2) - RANDOM_WIDTH);
+
+		_attackCooldown = 1.5f - GetAgility() / 100.f;
+
+		((ACharacter*)GetOwner())->GetCharacterMovement()->MaxWalkSpeed = BASE_MOVEMENT_SPEED + MOVEMENT_SPEED_GROWTH * GetSpeed() * 2;
+		((ACharacter*)GetOwner())->GetCharacterMovement()->JumpZVelocity = BASE_JUMP_FORCE + JUMP_FORCE_GROWTH * (GetStrength() + GetAgility());
+
 	}
 
 	TraitsString = FString(
@@ -471,7 +513,7 @@ void UOEntity::AddRelationship(ORelation* newRelation) {
 	}
 }
 ORelation* UOEntity::AddRelationship(UOEntity* newEntity) {
-	if (newEntity && newEntity->IsValidItem() && newEntity != this) {
+	if (IsValidItem() && newEntity && newEntity->IsValidItem() && newEntity != this) {
 		//ORelation* newRelation = new ORelation(this, newEntity, _personality->GetSocial(), newEntity->GetNotoriety(), _personality->GetMaxValue() - _personality->GetBraveness());
 		int newAppreciation = 25 + GetSocial()*3/4;
 		if (GetHome() && newEntity->GetHome()) {
@@ -481,10 +523,13 @@ ORelation* UOEntity::AddRelationship(UOEntity* newEntity) {
 				newAppreciation += GetHome()->edificationID == newEntity->GetHome()->edificationID ? 20 : 0;
 			}
 		}
+		if (GetRace() != newEntity->GetRace()) {
+			newAppreciation -= (10 + rand() % 10);
+		}
 		ORelation* newRelation = new ORelation(this, newEntity,
 			newAppreciation,	// Appreciation,
 			newEntity->GetNotoriety(),																		// Respect
-			newEntity->GetStrength() - GetStrength() + newEntity->GetAggressiveness() - GetBraveness());	// Fear
+			newEntity->GetStrength() - GetStrength() + newEntity->GetAggressiveness()/3.f - GetBraveness()/3.f);	// Fear
 		_relationships.push_back(newRelation);
 		return newRelation;
 	}
@@ -606,7 +651,7 @@ void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 					Node* n = new Node();
 					n->SetNodeType(NodeType::flee); n->SetActor(damager->GetOwner()); n->SetHighPriority();
 					react->AddNode(n);
-					AddReactGraph(react);
+					AddReactGraph(react, damager);
 				}
 				else if (r->GetAppreciation() < GetAggressiveness() + GetPride()) {
 					Graph* react = new Graph();
@@ -616,7 +661,7 @@ void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 					n = new Node();
 					n->SetNodeType(NodeType::attack); n->SetEntity(damager); n->SetHighPriority();
 					react->AddNode(n);
-					AddReactGraph(react);
+					AddReactGraph(react, damager);
 				}
 			}
 		}
@@ -626,7 +671,7 @@ void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 // BEFORE SENDING, ELEGIBLE TYPE MUST BE CHECKED WITH PERSONALITY
 void UOEntity::SendReport(Report* newReport)
 {
-	if (CheckValidPersonality(newReport->GetType())) {
+	if (GetHome()->IsValidItem() && CheckValidPersonality(newReport->GetType())) {
 		_plotGenerator->AddReportToLog(newReport);
 	}
 }
@@ -638,12 +683,12 @@ void UOEntity::Die() {
 
 	IsDead = true;
 
-	if (IsA<UOCivilian>()) {
+	ACharacter* character = (ACharacter*)GetOwner();
+	character->GetMesh()->SetSimulatePhysics(true);
+	character->GetMesh()->AttachTo(character->GetCapsuleComponent());
+	character->GetCapsuleComponent()->AttachTo(character->GetMesh());
 
-		ACharacter* character = (ACharacter*)GetOwner();
-		character->GetMesh()->SetSimulatePhysics(true);
-		character->GetMesh()->AttachTo(character->GetCapsuleComponent());
-		character->GetCapsuleComponent()->AttachTo(character->GetMesh());
+	if (IsA<UOCivilian>()) {
 
 		((UOCivilian*)this)->currentIconPath = "";
 
@@ -662,14 +707,15 @@ void UOEntity::Die() {
 		if (GetCurrentPlot() && GetCurrentPlot()->GetMainEntity() == this) {
 			if (_currentPlots.size() > 0 && !_currentPlots[0]->GetIsExclusive() && _currentPlots[0]->GetInvolvedInPlot().Num() > 0) {
 
-				UOEntity* notorious = _currentPlots[0]->GetInvolvedInPlot()[0];
-				if (notorious && notorious->IsValidItem()) {
+				UOEntity* notorious = nullptr;
+				notorious = _currentPlots[0]->GetInvolvedInPlot()[0];
+				if (notorious->IsValidItem()) {
 
 					for (UOEntity* entity : _currentPlots[0]->GetInvolvedInPlot()) {
 						if (!entity || !entity->IsValidItem() || entity->GetMainPlotEntity() == this)
 							continue;
 
-						if (entity->GetNotoriety() >= notorious->GetNotoriety())
+						if (entity->GetNotoriety() > notorious->GetNotoriety())
 							notorious = entity;
 					}
 
@@ -687,8 +733,10 @@ void UOEntity::Die() {
 				}
 			}
 		}
-		else if (GetMainPlotEntity()->IsValidItem() && GetMainPlotEntity()->GetCurrentPlot())
+		else if (GetMainPlotEntity()->IsValidItem() && GetMainPlotEntity()->GetCurrentPlot()) {
 			GetMainPlotEntity()->GetCurrentPlot()->DeleteFromInvolved(this);
+		}
+			
 	}
 	
 	if (_currentPlots.size() > 0) {
@@ -718,12 +766,14 @@ void UOEntity::Die() {
 		if (entity->GetRelationWith(this))
 			entity->DeleteRelation(this);
 
-		TArray<UOEntity*>* entityNearbies = entity->GetNearbyEntitiesPtr();
+		TArray<UOEntity*>* entityNearbies = nullptr;
+		entityNearbies = entity->GetNearbyEntitiesPtr();
 		if (entityNearbies->Contains(this))
 			entityNearbies->Remove(this);
-		TArray<UOEntity*>* previousEntityNearbies = entity->GetPreviousNearbyEntitiesPtr();
-		if (previousEntityNearbies->Contains(this))
-			previousEntityNearbies->Remove(this);
+		TArray<UOEntity*>* entitiesItReactedTo = nullptr;
+		entitiesItReactedTo = entity->GetEntitiesReactingToPtr();
+		if (entitiesItReactedTo->Contains(this))
+			entitiesItReactedTo->Remove(this);
 			
 	}
 
@@ -753,7 +803,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 
 		ORelation* relationFromOther = otherEntity->GetRelationWith(this);
 		
-		if (relationFromOther && FVector::Dist(GetOwner()->GetActorLocation(), o->GetOtherEntity()->GetOwner()->GetActorLocation()) < 2000){
+		if (relationFromOther){
 			if (relationFromOther->GetAppreciation() > ORelation::HIGH_APPRECIATION) {
 				ORelation* othersRelationWithKiller = otherEntity->GetRelationWith(killer);
 
@@ -769,8 +819,8 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 					}
 
 					//Since something bad has happened, let's check the overall hate against the enemy race
-					if (killer->GetRace() != ERace::R_Troll && killer->GetRace()!=_race) {
-						if (_plotGenerator->GetOverallHateAgainstRace(_race == ERace::R_Human ? ERace::R_Goblin : ERace::R_Human) < ORelation::LOW_APPRECIATION / 2) {
+					if (killer->GetRace() != ERace::R_Troll && killer->GetRace()!=_race && _plotGenerator->WarCount == 0) {
+						if (_plotGenerator->GetOverallHateAgainstRace(_race == ERace::R_Human ? ERace::R_Goblin : ERace::R_Human) < ORelation::LOW_APPRECIATION) {
 							for(UOEntity* e : _plotGenerator->GetNotoriousEntities())
 								SendReport(new Report(e, TypeOfPlot::world));
 						}
@@ -790,7 +840,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 
 void UOEntity::IHaveBeenHelpedBySomeone(UOEntity * helper, UItem* motivation, int oldAppreciation, int newAppreciation)
 {
-	if (oldAppreciation < ORelation::HIGH_APPRECIATION && newAppreciation > ORelation::HIGH_APPRECIATION) {
+	if (oldAppreciation-10 < ORelation::HIGH_APPRECIATION && newAppreciation > ORelation::HIGH_APPRECIATION) {
 		Report* newReport = new Report(GetRelationWith(helper), TypeOfPlot::thankful, motivation);
 	}
 }
@@ -889,7 +939,7 @@ void UOEntity::SetState(AIState s) {
 		switch (_currentState) {
 		case AIState::idle:
 		{
-			_brain = *_idleGraph;
+			_brain = Graph(*_idleGraph);
 			if (_brain.Peek()->nBlackboard.daytime >= 0) {
 				while (_brain.Peek()->nBlackboard.daytime <= _plotGenerator->dayTime) {
 					if (_brain.IsLastNode()) {
@@ -920,12 +970,14 @@ void UOEntity::SetState(AIState s) {
 				if (_mainPlotEntity && _mainPlotEntity->GetCurrentPlot()) {
 
 					_brain = _mainPlotEntity->GetCurrentPlot()->GetGraph();
+					if (!_brain.IsLastNode()) {
+						_brain.NextNode();
 
-					Node* comeToEntity = new Node();
-					comeToEntity->SetNodeType(NodeType::goToActor);
-					comeToEntity->SetActor(_mainPlotEntity->GetOwner());
-					_brain.AddInstantNode(comeToEntity);
-					_brain.NextNode();
+						Node* comeToEntity = new Node();
+						comeToEntity->SetNodeType(NodeType::goToActor);
+						comeToEntity->SetActor(_mainPlotEntity->GetOwner());
+						_brain.AddSplitSecondNode(comeToEntity);
+					}
 				}
 			}
 		}
@@ -977,7 +1029,7 @@ void UOEntity::ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notify
 			return;
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, GetItemName() + TEXT(" received a Notify! ") + notifyID);
+	//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Yellow, GetItemName() + TEXT(" received a Notify! ") + notifyID);
 
 	_knownNotifyIDs.push_back(notifyID);
 
@@ -1292,7 +1344,7 @@ void UOEntity::Retaliation(int grade, UItem* predicate, UOEntity* subject) {
 	}
 
 	if (graph->GetGraphSize() > 0) {
-		AddReactGraph(graph);
+		AddReactGraph(graph, subject);
 		RethinkState();
 	}
 }
@@ -1326,17 +1378,19 @@ void UOEntity::ExecuteGraph() {
 void UOEntity::NodeCompleted(bool completedOk) {
 	if (completedOk && !_brain.IsLastNode()) {
 		_brain.NextNode();
-		if (_currentState == AIState::plot && !_mainPlotEntity && GetCurrentPlot()
+		if (_currentState == AIState::plot && GetCurrentPlot()
 			&& GetCurrentPlot()->GetMainEntity() == this){
 			Graph* plotGraph = _currentPlots[0]->GetGraphPointer();
-			if (plotGraph->Peek()->GetNodeType() != NodeType::grab
+			if (!IsA<UOCivilian>()
+				|| plotGraph->Peek()->GetNodeType() != NodeType::grab
 				&& plotGraph->Peek()->GetNodeType() != NodeType::get)
 			{
 				plotGraph->NextNode();
 			}
 		}	
 		else if (_currentState == AIState::react) {
-			if (_currentReacts[0]->Peek()->GetNodeType() != NodeType::grab
+			if (!IsA<UOCivilian>()
+				|| _currentReacts[0]->Peek()->GetNodeType() != NodeType::grab
 				&& _currentReacts[0]->Peek()->GetNodeType() != NodeType::get) 
 			{
 				_currentReacts[0]->NextNode();
@@ -1377,6 +1431,8 @@ void UOEntity::ClearState()
 	}
 	else if (_currentState == AIState::react) {
 		_currentReacts.erase(_currentReacts.begin());
+		if(_entitiesReactingTo.Num() > 0)
+			_entitiesReactingTo.RemoveAt(0);
 	}
 
 	_currentState = AIState::restart;
@@ -1401,9 +1457,17 @@ void UOEntity::AddInstantReactGraph(Graph * g)
 	_currentReacts = aux;
 }
 
-void UOEntity::AddReactGraph(Graph * g)
+void UOEntity::AddReactGraph(Graph * g, UOEntity* e)
+{
+	if (!_entitiesReactingTo.Contains(e)) {
+		_currentReacts.push_back(g);
+		_entitiesReactingTo.Add(e);
+	}
+}
+void UOEntity::AddInconditionalReactGraph(Graph * g)
 {
 	_currentReacts.push_back(g);
+	_entitiesReactingTo.Add(this);
 }
 
 vector<Graph*> UOEntity::GetReacts()
@@ -1420,10 +1484,10 @@ void UOEntity::RethinkState() {
 		}
 
 		// React pending of execution
-		/*else if (!_currentReacts.empty()) {
+		else if (!_currentReacts.empty()) {
 			//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Yellow, GetOwner()->GetActorLabel() + TEXT(" wants to react!"));
 			SetState(AIState::react);
-		}*/
+		}
 
 		// Plot pending of execution
 		else if (!_currentPlots.empty() || _mainPlotEntity)
@@ -1527,18 +1591,20 @@ void UOEntity::GrabItem(UItem* item) {
 }
 
 void UOEntity::ReleaseGrabbedItem() {
-	if (_grabbedItem && _grabbedItem != nullptr && _grabbedItem != NULL && _grabbedItem->IsValidItem()) {
-		AActor* grabbedItemActor = _grabbedItem->GetOwner();
+	if (_grabbedItem->IsValidItem()) {
+		AActor* grabbedItemActor = nullptr;
+		grabbedItemActor = _grabbedItem->GetOwner();
 		//dejar
 		if (grabbedItemActor) {
+			if (_grabbedItem->IsValidItem() && _grabbedItem->IsA<UOOwnable>())
+				((UOOwnable*)_grabbedItem)->SetIsGrabbed(false);
+			CastNotify(_grabbedItem, this, ENotify::N_Released);
+			if (_grabbedItem->IsValidItem() && !_grabbedItem->IsA<UOEntity>()) {
+				grabbedItemActor->SetActorLocation(FVector(grabbedItemActor->GetActorLocation().X, grabbedItemActor->GetActorLocation().Y, 0));
+			}
 			grabbedItemActor->OnActorBeginOverlap.Remove(HitFunc);
 			grabbedItemActor->DetachRootComponentFromParent(true);
 			grabbedItemActor->SetActorEnableCollision(true);
-			((UOOwnable*)_grabbedItem)->SetIsGrabbed(false);
-			CastNotify(_grabbedItem, this, ENotify::N_Released);
-			if (!_grabbedItem->IsA<UOEntity>()) {
-				grabbedItemActor->SetActorLocation(FVector(grabbedItemActor->GetActorLocation().X, grabbedItemActor->GetActorLocation().Y, 0));
-			}
 		}
 		_grabbedItem = nullptr;
 	}
@@ -1546,6 +1612,9 @@ void UOEntity::ReleaseGrabbedItem() {
 
 
 void UOEntity::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
+
+	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("I have been hit!!: ") + GetItemName());
+
 }
 
 void UOEntity::AttachToSocket(AActor* target, string socket) {
@@ -1587,7 +1656,7 @@ void UOEntity::FinishedFindingNearbyEntities(/*TArray<UOEntity*> entitiesFound*/
 			r->ChangeFear(-1);
 		}
 
-		if (!_previousNearbyEntities.Contains(e)) {
+		if (!_entitiesReactingTo.Contains(e)) {
 			Graph* react = new Graph();
 			Node* n;
 
@@ -1619,10 +1688,9 @@ void UOEntity::FinishedFindingNearbyEntities(/*TArray<UOEntity*> entitiesFound*/
 			}
 
 			if (react->GetGraphSize() > 0) {
-				AddReactGraph(react);
+				AddReactGraph(react, e);
 				somethingNewToDo = true;
 			}
-			_previousNearbyEntities = _nearbyEntities;
 		}
 		i++;
 	}
@@ -1692,12 +1760,14 @@ void UOEntity::ReceivePresent(UOOwnable* present, UOEntity* giver) {
 	Node* n = new Node();
 	n->SetNodeType(NodeType::grab); n->SetOwnable(present);
 	graph->AddNode(n);
-	n = new Node();
-	n->SetNodeType(NodeType::goToActor); n->SetActor(GetHome()->GetOwner());
-	graph->AddNode(n);
-	n = new Node();
-	n->SetNodeType(NodeType::releaseItem);
-	graph->AddNode(n);
+	if (GetHome()->IsValidItem()) {
+		n = new Node();
+		n->SetNodeType(NodeType::goToActor); n->SetActor(GetHome()->GetOwner());
+		graph->AddNode(n);
+		n = new Node();
+		n->SetNodeType(NodeType::releaseItem);
+		graph->AddNode(n);
+	}
 
-	AddReactGraph(graph);
+	AddInconditionalReactGraph(graph);
 }

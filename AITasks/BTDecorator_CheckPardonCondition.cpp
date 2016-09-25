@@ -11,8 +11,10 @@ bool UBTDecorator_CheckPardonCondition::CalculateRawConditionValue(UBehaviorTree
 	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
 	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
 
-	UOEntity* entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
-	UOEntity* otherEntity = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
+	UOEntity* entity = nullptr;
+	entity = entityController->GetPawn()->FindComponentByClass<UOEntity>();
+	UOEntity* otherEntity = nullptr;
+	otherEntity = (UOEntity*)blackboard->GetValue<UBlackboardKeyType_Object>(blackboard->GetKeyID("Entity"));
 
 	if (entity->IsValidItem() && otherEntity->IsValidItem() && otherEntity->GetBrain() && otherEntity->GetBrain()->Peek()) {
 		if (!otherEntity->IsPlayer && otherEntity->GetBrain()->Peek()->GetNodeType() == NodeType::flee) {

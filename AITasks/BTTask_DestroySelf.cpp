@@ -6,11 +6,15 @@
 
 EBTNodeResult::Type UBTTask_DestroySelf::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {
 
-	AEntityAIController* entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
-	UBlackboardComponent* blackboard = OwnerComp.GetBlackboardComponent();
+	AEntityAIController* entityController = nullptr;
+	entityController = dynamic_cast<AEntityAIController*>(OwnerComp.GetAIOwner());
+	UBlackboardComponent* blackboard = nullptr;
+	blackboard = OwnerComp.GetBlackboardComponent();
 
-	AActor* entityActor = entityController->GetPawn();
-	UOEntity* entity = entityActor->FindComponentByClass<UOEntity>();
+	AActor* entityActor = nullptr;
+	entityActor = entityController->GetPawn();
+	UOEntity* entity = nullptr;
+	entity = entityActor->FindComponentByClass<UOEntity>();
 	
 
 	if (entity) {

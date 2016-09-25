@@ -61,18 +61,18 @@ public:
 	public:
 
 		UItem* item = nullptr;
-		UOEntity* entity;
-		AActor* actor;
-		UOOwnable* ownable;
+		UOEntity* entity = nullptr;
+		AActor* actor = nullptr;
+		UOOwnable* ownable = nullptr;
 		OntologicFunctions::AffordableUse affordableUse;
-		UOEdification* edification;
-		UOResidence* residence;
+		UOEdification* edification = nullptr;
+		UOResidence* residence = nullptr;
 		FVector position = FVector(-1, -1, -1);
-		UOEntity* anotherEntity;
+		UOEntity* anotherEntity = nullptr;
 		float daytime = -1.0f;
-		bool boolKey;
-		float floatKey;
-		bool branch;
+		bool boolKey = false;
+		float floatKey = -1;
+		bool branch = false;
 		bool completedOk = true;
 		bool isHighPriority = false;
 		//UOEntity::State entityState;
