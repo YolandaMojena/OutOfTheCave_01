@@ -40,7 +40,7 @@ void AttackPlot::BuildSentence() {
 
 		_sentence += "The brave " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName() 
 			+ " began an attack against the despicable " + _targetEntity->GetRaceString()
-			+ _targetEntity->GetItemName() + ", who had ";
+			+ " " + _targetEntity->GetItemName() + ", who had ";
 		_sentence += _motivationRace != "" ?
 			" hurt his/her friend " + _motivationName
 			: " damaged his/her " + _motivationName;
@@ -73,12 +73,12 @@ void AttackPlot::BuildGraph() {
 	//GET WEAPON
 	Node* getNode = new Node();
 	getNode->SetNodeType(NodeType::get);
-	getNode->SetAffordableUse(OntologicFunctions::AffordableUse::build);
+	getNode->SetAffordableUse(OntologicFunctions::AffordableUse::weapon);
 	_plotGraph.AddNode(getNode);
 
 	UOEntity* troll = UGameplayStatics::GetPlayerCharacter(_plotEntity->GetWorld(), 0)->FindComponentByClass<UOEntity>();
 	ORelation* relation = _plotEntity->GetRelationWith(troll);
-	if (relation && relation->GetAppreciation() > 50) {
+	if (relation && relation->GetAppreciation() > 50 && (relation->GetFear()<50 || _plotEntity->GetBraveness() > relation->GetFear())) {
 
 		//ASK TROLL FOR HELP
 		Node* askTrollForHelpNode = new Node();
@@ -187,7 +187,8 @@ void DestroyPlot::BuildSentence() {
 				_sentence += _targetEdification->GetOwners()[i]->GetItemName();
 				if (i < _targetEdification->GetOwners().size() - 2)
 					_sentence += ", ";
-				else _sentence += " and ";
+				else if (i == _targetEdification->GetOwners().size() - 2)
+					_sentence += " and ";
 			}
 		}
 		_sentence += ", since " + _targetEntity->GetItemName();
@@ -224,8 +225,8 @@ void DestroyPlot::BuildGraph() {
 
 	UOEntity* troll = UGameplayStatics::GetPlayerCharacter(_plotEntity->GetWorld(), 0)->FindComponentByClass<UOEntity>();
 	ORelation* relation = _plotEntity->GetRelationWith(troll);
-	if (relation && relation->GetAppreciation() > 50) {
-
+	if (relation && relation->GetAppreciation() > 50 && (relation->GetFear()<50 || _plotEntity->GetBraveness() > relation->GetFear()))
+	{
 		//ASK TROLL FOR HELP
 		Node* askTrollForHelpNode = new Node();
 		askTrollForHelpNode->SetNodeType(NodeType::askTroll);
@@ -335,7 +336,7 @@ void BuildPlot::BuildGraph() {
 	//GET TOOLS
 	Node* getNode = new Node();
 	getNode->SetNodeType(NodeType::get);
-	getNode->SetAffordableUse(OntologicFunctions::mine);
+	getNode->SetAffordableUse(OntologicFunctions::build);
 	_plotGraph.AddNode(getNode);
 
 	//BUILD
@@ -511,7 +512,7 @@ void GetPlot::BuildGraph() {
 
 	UOEntity* troll = UGameplayStatics::GetPlayerCharacter(_plotEntity->GetWorld(), 0)->FindComponentByClass<UOEntity>();
 	ORelation* relation = _plotEntity->GetRelationWith(troll);
-	if (relation && relation->GetAppreciation() > 50){
+	if (relation && relation->GetAppreciation() > 50 && (relation->GetFear()<50 || _plotEntity->GetBraveness() > relation->GetFear())) {
 
 		//ASK TROLL FOR HELP
 		Node* askTrollForHelpNode = new Node();
@@ -748,7 +749,7 @@ void StealPlot::BuildSentence() {
 	  if  (_motivationName != "") {
 
 		_sentence += "The " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName() + " decided to steal a " + _targetOwnable->GetItemName() + " from the " +
-			_targetEntity->GetRaceString() + " " + _targetEntity->GetItemName() + " as an act of revenge for his/her own stolen " + _motivationName + ".\n\n";
+			_targetEntity->GetRaceString() + " " + _targetEntity->GetItemName() + " as an act of revenge for his/her own stolen " + _targetOwnable->GetItemName() + ".\n\n";
 	}
 	else if (_ambition == TypeOfAmbition::possessions) {
 		_sentence += "The materialistic " + _plotEntity->GetRaceString() + " " + _plotEntity->GetItemName()

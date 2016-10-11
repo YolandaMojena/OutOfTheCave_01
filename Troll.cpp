@@ -238,7 +238,7 @@ void ATroll::AttachToSocket(AActor* target, string socket) {
 
 	if (GetMesh()->DoesSocketExist(socket.c_str()))
 		target->AttachRootComponentTo(GetMesh(), socket.c_str(), EAttachLocation::SnapToTarget, true);
-	else GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Trying to Attach to non-existing socket"));
+	//else GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, TEXT("Trying to Attach to non-existing socket"));
 }
 
 void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) {
@@ -278,7 +278,7 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 		ucmc = character->FindComponentByClass<UCharacterMovementComponent>();
 
 		//OtherActor->FindComponentByClass<CharacterMovement>()
-		if (_trollActor) {
+		/*if (_trollActor) {
 			FVector impulse = OtherActor->GetActorLocation(); 
 			//GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, impulse.ToString());
 			impulse -= _trollActor->GetActorLocation();
@@ -291,7 +291,7 @@ void ATroll::OnOverlapBegin(class AActor* OtherActor, class UPrimitiveComponent*
 			//OtherActor->FindComponentByClass<UCharacterMovementComponent>()->AddForce(impulse);
 			//OtherActor->FindComponentByClass<UCharacterMovementComponent>()->Velocity = OtherActor->GetVelocity() + impulse;
 			
-		}	
+		}*/	
 		
 		_victims.Add(hitEntity->GetOwner());
 	}

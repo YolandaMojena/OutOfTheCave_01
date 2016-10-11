@@ -14,6 +14,11 @@ AEntityAIController::~AEntityAIController() {}
 
 void AEntityAIController::SetNode(Node* n) {
 
+	if (!_plotGenerator) {
+		for (TActorIterator<APlotGenerator> Itr(GetPawn()->GetWorld()); Itr; ++Itr)
+			_plotGenerator = *Itr;
+	}
+
 	if (!n)
 		return;
 
@@ -238,6 +243,8 @@ void AEntityAIController::SetNode(Node* n) {
 			AbortNode();
 	}
 		break;
+	case NodeType::releaseItem:
+		break;
 	default:
 		AbortNode();
 		break;
@@ -413,7 +420,7 @@ UOOwnable* AEntityAIController::GetOwnable(UOEntity* entity, OntologicFunctions:
 vector<UOOwnable*> AEntityAIController::FindNearbyOwnables(UOEntity* entity) {
 	AActor* actor = entity->GetOwner();
 	float const _SEARCH_RADIUS = 3000.0f;
-	FVector start = actor->GetActorLocation() + FVector(0, 0, -_SEARCH_RADIUS);
+	/*FVector start = actor->GetActorLocation() + FVector(0, 0, -_SEARCH_RADIUS);
 	FVector end = start + FVector(0, 0, _SEARCH_RADIUS * 2);
 	TArray<FHitResult> hitData;
 
@@ -433,30 +440,32 @@ vector<UOOwnable*> AEntityAIController::FindNearbyOwnables(UOEntity* entity) {
 		);
 
 	vector<UOOwnable*> results;
-	for (auto hr : hitData) {
-		UOOwnable* o = nullptr;
-		o = hr.GetActor()->FindComponentByClass<UOOwnable>();
-		if (o->IsValidItem()) { // !edification && !isgrabbed
+	for (auto hr : hitData) {*/
+	vector<UOOwnable*> results;
+	for (UOOwnable* o : _plotGenerator->allOwnables) {
+		//UOOwnable* o = nullptr;
+		//o = hr.GetActor()->FindComponentByClass<UOOwnable>();
+		if (o->IsValidItem() && FVector::Dist(o->GetOwner()->GetActorLocation(), actor->GetActorLocation()) < _SEARCH_RADIUS) { // !edification && !isgrabbed
 
 			bool admit = true;
 
-			for (UOOwnable* repeated : results) {
+			/*for (UOOwnable* repeated : results) {
 				if (o == repeated) {
 					admit = false;
 					break;
 				}
-			}
+			}*/
 
-			if (admit) {
+			//if (admit) {
 				vector<UOEntity*> grabbers = o->GetGrabbers();
 				for (UOEntity* g : grabbers) {
 					ORelation* r = entity->GetRelationWith(g);
-					if (r && (r->GetAppreciation() > 25 || r->GetRespect() > 37 || r->GetFear() < 75)) {
+					if (r && (r->GetAppreciation() > 25 || r->GetRespect() > 37 || r->GetFear() > 50)) {
 						admit = false;
 						break;
 					}
 				}
-			}
+			//}
 
 			if (admit)
 				results.push_back(o);
@@ -466,7 +475,7 @@ vector<UOOwnable*> AEntityAIController::FindNearbyOwnables(UOEntity* entity) {
 }
 
 void AEntityAIController::ReleaseGrabbedItemNearestToHome(UOEntity* entity, FVector targetPosition) {
-	if (entity->HasGrabbedItem()) {
+	if (entity->HasGrabbedItem() && entity->GetGrabbedItem()->IsValidItem() && entity->GetHome() && entity->GetHome()->IsValidItem()) {
 		if ((entity->GetGrabbedItem()->GetOwner()->GetActorLocation() - entity->GetHome()->GetOwner()->GetActorLocation()).Size() > (entity->GetOwner()->GetActorLocation() - entity->GetHome()->GetOwner()->GetActorLocation()).Size()) {
 			entity->ReleaseGrabbedItem();
 		}
@@ -478,10 +487,13 @@ void AEntityAIController::AbortNode() {
 }
 
 bool AEntityAIController::ValidateObject(UObject* obj) {
-	if (obj == nullptr || obj->IsPendingKill())
+	if (!obj || obj == nullptr || obj == NULL)
 		return false;
 
 	if (obj > (UObject*)0xa000000000000000)
+		return false;
+
+	if (obj->IsPendingKill())
 		return false;
 
 	if (obj->IsA<UItem>())

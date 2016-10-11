@@ -53,6 +53,8 @@ void UOOwnable::BeginPlay() {
 
 	if (_rarity == Rarity::mythic || _rarity == Rarity::rare)
 		_plotGenerator->AddValuable(this);
+
+	_plotGenerator->allOwnables.Add(this);
 }
 
 void UOOwnable::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

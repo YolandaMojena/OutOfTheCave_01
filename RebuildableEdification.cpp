@@ -18,6 +18,8 @@ void ARebuildableEdification::BeginPlay()
 {
 	Super::BeginPlay();
 
+	originalMesh->SetFlags(RF_Public);
+
 	destructible->SetDestructibleMesh(originalMesh);
 
 	_copy = DuplicateObject(originalMesh, nullptr);
@@ -34,7 +36,8 @@ void ARebuildableEdification::Tick( float DeltaTime )
 
 bool ARebuildableEdification::RebuildEdification() {
 
-	destructible->SetDestructibleMesh(_copy);
+	if(destructible && _copy)
+		destructible->SetDestructibleMesh(_copy);
 	return true;
 }
 

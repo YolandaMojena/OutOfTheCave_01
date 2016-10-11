@@ -23,7 +23,9 @@ class OUTOFTHECAVE_01_API APlotGenerator : public AActor
 public:	
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlotGenerator)
-	TArray<UOEntity*> allEntities;
+		TArray<UOEntity*> allEntities;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = PlotGenerator)
+		TArray<UOOwnable*> allOwnables;
 
 	struct intTest
 	{
@@ -106,7 +108,7 @@ private:
 	TArray<UOEntity*> _notoriousEntities;
 
 
-	const float _TIME_TO_SPAWN = 10.0f;
+	const float _TIME_TO_SPAWN = 15.0f;
 	const int _MAX_NOTORIOUS = 15;
 	const int _MAX_PLOTS = 5;
 	const int _MAX_STAMPEDES = 5;

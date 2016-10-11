@@ -32,8 +32,8 @@ void UOEntity::BeginPlay() {
 	Super::BeginPlay();
 
 	if (IsPlayer) {
-		GenerateTraits(); //->for other entities, called on spawning (either from Residence or from WorldPlot)
 		SetRace(ERace::R_Troll);
+		GenerateTraits(); //->for other entities, called on spawning (either from Residence or from WorldPlot)
 	}
 	else{
 		HitFunc.BindUFunction(GetOwner(), "OnOverlapBegin");
@@ -52,6 +52,9 @@ void UOEntity::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	/*if (_isEntityAttacking && _attackCooldown > 0) {
 		_attackCooldown -= DeltaTime;
 	}*/
+
+	if (GetOwner()->GetActorLocation().Z < 0)
+		GetOwner()->SetActorLocation(FVector(GetOwner()->GetActorLocation().X, GetOwner()->GetActorLocation().Y, 0));
 
 	if (IsInitialized && !_isRecognized) {
 		_isRecognized = true;
@@ -241,12 +244,16 @@ float UOEntity::GetAppreciationToOtherRace(ERace race)
 
 		if (o->GetRace() == race) {
 			raceCounter++;
-			ORelation* relation = GetRelationWith(o);
-			if (relation)  {
+			ORelation* relation = nullptr;
+			relation = GetRelationWith(o);
+			if (relation) {
 				appreciationSum += relation->GetAppreciation();
+
 				if (relation->GetAppreciation() < lowestAppreciation)
 					_mostHatedEntity = o;
-			}		
+			}
+			else
+				appreciationSum += 75;
 		}
 	}
 	if (raceCounter == 0) return 100;
@@ -349,7 +356,7 @@ void UOEntity::GenerateTraits() {
 		_personality = new OPersonality(
 			75 + rand() % PERSONALITY_SPARE,
 			75 + rand() % PERSONALITY_SPARE,
-			75 + rand() % PERSONALITY_SPARE,
+			60 + rand() % PERSONALITY_SPARE,
 			75 + rand() % PERSONALITY_SPARE,
 			75 + rand() % PERSONALITY_SPARE,
 			75 + rand() % PERSONALITY_SPARE,
@@ -380,7 +387,7 @@ void UOEntity::GenerateTraits() {
 			75,
 			10,
 			25,
-			100,
+			40,
 			0,
 			50,
 			25,
@@ -393,9 +400,9 @@ void UOEntity::GenerateTraits() {
 	case ERace::R_Wolf:
 		_personality = new OPersonality(
 			50,
-			75,
 			100,
 			100,
+			40,
 			0,
 			50,
 			75,
@@ -529,7 +536,7 @@ ORelation* UOEntity::AddRelationship(UOEntity* newEntity) {
 		ORelation* newRelation = new ORelation(this, newEntity,
 			newAppreciation,	// Appreciation,
 			newEntity->GetNotoriety(),																		// Respect
-			newEntity->GetStrength() - GetStrength() + newEntity->GetAggressiveness()/3.f - GetBraveness()/3.f);	// Fear
+			newEntity->GetStrength() - GetStrength() + newEntity->GetAggressiveness()/2.f - GetBraveness()/2.f);	// Fear
 		_relationships.push_back(newRelation);
 		return newRelation;
 	}
@@ -671,7 +678,7 @@ void UOEntity::ReceiveDamage(float damage, UOEntity * damager)
 // BEFORE SENDING, ELEGIBLE TYPE MUST BE CHECKED WITH PERSONALITY
 void UOEntity::SendReport(Report* newReport)
 {
-	if (GetHome()->IsValidItem() && CheckValidPersonality(newReport->GetType())) {
+	if (GetHome()->IsValidItem() && IsA<UOCivilian>() && CheckValidPersonality(newReport->GetType())) {
 		_plotGenerator->AddReportToLog(newReport);
 	}
 }
@@ -803,7 +810,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 
 		ORelation* relationFromOther = otherEntity->GetRelationWith(this);
 		
-		if (relationFromOther){
+		if (relationFromOther && FVector::Dist(GetOwner()->GetActorLocation(), otherEntity->GetOwner()->GetActorLocation()) < 3000){
 			if (relationFromOther->GetAppreciation() > ORelation::HIGH_APPRECIATION) {
 				ORelation* othersRelationWithKiller = otherEntity->GetRelationWith(killer);
 
@@ -820,7 +827,7 @@ void UOEntity::IHaveBeenKilledBySomeone(UOEntity * killer)
 
 					//Since something bad has happened, let's check the overall hate against the enemy race
 					if (killer->GetRace() != ERace::R_Troll && killer->GetRace()!=_race && _plotGenerator->WarCount == 0) {
-						if (_plotGenerator->GetOverallHateAgainstRace(_race == ERace::R_Human ? ERace::R_Goblin : ERace::R_Human) < ORelation::LOW_APPRECIATION) {
+						if (_plotGenerator->GetOverallHateAgainstRace(_race == ERace::R_Human ? ERace::R_Goblin : ERace::R_Human) < 15) {
 							for(UOEntity* e : _plotGenerator->GetNotoriousEntities())
 								SendReport(new Report(e, TypeOfPlot::world));
 						}
@@ -1076,7 +1083,7 @@ void UOEntity::ReceiveNotify(UItem* predicate, UOEntity* subject, ENotify notify
 			else if (predicate->IsA<UOEdification>()) {
 				OOwnership* ownershipOfPredicate = GetOwnershipWith((UOOwnable*)predicate);
 				if (ownershipOfPredicate) {
-					relationWithSubject->ChangeAppreciation(-ownershipOfPredicate->GetWorth()*GetMaterialist() / 100 / 3);
+					relationWithSubject->ChangeAppreciation(-ownershipOfPredicate->GetWorth()*GetMaterialist() / 100 / 2);
 				}
 			}
 		}
@@ -1322,16 +1329,16 @@ void UOEntity::Retaliation(int grade, UItem* predicate, UOEntity* subject) {
 
 	if (mayAttackSubject) {
 		if (GetBraveness() > relationWithSubject->GetFear() || GetPride() > relationWithSubject->GetFear() + relationWithSubject->GetRespect()) {
-			if (GetAggressiveness() > 90 - 40*grade) {
+			//if (GetAggressiveness() > 90 - 40*grade) {
 				n = new Node();
 				n->SetNodeType(NodeType::get); n->SetAffordableUse(OntologicFunctions::AffordableUse::weapon); n->SetHighPriority();
 				graph->AddNode(n);
-			}
+			/*}
 			else if (HasGrabbedItem()) {
 				n = new Node();
 				n->SetNodeType(NodeType::releaseItem); n->SetHighPriority();
 				graph->AddNode(n);
-			}
+			}*/
 			n = new Node();
 			n->SetNodeType(NodeType::attack); n->SetEntity(subject); n->SetHighPriority();
 			graph->AddNode(n);
@@ -1345,7 +1352,7 @@ void UOEntity::Retaliation(int grade, UItem* predicate, UOEntity* subject) {
 
 	if (graph->GetGraphSize() > 0) {
 		AddReactGraph(graph, subject);
-		RethinkState();
+		//RethinkState();
 	}
 }
 
@@ -1462,12 +1469,14 @@ void UOEntity::AddReactGraph(Graph * g, UOEntity* e)
 	if (!_entitiesReactingTo.Contains(e)) {
 		_currentReacts.push_back(g);
 		_entitiesReactingTo.Add(e);
+		RethinkState();
 	}
 }
 void UOEntity::AddInconditionalReactGraph(Graph * g)
 {
 	_currentReacts.push_back(g);
 	_entitiesReactingTo.Add(this);
+	RethinkState();
 }
 
 vector<Graph*> UOEntity::GetReacts()
@@ -1649,12 +1658,12 @@ void UOEntity::FinishedFindingNearbyEntities(/*TArray<UOEntity*> entitiesFound*/
 			r = AddRelationship(e);
 		}
 
-		if (r->GetAppreciation() < 50) {
+		/*if (r->GetAppreciation() < 50) {
 			r->ChangeAppreciation(1);
 		}
 		if (r->GetFear() > 50) {
 			r->ChangeFear(-1);
-		}
+		}*/
 
 		if (!_entitiesReactingTo.Contains(e)) {
 			Graph* react = new Graph();
@@ -1689,13 +1698,13 @@ void UOEntity::FinishedFindingNearbyEntities(/*TArray<UOEntity*> entitiesFound*/
 
 			if (react->GetGraphSize() > 0) {
 				AddReactGraph(react, e);
-				somethingNewToDo = true;
+				//somethingNewToDo = true;
 			}
 		}
 		i++;
 	}
-	if (somethingNewToDo)
-		RethinkState();
+	//if (somethingNewToDo)
+	//	RethinkState();
 }
 
 

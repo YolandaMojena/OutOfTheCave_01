@@ -47,7 +47,7 @@ int OntologicFunctions::UseAsWeapon(UItem* i, UOEntity* u) {
 
 	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" as weapon: ") + FString::SanitizeFloat(result));
 
-	return Clamp100(result*100);
+	return Clamp100(result*100.f);
 
 	/*return Clamp100(100 * FE3(i->GetToughness(),3,1,0) * FE3(i->GetElongation(),3,1,0) * FE5(i->GetVolume(),u->GetVolume()-1,1,1) * Clamp01(
 		FE5(i->GetMass(),2,0,2) * FE3(i->GetEdgeSharpness(),3,2,0) * FE3(i->GetEdgeLength(),3,2,0)	//Sword Mode
@@ -99,15 +99,15 @@ int OntologicFunctions::UseForMining(UItem* i, UOEntity* u) {
 int OntologicFunctions::UseForBuilding(UItem* i, UOEntity* u) {
 	float nTerms = 5;
 
-	float term1 = FE3(i->GetToughness(), 2, 3, 0);
-	float term2 = FE3(i->GetElongation(), 3, 1, 0);
-	float term3 = FE5(i->GetVolume(), u->GetVolume() - 2, 2, 2);
+	float term1 = FE3(i->GetToughness(), 3, 2, 0);
+	float term2 = FE3(i->GetElongation(), 3, 2, 0);
+	float term3 = FE5(i->GetVolume(), 1, 1, 1);
 	float term4 = FE3(FEVectorDistAlongAxis(i->R_GetFuncPos(), i->R_GetGrabPos(), i->R_GetMaxLength(), i->R_GetGrabDir()), 3, 2, 0);
 	float term5 = FE3(FEVectorDistAlongAxis(i->R_GetFuncPos(), i->R_GetCenterOfMass(), i->R_GetMaxLength(), i->R_GetGrabDir()), 1, 0, 3);
 
 	float result = (term1 + term2 + term3 + term4 + term5) / nTerms;
 
-	GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" for building: ") + FString::SanitizeFloat(result));
+	//GEngine->AddOnScreenDebugMessage(-1, 50.f, FColor::Cyan, i->GetItemName() + TEXT(" for building: ") + FString::SanitizeFloat(result));
 
 	return Clamp100(result*100.f);
 	/*return Clamp100(100 * FE3(i->GetToughness(),2,3,0) * FE3(i->GetElongation(), 3,1,0) * FE5(i->GetVolume(),u->GetVolume()-2,2,2)

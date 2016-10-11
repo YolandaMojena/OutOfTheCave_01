@@ -181,9 +181,11 @@ BasePlot * Ambition::BecomeAppreciatedAmbition(UOEntity * entity)
 
 				UOOwnable* ownableToGive = nullptr;
 				for (OOwnership* o : entity->GetPossessions()) {
-					if (!o->GetOwnable()->IsA<UOEdification>() && o->GetOwnable()->GetRarityAsInt() > 2 || targetEntity->GetOwnershipWith(o->GetOwnable()) && targetEntity->GetOwnershipWith(o->GetOwnable())->GetWorth() > 50) {
-						ownableToGive = o->GetOwnable();
-						break;
+					if (!o->GetOwnable()->IsA<UOEdification>()){
+						if (o->GetOwnable()->GetRarityAsInt() > 2 || targetEntity->GetOwnershipWith(o->GetOwnable()) && targetEntity->GetOwnershipWith(o->GetOwnable())->GetWorth() > 50) {
+							ownableToGive = o->GetOwnable();
+							break;
+						}
 					}
 				}
 				if (ownableToGive)

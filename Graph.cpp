@@ -79,8 +79,18 @@ bool Graph::IsLastNode() {
 }
 
 void Graph::NextNode() {
-	firstNode = firstNode->nextNodes[0];
-	_size--;
+	if (firstNode->nextNodes.size() > 0) {
+		firstNode = firstNode->nextNodes[0];
+		_size--;
+	}
+	else if (_lastNode) {
+		firstNode = _lastNode;
+		_size = 1;
+	}
+	else {
+		_lastNode = firstNode;
+		_size = 1;
+	}
 }
 
 int Graph::GetGraphSize()

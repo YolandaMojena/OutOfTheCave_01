@@ -65,4 +65,6 @@ private:
 	void AbortNode();
 
 	bool ValidateObject(UObject* obj);
+
+	APlotGenerator* _plotGenerator = nullptr;
 };

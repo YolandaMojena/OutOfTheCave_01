@@ -261,9 +261,11 @@ void APlotGenerator::GetPlotFromReportLog() {
 				UOOwnable* ownableToGive = nullptr;
 
 				for (OOwnership* o : currentReport->GetReportEntity()->GetPossessions()) {
-					if (!o->GetOwnable()->IsA<UOEdification>() && o->GetOwnable()->GetRarityAsInt() > 2 || currentReport->GetTargetEntity()->GetOwnershipWith(o->GetOwnable()) && currentReport->GetTargetEntity()->GetOwnershipWith(o->GetOwnable())->GetWorth() > 50) {
-						ownableToGive = o->GetOwnable();
-						break;
+					if (!o->GetOwnable()->IsA<UOEdification>()) {
+						if (o->GetOwnable()->GetRarityAsInt() > 2 || (currentReport->GetTargetEntity()->GetOwnershipWith(o->GetOwnable()) && currentReport->GetTargetEntity()->GetOwnershipWith(o->GetOwnable())->GetWorth() > 50)) {
+							ownableToGive = o->GetOwnable();
+							break;
+						}
 					}
 				}
 				if (ownableToGive->IsValidItem()) {
@@ -306,7 +308,8 @@ void APlotGenerator::GetPlotFromReportLog() {
 					WarCount++;
 
 					for (UOEntity* e : allEntities) {
-						newPlot->AddInvolvedInPlot(e);
+						if(e->GetRace() == ERace::R_Human || e->GetRace() == ERace::R_Goblin) 
+							newPlot->AddInvolvedInPlot(e);
 					}
 				}
 				else plotCandidates.erase(plotCandidates.begin() + randType);
@@ -484,25 +487,27 @@ vector<UOEntity*> APlotGenerator::GetNotoriousEntities()
 }
 void APlotGenerator::AddNotorious(UOEntity * notorious)
 {
-	if (_notoriousEntities.Num() < _MAX_NOTORIOUS) {
+	if (notorious->IsA<UOCivilian>()) {
+		if (_notoriousEntities.Num() < _MAX_NOTORIOUS) {
 
-		if (!_notoriousEntities.Contains(notorious)) {
-			_notoriousEntities.HeapPush(notorious, UOEntity::EntityNotoriety());
+			if (!_notoriousEntities.Contains(notorious)) {
+				_notoriousEntities.HeapPush(notorious, UOEntity::EntityNotoriety());
+			}
+			else {
+				_notoriousEntities.Remove(notorious);
+				_notoriousEntities.HeapPush(notorious, UOEntity::EntityNotoriety());
+			}
 		}
-		else {
-			_notoriousEntities.Remove(notorious);
-			_notoriousEntities.HeapPush(notorious, UOEntity::EntityNotoriety());
-		}
-	}
-	else if (notorious->GetNotoriety() > _notoriousEntities[1]->GetNotoriety()) {
+		else if (notorious->GetNotoriety() > _notoriousEntities[1]->GetNotoriety()) {
 
-		if (!_notoriousEntities.Contains(notorious)) {
-			_notoriousEntities.HeapRemoveAt(1, UOEntity::EntityNotoriety());
-			_notoriousEntities.HeapPush(notorious, UOEntity::EntityNotoriety());
-		}
-		else {
-			_notoriousEntities.Remove(notorious);
-			_notoriousEntities.HeapPush(notorious, UOEntity::EntityNotoriety());
+			if (!_notoriousEntities.Contains(notorious)) {
+				_notoriousEntities.HeapRemoveAt(1, UOEntity::EntityNotoriety());
+				_notoriousEntities.HeapPush(notorious, UOEntity::EntityNotoriety());
+			}
+			else {
+				_notoriousEntities.Remove(notorious);
+				_notoriousEntities.HeapPush(notorious, UOEntity::EntityNotoriety());
+			}
 		}
 	}
 }
@@ -531,23 +536,20 @@ float APlotGenerator::GetOverallHateAgainstRace(ERace race)
 
 	float sum = 0;
 
-	if (poblationSample.size() > 0) {
-		if (race == ERace::R_Human)
-			poblationSample = GetNotoriousEntitiesByRace(ERace::R_Goblin);
-		else poblationSample = GetNotoriousEntitiesByRace(ERace::R_Human);
+	if (race == ERace::R_Human)
+		poblationSample = GetNotoriousEntitiesByRace(ERace::R_Goblin);
+	else
+		poblationSample = GetNotoriousEntitiesByRace(ERace::R_Human);
 
-		if (poblationSample.size() == 0) return 100;
+	if (poblationSample.size() == 0) return 100;
 
-		for (UOEntity* e : poblationSample) {
-			if (!e->IsValidItem())
-				continue;
+	for (UOEntity* e : poblationSample) {
+		if (!e->IsValidItem())
+			continue;
 
-			sum += e->GetAppreciationToOtherRace(race == ERace::R_Human? ERace::R_Goblin : ERace::R_Human);
-		}
-		return sum / poblationSample.size();
+		sum += e->GetAppreciationToOtherRace(race);
 	}
-
-	return sum;
+	return sum / poblationSample.size();
 }
 
 

@@ -35,7 +35,7 @@ bool Utilities::SaveStringToFile(const FString & String, const FString SaveDirec
 		}
 		return true;
 	}
-	else GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "Failed to write file");
+	//else GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "Failed to write file");
 	return false;
 }
 
@@ -55,7 +55,7 @@ TArray<FString> Utilities::ReadFileToVector(const FString SaveDirectory, const F
 			FFileHelper::LoadFileToString(test, *AbsoluteFilePath);
 			test.ParseIntoArray(result, _T("\n"), true);
 		}
-		else GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "Failed to load vector from file");
+		//else GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Blue, "Failed to load vector from file");
 	}
 	return result;
 }

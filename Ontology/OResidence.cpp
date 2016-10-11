@@ -165,13 +165,28 @@ ACharacter* UOResidence::GetTentantCharacterFromRace() {
 	}
 		break;
 	case ERace::R_Bear:
+	{
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Bear, compOwner->GetActorLocation() + RandomDisplacementVector(500), compOwner->GetActorRotation(), SpawnParams);
+		UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
+		if (entityComp->IsValidItem())
+			entityComp->SetItemName("Bear");
+	}
 		break;
 	case ERace::R_Wolf:
+	{
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Wolf, compOwner->GetActorLocation() + RandomDisplacementVector(500), compOwner->GetActorRotation(), SpawnParams);
+		UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
+		if (entityComp->IsValidItem())
+			entityComp->SetItemName("Wolf");
+	}
 		break;
 	case ERace::R_Herbivore:
+	{
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Herbivore, compOwner->GetActorLocation() + RandomDisplacementVector(500), compOwner->GetActorRotation(), SpawnParams);
+		UOEntity* entityComp = tentantCharacter->FindComponentByClass<UOEntity>();
+		if (entityComp->IsValidItem())
+			entityComp->SetItemName("Worm");
+	}
 		break;
 	default:
 		tentantCharacter = compOwner->GetWorld()->SpawnActor<ACharacter>(BP_Civilian_Goblin, compOwner->GetActorLocation() + RandomDisplacementVector(100), compOwner->GetActorRotation(), SpawnParams);
